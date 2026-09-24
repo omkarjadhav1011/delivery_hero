@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git switch *)",
+      "Bash(git checkout -b *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git stash *)",
+      "Bash(git fetch *)",
+      "Bash(./mvnw *)",
+      "Bash(npm ci *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx playwright *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(npx tsc *)",
+      "Bash(npx markdownlint-cli2 *)",
+      "Bash(npx --yes markdownlint-cli2 *)",
+      "Bash(docker compose -f deploy/docker-compose.local.yml *)",
+      "Bash(DH_PROFILE=e2e docker compose -f deploy/docker-compose.local.yml *)",
+      "Bash(docker ps *)",
+      "Bash(docker logs *)",
+      "Bash(python3 tools/validate_seed.py *)",
+      "Bash(python3 tools/ac_coverage.py *)",
+      "Bash(shellcheck *)",
+      "Bash(actionlint *)",
+      "Bash(gitleaks *)",
+      "Bash(curl http://localhost:8080/*)",
+      "Bash(curl -fsS http://localhost:8080/*)",
+      "Bash(curl -sI http://localhost:8080/*)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh run list *)",
+      "Bash(gh run view *)",
+      "Edit(/backend/**)",
+      "Edit(/frontend/**)",
+      "Edit(/contracts/**)",
+      "Edit(/load-test/**)",
+      "Edit(/planning/**)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(npm install *)",
+      "Bash(npm i *)",
+      "Bash(npm uninstall *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(git rebase *)",
+      "Bash(docker compose -f deploy/docker-compose.local.yml down *-v*)",
+      "Edit(/docs/**)",
+      "Edit(/README.md)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/deploy/**)",
+      "Edit(/.github/**)",
+      "Edit(/.githooks/**)",
+      "Edit(/seed/**)",
+      "Edit(/tools/**)",
+      "Edit(/.claude/**)",
+      "Edit(/.editorconfig)",
+      "Edit(/.gitattributes)",
+      "Edit(/.gitignore)",
+      "Edit(/.gitleaks.toml)",
+      "Edit(/.shellcheckrc)",
+      "Edit(/.markdownlint-cli2.jsonc)",
+      "Edit(/.dockerignore)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.local)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(~/.ssh/**)",
+      "Read(~/.oci/**)",
+      "Read(~/.config/rclone/**)",
+      "Edit(**/package-lock.json)",
+      "Edit(/backend/src/main/resources/db/migration/V1__create_schema.sql)",
+      "Edit(/backend/src/main/resources/db/migration/V2__default_characters.sql)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(rsync *)",
+      "Bash(sudo *)",
+      "Bash(docker compose -f deploy/docker-compose.yml *)",
+      "Bash(deploy/scripts/deploy.sh*)",
+      "Bash(./deploy/scripts/deploy.sh*)",
+      "Bash(deploy/scripts/restore.sh*)",
+      "Bash(./deploy/scripts/restore.sh*)"
+    ]
+  },
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/run-hook.mjs", "session_start"],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/run-hook.mjs", "guard_bash"],
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/run-hook.mjs", "guard_files"],
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/run-hook.mjs", "after_edit"],
+            "timeout": 90,
+            "statusMessage": "Checking the edited file"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/run-hook.mjs", "before_stop"],
+            "timeout": 300,
+            "statusMessage": "Formatting and checking changed files"
+          }
+        ]
+      }
+    ]
+  }
+}

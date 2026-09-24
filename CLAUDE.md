@@ -42,26 +42,11 @@ Before saying a change is done, run the checks for every part you touched, and r
 
 ## Rules that are never broken
 
-Backend:
-
-- Keep the packages and dependency rules of LLD section 5.1; architecture tests enforce them.
-- All time comes from the one injected `java.time.Clock`, and all randomness from an injected generator, so tests control both (LLD section 4).
-- Answers are checked and scored on the server. Answer data never reaches a phone before the round ends.
-- Logs never contain player names, answers, tokens, projector keys or the admin password (DEC-104).
-- Migrations are new files only (`V<n>__<description>.sql`). Never edit a merged one. Each must work with the previous release's code.
-- Map environment variables explicitly in `application.yml` (for example `dh.admin.password-hash: ${DH_ADMIN_PASSWORD_HASH:}`), because relaxed binding would map `DH_ADMIN_PASSWORD_HASH` to a different key.
-
-Frontend:
-
-- `Date.now()` only in `src/time`, and `fetch` only in `src/api`. STOMP goes through `src/realtime`.
-- Every string users see lives in `src/copy.ts`, worded as in document 12's copy deck.
-- No `style` prop, no `dangerouslySetInnerHTML`, no raw hex colors (use the tokens). The site must work under the hash-based content security policy.
-- Static export only: routes use query parameters, with no dynamic segments, API routes or server actions.
-- No requests to other sites at runtime: no analytics, and no hosted fonts, scripts or images (NFR-24).
-
-Everywhere:
+Area rules load automatically from `.claude/rules/` when Claude works in `backend/`, `frontend/`, `docs/`, `deploy/` or `seed/`. Everywhere:
 
 - Tests for an acceptance criterion start their display name with its ID, for example `AC-US28-01 speed bonus: 140 points at 4.0 s`.
+- Answers are checked and scored on the server, and never reach a phone before the round ends.
+- Logs never contain player names, answers, tokens, projector keys or the admin password (DEC-104).
 - No secrets in the repository. The public, local-only credentials live only in the local stack's files.
 - Deploys must never restart a game in progress. Don't weaken the deploy lock or the deploy script's checks.
 - Use only the libraries the documents name (architecture document, section 9). Ask before adding one.
@@ -72,6 +57,8 @@ Everywhere:
 - A change in behavior updates its documents in the same pull request. A new decision gets the next DEC number in the Charter's log.
 - Documents follow document 13, section 8.3, and must pass `npx markdownlint-cli2 "docs/**/*.md" "README.md"`.
 - Every merge to `main` deploys to production unless a game is in progress. The content freeze is Friday 16 October; the deployment freeze is Tuesday 20 October.
+- The harness (`.claude/README.md`) provides `/story`, `/check`, `/e2e`, `/pr` and `/decision`, four read-only reviewers, and hooks that block commits on `main`, secrets and production access.
+- The implementation plan and its tracker live in `planning/` (`00-master-plan.md`, `STATUS.md`, `subplans/`). Start each work session with `/next`, and keep `STATUS.md` current with `/progress`.
 
 ## Local environment
 

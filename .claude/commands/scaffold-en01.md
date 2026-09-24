@@ -135,7 +135,7 @@ Then write a plan and **stop for my approval**. The plan lists:
 
 ### Repository root
 
-- A `.gitignore` covering build output, dependencies, test reports, `.env` files and `frontend/nginx/csp.conf` (document 13, section 11).
+- A `.gitignore` covering build output, dependencies, test reports, `.env` files and `frontend/nginx/csp.conf` (document 13, section 11). If the harness setup already created one, extend it and keep its entries.
 - A `contracts/.gitkeep`, until the contract test writes the fixtures.
 
 ## Allowed changes to existing files
