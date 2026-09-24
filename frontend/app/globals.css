@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens from document 12, section 5.2 (DEC-166), defined once. Tailwind 4 needs the --color- namespace, so
+ * document 12's --bg is --color-bg here (classes such as bg-bg and text-text-muted). Components never use raw hex
+ * colors (document 13, section 7.4).
+ */
+@theme {
+  --color-bg: #0b1020;
+  --color-surface: #151c33;
+  --color-surface-2: #1e2745;
+  --color-text: #f5f7ff;
+  --color-text-muted: #a9b4d6;
+  --color-ink: #0b1020;
+  --color-primary: #38e1ff;
+  --color-accent: #ff5fd2;
+  --color-success: #4be38a;
+  --color-warning: #ffc53d;
+  --color-danger: #ff6b6b;
+  --color-danger-bg: #8e1b1b;
+  --color-border: #7382b8;
+  --color-focus: #ffd84d;
+
+  /* Typography, document 12 section 5.3 (DEC-167): the pixel font for display text of 16 px or more only */
+  --font-display: var(--font-press-start-2p), ui-monospace, monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* A visible 3 px keyboard focus ring everywhere (document 12, section 11; NFR-32) */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

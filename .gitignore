@@ -6,6 +6,7 @@ frontend/out/
 frontend/next-env.d.ts
 frontend/nginx/csp.conf
 frontend/coverage/
+frontend/tsconfig.tsbuildinfo
 
 # Test reports
 frontend/test-results/
