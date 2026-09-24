@@ -1,0 +1,13 @@
+# Keeps the build context small for the local images, which build from the repository root (document 18)
+.git
+**/node_modules
+**/.env
+backend/target
+frontend/.next
+frontend/out
+frontend/nginx/csp.conf
+frontend/playwright-report
+frontend/test-results
+docs
+load-test
+test-results

@@ -1,0 +1,93 @@
+# Delivery Hero production stack (document 16). Run from /opt/delivery-hero.
+# Base images must be pinned by digest before the first production deploy (DEC-151):
+# run scripts/pin-images.sh and paste its output here and into the two Dockerfiles.
+name: delivery-hero
+
+x-logging: &journald
+  driver: journald
+  options:
+    tag: "{{.Name}}"
+
+services:
+  postgres:
+    image: postgres:18 # PIN: replace with the postgres:18@sha256:... line from pin-images.sh
+    restart: unless-stopped
+    command: ["postgres", "-c", "shared_buffers=256MB"] # resource budget, DEC-150
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      APP_DB_USER: ${APP_DB_USER:?set APP_DB_USER in .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+    volumes:
+      # PostgreSQL 18 images keep data under /var/lib/postgresql/18/docker, so the volume
+      # must be mounted at /var/lib/postgresql, not /var/lib/postgresql/data (DG-05)
+      - pgdata:/var/lib/postgresql
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    mem_limit: 1g
+    logging: *journald
+
+  backend:
+    build:
+      context: ./backend
+    image: delivery-hero/backend:current
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/deliveryhero
+      SPRING_DATASOURCE_USERNAME: ${APP_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD}
+      DH_ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?set ADMIN_PASSWORD_HASH in .env}
+      DH_PUBLIC_BASE_URL: https://${DOMAIN:?set DOMAIN in .env}
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=50
+      TZ: UTC
+    volumes:
+      - ./seed:/seed:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    mem_limit: 2g
+    logging: *journald
+
+  nginx:
+    build:
+      context: ./nginx
+    image: delivery-hero/nginx:current
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      NGINX_ENVSUBST_FILTER: ^DOMAIN$
+    volumes:
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+    mem_limit: 256m
+    logging: *journald
+
+  certbot:
+    image: certbot/certbot:latest # PIN: replace with the certbot/certbot@sha256:... line from pin-images.sh
+    profiles: ["tools"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    mem_limit: 128m
+    logging: *journald
+
+volumes:
+  pgdata:
+  letsencrypt:
+  certbot-webroot:

@@ -1,0 +1,12 @@
+# /etc/cron.d/delivery-hero: scheduled jobs, run as the deploy user (times are UTC)
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Nightly database backup, off the machine (DG-03). Pick a quiet hour in your time zone.
+30 21 * * * deploy /opt/delivery-hero/scripts/backup.sh nightly 2>&1 | logger -t dh-backup
+
+# Certificate renewal attempts, twice a day; renews only when due
+17 3,15 * * * deploy /opt/delivery-hero/scripts/renew-cert.sh 2>&1 | logger -t dh-certs
+
+# Keep the subdomain pointing at this machine (DG-01)
+*/5 * * * * deploy /opt/delivery-hero/scripts/duckdns-update.sh 2>&1 | logger -t dh-dns

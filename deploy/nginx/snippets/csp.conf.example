@@ -1,0 +1,2 @@
+# Example of frontend/nginx/csp.conf, which frontend/scripts/csp-hashes.mjs writes after every build (LLD section 6.6)
+add_header Content-Security-Policy "script-src 'self' 'sha256-REPLACED-BY-THE-BUILD'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'" always;

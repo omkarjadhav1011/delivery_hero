@@ -1,0 +1,81 @@
+name: Deploy
+
+# Every merge to main deploys, except documentation-only changes (DEC-61, DEC-183).
+# The deploy script on the server stops without deploying while a game is in progress (DEC-103).
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build the backend (formatting, code analysis and unit tests run again; DEC-181)
+        working-directory: backend
+        run: ./mvnw -B package
+
+      - name: Build the frontend and run its unit tests
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Stage the release
+        run: |
+          mkdir -p release
+          cp -a deploy/. release/
+          rm -f release/.env
+          cp backend/target/delivery-hero.jar release/backend/app.jar
+          mkdir -p release/nginx/site release/seed
+          cp -a frontend/out/. release/nginx/site/
+          cp frontend/nginx/csp.conf release/nginx/snippets/csp.conf
+          cp seed/delivery-hero-seed.json release/seed/
+
+      - name: Set up SSH with the pinned host key
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Copy the release to the server's staging folder
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: >-
+          rsync -az --delete -e "ssh -i $HOME/.ssh/deploy_key"
+          release/ "deploy@${HOST}:/opt/delivery-hero-staging/"
+
+      - name: Deploy (exit code 75 means a game is in progress; re-run after it ends)
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: ssh -i "$HOME/.ssh/deploy_key" "deploy@${HOST}" /opt/delivery-hero-staging/scripts/deploy.sh

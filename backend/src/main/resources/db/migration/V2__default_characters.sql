@@ -1,0 +1,6 @@
+-- Default characters; the seed loader later updates them by role
+INSERT INTO characters (role, display_name, intro_line, correct_lines, wrong_lines) VALUES
+    ('MANAGER', 'Maya', 'Quick one!', '["Client''s happy. You''re a legend.", "That''s going in my good-news update.", "Nailed it. Coffee''s on me."]', '["That''s going in my status report.", "The client just called. Again.", "Let''s take that one offline."]'),
+    ('BUSINESS_ANALYST', 'Ben', 'What exactly do we mean by fast?', '["Crystal clear. I''m framing that answer.", "That''s exactly what the user story meant!", "Requirements understood. Chef''s kiss."]', '["Hmm, that''s not what the user story says.", "Let''s revisit the acceptance criteria.", "Adding that to my list of questions."]'),
+    ('DEVELOPER', 'Dev', 'Works on my machine.', '["Merged. No conflicts.", "Clean build. Beautiful.", "Ship it!"]', '["That broke the build.", "Merge conflict incoming.", "Who wrote this? Oh. Me."]'),
+    ('TESTER', 'Tess', 'Found another one!', '["Bug squashed!", "Test passed. I''m almost disappointed.", "Zero defects. Suspicious, but nice."]', '["That bug just reached production.", "Reopening the ticket.", "Logged it. Severity: ouch."]');

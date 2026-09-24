@@ -1,0 +1,13 @@
+# Secret scanning (document 13, Appendix A): gitleaks' default rules, plus an allowlist of
+# documented example values that aren't secrets. Add new examples here; never weaken the rules.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Example token and projector key in the API specification, and the seed's run-plan key"
+regexTarget = "secret"
+regexes = [
+  '''^q3Xk9vT2bLmN8pR4sW7yZa$''',
+  '''^Zp4Tq8Lm2Vx6Nc9Rb3Hk7w$''',
+  '''^default-5min$''',
+]
