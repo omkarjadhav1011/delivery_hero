@@ -1,0 +1,4 @@
+# Scratch data for the planning scripts (planning/CONVENTIONS.md, section 3)
+.cache/
+__pycache__/
+*.tmp

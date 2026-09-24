@@ -5,7 +5,10 @@ plain stdout from this hook to Claude's context. Keep it short and factual.
 
 from __future__ import annotations
 
+import sys
 from datetime import date
+from pathlib import Path
+from typing import List
 
 from _hooklib import project_dir, read_input, run
 
@@ -17,11 +20,21 @@ MILESTONES = [
 ]
 
 
+def resume_lines(root: Path) -> List[str]:
+    """Up to 3 lines about an unfinished planning session, from planning/journal/CURRENT.md."""
+    script = root / "planning" / "scripts" / "journal.py"
+    if not script.exists() or not (root / "planning" / "journal" / "CURRENT.md").exists():
+        return []
+    code, out = run([sys.executable, str(script), "hook-lines"], root, 10)
+    return [line for line in out.splitlines() if line.strip()][:3] if code == 0 else []
+
+
 def main() -> None:
     data = read_input()
     root = project_dir(data)
     today = date.today()
     lines = [f"Today is {today.strftime('%A %d %B %Y')}."]
+    lines += resume_lines(root)
 
     code, branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"], root, 5)
     if code == 0:
@@ -48,7 +61,7 @@ def main() -> None:
             services = ", ".join(out.split()) if out.strip() else ""
             lines.append(f"The local stack is running: {services}." if services else "The local stack isn't running.")
 
-    print("\n".join(lines[:10]))
+    print("\n".join(lines[:13]))
 
 
 if __name__ == "__main__":

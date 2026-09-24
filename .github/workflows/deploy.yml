@@ -1,6 +1,7 @@
 name: Deploy
 
-# Every merge to main deploys, except documentation-only changes (DEC-61, DEC-183).
+# Every merge to main deploys, except documentation-only changes (DEC-61, DEC-183) and changes only to
+# planning/ or .claude/, which never reach production (planning/doc-issues.md, DI-01).
 # The deploy script on the server stops without deploying while a game is in progress (DEC-103).
 on:
   push:
@@ -8,6 +9,8 @@ on:
     paths-ignore:
       - "docs/**"
       - "**/*.md"
+      - "planning/**"
+      - ".claude/**"
   workflow_dispatch:
 
 permissions:

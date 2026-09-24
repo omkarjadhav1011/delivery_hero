@@ -58,8 +58,9 @@ Area rules load automatically from `.claude/rules/` when Claude works in `backen
 - Documents follow document 13, section 8.3, and must pass `npx markdownlint-cli2 "docs/**/*.md" "README.md"`.
 - Every merge to `main` deploys to production unless a game is in progress. The content freeze is Friday 16 October; the deployment freeze is Tuesday 20 October.
 - The harness (`.claude/README.md`) provides `/story`, `/check`, `/e2e`, `/pr` and `/decision`, four read-only reviewers, and hooks that block commits on `main`, secrets and production access.
-- The implementation plan and its tracker live in `planning/` (`00-master-plan.md`, `STATUS.md`, `subplans/`). Start each work session with `/next`, and keep `STATUS.md` current with `/progress`.
-- `/dh-plan [focus]` works out what's done and what remains from the documents, `planning/` and the code, saves a plan in `planning/session-plans/`, and asks before executing anything.
+- **Run `/dh` for everything planned:** it plans, resumes, checks, picks the next subplan and runs it, asking before anything that needs approval. `/dh status` changes nothing.
+- The plan lives in `planning/`; its formats are in `planning/CONVENTIONS.md`, and the Claude Code machinery in `.claude/`. Scripts do the bookkeeping: `node planning/scripts/run.mjs <script>`.
+- After an interruption, run `/dh`: the journal (`planning/journal/CURRENT.md`) and a commit per task make resuming safe.
 
 ## Local environment
 

@@ -12,12 +12,15 @@ Before any code is written, produce a complete, accurate plan for that phase, sp
 
 1. **Plan only.** In this task, don't write code, scaffold projects or change configuration. The only files you create or change are in `planning/`.
 2. **`docs/` is read-only.** Never edit, move, rename or reformat anything in it. If a document looks wrong, contradicts another, or leaves a gap, record it in `planning/doc-issues.md` with document, section and your suggested fix, and carry on. Later work that would have to change a document, such as writing document 17 (the Release Notes), becomes a plan task marked "Owner approval needed: changes docs/".
-3. **Everything plan-related lives in `planning/`.** That's `C:\Users\nonst\Learning\DeployHero\planning`, the `planning` folder at the repository root. If the repository root isn't `C:\Users\nonst\Learning\DeployHero`, stop and ask me. Use Markdown files only. The deploy workflow ignores `**/*.md`, so merging plan updates never triggers a production deploy.
+3. **Everything plan-related lives in `planning/`.** That's `C:\Users\nonst\Learning\DeployHero\planning`, the `planning` folder at the repository root. If the repository root isn't `C:\Users\nonst\Learning\DeployHero`, stop and ask me. Write Markdown only; `planning/scripts/` already holds the planning scripts, which you run but don't change here.
 4. **Accuracy over speed.** Every subplan and task cites its sources: document, section and IDs (FR, NFR, BR, US, EN, AC, TC, DEC, OPS and so on).
    - Copy IDs, dates and numbers from the documents; never from memory.
    - Where the documents don't settle something, add it to `planning/open-questions.md` instead of guessing.
    - When documents conflict, follow the precedence in `CLAUDE.md`, and record the conflict in `planning/doc-issues.md`.
-5. **Git:** work on the branch `chore/implementation-plan`, commit the planning files with Conventional Commit messages (`docs(planning): ...`), and don't push.
+5. **Git:** work on the branch `chore/implementation-plan`, commit the planning files with Conventional Commit messages (`docs(planning): ...`) after each step, and don't push.
+6. **Conventions and scripts.** `planning/CONVENTIONS.md` defines every format used below; follow it rather than inventing one. `S` means `node planning/scripts/run.mjs`. The scripts count, index, validate and generate the tracker and ledger, so never count by hand what a script reports.
+7. **Survive interruptions.** Start with `S journal start PLAN`, and before each step run `S journal step planning --next "<the step>"`. If this task is interrupted, `/dh` resumes at the recorded step. Files already written (digests, subplans) are kept and checked, never redone from scratch.
+8. **Keep what exists.** `planning/README.md`, `CONVENTIONS.md`, `system/`, `scripts/`, `journal/` and any register that already exists (such as `doc-issues.md`) stay: add to them, never replace them.
 
 ## Step 0: check the environment
 
@@ -28,7 +31,7 @@ Before any code is written, produce a complete, accurate plan for that phase, sp
    echo '{"tool_input":{"command":"git push --force"}}' | node .claude/hooks/run-hook.mjs guard_bash
    ```
 
-   It must exit with code 2 and print "Blocked: force pushes aren't allowed". If it doesn't, stop and tell me: the safety hooks aren't working.
+   It must exit with code 2 and print "Blocked: force pushes aren't allowed". If it doesn't, stop and tell me: the safety hooks aren't working. `S state` runs the same self-test and the other preflight checks.
 3. Record which tools are installed, with versions: Git, Docker, Java, Node.js, npm, Python, the GitHub CLI, ShellCheck, actionlint, gitleaks and k6. Save them in `planning/environment.md`, with what each missing tool blocks. For example, the backend integration tests need Docker.
 
 ## Step 1: read every document
@@ -81,7 +84,7 @@ For every other document, read its digest, and open the document to check its he
 
 ### 1.3 Reading log and traceability index
 
-1. Keep `planning/research/00-reading-log.md`: one row per document with its line count, who read it fully, the digest path, and the sections you read yourself. Don't start Step 2 until every row is complete.
+1. Keep `planning/research/00-reading-log.md`: one row per document with its line count, who read it fully, the digest path, and the sections you read yourself. Don't start Step 2 until every row is complete. Then run `S docs_manifest --update` to record each document's hash, and `S ids` to write `research/id-index.md`.
 2. Build `planning/research/traceability.md`, the backbone of the plan. One row per story (every EN and US) with:
    - priority, points and sprint;
    - its acceptance criteria;
@@ -89,7 +92,7 @@ For every other document, read its digest, and open the document to check its he
    - the requirements it implements;
    - the design sections (LLD, API, UX, database);
    - its dependencies.
-3. Check the totals against the documents themselves: the number of stories, the points per sprint in document 4, section 8, and the 271 criteria with the level counts in document 15. If they don't match, find out why before going on.
+3. Check the totals against `S ids` (IDs per family) and the documents themselves: the number of stories, the points per sprint in document 4, section 8, and the 271 criteria with the level counts in document 15. If they don't match, find out why before going on.
 
 ## Step 2: outline the plan, then stop
 
@@ -113,18 +116,7 @@ Write a short outline in `planning/00-master-plan.md` (you'll expand it in Step 
 
 ### 3.1 Folder layout
 
-```text
-planning/
-  README.md               how the planning folder works, and how to use it with Claude Code
-  00-master-plan.md       phases, milestones, critical path, capacity, risks, gates, cut order
-  STATUS.md               the tracker: the one place that shows how complete everything is
-  owner-actions.md        what only I can do, with due dates, linked to the subplans that wait on it
-  open-questions.md       what the documents don't settle, with who decides and by when
-  doc-issues.md           problems found in docs/, never fixed there
-  environment.md          from Step 0
-  research/               reading log, digests, traceability index, coverage check
-  subplans/               one file per subplan
-```
+Use the layout in `planning/CONVENTIONS.md`, section 2. Create each register (`owner-actions.md`, `open-questions.md`, `doc-issues.md` if missing, `check-results.md`, `checkpoints.md`, `plan-changes.md`, `coverage-overrides.md`) with the exact header in section 6.
 
 ### 3.2 Subplans
 
@@ -150,43 +142,15 @@ planning/
 - document 17 (owner approval needed);
 - the event-day runbook and the after-event checks.
 
-Every subplan file uses this structure:
-
-```markdown
-# <ID> <Title>
-
-| Field | Value |
-|---|---|
-| Status | Not started |
-| Phase | <phase and dates> |
-| Stories | <IDs, or "none (infrastructure)"> |
-| Priority and points | <Must/Should/Could, points> |
-| Depends on | <subplan IDs and owner actions> |
-| Unblocks | <subplan IDs> |
-| Target dates | <start and finish, for example Wed 30 Sep – Thu 1 Oct> |
-| Branch | <for example feat/us-01-join> |
-| Parallel-safe with | <subplan IDs that touch different code, or "none"> |
-
-## Goal
-## Sources
-## Context to load
-## Acceptance
-## Tasks
-## Owner actions
-## Verification
-## Risks and open questions
-## Definition of done
-## Claude Code playbook
-## Progress log
-```
+Every subplan file uses the file name, field table, sections, task syntax and progress log in `planning/CONVENTIONS.md`, section 5.
 
 **What each section holds:**
 
 - **Goal:** one or two sentences.
 - **Sources:** documents, sections and IDs.
-- **Context to load:** the exact document sections a session should read for this subplan, so no session rereads everything.
+- **Context to load:** the exact document sections a session should read, as `section.py` calls (for example `S section 08 5.3`), so no session rereads everything.
 - **Acceptance:** every criterion with its test ID, level and test class or procedure, exactly as document 15 maps them. The subplan is done when these pass.
-- **Tasks:** ordered checkboxes, each `- [ ] T1 <what>, in <files or packages>, test first: <test>, source: <doc section / IDs>`.
+- **Tasks:** ordered checkboxes in the syntax of section 5.4. Every criterion of the subplan's stories, and every OPS, MAN, A11Y, LT, TRIAL, E2E, DS and risk ID it schedules, is cited by a task's source.
 - **Owner actions:** anything only I can do, linked to `owner-actions.md`.
 - **Verification:** the commands and procedures that prove it works: `/check`, `/e2e`, `curl` checks, OPS procedures.
 - **Risks and open questions:** linked to the Charter's risks and `open-questions.md`.
@@ -206,33 +170,23 @@ Expand `00-master-plan.md` with:
 - quality gates per phase from document 14;
 - the Charter's risks mapped to the subplans that mitigate them;
 - the owner's actions, by date;
-- how Claude Code is used (section 3.5).
+- how Claude Code is used (section 3.5);
+- a `## Phases` table (`| Phase | Name | Start | End |`) only if the dates differ from the conventions, section 4.2.
+
+### 3.3a The coverage ledger
+
+Classify every ID through the family defaults in the conventions, section 8.2. Add a row to `coverage-overrides.md` for each exception: a decision that needs direct work (Build, with its task), a requirement covered some other way, or a proposed cut (never Cut without my approval).
 
 ### 3.4 The tracker: `STATUS.md`
 
-Use this fixed format, because the `/progress` skill regenerates it:
-
-- **Summary:**
-  - overall completion, by tasks and by story points;
-  - completion per phase;
-  - Must points done out of total;
-  - acceptance criteria automated and passing, once test reports exist;
-  - days left to each milestone;
-  - the next three subplans;
-  - blockers;
-  - owner actions due in the next 7 days.
-- **Subplans table:** ID, title, phase, stories, points, status, tasks done out of total, criteria passing, branch or pull request, last updated.
-- **Milestones table:** date, milestone, status.
-- **Change log:** dated lines.
-
-**Status values:** Not started, In progress, In review, Done, Blocked or Cut. Done means every task is ticked, the definition of done is met, and the subplan's criteria pass. Completion percentages come from the ticked checkboxes in the subplan files. `STATUS.md` is never edited by hand; `/progress` regenerates it.
+`status.py` generates `STATUS.md` in the format of the conventions, section 7. Never write it by hand: run `S status`. Status values and the meaning of Done are in section 5.2.
 
 ### 3.5 Making the implementation smooth with Claude Code
 
-Write this into `planning/README.md` and the master plan:
+Write this into the master plan. `planning/README.md` already describes the `/dh` loop; add only what this plan changes:
 
 - **Session loop:**
-  1. Start with `/next`. It picks the next unblocked subplan, loads only its "Context to load" sections, and proposes a session plan for approval.
+  1. Start with `/dh`. It picks the next unblocked subplan (`next.py`), loads only its "Context to load" sections, and proposes a session plan for approval.
   2. It then works through the tasks with `/story`'s conventions: tests first, `/check` and the reviewers.
   3. Finish with `/pr` and `/progress`.
 - **Context hygiene:** one subplan per session, and `/clear` between subplans. Anything worth keeping goes into the subplan's progress log, not the conversation.
@@ -243,27 +197,29 @@ Write this into `planning/README.md` and the master plan:
 
 ## Step 4: verify the plan
 
-Write `planning/research/coverage-check.md`, showing counts and listing any gaps:
+The final gate is scripted:
 
-- Every story in document 4 is in exactly one subplan, or marked Cut with the reason and source.
-- All 271 criteria appear in a subplan's Acceptance section, with document 15's test mapping.
-- Every OPS, MAN, A11Y, LT and TRIAL procedure is scheduled.
-- Every owner action is scheduled before the subplans that wait on it.
-- Every Charter risk has a mitigation task.
-- Points per phase match document 4, and every date matches the Charter's milestones.
-- Dependencies form no cycles and respect document 4, section 9.
-- No task edits `docs/`, except those marked "Owner approval needed".
+1. `S validate` must report no errors: formats, dependencies without cycles, dates within their phases, and the journal.
+2. `S trace` must report no gaps and no problems: every ID classified, every Build and Verify ID in a subplan task, every Covered-by ID resolved, every task citing existing IDs. It writes `planning/COVERAGE.md`.
+3. `S status` generates `STATUS.md`.
 
-Fix every gap. Then run `/progress` to generate `STATUS.md`.
+Fix every error and gap. Any gap you can't close without a decision goes to me with a proposed fix, instead of being hidden with an override.
+
+Then write `planning/research/coverage-check.md` with the three scripts' summaries, plus the checks they don't make:
+
+- every owner action is scheduled before the subplans that wait on it;
+- points per phase match document 4, and every date matches the Charter's milestones;
+- dependencies respect document 4, section 9;
+- no task edits `docs/`, except those marked "Owner approval needed".
 
 ## Step 5: report and stop
 
-Commit the planning files on `chore/implementation-plan`. Then give me:
+Run `S journal end --summary "plan written" --outcome done`, and commit the planning files on `chore/implementation-plan`. Then give me:
 
 - a summary of the plan;
 - the coverage-check results;
 - the open questions and doc issues that need my decision, with the most urgent first;
 - my owner actions for the next 7 days;
-- the first three subplans to start with `/next`.
+- the first three subplans, which `/dh` will offer (`S next`).
 
 Don't start implementing.

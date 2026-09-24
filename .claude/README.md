@@ -2,30 +2,38 @@
 
 This folder configures Claude Code for the project. Everything here is shared through Git, except `settings.local.json` and `.cache/`.
 
+## The one command: `/dh`
+
+`/dh` takes the project from planning through implementation and testing. It works out the state (preflight, no plan, an unfinished session, changed documents, an invalid plan, a checkpoint or freeze, CI red on `main`, or ready), does the right next thing, and asks before anything that needs approval. `/dh status`, `/dh plan`, `/dh resume`, `/dh <subplan ID>`, `/dh test` and `/dh coverage` narrow it. Its procedures are in `skills/dh/reference.md`, and every format is in `planning/CONVENTIONS.md`.
+
+After an interruption (a closed terminal, `/clear`, compaction or a rate limit), the session-start hook prints the unfinished session from `planning/journal/CURRENT.md`, and `/dh` resumes it after comparing the journal with Git. See `planning/README.md`.
+
 ## Everyday commands
 
 | Command | What it does |
 |---|---|
+| `/dh [argument]` | The one command, as above |
 | `/story US-01` | Plans the story from the documents and stops for your approval. Then it writes tests first, implements, updates documents, runs `/check` and the reviewers |
 | `/check` | Runs CI's checks for whatever changed; `/check e2e` adds the end-to-end tests |
 | `/e2e` | Runs the Playwright tests on the local stack with the `e2e` profile; accepts a spec file or `--grep` pattern |
 | `/pr` | Checks the branch, drafts the title and body from the template, and asks before pushing. It never merges |
 | `/decision <text> <source>` | Records a decision in the Charter's log and its source document |
-| `/plan-implementation` | One-off, before any code: reads every document and writes the implementation plan, subplans and tracker in `planning/` |
-| `/next` | Picks the next unblocked subplan task, plans the session for your approval, does the work and updates the tracker |
-| `/progress` | Regenerates `planning/STATUS.md` from the subplans |
-| `/dh-plan [focus]` | Uses the read-only `dh-planner` subagent to compare the documents, the plan and the code, reports progress, drift, checkpoints and blockers, saves a plan in `planning/session-plans/`, and asks what to execute |
+| `/plan-implementation` | The planning flow `/dh` runs when there's no plan: reads every document and writes the plan, subplans, ledger and tracker in `planning/` |
+| `/next` | One session, which `/dh` follows: claims the next eligible subplan, plans it for your approval, then works task by task with the journal, a commit per task and a 3-attempt budget |
+| `/progress` | Regenerates `planning/STATUS.md` and `planning/COVERAGE.md` with the planning scripts |
+| `/dh-plan [focus]` | Alias of `/dh status`: reports progress, drift, checkpoints and blockers, and saves the session plan, without executing |
 | `/scaffold-en01` | One-off: creates the code scaffold for story EN-01 (the plan's first subplan can use it) |
 
 Claude can run `/check` and `/progress` on its own when useful. The others run only when you type them.
 
 ## Reviewers (subagents)
 
-All four are read-only. Claude uses them when relevant, or you can ask by name, for example "use backend-reviewer on this change".
+All five are read-only. Claude uses them when relevant, or you can ask by name, for example "use backend-reviewer on this change".
 
 | Subagent | Checks |
 |---|---|
 | `spec-guardian` | What in the documents governs a change, conflicts, and the documents that must change with it |
+| `dh-planner` | What's done and what remains, drift between the tracker and the evidence, and the recommended next work; runs the planning scripts first |
 | `backend-reviewer` | Java against LLD section 5 and document 13, section 6 |
 | `frontend-reviewer` | TypeScript and React against LLD section 6, document 13 section 7 and the copy deck |
 | `ops-reviewer` | `deploy/`, workflows and hooks against document 16 and document 13, section 9 |
@@ -40,7 +48,7 @@ Every hook is a Python 3 script started through `run-hook.mjs`, which finds whic
 | `guard_files.py` | Before each file edit | Blocks edits to `.env` files, committed migrations, `package-lock.json` and generated files, with how to regenerate each |
 | `after_edit.py` | After each file edit | Runs Prettier on frontend files, markdownlint on documents, ShellCheck on scripts, actionlint on workflows, the seed validator on the seed file, and a JSON check on `settings.json`. Problems go straight back to Claude |
 | `before_stop.py` | When Claude finishes a turn | Formats changed Java with Spotless; lints and type-checks changed TypeScript. It blocks at most once per turn |
-| `session_start.py` | At the start of each session | Tells Claude the date, branch, uncommitted files, days to the freezes and the event, and whether the local stack is running |
+| `session_start.py` | At the start of each session, and after `/clear` or compaction | Tells Claude the date, branch, uncommitted files, days to the freezes and the event, whether the local stack is running, and up to 3 lines about an unfinished planning session |
 
 Hooks skip anything whose tool or folder doesn't exist yet, so they work before the code scaffold does. To see what's loaded, type `/hooks`. To run one session without hooks, start Claude Code with `claude --settings '{"disableAllHooks": true}'`.
 
@@ -48,7 +56,7 @@ Hooks skip anything whose tool or folder doesn't exist yet, so they work before 
 
 The rules in `settings.json` are applied in the order deny, ask, allow; type `/permissions` to see them.
 
-- **Allowed without asking:** builds, tests, the local stack, read-only Git and GitHub commands, commits on branches, and edits under `backend/`, `frontend/`, `contracts/`, `load-test/` and `planning/`.
+- **Allowed without asking:** builds, tests, the local stack, read-only Git and GitHub commands, commits on branches, the planning scripts (`node planning/scripts/run.mjs`), and edits under `backend/`, `frontend/`, `contracts/`, `load-test/` and `planning/`.
 - **Asks first:** pushing, creating or merging a pull request (a merge deploys to production), installing packages, wiping the local database, and editing documents, deployment files, workflows, the seed file, tools or this folder.
 - **Denied:** reading secrets, editing lock files or the first two migrations, force pushes, SSH and `rsync`, `sudo`, the production Compose file, and the deploy and restore scripts.
 
