@@ -59,6 +59,7 @@ Area rules load automatically from `.claude/rules/` when Claude works in `backen
 - Every merge to `main` deploys to production unless a game is in progress. The content freeze is Friday 16 October; the deployment freeze is Tuesday 20 October.
 - The harness (`.claude/README.md`) provides `/story`, `/check`, `/e2e`, `/pr` and `/decision`, four read-only reviewers, and hooks that block commits on `main`, secrets and production access.
 - The implementation plan and its tracker live in `planning/` (`00-master-plan.md`, `STATUS.md`, `subplans/`). Start each work session with `/next`, and keep `STATUS.md` current with `/progress`.
+- `/dh-plan [focus]` works out what's done and what remains from the documents, `planning/` and the code, saves a plan in `planning/session-plans/`, and asks before executing anything.
 
 ## Local environment
 

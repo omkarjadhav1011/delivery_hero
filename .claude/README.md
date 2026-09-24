@@ -14,6 +14,7 @@ This folder configures Claude Code for the project. Everything here is shared th
 | `/plan-implementation` | One-off, before any code: reads every document and writes the implementation plan, subplans and tracker in `planning/` |
 | `/next` | Picks the next unblocked subplan task, plans the session for your approval, does the work and updates the tracker |
 | `/progress` | Regenerates `planning/STATUS.md` from the subplans |
+| `/dh-plan [focus]` | Uses the read-only `dh-planner` subagent to compare the documents, the plan and the code, reports progress, drift, checkpoints and blockers, saves a plan in `planning/session-plans/`, and asks what to execute |
 | `/scaffold-en01` | One-off: creates the code scaffold for story EN-01 (the plan's first subplan can use it) |
 
 Claude can run `/check` and `/progress` on its own when useful. The others run only when you type them.
