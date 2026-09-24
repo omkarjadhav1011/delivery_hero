@@ -1,0 +1,25 @@
+# Build output and dependencies (document 13, section 11)
+backend/target/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/nginx/csp.conf
+frontend/coverage/
+
+# Test reports
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+
+# Secrets and local settings: never committed
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

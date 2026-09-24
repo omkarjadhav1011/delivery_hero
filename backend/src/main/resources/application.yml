@@ -1,0 +1,56 @@
+# Settings shared by every profile (LLD section 5.13). Profiles: dev, test, e2e and prod (Setup Guide section 8.2).
+# Environment variables are mapped explicitly, because relaxed binding would put DH_ADMIN_PASSWORD_HASH under a
+# different key (CLAUDE.md).
+spring:
+  application:
+    name: delivery-hero
+  config:
+    import: classpath:scoring.yml
+  datasource:
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema; Hibernate only validates it (DEC-157)
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+server:
+  # Nginx is the only proxy and sets the client's real address (document 16, section 8.4)
+  forward-headers-strategy: native
+  servlet:
+    session:
+      timeout: 12h
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      # Only {"status": "UP"} or {"status": "DOWN"}, with no further detail (document 11, section 7.10)
+      probes:
+        enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  structured:
+    format:
+      console: ecs
+
+dh:
+  admin:
+    password-hash: ${DH_ADMIN_PASSWORD_HASH:}
+  public-base-url: ${DH_PUBLIC_BASE_URL:}
+  # Game timings and limits: GameProperties holds the defaults of LLD section 5.13

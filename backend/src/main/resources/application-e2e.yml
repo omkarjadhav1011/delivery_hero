@@ -1,0 +1,8 @@
+# End-to-end tests on the local stack (DH_PROFILE=e2e). DEC-197: rounds from 60 seconds, a 10-second freeze and
+# joining window, 10-second practice and a fixed random seed. Countdown, lockout, time limits and scoring are unchanged.
+dh:
+  game:
+    min-round-length: 60s
+    freeze: 10s
+    practice: 10s
+    random-seed: 20261021

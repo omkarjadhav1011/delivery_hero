@@ -1,0 +1,12 @@
+# Automated tests (Setup Guide section 8.2). Testcontainers provides the database; API documentation is on for the
+# OpenAPI check (SG-05).
+springdoc:
+  api-docs:
+    enabled: true
+  writer-with-order-by-keys: true
+
+dh:
+  admin:
+    # The public local-only hash of "delivery-hero-local" (SG-02), as in application-dev.yml
+    password-hash: "$2y$12$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm"
+  public-base-url: http://localhost:8080
