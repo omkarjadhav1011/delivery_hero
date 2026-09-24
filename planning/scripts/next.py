@@ -6,8 +6,10 @@ A subplan is eligible when, in build order (phase, then number):
 - every subplan it depends on is Done (In review is allowed, with a warning to branch from it);
 - every owner action (OA-nn) it depends on is Done, and every question (Q-nn) is Answered;
 - no other session holds its claim;
-- the phase rules allow it: Could subplans only from the trial run on (document 04, section 8),
-  only hardening and event work from the content freeze, and only event work in the deployment freeze.
+- the phase rules allow it (planning/WORKFLOW.md): subplans in the trial, hardening, freeze, event and
+  after-event phases (T, H, FZ, E, AE) start only once their phase has; Could subplans only from the
+  trial run on (document 04, section 8); from the content freeze only T, H and later work; in the
+  deployment freeze only FZ and E work; on event day only E work; after the event only AE work.
 Owner-only subplans (phase P0, or every open task starting "Owner:") are listed as owner work.
 
 Exit codes: 0 eligible work found; 1 nothing eligible (the reasons are listed); 2 no plan.
@@ -25,8 +27,8 @@ from typing import Dict, List
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import journal as jr  # noqa: E402
-from _common import (TRIAL_RUN, Subplan, configure_stdout, done_value, fmt_day, freeze_state, load_subplans,  # noqa: E402
-                     register, repo_root, today)
+from _common import (DATE_BOUND, EVENT, TRIAL_RUN, Subplan, configure_stdout, done_value, fmt_day, freeze_state,  # noqa: E402
+                     load_subplans, phases, register, repo_root, today)
 
 
 def owner_only(sp: Subplan) -> bool:
@@ -74,10 +76,17 @@ def analyse(root: Path, day: date) -> Dict:
             reasons.append(("stale claim" if jr.is_stale(c) else "claimed") + f" by {c.get('worktree')} on {c.get('branch')}")
         if sp.priority() == "Could" and day < TRIAL_RUN:
             reasons.append("Could: built only in hardening, if the trial run leaves time (document 04, section 8)")
-        if freeze == "deployment" and sp.phase != "E":
-            reasons.append("deployment freeze: only fixes for problems that would stop the event")
-        elif freeze == "content" and sp.phase not in ("T", "H", "E"):
-            reasons.append("content freeze: only hardening fixes and event work; task edits only fix errors")
+        win = phases(root).get(sp.phase)
+        if sp.phase in DATE_BOUND and win and day < win[0]:
+            reasons.append(f"phase {sp.phase} starts {fmt_day(win[0])}")
+        if day > EVENT and sp.phase != "AE":
+            reasons.append("after the event: only after-event work (AE)")
+        elif day == EVENT and sp.phase != "E":
+            reasons.append("event day: runbook only, no code changes")
+        elif freeze == "deployment" and sp.phase not in ("FZ", "E"):
+            reasons.append("deployment freeze: only fixes for problems that would stop the event (FZ)")
+        elif freeze == "content" and sp.phase not in ("T", "H", "FZ", "E"):
+            reasons.append("content freeze: only hardening fixes and release work; task edits only fix errors")
         tasks = [t for t in sp.tasks if not t.done]
         next_tasks = [f"{t.label} {t.text[:110]}" + (" [blocked]" if t.blocked else "") for t in tasks if not t.blocked][:5]
         item = {"id": sp.id, "title": sp.title, "status": st, "phase": sp.phase, "branch": sp.fields.get("Branch", ""),

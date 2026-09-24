@@ -1,6 +1,6 @@
 # Planning
 
-This folder holds Delivery Hero's implementation plan, its tracker and the machinery that keeps them honest. The formats are defined once, in [`CONVENTIONS.md`](CONVENTIONS.md).
+This folder holds Delivery Hero's implementation plan, its tracker and the machinery that keeps them honest. [`WORKFLOW.md`](WORKFLOW.md) explains the whole workflow from today to after the event, and the formats are defined once, in [`CONVENTIONS.md`](CONVENTIONS.md).
 
 ## The one command
 
@@ -8,13 +8,17 @@ Run `/dh` in Claude Code. It works out where the project is and does the right n
 
 | You type | It does |
 |---|---|
-| `/dh` | Automatic: preflight, planning, resume, document changes, plan checks, checkpoints, CI, then the next session |
+| `/dh` | Automatic: preflight, planning, resume, document changes, plan checks, phase rules and checkpoints, CI, owner actions, then the next session |
 | `/dh status` | Status only, including the go/no-go view from the trial run on. Changes nothing |
 | `/dh plan` | Plan or replan |
 | `/dh resume` | Force the resume protocol |
 | `/dh S1-03` | Work on that subplan |
 | `/dh test` | Run the testing gates due now |
 | `/dh coverage` | Show the coverage ledger's gaps |
+| `/dh owner` | Your checklist, one step at a time, verified from here where possible |
+| `/dh release` | The deployment freeze: final regression, the day-before checklist, the `v1.0.0` tag |
+| `/dh event` | Event-day runbook: checklists, troubleshooting and recovery; no code changes |
+| `/dh retro` | After the event: close, privacy check, retrospective, later-release backlog |
 
 The older commands still work and are now building blocks of `/dh`: `/plan-implementation` (the planning flow), `/next` (one session), `/progress` (regenerate `STATUS.md`) and `/dh-plan` (an alias of `/dh status`).
 
@@ -24,7 +28,8 @@ The older commands still work and are now building blocks of `/dh`: `/plan-imple
 2. It shows the session plan and waits for your approval.
 3. It claims the subplan and opens the journal, then works task by task: tests first, the smallest implementation, `/check`, one commit per task.
 4. At the end: reviewers, the tracker (`status.py`), the journal history, and an offer to run `/pr`. You merge.
-5. Run `/clear` before the next subplan. The journal makes that safe.
+5. After the merge, `/dh` checks the deploy run (0 deployed, 1 rolled back, 75 blocked by a game) and `/health`, and records the work as verified in production.
+6. Run `/clear` before the next subplan. The journal makes that safe.
 
 ## After an interruption
 
@@ -42,7 +47,9 @@ A closed terminal, a crash, a rate limit, `/clear` or compaction loses nothing t
 | The plan | `00-master-plan.md`, `subplans/` |
 | Progress | `STATUS.md` (generated), each subplan's progress log |
 | Is anything missing? | `COVERAGE.md` (generated), `coverage-overrides.md` |
-| What only you can do | `owner-actions.md`, and owner checklists in `/dh` |
+| What only you can do | `owner-actions.md` (`/dh owner`) |
+| Production domain and installed tools | `environment.md` |
+| The workflow, phase by phase | `WORKFLOW.md` |
 | Questions and document problems | `open-questions.md`, `doc-issues.md` |
 | Check results, checkpoint decisions, plan changes | `check-results.md`, `checkpoints.md`, `plan-changes.md` |
 | The current session and past sessions | `journal/CURRENT.md`, `journal/history.md` |

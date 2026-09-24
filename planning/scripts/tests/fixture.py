@@ -197,7 +197,7 @@ class Repo:
         p = self.root / "planning"
         (p / "subplans").mkdir(parents=True)
         (p / "journal").mkdir()
-        for name, header in [("owner-actions.md", "| ID | Action | Due | Status | Unblocks | Source |"),
+        for name, header in [("owner-actions.md", "| ID | Action | Due | Status | Unblocks | Source | Verify | Result |"),
                              ("open-questions.md", "| ID | Question | Blocks | Decider | Due | Status | Answer |"),
                              ("doc-issues.md", "| ID | Document and section | Issue | Suggested fix | Blocks | Status |")]:
             (p / name).write_text(f"# {name}\n\n{header}\n|{'---|' * header.count(' | ')}---|\n", encoding="utf-8")

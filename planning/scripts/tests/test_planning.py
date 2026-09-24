@@ -191,8 +191,8 @@ class TestNext(RepoTest):
     def test_order_dependencies_owner_actions_and_questions(self):
         self.repo.write_subplan("S0-02-name", subplan("S0-02", "name", stories="none", depends="S0-01, OA-01, Q-01",
                                                       tasks=["- [ ] T1 a, in b, test first: c, source: AC-US02-01 (shared)"]))
-        self.repo.write("planning/owner-actions.md", "# OA\n\n| ID | Action | Due | Status | Unblocks | Source |\n|---|---|---|---|---|---|\n"
-                        "| OA-01 | Create the Oracle account | Fri 25 Sep | Open | S0-02 | document 16 section 6 |\n")
+        self.repo.write("planning/owner-actions.md", "# OA\n\n| ID | Action | Due | Status | Unblocks | Source | Verify | Result |\n|---|---|---|---|---|---|---|---|\n"
+                        "| OA-01 | Create the Oracle account | Fri 25 Sep | Open | S0-02 | document 16 section 6 | none | |\n")
         self.repo.write("planning/open-questions.md", "# Q\n\n| ID | Question | Blocks | Decider | Due | Status | Answer |\n|---|---|---|---|---|---|---|\n"
                         "| Q-01 | Which font size? | S0-02 | Owner | Fri 25 Sep | Open | |\n")
         res = nxt.analyse(self.root, date(2026, 9, 24))
@@ -338,11 +338,15 @@ class TestStatusAndCheckpoints(RepoTest):
         g = status.gather(self.root, date(2026, 9, 29))
         self.assertEqual(g["must"], (5, 5))
         led = trace.build_ledger(self.root)["ledger"]
+        self.assertEqual(led["US-01"]["status"], "Tested")  # Done, but its deploy isn't verified yet
+        self.repo.write("planning/check-results.md", "# Results\n\n| ID | Date | Result | By | Environment | Notes |\n|---|---|---|---|---|---|\n"
+                        "| S0-01 | 2026-09-29 | Pass | probe.py | production | deployed (exit 0) |\n")
+        led = trace.build_ledger(self.root)["ledger"]
         self.assertEqual(led["US-01"]["status"], "Verified in production")
 
     def test_overdue_owner_action_and_milestone(self):
-        self.repo.write("planning/owner-actions.md", "# OA\n\n| ID | Action | Due | Status | Unblocks | Source |\n|---|---|---|---|---|---|\n"
-                        "| OA-01 | Create the Oracle account | Fri 25 Sep | Open | S0-01 | document 16 |\n")
+        self.repo.write("planning/owner-actions.md", "# OA\n\n| ID | Action | Due | Status | Unblocks | Source | Verify | Result |\n|---|---|---|---|---|---|---|---|\n"
+                        "| OA-01 | Create the Oracle account | Fri 25 Sep | Open | S0-01 | document 16 | none | |\n")
         g = status.gather(self.root, date(2026, 9, 28))
         self.assertTrue(any("OA-01 is overdue" in i for i in g["inconsistencies"]))
         self.assertTrue(any(m[2].startswith("in") for m in g["milestones"]))
@@ -360,7 +364,7 @@ class TestState(RepoTest):
         self.assertIn(res["primary"], (4, 5))  # no manifest yet for an existing plan
         docs_manifest.update(self.root, [], "2026-09-24")
         res = state.detect(self.root, date(2026, 9, 24), which=self.which_all, self_test=False, gh_data={"available": False})
-        self.assertEqual(res["primary"], 8)
+        self.assertEqual(res["primary"], 9)
 
     def test_preflight_merge_rebase_lock_detached_and_missing_tools(self):
         gd = self.root / ".git"
@@ -392,8 +396,8 @@ class TestState(RepoTest):
               "prs": [{"number": 7, "headRefName": "feat/join", "reviewDecision": "CHANGES_REQUESTED"}]}
         res = state.detect(self.root, date(2026, 9, 24), which=self.which_all, self_test=False, gh_data=gh)
         self.assertEqual(res["primary"], 7)
-        eight = next(s for s in res["states"] if s["n"] == 8)
-        self.assertIn("Changes requested on PR #7", "\n".join(eight["facts"]))
+        ready = next(s for s in res["states"] if s["n"] == 9)
+        self.assertIn("Changes requested on PR #7", "\n".join(ready["facts"]))
 
     def test_checkpoint_and_freezes(self):
         docs_manifest.update(self.root, [], "2026-09-24")
@@ -405,7 +409,8 @@ class TestState(RepoTest):
         self.assertNotEqual(res["primary"], 6)
         res = state.detect(self.root, date(2026, 10, 21), which=self.which_all, self_test=False, gh_data={"available": False})
         six = next(s for s in res["states"] if s["n"] == 6)
-        self.assertIn("deployment freeze", "\n".join(six["facts"]))
+        self.assertIn("Deployment freeze", "\n".join(six["facts"]))
+        self.assertEqual(res["primary"], 6)  # event day: the runbook takes over
         self.assertIn("Event day", "\n".join(six["facts"]))
 
     def test_changed_documents_after_planning(self):

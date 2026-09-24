@@ -108,6 +108,8 @@ Write a short outline in `planning/00-master-plan.md` (you'll expand it in Step 
   - the deployment freeze (Tue 20 Oct);
   - the event (Wed 21 Oct);
   - after the event.
+
+  Use the phase IDs and windows in `planning/CONVENTIONS.md`, section 4.2 (P0, S0, S1, S2, T, H, FZ, E, AE; `S phase --all` prints them). Every phase gets subplans, not only the sprints: owner setup, the load test, the trial run, hardening, the release, event day and after the event, as `planning/WORKFLOW.md`, section 2, describes.
 - **The subplan list,** in build order. Each entry has its ID, title, stories, points, dependencies and target dates.
 
 **Stop and show me the outline.** Wait for my approval or changes before writing the subplans.
@@ -126,9 +128,9 @@ Use the layout in `planning/CONVENTIONS.md`, section 2. Create each register (`o
 - Pull requests stay small, as document 13's principles require.
 - Tasks are small (about two hours or less), each ending in a testable, committable state.
 
-**IDs and file names:** each subplan is `subplans/<phase>-<NN>-<slug>.md`, where the phase is P0 (owner setup), S0, S1, S2, T (trial run), H (hardening) or E (event and after). For example: `S0-01-scaffold.md`.
+**IDs and file names:** each subplan is `subplans/<phase>-<NN>-<slug>.md`, where the phase is P0 (owner setup), S0, S1, S2, T (trial run), H (hardening), FZ (deployment freeze), E (event day) or AE (after the event). For example: `S0-01-scaffold.md`.
 
-**Not only stories.** Cover all of these:
+**Not only stories.** `planning/owner-actions.md` is already seeded with the owner setup from document 16 (OA-01 to OA-27): keep those rows and their results, link them to the subplans that wait on them, and add what's missing. Cover all of these:
 
 - the owner's infrastructure setup in document 16 (Oracle account and Pay As You Go, instance, DuckDNS, secrets, first deploy, certificate, image pinning);
 - pinning the workflow actions to commit SHAs;

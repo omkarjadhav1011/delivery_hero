@@ -22,7 +22,7 @@ from _common import (PHASE_ORDER, STATUSES, SUBPLAN_FIELDS, SUBPLAN_SECTIONS, Su
                      fmt_day, load_subplans, parse_dates, phases, planning_dir, read_text, register, repo_root)
 
 REGISTERS = {
-    "owner-actions.md": ["ID", "Action", "Due", "Status", "Unblocks", "Source"],
+    "owner-actions.md": ["ID", "Action", "Due", "Status", "Unblocks", "Source", "Verify", "Result"],
     "open-questions.md": ["ID", "Question", "Blocks", "Decider", "Due", "Status", "Answer"],
     "doc-issues.md": ["ID", "Document and section", "Issue", "Suggested fix", "Blocks", "Status"],
     "check-results.md": ["ID", "Date", "Result", "By", "Environment", "Notes"],

@@ -5,6 +5,7 @@ plain stdout from this hook to Claude's context. Keep it short and factual.
 
 from __future__ import annotations
 
+import os
 import sys
 from datetime import date
 from pathlib import Path
@@ -29,12 +30,28 @@ def resume_lines(root: Path) -> List[str]:
     return [line for line in out.splitlines() if line.strip()][:3] if code == 0 else []
 
 
+def phase_line(root: Path, today: date) -> List[str]:
+    """One line with the plan's phase and /dh mode, from planning/scripts/phase.py when it exists."""
+    scripts = root / "planning" / "scripts"
+    if not (scripts / "phase.py").exists():
+        return []
+    try:
+        sys.path.insert(0, str(scripts))
+        import phase  # the planning scripts' single phase model
+        info = phase.info(root, today)
+        return [f"Phase {info['phase']} ({info['name']}): run /dh; its mode today is {info['mode']}."]
+    except Exception:  # the hook must never fail a session start
+        return []
+
+
 def main() -> None:
     data = read_input()
     root = project_dir(data)
-    today = date.today()
+    env_day = os.environ.get("DH_TODAY")  # lets phase logic be tested with a fixed date
+    today = date.fromisoformat(env_day) if env_day else date.today()
     lines = [f"Today is {today.strftime('%A %d %B %Y')}."]
     lines += resume_lines(root)
+    lines += phase_line(root, today)
 
     code, branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"], root, 5)
     if code == 0:

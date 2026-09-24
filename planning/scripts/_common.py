@@ -21,16 +21,19 @@ MONTHS = {m: i for i, m in enumerate(
 
 # Phase windows, from document 04 section 8, document 14 section 13 and the Charter's
 # milestones (section 12). planning/00-master-plan.md can override them with a "Phases" table.
-PHASE_ORDER = ["P0", "S0", "S1", "S2", "T", "H", "E"]
+PHASE_ORDER = ["P0", "S0", "S1", "S2", "T", "H", "FZ", "E", "AE"]
 DEFAULT_PHASES: Dict[str, Tuple[date, date]] = {
-    "P0": (date(2026, 9, 24), date(2026, 10, 20)),
-    "S0": (date(2026, 9, 24), date(2026, 9, 29)),
+    "P0": (date(2026, 9, 24), date(2026, 9, 29)),   # owner setup, due before the Sprint 0 deploy
+    "S0": (date(2026, 9, 24), date(2026, 9, 29)),   # document 04, section 8
     "S1": (date(2026, 9, 30), date(2026, 10, 6)),
-    "S2": (date(2026, 10, 7), date(2026, 10, 13)),
-    "T": (date(2026, 10, 14), date(2026, 10, 14)),
-    "H": (date(2026, 10, 15), date(2026, 10, 19)),
-    "E": (date(2026, 10, 20), date(2026, 10, 31)),
+    "S2": (date(2026, 10, 7), date(2026, 10, 13)),  # the load test on Tue 13 Oct
+    "T": (date(2026, 10, 14), date(2026, 10, 14)),  # trial run, E-7
+    "H": (date(2026, 10, 15), date(2026, 10, 19)),  # hardening; content freeze from Fri 16 Oct
+    "FZ": (date(2026, 10, 20), date(2026, 10, 20)),  # deployment freeze, E-1
+    "E": (date(2026, 10, 21), date(2026, 10, 21)),  # event day
+    "AE": (date(2026, 10, 22), date(2026, 11, 30)),  # after the event
 }
+DATE_BOUND = {"T", "H", "FZ", "E", "AE"}  # subplans in these phases can't start before the phase does
 TRIAL_RUN = date(2026, 10, 14)
 CONTENT_FREEZE = date(2026, 10, 16)
 DEPLOYMENT_FREEZE = date(2026, 10, 20)
@@ -42,8 +45,8 @@ SUBPLAN_FIELDS = ["Status", "Phase", "Stories", "Priority and points", "Depends 
 SUBPLAN_SECTIONS = ["Goal", "Sources", "Context to load", "Acceptance", "Tasks", "Owner actions",
                     "Verification", "Risks and open questions", "Definition of done",
                     "Claude Code playbook", "Progress log"]
-SUBPLAN_FILE = re.compile(r"^(P0|S0|S1|S2|T|H|E)-(\d{2})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
-SUBPLAN_ID = re.compile(r"(?<![A-Za-z0-9-])((?:P0|S0|S1|S2|T|H|E)-\d{2})(?![0-9A-Za-z])")
+SUBPLAN_FILE = re.compile(r"^(P0|S0|S1|S2|T|H|FZ|E|AE)-(\d{2})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
+SUBPLAN_ID = re.compile(r"(?<![A-Za-z0-9-])((?:P0|S0|S1|S2|T|H|FZ|E|AE)-\d{2})(?![0-9A-Za-z])")
 PLAN_REF = re.compile(r"(?<![A-Za-z0-9-])((?:OA|Q|DI|PC|GNG)-\d{1,2})(?![0-9A-Za-z])")
 TASK_LINE = re.compile(r"^- \[( |x|X)\] T(\d+) (.*)$")
 LOG_LINE = re.compile(r"^- (\d{4}-\d{2}-\d{2}): (.+)$")
@@ -173,8 +176,13 @@ def today(value: Optional[str] = None) -> date:
 
 
 def now_stamp() -> str:
+    """Now as YYYY-MM-DDTHH:MM. DH_NOW fixes it; DH_TODAY moves it to that day at the current time."""
     fixed = os.environ.get("DH_NOW")
-    return fixed if fixed else datetime.now().strftime("%Y-%m-%dT%H:%M")
+    if fixed:
+        return fixed
+    day = os.environ.get("DH_TODAY")
+    now = datetime.now()
+    return (f"{day}T{now.strftime('%H:%M')}" if day else now.strftime("%Y-%m-%dT%H:%M"))
 
 
 def parse_stamp(text: str) -> Optional[datetime]:
@@ -413,7 +421,7 @@ def phases(root: Path) -> Dict[str, Tuple[date, date]]:
 
 
 def current_phase(root: Path, day: date) -> str:
-    for ph in ["S0", "S1", "S2", "T", "H", "E"]:
+    for ph in ["S0", "S1", "S2", "T", "H", "FZ", "E", "AE"]:
         s, e = phases(root)[ph]
         if s <= day <= e:
             return ph
@@ -470,3 +478,36 @@ def configure_stdout() -> None:
             stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
         except (AttributeError, ValueError):
             pass
+
+
+def write_register(root: Path, name: str, header: List[str], rows: List[Dict[str, str]], title: str, intro: str) -> None:
+    """Rewrites planning/<name> with one table, keeping any text before the table."""
+    p = planning_dir(root) / name
+    lead = f"# {title}\n\n{intro}\n"
+    if p.exists():
+        text = read_text(p)
+        start = text.find("| " + " | ".join(header[:2]))
+        if start > 0:
+            lead = text[:start].rstrip("\n") + "\n"
+    body = md_table(header, [[r.get(h, "") for h in header] for r in rows])
+    write_text(p, lead + "\n" + body + "\n")
+
+
+def append_register(root: Path, name: str, header: List[str], row: Dict[str, str], title: str, intro: str) -> None:
+    rows = register(root, name)
+    rows.append(row)
+    write_register(root, name, header, rows, title, intro)
+
+
+def environment(root: Path) -> Dict[str, str]:
+    """The Setting/Value table in planning/environment.md, with placeholders dropped."""
+    p = planning_dir(root) / "environment.md"
+    out: Dict[str, str] = {}
+    if p.exists():
+        for header, rows, _ in tables(read_text(p)):
+            if header[:2] == ["Setting", "Value"]:
+                for r in rows:
+                    v = (r[1] if len(r) > 1 else "").strip().strip("`")
+                    if v and not v.startswith("("):
+                        out[r[0]] = v
+    return out

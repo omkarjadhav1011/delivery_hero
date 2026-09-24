@@ -1,146 +1,98 @@
-# Planning system audit
+# Workflow audit
 
-Audit of Delivery Hero's planning machinery on Thursday 24 September 2026, before unifying it behind `/dh`. Branch `chore/unified-planning`, created from `chore/dh-plan` (`c9bf0ca`).
+Audit on Thursday 24 September 2026 for the full `/dh` lifecycle workflow (planning to after the event). Branch `chore/dh-workflow`, created from `chore/unified-planning` (`77dcc90`). The earlier audit is kept in `audit-unified-planning.md`.
 
-## 1. Repository facts that shape the design
+## 1. Repository and tools
 
-| Fact | Evidence | Consequence |
-|---|---|---|
-| No `planning/` folder exists; `/plan-implementation` has never run | `ls planning` fails on every branch | No plan content, logs or ticks to migrate. `/dh`'s first run lands in state 2 (No plan) |
-| `main` holds only the repository kit (`5006eb6`) | `git log main` | The harness (`3d97eed`) and `/dh-plan` (`c9bf0ca`) are unmerged; this branch stacks on both |
-| Scaffold work exists, unmerged, on `feat/en-01-scaffold` (`4036d37`, `1869a5b`, `f1f3907`) | `git log --all` | Evidence of EN-01 progress that the tracker must reconcile once a plan exists (drift) |
-| No root `.gitignore` | `cat .gitignore` fails | Only `CLAUDE.md` may change outside `planning/` and `.claude/`, so `planning/.gitignore` ignores `.cache/` |
-| `python3` is the Microsoft Store placeholder on this machine (exit 49); `python` and `py -3` are Python 3.14.4 | `python3 --version` | Skills can't hard-code `python3`. Proposal in section 6.1 |
-| The documents are internally consistent where it matters most: 80 stories and 230 points; every F-01 to F-58 is traced by a story; 271 criteria and 271 test cases, one to one; every story has criteria | Quick scripted check of documents 04, 05 and 15 | `trace.py` can start strict |
-| Some ID prefixes mean different things in different documents: `A-01` is a Charter assumption and an admin screen in document 12; ranges such as `OPS-01 to OPS-22` and `US-01 to US-08` appear | `grep` over `docs/` | `ids.py` qualifies ambiguous IDs by document and expands ranges |
+| Item | State |
+|---|---|
+| `main` | Only the repository kit (`5006eb6`). Remote `origin` is `github.com/omkarjadhav1011/delivery_hero` |
+| Unmerged branches | `chore/claude-harness`, `chore/dh-plan`, `chore/unified-planning` (stacked, this work builds on them); `feat/en-01-scaffold` (EN-01 scaffold and SHA-pinned actions); `docs/clean-headers` (DEC-212, drafting credits removed) |
+| Code | `backend/src` from the kit (migrations); no `frontend/` on this branch; the scaffold lives on `feat/en-01-scaffold` |
+| Plan | None: no `planning/subplans/`. `planning/` holds the unified-planning system (conventions, scripts, ledger, journal) |
+| CI status | Not checked: the GitHub CLI isn't installed |
+| Tools | Git 2.52, Docker 29.8 (daemon running), Java 21.0.9, Node.js 24.14.1, npm 11.11, Python 3.14.4 (`python`, `py -3`; `python3` is the Store placeholder). Missing: `gh`, ShellCheck, actionlint, gitleaks, k6 |
+| Hook self-test | Through `run-hook.mjs`: force push blocked (exit 2), `npm run lint` allowed (exit 0) |
+
+Missing tools and what they block: `gh` (CI and deploy watching, pull requests, state 7); ShellCheck, actionlint and gitleaks (the repository checks in `/check`, which CI still runs); k6 (LT-01, which runs from the load-generator instance anyway, DEC-187).
 
 ## 2. Inventory
 
-| Piece | What it does | Reads | Writes |
+| Piece | Reads | Writes | Works |
 |---|---|---|---|
-| `CLAUDE.md` | Project brief, precedence, commands, never-broken rules, workflow | — | — |
-| `.claude/README.md` | Harness guide: commands, reviewers, hooks, permissions | — | — |
-| `.claude/commands/plan-implementation.md` | One-off: 11 reader subagents write digests, then outline (stop), subplans, master plan, tracker, coverage check | All of `docs/` | All of `planning/`; defines layout, subplan format, `STATUS.md` format |
-| `.claude/commands/scaffold-en01.md` | One-off EN-01 scaffold | Named doc sections | `backend/`, `frontend/`, root files |
-| `.claude/skills/next/SKILL.md` (`/next`, user-only) | Picks the next subplan, plans the session (stop), implements with `/story`'s conventions, ticks tasks, logs, `/progress`, commits | `STATUS.md`, one subplan, its "Context to load" | Code, the subplan, `doc-issues.md`, `open-questions.md` |
-| `.claude/skills/progress/SKILL.md` (`/progress`, model-invocable) | The model rewrites `STATUS.md` from every subplan, Git and reports | All subplans, owner actions, questions, Git, `gh`, reports | `STATUS.md` |
-| `.claude/skills/dh-plan/SKILL.md` (`/dh-plan`, user-only) | Runs `dh-planner`, presents, saves a session plan, asks, executes one of four options | Git state, the report | `planning/session-plans/`, then whatever the option does |
-| `.claude/agents/dh-planner.md` | Read-only analysis: reading modes, done versus drift, checkpoints, seven-section report | Documents, plan, Git, `gh`, reports | Nothing |
-| `.claude/skills/story/SKILL.md` (`/story`) | One story end to end, driven by `spec-guardian` | Documents | Code, docs |
-| `.claude/skills/check`, `e2e`, `pr`, `decision` | CI checks; Playwright; pull request; decision log | Diff, docs | Reports, docs (decision only) |
-| `.claude/agents/spec-guardian`, `backend-`, `frontend-`, `ops-reviewer` | Read-only reviewers | Docs, diff | Nothing |
-| `.claude/rules/planning.md` | Loaded for `planning/**`: docs read-only, subplan fields, task syntax, status values, logs, `STATUS.md` generated | — | — |
-| `.claude/hooks/session_start.py` | Date, branch, dirty count, milestone countdown, freezes, local stack | Git, Docker | stdout |
-| `.claude/hooks/guard_bash.py`, `guard_files.py`, `after_edit.py`, `before_stop.py` | Safety and formatting guards | Tool input | Blocks, formatting |
-| `.claude/settings.json` | Permissions (allow, ask, deny) and hook wiring through `run-hook.mjs` | — | — |
+| `/dh` (`skills/dh/SKILL.md`, `reference.md`) | `state.py` output, conventions | via other pieces | Yes: 8 states; arguments status, plan, resume, ID, test, coverage |
+| `/dh-plan` | `state.py` | session plans | Yes, alias of `/dh status` |
+| `/plan-implementation` | all documents | `planning/` | Not run yet; journals steps; gates on `validate` and `trace` |
+| `/next`, `/progress`, `/story`, `/check`, `/e2e`, `/pr`, `/decision`, `/scaffold-en01` | subplans, docs | code, tracker | Yes (`/next` and `/progress` use the scripts) |
+| `dh-planner`, `spec-guardian`, three reviewers | scripts, docs, diff | nothing | Yes |
+| Rules (`rules/*.md`) | — | — | Yes; `planning.md` points to the conventions |
+| Hooks (`hooks/*.py` via `run-hook.mjs`) | tool input, Git | blocks, formatting, context | Yes; `session_start.py` prints resume lines |
+| `settings.json` | — | — | Yes; allows the planning scripts |
+| `planning/CONVENTIONS.md`, `README.md` | — | — | Yes |
+| Scripts: `ids`, `docs_manifest`, `section`, `trace`, `validate`, `status`, `next`, `journal`, `state`, `run.mjs` | `docs/`, `planning/`, Git, `gh`, reports | index, manifest, ledger, tracker, journal | Yes: 43 tests pass |
+| `COVERAGE.md`, `research/id-index.md`, `journal/`, `doc-issues.md` (DI-01 to DI-03), `system/edge-cases.md` | — | — | Yes |
+| `.github/workflows/deploy.yml` | — | — | Already ignores `planning/**` and `.claude/**` (approved on 24 Sep, commit `ab12d3f`) |
 
 ## 3. Overlaps and conflicts
 
-| # | Overlap or conflict | Where | Resolution |
-|---|---|---|---|
-| O-1 | The subplan format is defined in `plan-implementation.md` section 3.2 and restated in `rules/planning.md` | Two places | `CONVENTIONS.md` holds it; both point there |
-| O-2 | The `STATUS.md` format is defined in `plan-implementation.md` section 3.4 and again in `/progress` step 5 | Two places | `status.py` owns the format; the convention file describes it |
-| O-3 | Three places decide "what's next": `/next` step 1, `dh-planner` "Recommended next work", and `/progress` "next three subplans" | Three algorithms, slightly different | `next.py` is the one algorithm; all three call it |
-| O-4 | "Done" differs: `plan-implementation` (tasks ticked, definition of done, criteria pass), `/next` (same, set by the model), `dh-planner` (also merged to `main`) | Three definitions | One definition in `CONVENTIONS.md`: all tasks ticked, merged to `main`, criteria passing. In review covers "PR open, not merged" |
-| O-5 | Two commands run the whole loop: `/dh-plan` (plan, ask, execute via `/next`) and `/next` | Parallel front doors | `/dh` is the front door; `/dh-plan` becomes a thin alias of `/dh status`; `/next` stays as the session workflow `/dh` follows |
-| O-6 | `dh-planner`'s reading modes compare dates by hand; `/plan-implementation`'s reading log has no hashes | Fragile | `docs_manifest.py` (SHA-256) decides changed documents; `dh-planner` reads its output |
-| O-7 | `/progress` makes the model read every subplan to count checkboxes | Token cost grows with the plan | `status.py` counts; `/progress` adds commentary only |
-| C-1 | `rules/planning.md` says `planning/` is "Markdown only", but the new scripts are Python | Rule versus this task | The rule changes to "Markdown, plus Python under `planning/scripts/`", and section 2.10's deploy trigger is raised (C-3) |
-| C-2 | `/plan-implementation` hard-codes the branch `chore/implementation-plan` and asks for the full plan in one session | Not interruption-safe | It keeps its steps, but journals each step and writes the manifest, ledger and gates |
-| C-3 | `deploy.yml` ignores only `docs/**` and `**/*.md`, so merging `planning/scripts/*.py` or `.claude/**` starts a production deploy run | `.github/workflows/deploy.yml` lines 6-9 | Proposal awaiting approval (section 6.4) |
-| C-4 | `session_start.py` hard-codes milestone dates that the master plan also holds | Duplication | Accepted: the hook must work without a plan. The resume lines are added |
+| # | Issue | Resolution |
+|---|---|---|
+| O-1 | Phase dates and rules live in three places: `_common.py` (windows), `status.py` (checkpoints, check windows) and `session_start.py` (milestones, freezes) | `phase.py` becomes the one source; the others import it (the hook falls back to its own dates if the scripts are missing) |
+| O-2 | Phase E covers Tue 20 to Sat 31 Oct, mixing the deployment freeze, event day and after the event, which have different rules | Split into F (deployment freeze, Tue 20 Oct), E (event, Wed 21 Oct) and A (after, from Thu 22 Oct). No plan exists, so nothing migrates |
+| O-3 | `session_start.py` uses the real date and ignores `DH_TODAY`; `journal.py`'s staleness ignores it too | Both honor `DH_TODAY` |
+| O-4 | `owner-actions.md` has no column for instructions, verification or results | New header (section 6.2) |
+| O-5 | `/dh` has 8 states; this prompt adds "owner actions due" as state 8 before Ready | 9 states |
 
-## 4. Gaps against the request
+## 4. Gaps against this prompt
 
-| Requirement | Today |
+| Needed | Today |
 |---|---|
-| One command from planning through testing | None; four commands with overlapping roles |
-| One authoritative conventions file | None |
-| Deterministic ID index, manifest, section reader, ledger, validator, status and next-work scripts | None; the model counts and indexes by reading files |
-| Coverage ledger both ways, every ID classified | Only the planned `coverage-check.md`, written once, by the model |
-| Survives interruptions: journal, claims, commit per task, resume on session start | None: state lives in the conversation |
-| Attempt budget for failing tests | None |
-| Testing gates scheduled from the plan, owner checklists, go/no-go view | Only `/check` and `/e2e`, run by hand |
-| Freeze and checkpoint rules evaluated with numbers | `dh-planner` prose only |
-| Edge cases specified and tested | None |
-| Script tests | None |
+| `phase.py`: phase, milestones, rules in force, exit gates | Partial, spread across scripts |
+| `planning/WORKFLOW.md` with the phase table and a state diagram | Missing |
+| Owner-checklist mode (`/dh owner`), with verification from here | Missing; no verification script |
+| Deploy verification after a merge: the deploy run's result (0, 1, 75), `/health`, "Verified in production" for Production-level criteria | Missing |
+| `/dh release`, `/dh event`, `/dh retro`, and the phase modes for P0, S0, load test, trial, hardening, freeze, event and after | Missing |
+| `planning/environment.md` (tools, the domain) | Missing |
+| `planning/retrospective.md`, `planning/after-v1.md` | Created by `/dh retro` after the event |
+| Edge cases: deploy exit 75 and 1, `/health` failing, instance stopped, certificate near expiry, trial no-go, load test failure, event-day incidents, the owner unavailable | Missing |
+| Tests for each phase and freeze window through `DH_TODAY` | Partial (freeze dates only) |
 
-## 5. Traceability gaps today
+## 5. Coverage gaps today
 
-There's no plan, so every story, criterion and check is unplanned. What the documents themselves show:
-
-- **Features:** F-01 to F-58 are all traced by at least one story in document 04, section 6. No PRD feature lacks a story.
-- **Epics:** EP-01 to EP-12 each group stories in document 04, section 6.
-- **Stories:** 80 (EN-01 to EN-09, US-01 to US-71), 230 points (Must 155, Should 65, Could 10), matching document 04, section 7.
-- **Criteria and tests:** 271 `AC-` rows in document 05 and 271 `TC-` rows in document 15, one to one; every story has criteria.
-- **Out of scope:** W-01 to W-06 (document 04, section 10) and the PRD non-goals (section 5.3).
-- Once `ids.py` exists it will report the full counts per family, including decision families (DEC, PD, SD, HD, LD, AD, ADR, AP, DB, UX, CS, GS, TP, DG, SG, CL, QA, TD), which the ledger must classify too.
+No plan exists, so the ledger classifies all 1,413 IDs but every Build and Verify ID is unplanned: 995 gaps, all of that kind. The documents themselves are consistent: every PRD feature F-01 to F-58 traces to a story, 80 stories and 230 points (155 Must), and 271 criteria with 271 test cases. The first `/dh` run plans them.
 
 ## 6. Proposed design
 
-### 6.1 Decisions for your approval
-
-1. **Python launcher.** `python3` fails here, so skills call one launcher that works on Windows, macOS and Linux: `node planning/scripts/run.mjs <script> [args]`. It tries `py -3`, `python` and `python3` like `run-hook.mjs`. The scripts themselves stay pure standard-library Python 3.9 or later and also run directly (`python planning/scripts/status.py`). One permission rule allows it.
-2. **Default ledger classifications by ID family,** with per-ID overrides kept in `planning/COVERAGE.md`. So nobody hand-classifies about 900 IDs:
-
-   | Family | Default | Children or schedule |
-   |---|---|---|
-   | EN, US | Build | Subplan and task, from the plan |
-   | AC-EN, AC-US | Build | Subplan task, plus the matching TC with level and class (document 15, section 7) |
-   | TC-EN, TC-US | Covered by | Its AC |
-   | F, EP | Covered by | Stories (document 04 "Traces to" and epic sections) |
-   | FR | Covered by | Stories (document 04, section 11) |
-   | NFR | Covered by or Verify | Document 15, section 16 |
-   | BR | Covered by | The criteria that cite it (document 05) |
-   | UC | Covered by | Stories (document 06, section 6) |
-   | P-, S-, A- screens (document 12) | Covered by | Stories (document 12, section 12) |
-   | OPS, MAN, A11Y, LT, TRIAL, E2E | Verify | The subplan that schedules it |
-   | DS | Build | The test-data task |
-   | R | Build | Its mitigation task |
-   | DEC and document decision families (PD, SD, HD, LD, AD, ADR, AP, DB, UX, CS, GS, TP, DG, SG, CL, QA, TD) | No implementation work: "decision realized through the requirements and criteria that cite it" | `/plan-implementation` overrides to Build any decision that needs direct work (for example DEC-196, the Surefire setting) |
-   | OI, A (Charter and PRD assumptions), C, OBJ, SC | No implementation work, with reason; SC-1 and SC-2 become Verify (event day) | — |
-   | W-01 to W-06 | Out of scope v1.0 | Document 04, section 10 |
-
-3. **Stacked branch.** This work stacks on the unmerged harness and `/dh-plan` branches. Merge order: `chore/claude-harness`, `chore/dh-plan`, then this one.
-4. **`.gitignore` placement:** `planning/.gitignore` with `.cache/`, because the root has none and root files are out of bounds.
-
-### 6.2 Files
-
-**New, in `planning/`:**
+### 6.1 New files
 
 | File | Purpose |
 |---|---|
-| `README.md` | How the folder and `/dh` work; recovery after an interruption |
-| `CONVENTIONS.md` | Layout, IDs, subplan format, journal, ledger, session plans, claims, plan changes, resume protocol, token rules, testing schedule |
-| `COVERAGE.md` | The ledger (generated by `trace.py`, overrides kept in a marked block) |
-| `.gitignore` | `.cache/` |
-| `journal/CURRENT.md`, `journal/history.md` | The session journal |
-| `system/audit.md`, `system/edge-cases.md` | This audit; the edge-case table |
-| `scripts/_common.py` | Shared parsing: documents, subplans, journal, dates, Git |
-| `scripts/run.mjs` | Cross-platform launcher |
-| `scripts/ids.py`, `docs_manifest.py`, `section.py`, `trace.py`, `validate.py`, `status.py`, `next.py`, `journal.py` | The scripts; `journal.py` claims, updates, checks and closes sessions, so no skill hand-edits the journal format |
-| `scripts/tests/` | `unittest` with fixtures: orphan, cycle, changed document, interrupted journal, Windows path, freeze date, stale claim, malformed subplan |
+| `planning/scripts/phase.py` | One phase model from the Charter's milestones and document 04, section 8: `phase(day)`, milestones with days left, rules in force, checkpoints due, the exit gate. `--today` and `DH_TODAY` |
+| `planning/scripts/probe.py` | Verifies from this laptop, without SSH: DNS for the domain, `/health` (status and speed), certificate days left, HTTP-to-HTTPS redirect and security headers, and the latest deploy run through `gh` (exit 0, 1 or 75). Reads the domain from `environment.md` |
+| `planning/scripts/owner.py` | Lists owner actions due, overdue or blocking, one at a time; records a result (`--record OA-03 pass "note"`) in `owner-actions.md`; runs the verification named in its row through `probe.py` |
+| `planning/WORKFLOW.md` | The workflow for a human reader: the state diagram, the phase table with dates, rules and exit gates, approval points, recovery, and where everything lives |
+| `planning/environment.md` | Installed tools with versions and what each missing one blocks; the production domain (empty until P0) |
+| `planning/owner-actions.md` | Seeded now with the P0 checklist from document 16, sections 5 to 9 (option in 6.4) |
 
-**New, in `.claude/`:** `skills/dh/SKILL.md` (short state machine) and `skills/dh/reference.md` (per-state detail, read only when that state applies).
-
-**Changed:**
+### 6.2 Changes to existing pieces
 
 | Piece | Change |
 |---|---|
-| `commands/plan-implementation.md` | Points to `CONVENTIONS.md` for formats instead of restating them; journals each step; writes the manifest, ledger and journal skeleton; ends with `validate.py` and `trace.py` as the gate |
-| `skills/next/SKILL.md` | Uses `next.py`; claims and journals; `section.py` for context; commit per task; attempt budget of 3 |
-| `skills/progress/SKILL.md` | Runs `status.py`, then brief commentary |
-| `skills/dh-plan/SKILL.md` | Thin alias: follow `/dh status` |
-| `agents/dh-planner.md` | Runs the scripts first; reads only what they point to; reading modes come from `docs_manifest.py` |
-| `rules/planning.md` | Pointer to `CONVENTIONS.md` plus the always-on rules |
-| `hooks/session_start.py` | Up to 3 resume lines from `journal/CURRENT.md` |
-| `settings.json` | Allow `node planning/scripts/run.mjs *` and `python planning/scripts/*`; nothing weakened |
-| `README.md` (harness), `CLAUDE.md` | `/dh` as the one command; where things live; recovery |
+| `_common.py`, `next.py`, `status.py`, `state.py`, `validate.py` | Use `phase.py`; phases P0, S0, S1, S2, T, H, F, E, A; state 8 "owner actions due"; the deploy and production checks feed the ledger |
+| `trace.py` | A criterion whose test level is Production is "Verified in production" only with a Pass in `check-results.md` for it or its procedure |
+| `journal.py`, `session_start.py` | Honor `DH_TODAY`; the hook imports `phase.py` for milestones and freezes when present |
+| `/dh` skill and `reference.md` | 9 states; arguments `owner`, `release`, `event`, `retro`; phase modes; deploy verification after a merge |
+| `/next` | After the owner merges: the deploy verification step |
+| `CONVENTIONS.md` | Phase IDs; the owner-actions header `\| ID \| Action \| Due \| Status \| Unblocks \| Source \| Verify \| Result \|`; the owner-checklist, release, event and retrospective formats |
+| `edge-cases.md`, `README.md` (both), `CLAUDE.md` | The new cases; one line each pointing to `/dh` and `WORKFLOW.md` |
+| `settings.json` | No change needed: `node planning/scripts/run.mjs *` already covers the new scripts |
 
 ### 6.3 Migration
 
-No plan exists, so there's nothing to migrate or lose. `/plan-implementation`, `/next`, `/progress` and `/dh-plan` keep working under their names. When a plan exists later, `validate.py` checks it against `CONVENTIONS.md`, which keeps today's subplan format unchanged (only adds a `Claim` field, optional until a session starts).
+No plan exists, so nothing migrates. Existing journal, ledger, doc issues and scripts stay. `/plan-implementation` keeps its steps and uses the new phase IDs and the seeded owner actions.
 
-### 6.4 Deploy trigger (needs your approval, applied only if you agree)
+### 6.4 Decisions for you
 
-Add `planning/**` and `.claude/**` to `paths-ignore` in `.github/workflows/deploy.yml`. If applied, record in `planning/doc-issues.md` that document 16, Appendix B, now differs from the repository (the appendix says the repository wins, so no document edit).
+1. **Phase IDs:** split E into F, E and A (recommended), or keep E for everything from Tue 20 Oct.
+2. **Seed the P0 owner checklist now:** the Sprint 0 deploy is due Tue 29 Sep, five days away, and planning takes a session with your approval of the outline. Seeding `owner-actions.md` now from document 16 lets you start the Oracle and DuckDNS steps in parallel (recommended).
+3. **`deploy.yml`:** already changed on this branch's history with your approval on 24 Sep (DI-01 to DI-03 record the document differences). Keep it (recommended) or revert it.

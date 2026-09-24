@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Work out /dh's state: the first of the eight states in planning/CONVENTIONS.md, section 11, that applies.
+"""Work out /dh's state: the first of the nine states in planning/CONVENTIONS.md, section 11, that applies.
 
   1 Preflight problem   merge, rebase or cherry-pick in progress; detached HEAD; an interrupted
                         commit (index.lock); the hook self-test fails; a required tool is missing
@@ -7,9 +7,11 @@
   3 Unfinished session  planning/journal/CURRENT.md is active
   4 Documents changed   docs_manifest.py reports changes (or no manifest for an existing plan)
   5 Plan invalid        validate.py or trace.py fails
-  6 Checkpoint          a checkpoint rule applies and isn't recorded, or a freeze is in effect
+  6 Phase rule          a checkpoint is due and unrecorded, or today is the trial run or event day
+                        (the phase's mode takes over); freezes and phase rules are listed as constraints
   7 Main is broken      the last CI run on main failed
-  8 Ready               next.py returns eligible work (or says why nothing is eligible)
+  8 Owner actions due   an owner action is overdue or due by tomorrow (owner-checklist mode)
+  9 Ready               next.py returns eligible work (or says why nothing is eligible)
 
 It prints every state that applies, the primary one first, with short facts. It always exits 0,
 so /dh can inject its output; use --json for the details. --offline skips the GitHub CLI.
@@ -24,6 +26,7 @@ import json
 import shutil
 import sys
 import time
+from datetime import timedelta
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
@@ -34,8 +37,8 @@ import next as nxt  # noqa: E402
 from _common import (cache_dir, configure_stdout, current_branch, current_phase, dirty_files, fmt_day, freeze_state,  # noqa: E402
                      git, git_common_dir, load_subplans, planning_dir, read_text, repo_root, run, today, write_text)
 
-NAMES = {1: "Preflight problem", 2: "No plan", 3: "Unfinished session", 4: "Documents changed", 5: "Plan invalid or incomplete",
-         6: "Checkpoint or freeze rule applies", 7: "Main is broken", 8: "Ready to work"}
+NAMES = {1: "Preflight problem", 2: "No plan", 3: "Unfinished session", 4: "Documents changed", 5: "Plan invalid or with gaps",
+         6: "Phase rule or checkpoint applies", 7: "CI red on main", 8: "Owner actions due", 9: "Ready to work"}
 REQUIRED = ["git", "node"]
 OPTIONAL = {"docker": "integration and end-to-end tests are pending (unit tests only)",
             "gh": "no CI or pull request status (state 7 is skipped)",
@@ -171,19 +174,29 @@ def detect(root: Path, day=None, offline: bool = False, which: Callable[[str], O
         g = st.gather(root, day)
         due = [c for c in g["checkpoints"] if c["applies"] and not c["recorded"]]
         facts6 = [f"{c['id']} ({fmt_day(c['date'])}): {c['numbers']}. {c['verdict']}" for c in due]
-        fr = freeze_state(day)
-        if fr:
-            facts6.append(f"The {fr} freeze is in effect: " + ("only fixes for problems that would stop the event, through a pull request with green CI."
-                                                               if fr == "deployment" else "task content edits only fix errors; code work only for hardening fixes."))
-        if day.isoformat() == "2026-10-21":
-            facts6.append("Event day: no merges. The deploy lock must show the game in progress before the round starts (document 16).")
-        if facts6:
-            states.append({"n": 6, "facts": facts6, "blocking": bool(due)})
+    else:
+        due, facts6 = [], []
+    import phase as phase_mod
+    ph = phase_mod.info(root, day)
+    mode_day = ph["phase"] in ("T", "E")
+    facts6.append(f"Phase {ph['phase']} {ph['name']}: /dh mode {ph['mode']}. Exit gate: {ph['exit']}")
+    facts6 += [f"Rule: {r['rule']} ({r['source']})" for r in ph["rules"][:4]]
+    if ph["phase"] == "E":
+        facts6.append("Event day: no merges or code changes. The deploy lock must show the game in progress before the round starts (document 16).")
+    states.append({"n": 6, "facts": facts6, "blocking": bool(due) or mode_day})
     gh = gh_data if gh_data is not None else ({"available": False} if offline else github(root, which))
     ci = gh.get("ci") if gh.get("available") else None
     if ci and ci.get("status") == "completed" and ci.get("conclusion") not in ("success", "skipped", "neutral"):
         states.append({"n": 7, "facts": [f"The last CI run on main {ci.get('conclusion')}: {ci.get('displayTitle')} {ci.get('url')}"]})
     changes = [p for p in gh.get("prs", []) or [] if p.get("reviewDecision") == "CHANGES_REQUESTED"]
+    import owner as owner_mod
+    if (planning_dir(root) / "owner-actions.md").exists():
+        oc = owner_mod.classify(root, day)
+        soon = [r for r in oc["due"] if (owner_mod.due_date(r) or day) <= day + timedelta(days=1)]
+        if oc["overdue"] or soon:
+            states.append({"n": 8, "facts": [f"Overdue: {owner_mod.line(r)}" for r in oc["overdue"][:4]]
+                           + [f"Due: {owner_mod.line(r)}" for r in soon[:4]]
+                           + ([f"... {len(oc['overdue']) + len(soon) - 8} more"] if len(oc["overdue"]) + len(soon) > 8 else [])})
     if plans:
         nx = nxt.analyse(root, day)
         facts8 = [f"Eligible: {i['id']} {i['title']} ({i['status']})" for i in nx["eligible"][:3]]
@@ -192,9 +205,9 @@ def detect(root: Path, day=None, offline: bool = False, which: Callable[[str], O
             facts8.append("Nothing eligible. " + "; ".join(f"{i['id']}: {i['why']}" for i in nx["blocked"][:3]))
         if nx["owner"]:
             facts8.append("Owner work: " + ", ".join(i["id"] for i in nx["owner"][:5]))
-        states.append({"n": 8, "facts": facts8})
+        states.append({"n": 9, "facts": facts8})
     order = sorted(states, key=lambda s: s["n"])
-    primary = next((s for s in order if not (s["n"] == 6 and not s.get("blocking"))), order[0] if order else {"n": 8, "facts": []})
+    primary = next((s for s in order if not (s["n"] == 6 and not s.get("blocking"))), order[0] if order else {"n": 9, "facts": []})
     branch = current_branch(root) or "?"
     dirty = dirty_files(root)
     return {"today": day.isoformat(), "phase": current_phase(root, day), "freeze": freeze_state(day), "branch": branch,

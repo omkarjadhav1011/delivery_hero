@@ -4,7 +4,7 @@ This folder configures Claude Code for the project. Everything here is shared th
 
 ## The one command: `/dh`
 
-`/dh` takes the project from planning through implementation and testing. It works out the state (preflight, no plan, an unfinished session, changed documents, an invalid plan, a checkpoint or freeze, CI red on `main`, or ready), does the right next thing, and asks before anything that needs approval. `/dh status`, `/dh plan`, `/dh resume`, `/dh <subplan ID>`, `/dh test` and `/dh coverage` narrow it. Its procedures are in `skills/dh/reference.md`, and every format is in `planning/CONVENTIONS.md`.
+`/dh` drives the project from planning to after the event: owner setup, the scaffold, every story, pull requests and deploy verification, the load test, the trial run, hardening, the release, the freezes, event day and the retrospective. It works out the state (preflight, no plan, an unfinished session, changed documents, an invalid plan, a phase rule or checkpoint, CI red on `main`, owner actions due, or ready), does the right next thing, and asks before anything that needs approval. The arguments `status`, `plan`, `resume`, a subplan ID, `test`, `coverage`, `owner`, `release`, `event` and `retro` narrow it. Its procedures are in `skills/dh/reference.md`; the workflow is in `planning/WORKFLOW.md`, and every format in `planning/CONVENTIONS.md`.
 
 After an interruption (a closed terminal, `/clear`, compaction or a rate limit), the session-start hook prints the unfinished session from `planning/journal/CURRENT.md`, and `/dh` resumes it after comparing the journal with Git. See `planning/README.md`.
 

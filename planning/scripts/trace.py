@@ -154,11 +154,23 @@ def build_ledger(root: Path) -> Dict:
         primary = sorted({u[0] for u in uses if not u[2]})
         return subplans, primary
 
+    def verified_in_production(i: str, fam: str, sps) -> bool:
+        """Production-level criteria need a Pass for the criterion, its test case or its procedure; everything else
+        needs its subplan Done and that subplan's deploy verified (a Pass row under the subplan ID)."""
+        if fam.startswith("AC"):
+            tc = tcs.get("TC" + i[2:], {})
+            if tc.get("level") == "Production":
+                keys = [i, "TC" + i[2:]] + _docs.ids_in(tc.get("location", ""), r"(?:OPS|MAN|A11Y|LT|TRIAL)-\d{2}")
+                return any(results.get(k, {}).get("Result", "").lower().startswith("pass") for k in keys)
+        return any(sp.status == "Done" and results.get(sp.id, {}).get("Result", "").lower().startswith("pass") for sp in sps)
+
     def build_status(i: str, fam: str) -> str:
         uses = cites.get(i, [])
         sps = [by_id[u[0]] for u in uses if u[0] in by_id]
-        if any(sp.status == "Done" for sp in sps):
+        if verified_in_production(i, fam, sps):
             return "Verified in production"
+        if any(sp.status == "Done" for sp in sps):
+            return "Tested"
         if fam.startswith("AC") and ac_res.get(i) in ("automated", "manual"):
             return "Tested"
         if fam in ("US", "EN") and ac_by_story.get(i) and all(ac_res.get(a) in ("automated", "manual") for a in ac_by_story[i]):

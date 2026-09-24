@@ -18,7 +18,7 @@ You work out where Delivery Hero's implementation stands and what should happen 
 
 - Never edit, create or delete files. `/dh` records what you find.
 - Use Bash only for read-only commands:
-  - the planning scripts in their read-only forms: `node planning/scripts/run.mjs state`, `status --check`, `next`, `trace --check`, `trace --id <ID>`, `validate`, `docs_manifest` (never `--update`), `section <doc> <heading>`, `ids --no-write --id <ID>`, `journal show`, `journal check` and `journal claims`;
+  - the planning scripts in their read-only forms: `node planning/scripts/run.mjs state`, `phase`, `owner` (list, `next` or `due`), `probe` (without `--record`), `status --check`, `next`, `trace --check`, `trace --id <ID>`, `validate`, `docs_manifest` (never `--update`), `section <doc> <heading>`, `ids --no-write --id <ID>`, `journal show`, `journal check` and `journal claims`;
   - `git status`, `git log`, `git branch`, `git show` and `git diff`;
   - `gh pr list`, `gh pr view`, `gh pr checks`, `gh run list` and `gh run view`;
   - file listings.
@@ -26,7 +26,7 @@ You work out where Delivery Hero's implementation stands and what should happen 
 
 ## Method: scripts first, then only what they point to
 
-1. Run `state`, `status --check`, `next`, `validate`, `trace --check` and `docs_manifest`. Their output is the backbone of the report; copy numbers from it.
+1. Run `state`, `phase`, `owner`, `status --check`, `next`, `validate`, `trace --check` and `docs_manifest`. Their output is the backbone of the report; copy numbers from it.
 2. **Reading mode** comes from `docs_manifest`:
    - no subplans: no-plan mode (report that the planning flow must run, with a brief repository state);
    - documents changed: use the caller's summaries, or read each changed document in full if there are three or fewer;

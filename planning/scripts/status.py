@@ -31,9 +31,7 @@ from _common import (EVENT, PHASE_ORDER, TRIAL_RUN, configure_stdout, current_ph
                      freeze_state, load_subplans, md_table, parse_dates, phases, planning_dir, read_text, register,
                      repo_root, sections, today, weekdays_between, write_text)
 
-S0_END = date(2026, 9, 29)
-S1_END = date(2026, 10, 6)
-RECHECK = date(2026, 10, 19)
+from phase import RECHECK, S0_END, S1_END, calendar_phase  # noqa: E402  (one phase model: phase.py)
 GNG_EVIDENCE = [["GNG-1"], ["LT-01"], ["GNG-3"], ["MUST"], ["TRIAL-02"], ["TRIAL-01"], ["OPS-11", "OPS-08"], ["OPS-16"],
                 ["E2E-08"] + [f"A11Y-{i:02d}" for i in range(1, 10)]]
 
@@ -220,7 +218,7 @@ def gather(root: Path, day: date) -> Dict:
         n = Counter(ac.values())
         crit_line = (f"{n['automated'] + n['manual']} of {len(ac)} passing ({n['automated']} automated, {n['manual']} manual), "
                      f"{n['failing']} failing, {n['missing']} missing")
-    return {"day": day, "phase": current_phase(root, day), "freeze": freeze_state(day), "plans": plans, "tasks": (tasks_done, tasks_total),
+    return {"day": day, "phase": calendar_phase(root, day), "freeze": freeze_state(day), "plans": plans, "tasks": (tasks_done, tasks_total),
             "points": (all_done, all_total), "must": (must_done, must_total), "per_phase": per_phase, "criteria": crit_line,
             "next": nx, "overdue": overdue, "due7": due7, "inconsistencies": inconsistencies, "checkpoints": cps,
             "milestones": ms, "blockers": blockers, "rows": rows, "testing": testing_due(root, day),

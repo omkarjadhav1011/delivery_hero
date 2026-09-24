@@ -43,3 +43,4 @@ Current state:
    - Set the status field: In progress, In review (a pull request is open), Done (every task ticked, merged, criteria passing) or Blocked (with the reason in the log).
    - Run `/progress`, then `S journal end --summary "<what was done>"`, and commit.
    - Offer `/pr`, tell me what's next, and suggest `/clear` before the next subplan.
+8. **After I merge:** verify the deploy as in the "Deploy verification" section of `.claude/skills/dh/reference.md` (the deploy run's exit code, `/health`, the record in `check-results.md`), then set the subplan to Done.
