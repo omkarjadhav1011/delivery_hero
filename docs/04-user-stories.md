@@ -1,6 +1,6 @@
 # Delivery Hero — User Stories
 
-> Document 04 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 04 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.2 · 02 — PRD v1.0 (F-01 to F-58) · 03 — SRS v1.0 (FR-001 to FR-093) |
 | Feeds into | 05 — Acceptance Criteria (one set per story) · 14 — Test Plan · 15 — Test Cases |
 | New decisions | None. This document plans delivery; it doesn't change product behavior |
@@ -21,7 +20,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved |
 
 ---

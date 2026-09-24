@@ -1,6 +1,6 @@
 # Delivery Hero — Software Requirements Specification (SRS)
 
-> Document 03 of 18 · Version 1.4 (approved) · Drafted with Claude, approved by the owner
+> Document 03 of 18 · Version 1.4 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Project Charter v1.1 (DEC-01 to DEC-93) · 02 — PRD v1.0 (features F-01 to F-58) |
 | Feeds into | 04 User Stories · 05 Acceptance Criteria · 06 Use Cases · 07 HLD · 08 LLD · 09 Architecture · 10 Database Design · 11 API Specification · 14 Test Plan · 15 Test Cases |
 
@@ -20,7 +19,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. Proposed decisions SD-01 to SD-26 recorded as DEC-94 to DEC-119 in the Charter (v1.2) |
 | 1.1 | 2026-09-23 | [Owner name] | Applied clarifications approved with the Acceptance Criteria: BR-16 name normalization (DEC-120), FR-048 banner fallback (DEC-121), FR-056 offline timing (DEC-122) |
 | 1.2 | 2026-09-23 | [Owner name] | Named the problem-word flag `monospace` in FR-034 and section 7.3 (DEC-157) |

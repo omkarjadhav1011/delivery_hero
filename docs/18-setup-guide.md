@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 18 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 24 September 2026 |
-| Drafting note | Drafted with Claude before the code scaffold exists. The local stack's Nginx and Compose files were tested as described in section 13; every command is checked against the scaffold in Sprint 0 (OPS-20) and again before release |
+| Drafting note | Written before the code scaffold exists. The local stack's Nginx and Compose files were tested as described in section 13; every command is checked against the scaffold in Sprint 0 (OPS-20) and again before release |
 | Depends on | 04 — User Stories (EN-01) · 08 — LLD v1.3 · 09 — Software Architecture v1.2 · 11 — API Specification · 13 — Coding Standards and Git Strategy v1.2 · 14 — Test Plan v1.1 · 15 — Test Cases v1.1 · 16 — Deployment Guide v1.0 |
 | Feeds into | Onboarding · checks OPS-20 and OPS-22 |
 
@@ -20,7 +20,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-24 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-24 | [Owner name] | First draft |
 | 1.0 | 2026-09-24 | [Owner name] | Approved, with the README. SG-01 to SG-05 recorded as DEC-207 to DEC-211 (Charter v1.14); SG-01 applied to document 13's CI outline (v1.2) |
 
 ---

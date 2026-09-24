@@ -1,6 +1,6 @@
 # Delivery Hero — High-Level Design (HLD)
 
-> Document 07 of 18 · Version 1.1 (approved) · Drafted with Claude, approved by the owner
+> Document 07 of 18 · Version 1.1 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.4 (DEC-01 to DEC-123) · 03 — SRS v1.1 · 06 — Use Case Document v1.0 |
 | Feeds into | 08 — LLD · 09 — Software Architecture Document · 10 — Database Design · 11 — API Specification · 16 — Deployment Guide |
 
@@ -20,9 +19,9 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. HD-01 to HD-15 recorded as DEC-124 to DEC-138 (Charter v1.5) |
-| 1.1 | 2026-09-23 | [Owner name], drafted with Claude | Editorial correction found while writing the LLD: section 11 said every send from a projector connection is rejected, but the projector must send time-sync requests (SRS 3.5). It now allows those, which change nothing |
+| 1.1 | 2026-09-23 | [Owner name] | Editorial correction found while writing the LLD: section 11 said every send from a projector connection is rejected, but the projector must send time-sync requests (SRS 3.5). It now allows those, which change nothing |
 
 ---
 

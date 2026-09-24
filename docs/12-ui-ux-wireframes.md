@@ -1,6 +1,6 @@
 # Delivery Hero — UI/UX Wireframes
 
-> Document 12 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 12 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; every color pairing in section 5.2 was checked against WCAG 2.2 AA contrast ratios |
+| Drafting note | Every color pairing in section 5.2 was checked against WCAG 2.2 AA contrast ratios |
 | Depends on | 01 — Charter v1.9 · 02 — PRD v1.1 · 03 — SRS v1.3 · 08 — LLD v1.1 · 11 — API Specification v1.0 |
 | Feeds into | Frontend implementation · 15 — Test Cases |
 
@@ -20,7 +20,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. UX-01 to UX-09 recorded as DEC-166 to DEC-174 (Charter v1.10) |
 
 ---

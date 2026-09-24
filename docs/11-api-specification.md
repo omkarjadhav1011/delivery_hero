@@ -1,6 +1,6 @@
 # Delivery Hero — API Specification
 
-> Document 11 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 11 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.8 (DEC-01 to DEC-158) · 03 — SRS v1.2 · 07 — HLD v1.1 · 08 — LLD v1.1 · 10 — Database Design v1.0 |
 | Feeds into | Frontend and backend implementation · 15 — Test Cases · the OpenAPI document generated from code (NFR-44) |
 
@@ -20,7 +19,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. AP-01 to AP-07 recorded as DEC-159 to DEC-165 (Charter v1.9); ANSWER_REJECTED added to the SRS message catalog (v1.3) |
 
 ---

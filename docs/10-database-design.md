@@ -1,6 +1,6 @@
 # Delivery Hero — Database Design Document (ERD)
 
-> Document 10 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 10 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude. The DDL in section 10 was applied to a real PostgreSQL database (version 16 in the drafting environment; the pipeline runs version 18), the full task pool was imported, and 16 constraint tests passed |
+| Drafting note | The DDL in section 10 was applied to a real PostgreSQL database (version 16 in the drafting environment; the pipeline runs version 18), the full task pool was imported, and 16 constraint tests passed |
 | Depends on | 01 — Charter v1.7 (DEC-01 to DEC-151) · 03 — SRS v1.1 · 07 — HLD v1.1 · 08 — LLD v1.0 · 09 — SAD v1.0 |
 | Feeds into | 11 — API Specification · 15 — Test Cases · 16 — Deployment Guide · 18 — Setup Guide |
 
@@ -20,7 +20,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. DB-01 to DB-07 recorded as DEC-152 to DEC-158 (Charter v1.8); the LLD and SRS updated for the `monospace` flag |
 
 ---

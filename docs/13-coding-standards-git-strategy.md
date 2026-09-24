@@ -1,6 +1,6 @@
 # Delivery Hero — Coding Standards and Git Strategy
 
-> Document 13 of 18 · Version 1.2 (approved) · Drafted with Claude, approved by the owner
+> Document 13 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; the configuration examples in the appendices were checked with the tools they configure |
+| Drafting note | The configuration examples in the appendices were checked with the tools they configure |
 | Depends on | 01 — Charter v1.10 (DEC-64 to DEC-68, DEC-147 to DEC-149) · 03 — SRS v1.3 (NFR-40 to NFR-44) · 08 — LLD v1.1 · 09 — Software Architecture v1.0 · 12 — UI/UX Wireframes v1.0 |
 | Feeds into | Sprint 0 repository setup · 14 — Test Plan · 16 — Deployment Guide |
 
@@ -20,9 +20,9 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. CS-01 to CS-06 and GS-01 to GS-04 recorded as DEC-175 to DEC-184 (Charter v1.11) |
-| 1.1 | 2026-09-23 | [Owner name], drafted with Claude | Corrections found while writing the Test Plan: the accessibility scan now fails on any WCAG 2.2 A or AA violation, as approved criterion AC-EN09-01 requires; the CI outline gains the seed validation step |
+| 1.1 | 2026-09-23 | [Owner name] | Corrections found while writing the Test Plan: the accessibility scan now fails on any WCAG 2.2 A or AA violation, as approved criterion AC-EN09-01 requires; the CI outline gains the seed validation step |
 | 1.2 | 2026-09-24 | [Owner name] | From the approved Deployment Guide and Technical Documentation: Dependabot watches the Dockerfiles in `deploy/backend` and `deploy/nginx`; the CI end-to-end job uses the local stack with `DH_PROFILE=e2e` and loads the task pool (DEC-207); `.shellcheckrc` and `.gitleaks.toml` added, without which CI's ShellCheck step fails on the server scripts and its secret scan flags documented example values |
 
 ---

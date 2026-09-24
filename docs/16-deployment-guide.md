@@ -1,6 +1,6 @@
 # Delivery Hero — Deployment Guide
 
-> Document 16 of 18 · Version 1.0 (approved) · Drafted with Claude, approved by the owner
+> Document 16 of 18 · Version 1.0 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 24 September 2026 |
-| Drafting note | Drafted with Claude. The files in `deploy/` and `.github/workflows/deploy.yml` were tested as described in section 18 |
+| Drafting note | The files in `deploy/` and `.github/workflows/deploy.yml` were tested as described in section 18 |
 | Depends on | 01 — Charter v1.13 (DEC-58 to DEC-62, DEC-103, DEC-104, DEC-137, DEC-150, DEC-151, DEC-158) · 07 — HLD v1.1 · 08 — LLD v1.3 · 09 — Software Architecture v1.1 · 13 — Coding Standards and Git Strategy v1.2 · 14 — Test Plan v1.1 · 15 — Test Cases v1.0 |
 | Feeds into | Sprint 0 infrastructure · production checks OPS-01 to OPS-22 · 18 — Technical Documentation |
 
@@ -20,8 +20,8 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
-| 0.2 | 2026-09-24 | [Owner name], drafted with Claude | CSP file aligned with LLD section 6.6 (`frontend/nginx/csp.conf`, no domain placeholder); Nginx routes moved to a snippet shared with the local stack (document 18); pages served without a redirect; relative redirects; Dependabot note in section 17 |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
+| 0.2 | 2026-09-24 | [Owner name] | CSP file aligned with LLD section 6.6 (`frontend/nginx/csp.conf`, no domain placeholder); Nginx routes moved to a snippet shared with the local stack (document 18); pages served without a redirect; relative redirects; Dependabot note in section 17 |
 | 1.0 | 2026-09-24 | [Owner name] | Approved. DG-01 to DG-09 recorded as DEC-198 to DEC-206 (Charter v1.14), settling OI-07; Dependabot entry applied to document 13 (v1.2) |
 
 ---

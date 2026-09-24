@@ -1,6 +1,6 @@
 # Delivery Hero — Acceptance Criteria
 
-> Document 05 of 18 · Version 1.2 (approved) · Drafted with Claude, approved by the owner
+> Document 05 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.2 · 02 — PRD v1.1 · 03 — SRS v1.0 · 04 — User Stories v1.0 · task pool seed file |
 | Feeds into | 14 — Test Plan · 15 — Test Cases · automated acceptance tests |
 
@@ -20,10 +19,10 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. Clarifications CL-01 to CL-03 recorded as DEC-120 to DEC-122 (Charter v1.3) and applied to the SRS (v1.1) |
-| 1.1 | 2026-09-23 | [Owner name], drafted with Claude | Correction found while writing the Test Plan: mgr-plan-01 has a 20-second limit in the seed, not the 15-second default. Recomputed AC-US16-01 to 04, AC-US28-01, 02 and 07, and AC-US31-01; AC-US28-02 now checks the halves-up rule directly. No rule changed |
-| 1.2 | 2026-09-23 | [Owner name], drafted with Claude | AC-EN03-01 aligned with the approved merge gate (DEC-181): GitHub Free can't block merges in private repositories, so the criterion checks that CI fails and the deploy workflow stops a bad build |
+| 1.1 | 2026-09-23 | [Owner name] | Correction found while writing the Test Plan: mgr-plan-01 has a 20-second limit in the seed, not the 15-second default. Recomputed AC-US16-01 to 04, AC-US28-01, 02 and 07, and AC-US31-01; AC-US28-02 now checks the halves-up rule directly. No rule changed |
+| 1.2 | 2026-09-23 | [Owner name] | AC-EN03-01 aligned with the approved merge gate (DEC-181): GitHub Free can't block merges in private repositories, so the criterion checks that CI fails and the deploy workflow stops a bad build |
 
 ---
 

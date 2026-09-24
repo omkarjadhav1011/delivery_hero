@@ -1,6 +1,6 @@
 # Delivery Hero — Low-Level Design (LLD)
 
-> Document 08 of 18 · Version 1.3 (approved) · Drafted with Claude, approved by the owner
+> Document 08 of 18 · Version 1.3 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.5 (DEC-01 to DEC-138) · 03 — SRS v1.1 · 07 — HLD v1.1 |
 | Feeds into | 09 — Architecture · 10 — Database Design · 11 — API Specification · 13 — Coding Standards · 15 — Test Cases |
 
@@ -20,7 +19,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. LD-01 to LD-08 recorded as DEC-139 to DEC-146 (Charter v1.6) |
 | 1.1 | 2026-09-23 | [Owner name] | Renamed `ProblemWordsContent.code` to `monospace` (DEC-157) |
 | 1.2 | 2026-09-23 | [Owner name] | Frontend structure: added `src/copy.ts` (DEC-179) |

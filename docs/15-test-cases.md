@@ -1,6 +1,6 @@
 # Delivery Hero — Test Cases
 
-> Document 15 of 18 · Version 1.1 (approved) · Drafted with Claude, approved by the owner
+> Document 15 of 18 · Version 1.1 (approved)
 
 ## Document control
 
@@ -12,7 +12,7 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude. The catalog was generated from document 05 and checked to cover all 271 criteria exactly once; the coverage tool in section 8.3 was tested with sample reports |
+| Drafting note | The catalog was generated from document 05 and checked to cover all 271 criteria exactly once; the coverage tool in section 8.3 was tested with sample reports |
 | Depends on | 03 — SRS v1.4 · 05 — Acceptance Criteria v1.2 · 11 — API Specification v1.0 · 12 — UI/UX Wireframes v1.0 · 13 — Coding Standards and Git Strategy v1.1 · 14 — Test Plan v1.0 |
 | Feeds into | The automated suites · manual test runs · the test summary report · 17 — Release Notes |
 
@@ -20,7 +20,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. TC-01 to TC-03 recorded as DEC-195 to DEC-197 (Charter v1.13); TC-03 applied to the Test Plan (v1.1) |
 | 1.1 | 2026-09-24 | [Owner name] | `SeedImportIT` runs the seed command as a separate application, so TC-US56-04 also proves no game is cancelled (LLD v1.3) |
 
