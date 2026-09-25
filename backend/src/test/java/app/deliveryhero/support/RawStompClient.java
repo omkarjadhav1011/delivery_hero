@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -116,15 +117,15 @@ public final class RawStompClient extends TextWebSocketHandler implements AutoCl
     private static Frame parse(String payload) {
         String text = payload.stripLeading();
         int headerEnd = text.indexOf("\n\n");
-        String[] lines = text.substring(0, headerEnd).split("\n");
+        List<String> lines = text.substring(0, headerEnd).lines().toList();
         Map<String, String> headers = new LinkedHashMap<>();
-        for (int i = 1; i < lines.length; i++) {
-            int colon = lines[i].indexOf(':');
-            headers.putIfAbsent(lines[i].substring(0, colon), lines[i].substring(colon + 1));
+        for (String line : lines.subList(1, lines.size())) {
+            int colon = line.indexOf(':');
+            headers.putIfAbsent(line.substring(0, colon), line.substring(colon + 1));
         }
         String body = text.substring(headerEnd + 2);
         int end = body.indexOf('\0');
-        return new Frame(lines[0], headers, end >= 0 ? body.substring(0, end) : body);
+        return new Frame(lines.get(0), headers, end >= 0 ? body.substring(0, end) : body);
     }
 
     @Override

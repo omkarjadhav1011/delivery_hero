@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -31,24 +30,51 @@ public class StompAuthInterceptor implements ChannelInterceptor {
 
     private final ConnectionCredentials credentials;
     private final TokenService tokens;
+    private final DestinationPolicy destinations;
 
-    public StompAuthInterceptor(ConnectionCredentials credentials, TokenService tokens) {
+    public StompAuthInterceptor(
+            ConnectionCredentials credentials, TokenService tokens, DestinationPolicy destinations) {
         this.credentials = credentials;
         this.tokens = tokens;
+        this.destinations = destinations;
     }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        if (accessor == null || accessor.getCommand() != StompCommand.CONNECT) {
+        if (accessor == null || accessor.getCommand() == null) {
             return message;
         }
-        ClientPrincipal principal = authenticate(accessor).orElseThrow(() -> {
-            log.info("STOMP connection refused");
-            return new StompRefusal(Code.UNAUTHORIZED);
-        });
-        accessor.setUser(principal);
+        switch (accessor.getCommand()) {
+            case CONNECT, STOMP -> {
+                ClientPrincipal principal = authenticate(accessor).orElseThrow(() -> {
+                    log.info("STOMP connection refused");
+                    return new StompRefusal(Code.UNAUTHORIZED);
+                });
+                accessor.setUser(principal);
+            }
+            case SUBSCRIBE -> {
+                if (!(accessor.getUser() instanceof ClientPrincipal principal)
+                        || !destinations.maySubscribe(principal, accessor.getDestination())) {
+                    throw refused("subscription");
+                }
+            }
+            case SEND -> {
+                if (!(accessor.getUser() instanceof ClientPrincipal principal)
+                        || !destinations.maySend(principal, accessor.getDestination())) {
+                    throw refused("send");
+                }
+            }
+            default -> {
+                // UNSUBSCRIBE, DISCONNECT, ACK and NACK carry no destination to check
+            }
+        }
         return message;
+    }
+
+    private static StompRefusal refused(String what) {
+        log.info("STOMP {} refused", what);
+        return new StompRefusal(Code.FORBIDDEN);
     }
 
     private Optional<ClientPrincipal> authenticate(StompHeaderAccessor accessor) {

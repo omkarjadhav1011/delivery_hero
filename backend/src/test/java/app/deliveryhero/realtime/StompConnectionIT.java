@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterEach;
@@ -72,7 +73,7 @@ class StompConnectionIT {
             assertConnected(idle);
             assertConnected(silent);
             long silentSince = System.nanoTime();
-            heartbeats.scheduleAtFixedRate(
+            ScheduledFuture<?> beating = heartbeats.scheduleAtFixedRate(
                     () -> {
                         try {
                             idle.heartbeat();
@@ -98,6 +99,7 @@ class StompConnectionIT {
             assertThat(silence).isLessThanOrEqualTo(Duration.ofSeconds(20));
             assertThat(idle.isOpen()).isTrue();
             assertThat(idle.heartbeatsReceived()).isGreaterThanOrEqualTo(2);
+            assertThat(beating.isDone()).as("heartbeats still being sent").isFalse();
         }
     }
 
@@ -122,6 +124,38 @@ class StompConnectionIT {
         assertRefused(Map.of("projector-key", wrongKey));
         assertRefused(Map.of());
         assertThat(output).doesNotContain(PROJECTOR_KEY).doesNotContain(wrongKey);
+    }
+
+    @Test
+    @DisplayName("AC-EN04-02 a player subscribing to another game's screen, or a projector sending an answer, is"
+            + " refused")
+    void destinationsOutsideTheRoleAreRefused() throws Exception {
+        String token = registerPlayer(PLAYER);
+        credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
+        UUID otherGame = UUID.fromString("00000000-0000-0000-0000-00000000000b");
+
+        try (RawStompClient player = RawStompClient.open(port)) {
+            player.connect(Map.of("player-token", token));
+            assertConnected(player);
+            player.subscribe("s1", DestinationPolicy.screenTopic(otherGame));
+            assertForbidden(player);
+        }
+        try (RawStompClient projector = RawStompClient.open(port)) {
+            projector.connect(Map.of("projector-key", PROJECTOR_KEY));
+            assertConnected(projector);
+            projector.sendTo(DestinationPolicy.answerDestination(GAME), "{\"type\":\"ANSWER_SUBMIT\"}");
+            assertForbidden(projector);
+        }
+    }
+
+    private static void assertForbidden(RawStompClient client) throws Exception {
+        Frame frame = client.nextFrame(FRAME_TIMEOUT);
+        assertThat(frame).isNotNull();
+        assertThat(frame.command()).isEqualTo("ERROR");
+        assertThat(frame.headers()).containsEntry("message", "FORBIDDEN");
+        assertThat(frame.body()).isEmpty();
+        client.closed().get(5, TimeUnit.SECONDS);
+        assertThat(client.nextFrame(QUIET)).as("no frame after the refusal").isNull();
     }
 
     private String registerPlayer(UUID playerId) {
