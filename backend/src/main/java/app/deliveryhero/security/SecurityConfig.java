@@ -34,10 +34,6 @@ public class SecurityConfig {
     /** One {@code admin} user whose password is the configured bcrypt hash, so Spring never generates a password. */
     @Bean
     UserDetailsService adminAccount(AdminProperties admin) {
-        if (admin.passwordHash().isBlank()) {
-            throw new IllegalStateException("DH_ADMIN_PASSWORD_HASH is not set: configure the bcrypt hash of the"
-                    + " admin password (document 16, section 8.2)");
-        }
         return new InMemoryUserDetailsManager(User.withUsername(ADMIN_USERNAME)
                 .password(admin.passwordHash())
                 .roles("ADMIN")
@@ -51,6 +47,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(requests -> {
             requests.requestMatchers(HttpMethod.GET, "/actuator/health", "/api/ops/deploy-lock")
                     .permitAll();
+            // Error dispatches keep their real status instead of turning into 401
+            requests.requestMatchers("/error").permitAll();
             if (apiDocsEnabled) {
                 // API documentation exists only in the dev and test profiles; Nginx never exposes it
                 requests.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
