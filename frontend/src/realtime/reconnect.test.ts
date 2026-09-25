@@ -99,4 +99,40 @@ describe("createReconnectSchedule", () => {
 
     expect(attempt).not.toHaveBeenCalled();
   });
+
+  it("retries at once when asked, but never twice while an attempt is still open", () => {
+    const attempt = vi.fn();
+    const schedule = createReconnectSchedule({
+      timer: { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (id) => clearTimeout(id) },
+      attempt,
+      onStatusChange: () => {},
+    });
+    schedule.connected();
+    schedule.connectionLost();
+
+    schedule.retryNow();
+    schedule.retryNow();
+    vi.advanceTimersByTime(10_000);
+
+    expect(attempt).toHaveBeenCalledOnce();
+  });
+
+  it("stays refused and makes no more attempts once refused", () => {
+    const attempt = vi.fn();
+    const statuses: ConnectionStatus[] = [];
+    const schedule = createReconnectSchedule({
+      timer: { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (id) => clearTimeout(id) },
+      attempt,
+      onStatusChange: (status) => statuses.push(status),
+    });
+    schedule.attemptFailed();
+
+    schedule.refuse();
+    schedule.retryNow();
+    vi.advanceTimersByTime(10_000);
+
+    expect(statuses).toEqual(["reconnecting", "refused"]);
+    expect(schedule.status()).toBe("refused");
+    expect(attempt).not.toHaveBeenCalled();
+  });
 });

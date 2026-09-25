@@ -73,4 +73,52 @@ describe("useStomp", () => {
     expect(fake.subscribed).toEqual([]);
     expect(fake.deactivate).toHaveBeenCalledOnce();
   });
+
+  it("keeps one connection across renders and calls the latest onMessage", () => {
+    const fake = fakeClient();
+    const createClient = vi.fn(() => fake.client);
+    const first = vi.fn();
+    const second = vi.fn();
+    const { rerender } = renderHook(
+      ({ onMessage }) =>
+        useStomp({
+          credentials: { playerToken: "tok-1" },
+          destinations: ["/user/queue/game"],
+          onMessage,
+          createClient,
+        }),
+      { initialProps: { onMessage: first } },
+    );
+    act(() => fake.config()?.onConnect());
+
+    rerender({ onMessage: second });
+    fake.bodies.get("/user/queue/game")?.('{"type":"GAME_STATE","serverTime":6}');
+
+    expect(createClient).toHaveBeenCalledOnce();
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith("/user/queue/game", { type: "GAME_STATE", serverTime: 6 });
+  });
+
+  it("reports connecting again for new credentials, not the old connection's status", () => {
+    const fakes = [fakeClient(), fakeClient()];
+    let made = 0;
+    const createClient = () => (fakes[made++] ?? fakes[1]!).client;
+    const { result, rerender } = renderHook(
+      ({ token }) =>
+        useStomp({
+          credentials: { playerToken: token },
+          destinations: ["/user/queue/game"],
+          onMessage: () => {},
+          createClient,
+        }),
+      { initialProps: { token: "tok-1" } },
+    );
+    act(() => fakes[0]?.config()?.onConnect());
+    expect(result.current).toBe("online");
+
+    rerender({ token: "tok-2" });
+
+    expect(result.current).toBe("connecting");
+    expect(fakes[1]?.config()?.connectHeaders).toEqual({ "player-token": "tok-2" });
+  });
 });

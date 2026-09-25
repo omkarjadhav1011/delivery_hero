@@ -30,6 +30,10 @@ export interface ReconnectSchedule {
   connectionLost(): void;
   /** An attempt didn't connect: show the banner and wait for the next one. */
   attemptFailed(): void;
+  /** The network is back: attempt now instead of waiting out the current delay. */
+  retryNow(): void;
+  /** The server refused the credentials: no more attempts, and the status stays refused. */
+  refuse(): void;
   /** No more attempts, for example when the page unmounts. */
   stop(): void;
 }
@@ -43,6 +47,13 @@ export function createReconnectSchedule({
   let attempts = 0;
   let pending: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
+  // An attempt has started and its result isn't known yet
+  let inFlight = false;
+
+  const startAttempt = () => {
+    inFlight = true;
+    attempt();
+  };
 
   const setStatus = (next: ConnectionStatus) => {
     if (next !== status) {
@@ -66,24 +77,40 @@ export function createReconnectSchedule({
     attempts += 1;
     pending = timer.setTimeout(() => {
       pending = undefined;
-      attempt();
+      startAttempt();
     }, reconnectDelayMs(attempts));
   };
 
   return {
     status: () => status,
     connected() {
+      inFlight = false;
       cancelPending();
       attempts = 0;
       setStatus("online");
     },
     connectionLost() {
+      inFlight = false;
       attempts = 0;
       scheduleNext();
     },
     attemptFailed() {
+      inFlight = false;
       setStatus("reconnecting");
       scheduleNext();
+    },
+    retryNow() {
+      if (stopped || inFlight || status === "online") {
+        return;
+      }
+      cancelPending();
+      attempts += 1;
+      startAttempt();
+    },
+    refuse() {
+      stopped = true;
+      cancelPending();
+      setStatus("refused");
     },
     stop() {
       stopped = true;

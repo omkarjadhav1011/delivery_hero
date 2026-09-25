@@ -36,7 +36,11 @@ export function useStomp({
   onRefused,
   createClient,
 }: UseStompOptions): ConnectionStatus {
-  const [status, setStatus] = useState<ConnectionStatus>("connecting");
+  // The status belongs to the connection for one set of credentials; a new one starts at "connecting"
+  const [state, setState] = useState<{ key: string; status: ConnectionStatus }>({
+    key: "",
+    status: "connecting",
+  });
   // The latest callbacks and credentials, read by the connection without rebuilding it on every render
   const latest = useRef({ credentials, onMessage, onRefused, createClient });
   useEffect(() => {
@@ -53,7 +57,7 @@ export function useStomp({
     const connection = createStompConnection({
       credentials: current,
       timer: browserTimer,
-      onStatusChange: setStatus,
+      onStatusChange: (status) => setState({ key, status }),
       onRefused: () => latest.current.onRefused?.(),
       createClient: latest.current.createClient,
     });
@@ -72,5 +76,5 @@ export function useStomp({
     };
   }, [key, destinationsKey]);
 
-  return status;
+  return state.key === key ? state.status : "connecting";
 }
