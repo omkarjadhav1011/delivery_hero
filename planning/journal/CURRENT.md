@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
+| State | active |
+| Session | 2026-09-25-2231 |
+| Subplan | S0-02 |
+| Branch | chore/ci-merge-checks |
+| Start commit | e96ee0b |
+| Last commit | e96ee0b |
+| Step | awaiting-approval |
 | Task |  |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-25T22:31 |
+| Updated | 2026-09-25T22:32 |
+| Next action | Plan the session |
 
 ## Completed tasks
 
