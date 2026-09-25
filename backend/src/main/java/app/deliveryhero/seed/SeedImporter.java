@@ -7,7 +7,6 @@ import app.deliveryhero.common.TaskType;
 import app.deliveryhero.content.CharacterDefinition;
 import app.deliveryhero.content.CodeSnippet;
 import app.deliveryhero.content.ContentValidator;
-import app.deliveryhero.content.ContentValidator.TaskLookup;
 import app.deliveryhero.content.Issue;
 import app.deliveryhero.content.MultipleChoiceContent;
 import app.deliveryhero.content.OrderContent;
@@ -27,7 +26,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,8 +76,13 @@ public class SeedImporter {
             return new Refused(
                     List.of("file " + file + ": can't be read (" + e.getClass().getSimpleName() + ")"), List.of());
         } catch (JacksonException e) {
+            // Only the place: Jackson's message can quote the file's text
             return new Refused(
-                    List.of("file " + file + ": isn't a valid seed file: " + e.getOriginalMessage()), List.of());
+                    List.of("file " + file + ": isn't a valid seed file ("
+                            + e.getClass().getSimpleName() + " at line "
+                            + e.getLocation().getLineNr() + ", column "
+                            + e.getLocation().getColumnNr() + ")"),
+                    List.of());
         }
         Check check = new Check();
         check.run(seed);
@@ -110,11 +113,14 @@ public class SeedImporter {
                 errors.add("file: formatVersion must be 1");
             }
             checkCharacters(orEmpty(seed.characters()));
-            Map<String, TaskLookup> fileTasks = new HashMap<>();
             Set<String> taskKeys = new HashSet<>();
             List<SeedFile.Task> seedTasks = orEmpty(seed.tasks());
             for (int i = 0; i < seedTasks.size(); i++) {
                 SeedFile.Task raw = seedTasks.get(i);
+                if (raw == null) {
+                    errors.add("tasks[" + i + "]: is empty");
+                    continue;
+                }
                 String where = "task " + label(raw.key(), "tasks[" + i + "]");
                 if (raw.key() != null && !taskKeys.add(raw.key())) {
                     errors.add(where + ": key: the key is used more than once");
@@ -123,13 +129,16 @@ public class SeedImporter {
                 if (task != null) {
                     report(where, validator.validateSeedTask(task));
                     tasks.add(task);
-                    fileTasks.put(task.key(), new TaskLookup(task.kind(), task.phase(), task.type()));
                 }
             }
             Set<String> planKeys = new HashSet<>();
             List<SeedFile.RunPlan> seedPlans = orEmpty(seed.runPlans());
             for (int i = 0; i < seedPlans.size(); i++) {
                 SeedFile.RunPlan raw = seedPlans.get(i);
+                if (raw == null) {
+                    errors.add("runPlans[" + i + "]: is empty");
+                    continue;
+                }
                 String where = "run plan " + label(raw.key(), "runPlans[" + i + "]");
                 if (raw.key() != null && !planKeys.add(raw.key())) {
                     errors.add(where + ": key: the key is used more than once");
@@ -137,34 +146,39 @@ public class SeedImporter {
                 RunPlanDefinition plan = toPlan(raw, where);
                 if (plan != null) {
                     report(where, validator.validateRunPlan(plan));
-                    report(where, validator.validateRunPlanLists(plan, key -> lookup(key, fileTasks)));
+                    report(
+                            where,
+                            validator.validateRunPlanKeys(
+                                    plan, key -> taskKeys.contains(key) || storedTasks.existsByTaskKey(key)));
                     plans.add(plan);
                 }
             }
         }
 
         private void checkCharacters(List<SeedFile.Character> seedCharacters) {
-            List<String> roles = new ArrayList<>();
-            for (SeedFile.Character raw : seedCharacters) {
-                String where = "character " + label(raw.role(), "?");
-                roles.add(String.valueOf(raw.role()));
+            Set<Role> roles = new HashSet<>();
+            for (int i = 0; i < seedCharacters.size(); i++) {
+                SeedFile.Character raw = seedCharacters.get(i);
+                if (raw == null) {
+                    errors.add("characters[" + i + "]: is empty");
+                    continue;
+                }
+                String where = "character " + label(raw.role(), "characters[" + i + "]");
                 Role role = parse(Role.class, raw.role(), where, "role");
                 if (role == null) {
                     continue;
+                }
+                if (!roles.add(role)) {
+                    errors.add(where + ": role: the role is used more than once");
                 }
                 CharacterDefinition character = new CharacterDefinition(
                         role,
                         text(raw.displayName()),
                         text(raw.introLine()),
-                        orEmpty(raw.correctLines()),
-                        orEmpty(raw.wrongLines()));
+                        texts(raw.correctLines()),
+                        texts(raw.wrongLines()));
                 report(where, validator.validateCharacter(character));
                 characters.add(character);
-            }
-            List<String> expected =
-                    Arrays.stream(Role.values()).map(Role::name).sorted().toList();
-            if (!roles.stream().sorted().toList().equals(expected)) {
-                errors.add("characters: each of " + expected + " is needed exactly once");
             }
         }
 
@@ -194,7 +208,7 @@ public class SeedImporter {
         private TaskContent content(SeedFile.Task raw, TaskType type, String where) {
             return switch (type) {
                 case MULTIPLE_CHOICE ->
-                    new MultipleChoiceContent(orEmpty(raw.options()).stream()
+                    new MultipleChoiceContent(present(raw.options(), where, "options").stream()
                             .map(o ->
                                     new MultipleChoiceContent.Option(text(o.text()), Boolean.TRUE.equals(o.correct())))
                             .toList());
@@ -205,7 +219,7 @@ public class SeedImporter {
                     yield new YesNoContent("YES".equals(raw.answer()));
                 }
                 case ORDER ->
-                    new OrderContent(orEmpty(raw.items()).stream()
+                    new OrderContent(present(raw.items(), where, "items").stream()
                             .map(item -> new OrderContent.Item(
                                     text(item.text()), Objects.requireNonNullElse(item.correctPosition(), 0)))
                             .toList());
@@ -227,26 +241,14 @@ public class SeedImporter {
                 if (phase == null) {
                     phasesValid = false;
                 } else {
-                    phases.put(phase, orEmpty(entry.getValue()));
+                    phases.put(phase, texts(entry.getValue()));
                 }
             }
             if (minutes == null || !phasesValid) {
                 return null;
             }
             return new RunPlanDefinition(
-                    text(raw.key()), text(raw.name()), minutes, orEmpty(raw.practice()), raw.incident(), phases);
-        }
-
-        /** A task named by a plan, from the file first, then from the database (SRS section 7.4). */
-        private @Nullable TaskLookup lookup(String key, Map<String, TaskLookup> fileTasks) {
-            TaskLookup inFile = fileTasks.get(key);
-            if (inFile != null) {
-                return inFile;
-            }
-            return storedTasks
-                    .findByTaskKey(key)
-                    .map(t -> new TaskLookup(t.kind(), t.phase(), t.taskType()))
-                    .orElse(null);
+                    text(raw.key()), text(raw.name()), minutes, texts(raw.practice()), raw.incident(), phases);
         }
 
         private <E extends Enum<E>> @Nullable E parse(
@@ -287,6 +289,26 @@ public class SeedImporter {
 
         private static String text(@Nullable String value) {
             return value == null ? "" : value;
+        }
+
+        /** The list without its null entries, each reported by its index. */
+        private <T> List<T> present(@Nullable List<@Nullable T> list, String where, String field) {
+            List<T> entries = new ArrayList<>();
+            List<@Nullable T> all = list == null ? List.of() : list;
+            for (int i = 0; i < all.size(); i++) {
+                T entry = all.get(i);
+                if (entry == null) {
+                    errors.add(where + ": " + field + "[" + i + "]: is empty");
+                } else {
+                    entries.add(entry);
+                }
+            }
+            return entries;
+        }
+
+        /** Text entries with a missing one as empty text, so the length rules report it. */
+        private static List<String> texts(@Nullable List<@Nullable String> list) {
+            return list == null ? List.of() : list.stream().map(Check::text).toList();
         }
 
         private static <T> List<T> orEmpty(@Nullable List<T> list) {

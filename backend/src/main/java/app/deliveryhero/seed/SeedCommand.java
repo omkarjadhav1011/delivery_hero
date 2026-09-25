@@ -45,10 +45,14 @@ public class SeedCommand {
             return FAILED;
         }
         if (games.anyGameInProgress()) {
-            out.println("ERROR " + GAME_IN_PROGRESS + " Nothing was imported.");
-            return FAILED;
+            return refuseWhileGameInProgress(out);
         }
-        Outcome outcome = importer.importFile(Path.of(args.getFirst()));
+        Outcome outcome;
+        try {
+            outcome = importer.importFile(Path.of(args.getFirst()));
+        } catch (SeedWriter.GameInProgressException e) {
+            return refuseWhileGameInProgress(out);
+        }
         outcome.warnings().forEach(warning -> out.println("WARNING " + warning));
         return switch (outcome) {
             case Imported imported -> {
@@ -66,5 +70,10 @@ public class SeedCommand {
                 yield FAILED;
             }
         };
+    }
+
+    private static int refuseWhileGameInProgress(PrintStream out) {
+        out.println("ERROR " + GAME_IN_PROGRESS + " Nothing was imported.");
+        return FAILED;
     }
 }

@@ -6,9 +6,9 @@ import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.Role;
 import app.deliveryhero.common.TaskKind;
 import app.deliveryhero.common.TaskType;
-import app.deliveryhero.content.ContentValidator.TaskLookup;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -189,15 +189,6 @@ class ContentValidatorTest {
     }
 
     @Test
-    @DisplayName("The content must match the task type")
-    void contentMatchesType() {
-        TaskDefinition mismatch = new TaskDefinition(
-                "t", Role.MANAGER, TaskKind.SCORED, Phase.RELEASE, TaskType.YES_NO, "Ship?", null, null, mc(), "Why");
-
-        assertThat(paths(validator.validateTask(mismatch).errors())).containsExactly("type");
-    }
-
-    @Test
     @DisplayName("Tap to order has 3-5 items of 1-60 characters, positions 1..n, and a display order that differs")
     void order() {
         assertThat(validator.validateTask(order(2, 1, 3)).errors()).isEmpty();
@@ -243,47 +234,54 @@ class ContentValidatorTest {
     }
 
     @Test
-    @DisplayName("Run plan lists: keys exist, each list holds the right kind, nothing twice, no empty phase")
-    void runPlanLists() {
-        Map<String, TaskLookup> tasks = Map.of(
-                "p1", new TaskLookup(TaskKind.PRACTICE, null, TaskType.YES_NO),
-                "inc", new TaskLookup(TaskKind.INCIDENT, null, TaskType.MULTIPLE_CHOICE),
-                "plan-1", new TaskLookup(TaskKind.SCORED, Phase.PLANNING, TaskType.YES_NO),
-                "dev-1", new TaskLookup(TaskKind.SCORED, Phase.DEVELOPMENT, TaskType.YES_NO),
-                "test-1", new TaskLookup(TaskKind.SCORED, Phase.TESTING, TaskType.YES_NO),
-                "rel-1", new TaskLookup(TaskKind.SCORED, Phase.RELEASE, TaskType.YES_NO));
-        RunPlanDefinition good = new RunPlanDefinition(
+    @DisplayName("Run plan keys: each names an existing task, and a task is listed once per plan")
+    void runPlanKeys() {
+        Set<String> tasks = Set.of("p1", "inc", "plan-1", "dev-1");
+        RunPlanDefinition plan = new RunPlanDefinition(
                 "default-5min",
                 "Default",
                 5,
                 List.of("p1"),
                 "inc",
-                Map.of(
-                        Phase.PLANNING, List.of("plan-1"),
-                        Phase.DEVELOPMENT, List.of("dev-1"),
-                        Phase.TESTING, List.of("test-1"),
-                        Phase.RELEASE, List.of("rel-1")));
-        RunPlanDefinition bad = new RunPlanDefinition(
-                "default-5min",
-                "Default",
-                5,
-                List.of("plan-1"),
-                "p1",
-                Map.of(
-                        Phase.PLANNING, List.of("plan-1", "missing"),
-                        Phase.DEVELOPMENT, List.of("test-1"),
-                        Phase.TESTING, List.of()));
+                Map.of(Phase.PLANNING, List.of("plan-1", "missing"), Phase.DEVELOPMENT, List.of("dev-1", "p1")));
 
-        assertThat(validator.validateRunPlanLists(good, tasks::get).errors()).isEmpty();
-        assertThat(paths(validator.validateRunPlanLists(bad, tasks::get).errors()))
-                .containsExactly(
-                        "practice[0]",
-                        "incident",
-                        "phases.PLANNING[0]",
-                        "phases.PLANNING[1]",
-                        "phases.DEVELOPMENT[0]",
-                        "phases.TESTING",
-                        "phases.RELEASE");
+        ValidationReport report = validator.validateRunPlanKeys(plan, tasks::contains);
+
+        assertThat(paths(report.errors())).containsExactly("phases.PLANNING[1]", "phases.DEVELOPMENT[1]");
+        assertThat(report.errors()).extracting(Issue::code).containsExactly("UNKNOWN_KEY", "DUPLICATE_TASK");
+    }
+
+    @Test
+    @DisplayName("Empty phases and tasks in the wrong list are left to the readiness check (BR-13)")
+    void runPlanListsAreReadiness() {
+        RunPlanDefinition plan = new RunPlanDefinition("default-5min", "Default", 5, List.of("plan-1"), null, Map.of());
+
+        assertThat(validator.validateRunPlanKeys(plan, key -> true).errors()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Issues carry the codes of document 11, section 6.3")
+    void issueCodes() {
+        assertThat(validator.validateTask(multipleChoice(options(-1))).errors())
+                .extracting(Issue::code)
+                .containsExactly("EXACTLY_ONE_CORRECT");
+        assertThat(validator.validateTask(withPrompt("")).errors())
+                .extracting(Issue::code)
+                .containsExactly("REQUIRED");
+        assertThat(validator.validateTask(withTimeLimit(61)).errors())
+                .extracting(Issue::code)
+                .containsExactly("OUT_OF_RANGE");
+        assertThat(validator.validateTask(order(1, 2, 3)).errors())
+                .extracting(Issue::code)
+                .containsExactly("ORDER_SAME_AS_CORRECT");
+        assertThat(validator
+                        .validateTask(task("t", TaskKind.SCORED, null, mc()))
+                        .errors())
+                .extracting(Issue::code)
+                .containsExactly("PHASE_REQUIRED");
+        assertThat(validator.validateTask(withPrompt("word ".repeat(26).trim())).warnings())
+                .extracting(Issue::code)
+                .containsExactly("PROMPT_OVER_25_WORDS");
     }
 
     private static RunPlanDefinition plan(int minutes) {

@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
- * Every field rule of SRS section 7.3 for characters, tasks and run plans, in one place (LLD section 5.3). The seed
- * loader also checks run plan lists here, with the same errors as {@code tools/validate_seed.py}.
+ * Every field rule of SRS section 7.3 for characters, tasks and run plans, in one place (LLD section 5.3), with the
+ * issue codes of document 11, section 6.3.
  */
 @Component
 public class ContentValidator {
@@ -25,9 +25,6 @@ public class ContentValidator {
             Set.of("text", "java", "javascript", "typescript", "sql", "json", "python", "shell");
     private static final int PROMPT_WORDS_WARNING = 25;
     private static final int CODE_LINES_WARNING = 12;
-
-    /** What the run plan list checks need to know about a task named by key. */
-    public record TaskLookup(TaskKind kind, @Nullable Phase phase, TaskType type) {}
 
     public ValidationReport validateCharacter(CharacterDefinition character) {
         Issues issues = new Issues();
@@ -59,53 +56,30 @@ public class ContentValidator {
         issues.key("key", plan.key());
         issues.length("name", plan.name(), 1, 60);
         if (plan.roundLengthMinutes() < 3 || plan.roundLengthMinutes() > 10) {
-            issues.error("roundLengthMinutes", "RANGE", "The round length must be 3 to 10 whole minutes.");
+            issues.error("roundLengthMinutes", "OUT_OF_RANGE", "The round length must be 3 to 10 whole minutes.");
         }
         return issues.report();
     }
 
     /**
-     * The run plan's lists against the tasks they name: every key exists, each list holds tasks of its kind and
-     * phase, no task is listed twice and no phase is empty (SRS section 7.4, BR-13 errors).
+     * The keys a run plan's lists name: each must name an existing task (SRS section 7.4), and a task appears once per
+     * plan, because that is the key of {@code run_plan_entries} (document 10, section 7.4). Which list a task may be
+     * in, and empty phases, are readiness errors (BR-13), checked when a game is created.
      */
-    public ValidationReport validateRunPlanLists(RunPlanDefinition plan, Function<String, @Nullable TaskLookup> tasks) {
+    public ValidationReport validateRunPlanKeys(RunPlanDefinition plan, Predicate<String> taskExists) {
         Issues issues = new Issues();
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < plan.practice().size(); i++) {
-            String key = plan.practice().get(i);
-            issues.entry(
-                    "practice[" + i + "]",
-                    key,
-                    tasks.apply(key),
-                    seen,
-                    t -> t.kind() == TaskKind.PRACTICE,
-                    "The practice list takes only practice tasks.");
+            issues.entry("practice[" + i + "]", plan.practice().get(i), taskExists, seen);
         }
         String incident = plan.incident();
         if (incident != null) {
-            issues.entry(
-                    "incident",
-                    incident,
-                    tasks.apply(incident),
-                    seen,
-                    t -> t.kind() == TaskKind.INCIDENT && t.type() == TaskType.MULTIPLE_CHOICE,
-                    "The incident must be a multiple-choice task of kind INCIDENT.");
+            issues.entry("incident", incident, taskExists, seen);
         }
         for (Phase phase : Phase.values()) {
-            String path = "phases." + phase;
             List<String> keys = plan.phases().getOrDefault(phase, List.of());
-            if (keys.isEmpty()) {
-                issues.error(path, "EMPTY", "The phase " + phase + " is empty.");
-            }
             for (int i = 0; i < keys.size(); i++) {
-                String key = keys.get(i);
-                issues.entry(
-                        path + "[" + i + "]",
-                        key,
-                        tasks.apply(key),
-                        seen,
-                        t -> t.kind() == TaskKind.SCORED && t.phase() == phase,
-                        "The " + phase + " list takes only scored tasks of that phase.");
+                issues.entry("phases." + phase + "[" + i + "]", keys.get(i), taskExists, seen);
             }
         }
         return issues.report();
@@ -113,16 +87,16 @@ public class ContentValidator {
 
     private static void checkTask(TaskDefinition task, Issues issues) {
         issues.key("key", task.key());
-        if ((task.kind() == TaskKind.SCORED) != (task.phase() != null)) {
-            issues.error("phase", "PHASE", "Scored tasks need a phase; practice and incident tasks have none.");
+        if (task.kind() == TaskKind.SCORED && task.phase() == null) {
+            issues.error("phase", "PHASE_REQUIRED", "Scored tasks need a phase.");
+        } else if (task.kind() != TaskKind.SCORED && task.phase() != null) {
+            issues.error("phase", "PHASE_NOT_ALLOWED", "Practice and incident tasks have no phase.");
         }
-        if (!matches(task.type(), task.content())) {
-            issues.error("type", "TYPE_MISMATCH", "The content doesn't match the task type " + task.type() + ".");
-        } else if (task.kind() == TaskKind.INCIDENT && task.type() != TaskType.MULTIPLE_CHOICE) {
-            issues.error("type", "INCIDENT_TYPE", "Incident tasks must be multiple choice.");
+        if (task.kind() == TaskKind.INCIDENT && task.type() != TaskType.MULTIPLE_CHOICE) {
+            issues.error("type", "INCIDENT_NOT_MULTIPLE_CHOICE", "Incident tasks must be multiple choice.");
         }
         if (issues.length("prompt", task.prompt(), 1, 200) && words(task.prompt()) > PROMPT_WORDS_WARNING) {
-            issues.warning("prompt", "LONG_PROMPT", "The prompt has more than 25 words.");
+            issues.warning("prompt", "PROMPT_OVER_25_WORDS", "The prompt has more than 25 words.");
         }
         CodeSnippet code = task.code();
         if (code != null) {
@@ -130,11 +104,11 @@ public class ContentValidator {
         }
         Integer limit = task.timeLimitSeconds();
         if (limit != null && (limit < 5 || limit > 60)) {
-            issues.error("timeLimitSeconds", "RANGE", "The time limit must be 5 to 60 seconds.");
+            issues.error("timeLimitSeconds", "OUT_OF_RANGE", "The time limit must be 5 to 60 seconds.");
         }
         String explanation = task.explanation();
         if (explanation != null && explanation.length() > 300) {
-            issues.error("explanation", "LENGTH", "The explanation must be at most 300 characters.");
+            issues.error("explanation", "TOO_LONG", "The explanation must be at most 300 characters.");
         }
         switch (task.content()) {
             case MultipleChoiceContent c -> checkMultipleChoice(c, issues);
@@ -146,26 +120,26 @@ public class ContentValidator {
 
     private static void checkCode(CodeSnippet code, Issues issues) {
         if (!LANGUAGES.contains(code.language())) {
-            issues.error("code.language", "LANGUAGE", "The code language must be one of " + LANGUAGES + ".");
+            issues.error("code.language", "PATTERN", "The code language must be one of " + LANGUAGES + ".");
         }
         long lines = code.text().chars().filter(ch -> ch == '\n').count() + 1;
         if (code.text().length() > 2000 || lines > 30) {
-            issues.error("code.text", "LENGTH", "The code must be at most 2,000 characters and 30 lines.");
+            issues.error("code.text", "TOO_LONG", "The code must be at most 2,000 characters and 30 lines.");
         } else if (lines > CODE_LINES_WARNING) {
-            issues.warning("code.text", "LONG_CODE", "The code has more than 12 lines.");
+            issues.warning("code.text", "CODE_OVER_12_LINES", "The code has more than 12 lines.");
         }
     }
 
     private static void checkMultipleChoice(MultipleChoiceContent content, Issues issues) {
         List<MultipleChoiceContent.Option> options = content.options();
         if (options.size() < 2 || options.size() > 4) {
-            issues.error("options", "COUNT", "Multiple choice needs 2 to 4 options.");
+            issues.error("options", "OUT_OF_RANGE", "Multiple choice needs 2 to 4 options.");
         }
         for (int i = 0; i < options.size(); i++) {
             issues.length("options[" + i + "].text", options.get(i).text(), 1, 80);
         }
         if (options.stream().filter(MultipleChoiceContent.Option::correct).count() != 1) {
-            issues.error("options", "CORRECT_COUNT", "Multiple choice needs exactly one correct option.");
+            issues.error("options", "EXACTLY_ONE_CORRECT", "Multiple choice needs exactly one correct option.");
         }
     }
 
@@ -175,7 +149,7 @@ public class ContentValidator {
             issues.length("items[" + i + "].text", items.get(i).text(), 1, 60);
         }
         if (items.size() < 3 || items.size() > 5) {
-            issues.error("items", "COUNT", "Tap to order needs 3 to 5 items.");
+            issues.error("items", "OUT_OF_RANGE", "Tap to order needs 3 to 5 items.");
             return;
         }
         List<Integer> positions =
@@ -185,10 +159,10 @@ public class ContentValidator {
         if (!positions.stream().sorted().toList().equals(expected)) {
             issues.error(
                     "items",
-                    "POSITIONS",
+                    "POSITIONS_INVALID",
                     "Each item needs a different correct position from 1 to " + items.size() + ".");
         } else if (positions.equals(expected)) {
-            issues.error("items", "SAME_ORDER", "The display order must differ from the correct order.");
+            issues.error("items", "ORDER_SAME_AS_CORRECT", "The display order must differ from the correct order.");
         }
     }
 
@@ -200,19 +174,10 @@ public class ContentValidator {
                 .filter(token -> token.contains("{{") || token.contains("}}"))
                 .toList();
         if (marked.stream().anyMatch(token -> !MARKED_WORD.matcher(token).matches())) {
-            issues.error("text", "MARKER", "Each {{marker}} must wrap exactly one whole word.");
+            issues.error("text", "MARKER_NOT_WHOLE_WORD", "Each {{marker}} must wrap exactly one whole word.");
         } else if (marked.isEmpty() || marked.size() > 4) {
-            issues.error("text", "MARKER_COUNT", "Mark 1 to 4 problem words.");
+            issues.error("text", "MARKED_WORDS_COUNT", "Mark 1 to 4 problem words.");
         }
-    }
-
-    private static boolean matches(TaskType type, TaskContent content) {
-        return switch (content) {
-            case MultipleChoiceContent c -> type == TaskType.MULTIPLE_CHOICE;
-            case YesNoContent c -> type == TaskType.YES_NO;
-            case OrderContent c -> type == TaskType.ORDER;
-            case ProblemWordsContent c -> type == TaskType.PROBLEM_WORDS;
-        };
     }
 
     private static int words(String text) {
@@ -240,13 +205,17 @@ public class ContentValidator {
 
         void key(String path, String key) {
             if (!KEY.matcher(key).matches()) {
-                error(path, "KEY", "Keys are 1 to 40 lowercase letters, digits and hyphens.");
+                error(path, "PATTERN", "Keys are 1 to 40 lowercase letters, digits and hyphens.");
             }
         }
 
         boolean length(String path, String text, int min, int max) {
-            if (text.length() < min || text.length() > max) {
-                error(path, "LENGTH", "Must be " + min + " to " + max + " characters.");
+            if (text.length() < min) {
+                error(path, min == 1 ? "REQUIRED" : "TOO_SHORT", "Must be " + min + " to " + max + " characters.");
+                return false;
+            }
+            if (text.length() > max) {
+                error(path, "TOO_LONG", "Must be " + min + " to " + max + " characters.");
                 return false;
             }
             return true;
@@ -254,7 +223,7 @@ public class ContentValidator {
 
         void reactionLines(String path, List<String> lines) {
             if (lines.size() != 3) {
-                error(path, "COUNT", "Exactly 3 lines are needed.");
+                error(path, "OUT_OF_RANGE", "Exactly 3 lines are needed.");
                 return;
             }
             for (int i = 0; i < lines.size(); i++) {
@@ -262,19 +231,12 @@ public class ContentValidator {
             }
         }
 
-        void entry(
-                String path,
-                String key,
-                @Nullable TaskLookup task,
-                Set<String> seen,
-                java.util.function.Predicate<TaskLookup> fits,
-                String wrongList) {
-            if (task == null) {
+        // TODO(US-56): document 11, section 6.3 has no code for a key that names no task (DI-32)
+        void entry(String path, String key, Predicate<String> taskExists, Set<String> seen) {
+            if (!taskExists.test(key)) {
                 error(path, "UNKNOWN_KEY", "No task has the key " + key + ".");
             } else if (!seen.add(key)) {
-                error(path, "DUPLICATE", "The task " + key + " is listed more than once.");
-            } else if (!fits.test(task)) {
-                error(path, "WRONG_LIST", wrongList);
+                error(path, "DUPLICATE_TASK", "The task " + key + " is listed more than once.");
             }
         }
 

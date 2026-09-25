@@ -14,6 +14,7 @@ import app.deliveryhero.content.RunPlanRepository;
 import app.deliveryhero.content.TaskDefinition;
 import app.deliveryhero.content.TaskEntity;
 import app.deliveryhero.content.TaskRepository;
+import app.deliveryhero.lifecycle.GameInProgressCheck;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -36,12 +37,20 @@ public class SeedWriter {
     /** How many of each were written. */
     public record Counts(int characters, int tasks, int runPlans) {}
 
+    /** A game opened after the command's first check; the transaction rolls back and nothing is written. */
+    public static final class GameInProgressException extends RuntimeException {
+        GameInProgressException() {
+            super("A game is in progress");
+        }
+    }
+
     private final CharacterRepository characters;
     private final TaskRepository tasks;
     private final RunPlanRepository runPlans;
     private final RunPlanEntryRepository entries;
     private final JsonMapper json;
     private final Clock clock;
+    private final GameInProgressCheck games;
 
     SeedWriter(
             CharacterRepository characters,
@@ -49,13 +58,15 @@ public class SeedWriter {
             RunPlanRepository runPlans,
             RunPlanEntryRepository entries,
             JsonMapper json,
-            Clock clock) {
+            Clock clock,
+            GameInProgressCheck games) {
         this.characters = characters;
         this.tasks = tasks;
         this.runPlans = runPlans;
         this.entries = entries;
         this.json = json;
         this.clock = clock;
+        this.games = games;
     }
 
     @Transactional
@@ -63,6 +74,9 @@ public class SeedWriter {
             List<CharacterDefinition> seedCharacters,
             List<TaskDefinition> seedTasks,
             List<RunPlanDefinition> seedPlans) {
+        if (games.anyGameInProgress()) {
+            throw new GameInProgressException();
+        }
         Instant now = clock.instant();
         for (CharacterDefinition character : seedCharacters) {
             CharacterEntity entity =
@@ -129,7 +143,9 @@ public class SeedWriter {
         if (id != null) {
             return id;
         }
-        UUID stored = tasks.findByTaskKey(key).map(TaskEntity::id).orElseThrow();
+        UUID stored = tasks.findByTaskKey(key)
+                .map(TaskEntity::id)
+                .orElseThrow(() -> new IllegalStateException("The task " + key + " was deleted during the import"));
         taskIds.put(key, stored);
         return stored;
     }

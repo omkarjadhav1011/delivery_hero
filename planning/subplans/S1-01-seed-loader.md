@@ -97,3 +97,10 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 - 2026-09-25: T4 done. `GameInProgressCheck` (in lifecycle, read-only) looks for any game row in LOBBY through REVEAL (`GameState.IN_PROGRESS`). `SeedCommand` then prints the `DEPLOY_LOCKED` message and exits 1 (the subplan's assumption). `SeedImportIT` AC-US56-04 (a LIVE row is refused and stays LIVE; a CLOSED row doesn't block): 8 passing.
 - 2026-09-25: T5 done. `DeliveryHeroApplication.seedApplication()` is the no-web application `runSeed` uses. The `SeedImportIT` context check starts it against the test database: it is not a web context, it has no `StartupCleanup` or `HousekeepingJob`, and it imports DS-01. 9 passing.
 - 2026-09-25: T6 done. On the local stack (`DH_LOCAL_PORT=8090 DH_LOCAL_DB_PORT=5433`, per environment.md), both seed runs exited 0 with "Imported 4 characters, 74 tasks and 2 run plans." and the database showing 74, 4, 2 and 112 entries. The second run only moved `updated_at`, and neither started a web server. `validate_seed.py`: 0 errors, 0 warnings. The compose file needed no change. From Git Bash, set `MSYS_NO_PATHCONV=1`, or `/seed/...` is rewritten to a Windows path.
+- 2026-09-26: review fixes (backend-reviewer, spec-guardian):
+  - Following SRS 7.4 (its one-character example passes) and BR-13, the loader now refuses only duplicate roles, unknown run-plan keys and a task listed twice in one plan. That last one is the key of `run_plan_entries`. Wrong-list and empty-phase errors stay with the readiness check. This supersedes the T1 and T2 notes.
+  - Issue codes now follow document 11, section 6.3. `UNKNOWN_KEY` has no document code yet (DI-32).
+  - Null list entries are reported by index. Parse errors give only line and column. `SeedWriter` rechecks for a game in progress inside its transaction.
+  - New tests: null entries, the one-character file, duplicate role, entry replacement, rollback on a mid-write failure, and the in-transaction recheck.
+  - `./mvnw -B verify`: 30 unit and 19 integration tests pass, coverage met. The local seed run and `validate_seed.py` are clean.
+  - T7 and T8 stay blocked (S1-04, Q-01).

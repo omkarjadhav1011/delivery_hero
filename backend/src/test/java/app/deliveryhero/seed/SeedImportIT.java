@@ -1,8 +1,15 @@
 package app.deliveryhero.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import app.deliveryhero.DeliveryHeroApplication;
+import app.deliveryhero.common.Role;
+import app.deliveryhero.common.TaskKind;
+import app.deliveryhero.common.TaskType;
+import app.deliveryhero.content.RunPlanDefinition;
+import app.deliveryhero.content.TaskDefinition;
+import app.deliveryhero.content.YesNoContent;
 import app.deliveryhero.lifecycle.HousekeepingJob;
 import app.deliveryhero.lifecycle.StartupCleanup;
 import app.deliveryhero.support.IntegrationTest;
@@ -26,6 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
 /** The seed loader against PostgreSQL (TC-US56-01 to TC-US56-04; LLD section 5.10). */
@@ -49,6 +57,9 @@ class SeedImportIT {
 
     @Autowired
     PostgreSQLContainer postgres;
+
+    @Autowired
+    SeedWriter writer;
 
     @BeforeEach
     void emptyContent() {
@@ -183,6 +194,95 @@ class SeedImportIT {
     }
 
     @Test
+    @DisplayName("Empty entries in lists are reported by their place, not a crash")
+    void nullEntriesAreReported(@TempDir Path dir, CapturedOutput output) throws Exception {
+        ObjectNode changed = (ObjectNode) ds01();
+        ((ArrayNode) changed.get("tasks")).addNull();
+        ((ArrayNode) task(changed, "mgr-plan-01").get("options")).addNull();
+        ((ArrayNode) changed.get("characters").get(0).get("correctLines")).set(0, (JsonNode) null);
+
+        int status = seed.run(List.of(write(dir, changed)));
+
+        assertThat(status).isEqualTo(SeedCommand.FAILED);
+        assertThat(output.getOut())
+                .contains("tasks[74]: is empty")
+                .contains("task mgr-plan-01: options[4]: is empty")
+                .contains("correctLines[0]")
+                .doesNotContain("Exception");
+        assertThat(count("tasks")).isZero();
+    }
+
+    @Test
+    @DisplayName("A file may update fewer than four characters (SRS 7.4 example), but not one role twice")
+    void charactersByRole(@TempDir Path dir, CapturedOutput output) throws Exception {
+        ObjectNode one = (ObjectNode) ds01();
+        ArrayNode characters = (ArrayNode) one.get("characters");
+        while (characters.size() > 1) {
+            characters.remove(1);
+        }
+        assertThat(seed.run(List.of(write(dir, one)))).isEqualTo(SeedCommand.IMPORTED);
+
+        characters.add(characters.get(0).deepCopy());
+        assertThat(seed.run(List.of(write(dir, one)))).isEqualTo(SeedCommand.FAILED);
+        assertThat(output.getOut()).contains("role: the role is used more than once");
+    }
+
+    @Test
+    @DisplayName("Re-import replaces a plan's entries: a task dropped from a list is gone")
+    void reimportReplacesEntries(@TempDir Path dir) throws Exception {
+        seed.run(List.of(DS_01.toString()));
+        long entries = count("run_plan_entries");
+        ObjectNode changed = (ObjectNode) ds01();
+        ArrayNode practice = (ArrayNode) changed.get("runPlans").get(0).get("practice");
+        String dropped = practice.remove(0).asString();
+
+        assertThat(seed.run(List.of(write(dir, changed)))).isEqualTo(SeedCommand.IMPORTED);
+        assertThat(count("run_plan_entries")).isEqualTo(entries - 1);
+        assertThat(jdbc.sql("""
+                        SELECT count(*) FROM run_plan_entries e JOIN tasks t ON t.id = e.task_id
+                        JOIN run_plans p ON p.id = e.run_plan_id WHERE t.task_key = ? AND p.plan_key = ?
+                        """)
+                        .params(
+                                dropped,
+                                changed.get("runPlans").get(0).get("key").asString())
+                        .query(Long.class)
+                        .single())
+                .isZero();
+    }
+
+    @Test
+    @DisplayName("One transaction: a write that fails part way leaves nothing behind")
+    void failedWriteRollsBack() {
+        TaskDefinition task = new TaskDefinition(
+                "rollback-1",
+                Role.TESTER,
+                TaskKind.PRACTICE,
+                null,
+                TaskType.YES_NO,
+                "Warm-up",
+                null,
+                null,
+                new YesNoContent(true),
+                null);
+        RunPlanDefinition plan =
+                new RunPlanDefinition("rollback-plan", "Rollback", 5, List.of("no-such-task"), null, Map.of());
+
+        assertThatThrownBy(() -> writer.write(List.of(), List.of(task), List.of(plan)))
+                .hasMessageContaining("no-such-task");
+        assertThat(count("tasks")).isZero();
+        assertThat(count("run_plans")).isZero();
+    }
+
+    @Test
+    @DisplayName("AC-US56-04 a game that opens after the first check still stops the write, inside the transaction")
+    void writerRechecksInsideTheTransaction() {
+        insertGame("LOBBY");
+
+        assertThatThrownBy(() -> writer.write(List.of(), List.of(), List.of()))
+                .isInstanceOf(SeedWriter.GameInProgressException.class);
+    }
+
+    @Test
     @DisplayName("A missing file is refused with status 1")
     void missingFile(CapturedOutput output) {
         assertThat(seed.run(List.of("no-such-seed.json"))).isEqualTo(SeedCommand.FAILED);
@@ -211,6 +311,21 @@ class SeedImportIT {
                         finished ? java.sql.Timestamp.from(java.time.Instant.EPOCH) : null,
                         finished ? java.sql.Timestamp.from(java.time.Instant.EPOCH) : null)
                 .update();
+    }
+
+    static String write(Path dir, JsonNode seedFile) throws java.io.IOException {
+        Path file = Files.createTempFile(dir, "seed", ".json");
+        Files.writeString(file, JSON.writeValueAsString(seedFile));
+        return file.toString();
+    }
+
+    static JsonNode task(JsonNode seedFile, String key) {
+        for (JsonNode task : seedFile.get("tasks")) {
+            if (key.equals(task.get("key").asString())) {
+                return task;
+            }
+        }
+        throw new IllegalArgumentException(key);
     }
 
     UUID taskId(String key) {
