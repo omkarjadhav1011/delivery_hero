@@ -1,9 +1,12 @@
 package app.deliveryhero.config;
 
 import app.deliveryhero.realtime.HeartbeatWatchdog;
+import app.deliveryhero.realtime.StompAuthInterceptor;
+import app.deliveryhero.realtime.StompErrorHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -28,17 +31,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final TaskScheduler heartbeatScheduler;
     private final HeartbeatWatchdog watchdog;
+    private final StompAuthInterceptor authInterceptor;
 
     public WebSocketConfig(
-            @Qualifier("heartbeatScheduler") TaskScheduler heartbeatScheduler, HeartbeatWatchdog watchdog) {
+            @Qualifier("heartbeatScheduler") TaskScheduler heartbeatScheduler,
+            HeartbeatWatchdog watchdog,
+            StompAuthInterceptor authInterceptor) {
         this.heartbeatScheduler = heartbeatScheduler;
         this.watchdog = watchdog;
+        this.authInterceptor = authInterceptor;
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // A plain WebSocket: no SockJS (DEC-127)
         registry.addEndpoint("/ws");
+        registry.setErrorHandler(new StompErrorHandler());
     }
 
     @Override
@@ -48,6 +56,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setTaskScheduler(heartbeatScheduler);
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        // Credentials are checked in CONNECT (DEC-133)
+        registration.interceptors(authInterceptor);
     }
 
     @Override

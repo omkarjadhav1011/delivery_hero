@@ -2,11 +2,13 @@ package app.deliveryhero.realtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.deliveryhero.common.TokenService;
 import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,8 +17,12 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,28 +32,43 @@ import org.springframework.web.socket.CloseStatus;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Import(PostgresTestConfiguration.class)
+@ExtendWith(OutputCaptureExtension.class)
 class StompConnectionIT {
 
     private static final Duration FRAME_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration QUIET = Duration.ofMillis(500);
+
+    private static final UUID GAME = UUID.fromString("00000000-0000-0000-0000-00000000000a");
+    private static final UUID PLAYER = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
+    private static final String PROJECTOR_KEY = "projector-key-for-game-a-000000";
 
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private CredentialRegistry credentials;
+
+    @Autowired
+    private TokenService tokens;
+
     private final ScheduledExecutorService heartbeats = Executors.newSingleThreadScheduledExecutor();
 
     @AfterEach
-    void stopHeartbeats() {
+    void cleanUp() {
         heartbeats.shutdownNow();
+        credentials.clear();
     }
 
     @Test
     @DisplayName("AC-EN04-03 heartbeats every 10 seconds keep an idle connection open, and a silent client is closed"
             + " within 20 seconds")
     void heartbeatsKeepIdleConnectionsOpen() throws Exception {
+        String idleToken = registerPlayer(PLAYER);
+        String silentToken = registerPlayer(UUID.randomUUID());
         try (RawStompClient idle = RawStompClient.open(port);
                 RawStompClient silent = RawStompClient.open(port)) {
-            idle.connect(Map.of());
-            silent.connect(Map.of());
+            idle.connect(Map.of("player-token", idleToken));
+            silent.connect(Map.of("player-token", silentToken));
             assertConnected(idle);
             assertConnected(silent);
             long silentSince = System.nanoTime();
@@ -77,6 +98,48 @@ class StompConnectionIT {
             assertThat(silence).isLessThanOrEqualTo(Duration.ofSeconds(20));
             assertThat(idle.isOpen()).isTrue();
             assertThat(idle.heartbeatsReceived()).isGreaterThanOrEqualTo(2);
+        }
+    }
+
+    @Test
+    @DisplayName("AC-EN04-02 an unknown or revoked player token is refused with UNAUTHORIZED and gets no game data")
+    void unknownAndRevokedTokensAreRefused(CapturedOutput output) throws Exception {
+        String revoked = registerPlayer(PLAYER);
+        credentials.revokePlayer(tokens.hash(revoked));
+        String unknown = tokens.newToken();
+
+        assertRefused(Map.of("player-token", unknown));
+        assertRefused(Map.of("player-token", revoked));
+        assertThat(output).doesNotContain(unknown).doesNotContain(revoked);
+    }
+
+    @Test
+    @DisplayName("AC-EN04-02 a wrong projector key, or no credentials at all, is refused with UNAUTHORIZED")
+    void wrongKeyAndMissingCredentialsAreRefused(CapturedOutput output) throws Exception {
+        credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
+        String wrongKey = PROJECTOR_KEY.substring(0, PROJECTOR_KEY.length() - 1) + "1";
+
+        assertRefused(Map.of("projector-key", wrongKey));
+        assertRefused(Map.of());
+        assertThat(output).doesNotContain(PROJECTOR_KEY).doesNotContain(wrongKey);
+    }
+
+    private String registerPlayer(UUID playerId) {
+        String token = tokens.newToken();
+        credentials.registerPlayer(tokens.hash(token), new PlayerPrincipal(GAME, playerId));
+        return token;
+    }
+
+    private void assertRefused(Map<String, String> headers) throws Exception {
+        try (RawStompClient client = RawStompClient.open(port)) {
+            client.connect(headers);
+            Frame frame = client.nextFrame(FRAME_TIMEOUT);
+            assertThat(frame).isNotNull();
+            assertThat(frame.command()).isEqualTo("ERROR");
+            assertThat(frame.headers()).containsEntry("message", "UNAUTHORIZED");
+            assertThat(frame.body()).isEmpty();
+            client.closed().get(5, TimeUnit.SECONDS);
+            assertThat(client.nextFrame(QUIET)).as("no frame after the refusal").isNull();
         }
     }
 
