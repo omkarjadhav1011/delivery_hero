@@ -1,0 +1,1785 @@
+{
+  "formatVersion": 1,
+  "characters": [
+    {
+      "role": "MANAGER",
+      "displayName": "Maya",
+      "introLine": "Quick one!",
+      "correctLines": [
+        "Client's happy. You're a legend.",
+        "That's going in my good-news update.",
+        "Nailed it. Coffee's on me."
+      ],
+      "wrongLines": [
+        "That's going in my status report.",
+        "The client just called. Again.",
+        "Let's take that one offline."
+      ]
+    },
+    {
+      "role": "BUSINESS_ANALYST",
+      "displayName": "Ben",
+      "introLine": "What exactly do we mean by fast?",
+      "correctLines": [
+        "Crystal clear. I'm framing that answer.",
+        "That's exactly what the user story meant!",
+        "Requirements understood. Chef's kiss."
+      ],
+      "wrongLines": [
+        "Hmm, that's not what the user story says.",
+        "Let's revisit the acceptance criteria.",
+        "Adding that to my list of questions."
+      ]
+    },
+    {
+      "role": "DEVELOPER",
+      "displayName": "Dev",
+      "introLine": "Works on my machine.",
+      "correctLines": [
+        "Merged. No conflicts.",
+        "Clean build. Beautiful.",
+        "Ship it!"
+      ],
+      "wrongLines": [
+        "That broke the build.",
+        "Merge conflict incoming.",
+        "Who wrote this? Oh. Me."
+      ]
+    },
+    {
+      "role": "TESTER",
+      "displayName": "Tess",
+      "introLine": "Found another one!",
+      "correctLines": [
+        "Bug squashed!",
+        "Test passed. I'm almost disappointed.",
+        "Zero defects. Suspicious, but nice."
+      ],
+      "wrongLines": [
+        "That bug just reached production.",
+        "Reopening the ticket.",
+        "Logged it. Severity: ouch."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "key": "mgr-plan-01",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The client wants a \"small\" new feature two days before release. Your first move?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Say yes to keep them happy",
+          "correct": false
+        },
+        {
+          "text": "Quietly add it to the sprint",
+          "correct": false
+        },
+        {
+          "text": "Estimate the impact, then agree a date with the client",
+          "correct": true
+        },
+        {
+          "text": "Refuse without discussing it",
+          "correct": false
+        }
+      ],
+      "explanation": "Surprise scope is risky. Assess the impact and agree a plan before committing."
+    },
+    {
+      "key": "ba-plan-03",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "YES_NO",
+      "prompt": "A user story should say who needs something and why, not just what to build.",
+      "answer": "YES",
+      "explanation": "The who and why help the team find the best solution, not just any solution."
+    },
+    {
+      "key": "ba-plan-01",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this requirement untestable.",
+      "text": "The system should load {{fast}} and be {{user-friendly}} for {{most}} users.",
+      "explanation": "None of these can be tested without a measurable definition."
+    },
+    {
+      "key": "mgr-plan-02",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "YES_NO",
+      "prompt": "A sprint goal should be agreed with the team, not just handed to them.",
+      "answer": "YES",
+      "explanation": "Teams commit to goals they helped shape. Handed-down goals rarely stick."
+    },
+    {
+      "key": "ba-plan-02",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Which acceptance criterion is testable?",
+      "options": [
+        {
+          "text": "The page loads quickly",
+          "correct": false
+        },
+        {
+          "text": "Search returns results within 2 seconds for 95% of queries",
+          "correct": false
+        },
+        {
+          "text": "The form is easy to use",
+          "correct": false
+        },
+        {
+          "text": "Errors are handled nicely",
+          "correct": false
+        }
+      ],
+      "explanation": "Only one option has a measurable target a tester can check."
+    },
+    {
+      "key": "mgr-plan-03",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "ORDER",
+      "prompt": "Order these from first to last when kicking off a new project.",
+      "items": [
+        {
+          "text": "Start building",
+          "correctPosition": 4
+        },
+        {
+          "text": "Agree the goals with stakeholders",
+          "correctPosition": 1
+        },
+        {
+          "text": "Estimate and plan the first sprint",
+          "correctPosition": 3
+        },
+        {
+          "text": "Break the work into a backlog",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Goals first, then a backlog, then a sprint plan, then code."
+    },
+    {
+      "key": "tst-plan-01",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "YES_NO",
+      "prompt": "Testers should be involved when requirements are written, not only after coding.",
+      "answer": "YES",
+      "explanation": "Early testing questions catch gaps before they become bugs."
+    },
+    {
+      "key": "ba-plan-06",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A stakeholder says: just make it like the old system. What do you ask first?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Can I have the old system's source code?",
+          "correct": false
+        },
+        {
+          "text": "When do you need it by?",
+          "correct": false
+        },
+        {
+          "text": "Nothing, we'll copy it exactly",
+          "correct": false
+        },
+        {
+          "text": "Which parts of the old system work well for you, and why?",
+          "correct": true
+        }
+      ],
+      "explanation": "Knowing what people value in the old system stops you copying its problems too."
+    },
+    {
+      "key": "mgr-plan-05",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this commitment vague.",
+      "text": "We will deliver {{most}} features by {{early}} next quarter",
+      "explanation": "Which features, and which date? Commit to specific scope and a specific date."
+    },
+    {
+      "key": "dev-plan-01",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The team is estimating a story nobody fully understands. What should happen?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Give it a big number and move on",
+          "correct": false
+        },
+        {
+          "text": "Let the most senior person decide",
+          "correct": false
+        },
+        {
+          "text": "Run a short spike to learn more first",
+          "correct": true
+        },
+        {
+          "text": "Skip estimating it",
+          "correct": false
+        }
+      ],
+      "explanation": "A time-boxed spike turns unknowns into knowledge, so the real estimate means something."
+    },
+    {
+      "key": "ba-plan-04",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "ORDER",
+      "prompt": "Put the parts of this user story in the usual order.",
+      "items": [
+        {
+          "text": "I want to save my card details",
+          "correctPosition": 2
+        },
+        {
+          "text": "So that checkout is faster",
+          "correctPosition": 3
+        },
+        {
+          "text": "As a returning customer",
+          "correctPosition": 1
+        }
+      ],
+      "explanation": "User stories follow: As a... I want... So that..."
+    },
+    {
+      "key": "mgr-plan-04",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Two stakeholders want opposite things from the same feature. What do you do?",
+      "options": [
+        {
+          "text": "Build both versions",
+          "correct": false
+        },
+        {
+          "text": "Go with whoever is louder",
+          "correct": false
+        },
+        {
+          "text": "Postpone the feature indefinitely",
+          "correct": false
+        },
+        {
+          "text": "Bring them together to agree on priorities",
+          "correct": true
+        }
+      ],
+      "explanation": "Conflicts are resolved by getting both people in the same room, not by guessing."
+    },
+    {
+      "key": "ba-plan-05",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words a tester can't verify.",
+      "text": "Reports must export {{quickly}} and look {{professional}} in PDF format",
+      "explanation": "Quickly and professional need numbers or examples before anyone can test them."
+    },
+    {
+      "key": "mgr-plan-06",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "PLANNING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Your team's velocity is 30 points. The client wants 45 next sprint. Best response?",
+      "options": [
+        {
+          "text": "Accept and ask for overtime",
+          "correct": false
+        },
+        {
+          "text": "Agree on the most valuable 30 points",
+          "correct": true
+        },
+        {
+          "text": "Re-estimate everything smaller",
+          "correct": false
+        },
+        {
+          "text": "Promise 45 and hope",
+          "correct": false
+        }
+      ],
+      "explanation": "Plan to real capacity and prioritize. Overcommitting just moves the problem to the end of the sprint."
+    },
+    {
+      "key": "dev-dev-02",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Which commit message is most helpful?",
+      "options": [
+        {
+          "text": "Fix crash when the cart is empty at checkout",
+          "correct": true
+        },
+        {
+          "text": "fix",
+          "correct": false
+        },
+        {
+          "text": "Updated stuff",
+          "correct": false
+        },
+        {
+          "text": "asdfgh",
+          "correct": false
+        }
+      ],
+      "explanation": "Good commit messages say what changed and why, so future readers don't have to guess."
+    },
+    {
+      "key": "mgr-dev-02",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "YES_NO",
+      "prompt": "Adding more developers to a late project always makes it finish sooner.",
+      "answer": "NO",
+      "explanation": "New people need onboarding and coordination. Adding them late often slows things down."
+    },
+    {
+      "key": "dev-dev-01",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Users aged 18 or over may sign up. What's wrong with this check?",
+      "code": {
+        "language": "java",
+        "text": "if (age > 18) {\n    allowSignup();\n}"
+      },
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "It lets 17-year-olds in",
+          "correct": false
+        },
+        {
+          "text": "Nothing, it's correct",
+          "correct": false
+        },
+        {
+          "text": "It should use age < 18",
+          "correct": false
+        },
+        {
+          "text": "It blocks 18-year-olds",
+          "correct": true
+        }
+      ],
+      "explanation": "The > sign excludes exactly 18. The check needs >= instead."
+    },
+    {
+      "key": "tst-dev-01",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A field accepts ages 18 to 60. Which values test the boundaries best?",
+      "options": [
+        {
+          "text": "20, 30 and 40",
+          "correct": false
+        },
+        {
+          "text": "17, 18, 60 and 61",
+          "correct": true
+        },
+        {
+          "text": "-5, 0 and 100",
+          "correct": false
+        },
+        {
+          "text": "Only 18",
+          "correct": false
+        }
+      ],
+      "explanation": "Bugs cluster at the edges. Test just inside and just outside each limit."
+    },
+    {
+      "key": "dev-dev-03",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "YES_NO",
+      "prompt": "Code review is only useful for catching bugs.",
+      "answer": "NO",
+      "explanation": "Reviews also spread knowledge, keep code consistent and help newer teammates learn."
+    },
+    {
+      "key": "ba-dev-01",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A requirement says 'dates' but not which format. What should the developer do?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Ask the BA and record the answer in the story",
+          "correct": true
+        },
+        {
+          "text": "Guess the most common format",
+          "correct": false
+        },
+        {
+          "text": "Support every format ever invented",
+          "correct": false
+        },
+        {
+          "text": "Let testers decide later",
+          "correct": false
+        }
+      ],
+      "explanation": "Clarify, then write it down, so the next person doesn't have to ask again."
+    },
+    {
+      "key": "dev-dev-05",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this estimate risky.",
+      "text": "It will {{probably}} take a day, {{hopefully}}",
+      "explanation": "Stacked hedges signal hidden unknowns. Name the risk instead."
+    },
+    {
+      "key": "mgr-dev-01",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Mid-sprint, a developer says their task will take twice as long. Best reaction?",
+      "options": [
+        {
+          "text": "Tell them to work faster",
+          "correct": false
+        },
+        {
+          "text": "Hide it from the client",
+          "correct": false
+        },
+        {
+          "text": "Ask what changed and re-plan together",
+          "correct": true
+        },
+        {
+          "text": "Move them to another project",
+          "correct": false
+        }
+      ],
+      "explanation": "Surprises are information. Understand the cause, then adjust the plan openly."
+    },
+    {
+      "key": "dev-dev-08",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "ORDER",
+      "prompt": "Order these steps for fixing a bug.",
+      "items": [
+        {
+          "text": "Fix the code",
+          "correctPosition": 3
+        },
+        {
+          "text": "Confirm the test passes",
+          "correctPosition": 4
+        },
+        {
+          "text": "Reproduce the bug",
+          "correctPosition": 1
+        },
+        {
+          "text": "Write a failing test",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Reproduce it, capture it in a test, fix it, then prove the fix. The test stops the bug coming back."
+    },
+    {
+      "key": "tst-dev-02",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A developer says: works on my machine. What's the most useful reply?",
+      "options": [
+        {
+          "text": "Then we'll ship your machine",
+          "correct": false
+        },
+        {
+          "text": "OK, I'll close the bug",
+          "correct": false
+        },
+        {
+          "text": "I'll stop testing that feature",
+          "correct": false
+        },
+        {
+          "text": "Let's compare our environments and steps",
+          "correct": true
+        }
+      ],
+      "explanation": "Differences in data, settings or versions usually explain it. Compare, don't argue."
+    },
+    {
+      "key": "ba-dev-02",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "YES_NO",
+      "prompt": "Changing a requirement mid-sprint is fine as long as nobody tells the team.",
+      "answer": "NO",
+      "explanation": "Changes happen, but hidden changes cause rework and broken trust."
+    },
+    {
+      "key": "dev-dev-04",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "What's risky about this line?",
+      "code": {
+        "language": "java",
+        "text": "String password = \"admin123\";"
+      },
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "A password is written directly in the code",
+          "correct": true
+        },
+        {
+          "text": "The variable name is too long",
+          "correct": false
+        },
+        {
+          "text": "Strings should use single quotes",
+          "correct": false
+        },
+        {
+          "text": "Nothing, it's fine",
+          "correct": false
+        }
+      ],
+      "explanation": "Secrets in code end up in version control. Keep them in configuration or a secrets store."
+    },
+    {
+      "key": "tst-dev-04",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this bug report hard to act on.",
+      "text": "The app {{sometimes}} crashes when you do {{stuff}} on the screen",
+      "explanation": "Developers need exact steps and how often it happens. Sometimes and stuff won't reproduce anything."
+    },
+    {
+      "key": "dev-dev-09",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Two developers disagree on a design in code review. Best next step?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "The faster typist wins",
+          "correct": false
+        },
+        {
+          "text": "Discuss the trade-offs, and ask a third person if still stuck",
+          "correct": true
+        },
+        {
+          "text": "Approve it to avoid conflict",
+          "correct": false
+        },
+        {
+          "text": "Rewrite it in secret",
+          "correct": false
+        }
+      ],
+      "explanation": "Talk through the trade-offs. A fresh pair of eyes breaks ties better than stubbornness."
+    },
+    {
+      "key": "ba-dev-03",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "ORDER",
+      "prompt": "Order these from broadest to most detailed.",
+      "items": [
+        {
+          "text": "Acceptance criterion",
+          "correctPosition": 3
+        },
+        {
+          "text": "Epic",
+          "correctPosition": 1
+        },
+        {
+          "text": "User story",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Epics break into stories, and stories are pinned down by acceptance criteria."
+    },
+    {
+      "key": "mgr-dev-03",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this status update unhelpful.",
+      "text": "The build is {{basically}} done and {{mostly}} working now",
+      "explanation": "Basically and mostly hide what's left. Say exactly what's done and what isn't."
+    },
+    {
+      "key": "dev-dev-10",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "YES_NO",
+      "prompt": "A test suite that passes 100% of the time proves the software has no bugs.",
+      "answer": "NO",
+      "explanation": "Tests only find the bugs they look for. Passing tests reduce risk; they don't prove perfection."
+    },
+    {
+      "key": "tst-dev-05",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "What's the most useful title for a bug report?",
+      "options": [
+        {
+          "text": "It's broken!!!",
+          "correct": false
+        },
+        {
+          "text": "Bug",
+          "correct": false
+        },
+        {
+          "text": "Checkout button does nothing on Android when a discount code is applied",
+          "correct": true
+        },
+        {
+          "text": "Please fix ASAP",
+          "correct": false
+        }
+      ],
+      "explanation": "A good title says what fails, where and when, so anyone can triage it at a glance."
+    },
+    {
+      "key": "dev-dev-11",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "This loop should print 1 to 5. What does it actually print?",
+      "code": {
+        "language": "java",
+        "text": "for (int i = 1; i < 5; i++) {\n    print(i);\n}"
+      },
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "1 to 4",
+          "correct": true
+        },
+        {
+          "text": "1 to 5",
+          "correct": false
+        },
+        {
+          "text": "0 to 5",
+          "correct": false
+        },
+        {
+          "text": "Nothing at all",
+          "correct": false
+        }
+      ],
+      "explanation": "i < 5 stops before 5. It needs i <= 5."
+    },
+    {
+      "key": "ba-dev-04",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that need a number before this can be built.",
+      "text": "Show a warning when the balance is {{low}} for {{several}} days",
+      "explanation": "How low, and how many days? Without numbers, every developer will pick their own."
+    },
+    {
+      "key": "dev-dev-07",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A bug fix is ready at 4:55 pm on Friday. The release is Monday. What's wisest?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Deploy to production right now",
+          "correct": false
+        },
+        {
+          "text": "Delete the branch",
+          "correct": false
+        },
+        {
+          "text": "Merge it, test it, and ship with Monday's release",
+          "correct": true
+        },
+        {
+          "text": "Deploy it without tests to save time",
+          "correct": false
+        }
+      ],
+      "explanation": "Friday-evening deploys leave nobody around to fix surprises. Test it and ship on the plan."
+    },
+    {
+      "key": "tst-dev-03",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "ORDER",
+      "prompt": "Order these tests from fastest to slowest to run.",
+      "items": [
+        {
+          "text": "End-to-end test",
+          "correctPosition": 3
+        },
+        {
+          "text": "Unit test",
+          "correctPosition": 1
+        },
+        {
+          "text": "Integration test",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Unit tests take milliseconds, integration tests seconds, end-to-end tests longest. That's why the test pyramid has so many unit tests."
+    },
+    {
+      "key": "mgr-dev-04",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The daily standup keeps running for 40 minutes. What's the best fix?",
+      "options": [
+        {
+          "text": "Cancel standups",
+          "correct": false
+        },
+        {
+          "text": "Take detailed discussions offline after the standup",
+          "correct": true
+        },
+        {
+          "text": "Make everyone stand on one leg",
+          "correct": false
+        },
+        {
+          "text": "Hold it twice a day",
+          "correct": false
+        }
+      ],
+      "explanation": "Standups are for syncing. Problem-solving happens afterward with just the people who need it."
+    },
+    {
+      "key": "dev-dev-06",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the vague words in this pull request description.",
+      "text": "Made {{some}} changes to {{things}} in the login code",
+      "explanation": "Reviewers need to know what changed and why. Some things tells them nothing."
+    },
+    {
+      "key": "ba-dev-05",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The team keeps building the wrong thing. Which practice helps most?",
+      "options": [
+        {
+          "text": "Writing longer requirement documents",
+          "correct": false
+        },
+        {
+          "text": "Adding stricter sign-off forms",
+          "correct": false
+        },
+        {
+          "text": "Having fewer meetings with users",
+          "correct": false
+        },
+        {
+          "text": "Reviewing small increments with users often",
+          "correct": true
+        }
+      ],
+      "explanation": "Frequent feedback on small pieces catches misunderstandings while they're cheap to fix."
+    },
+    {
+      "key": "dev-dev-12",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "DEVELOPMENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "You find the same 20 lines of code copied in five places. What's best?",
+      "options": [
+        {
+          "text": "Copy it a sixth time",
+          "correct": false
+        },
+        {
+          "text": "Delete four of the copies",
+          "correct": false
+        },
+        {
+          "text": "Move it into one shared function",
+          "correct": true
+        },
+        {
+          "text": "Add a comment saying sorry",
+          "correct": false
+        }
+      ],
+      "explanation": "One shared function means one place to fix bugs instead of five."
+    },
+    {
+      "key": "tst-test-02",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "YES_NO",
+      "prompt": "A login button that's two pixels off is a release blocker.",
+      "answer": "NO",
+      "explanation": "Cosmetic issues rarely block a release."
+    },
+    {
+      "key": "tst-test-03",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Which bug should be fixed first?",
+      "options": [
+        {
+          "text": "A typo on the About page",
+          "correct": false
+        },
+        {
+          "text": "Users can see other users' invoices",
+          "correct": true
+        },
+        {
+          "text": "A help video loads slowly",
+          "correct": false
+        },
+        {
+          "text": "An old logo in the footer",
+          "correct": false
+        }
+      ],
+      "explanation": "A data leak hurts privacy and trust. It beats every cosmetic or speed issue."
+    },
+    {
+      "key": "mgr-test-01",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Testing finds a serious bug the day before release. What do you do?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Assess the risk with the team and decide to fix or delay, openly",
+          "correct": true
+        },
+        {
+          "text": "Release anyway and hope nobody notices",
+          "correct": false
+        },
+        {
+          "text": "Blame the testers",
+          "correct": false
+        },
+        {
+          "text": "Turn off bug reporting",
+          "correct": false
+        }
+      ],
+      "explanation": "Make the call with facts and tell stakeholders. Hidden bugs become public incidents."
+    },
+    {
+      "key": "tst-test-01",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "ORDER",
+      "prompt": "Order these bugs from most to least severe.",
+      "items": [
+        {
+          "text": "Profile photo upload is slow",
+          "correctPosition": 3
+        },
+        {
+          "text": "Checkout fails for every user",
+          "correctPosition": 1
+        },
+        {
+          "text": "Typo in the footer",
+          "correctPosition": 4
+        },
+        {
+          "text": "Export fails in Firefox, works in Chrome",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "A blocker beats a broken feature with a workaround, which beats slowness, which beats a cosmetic issue."
+    },
+    {
+      "key": "ba-test-01",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A tester and a developer read the same acceptance criterion differently. What fixes it?",
+      "options": [
+        {
+          "text": "The developer's reading wins",
+          "correct": false
+        },
+        {
+          "text": "The tester's reading wins",
+          "correct": false
+        },
+        {
+          "text": "Delete the criterion",
+          "correct": false
+        },
+        {
+          "text": "Rewrite the criterion with a concrete example",
+          "correct": true
+        }
+      ],
+      "explanation": "Examples remove ambiguity. Given, When, Then with real values leaves nothing to interpret."
+    },
+    {
+      "key": "tst-test-05",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "YES_NO",
+      "prompt": "Exploratory testing means clicking around randomly with no goal.",
+      "answer": "NO",
+      "explanation": "Good exploratory testing has a mission and a time box, and testers learn as they go."
+    },
+    {
+      "key": "dev-test-01",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A test fails randomly about once in ten runs. What should the team do?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Rerun it until it passes",
+          "correct": false
+        },
+        {
+          "text": "Investigate it as a real bug in the test or the code",
+          "correct": true
+        },
+        {
+          "text": "Delete the test",
+          "correct": false
+        },
+        {
+          "text": "Ignore it forever",
+          "correct": false
+        }
+      ],
+      "explanation": "Flaky tests hide real problems and teach everyone to ignore failures. Find the cause."
+    },
+    {
+      "key": "tst-test-06",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this test case unrepeatable.",
+      "text": "Enter {{some}} data and check it looks {{right}}",
+      "explanation": "Test cases need exact inputs and expected results, so anyone gets the same outcome."
+    },
+    {
+      "key": "mgr-test-02",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "YES_NO",
+      "prompt": "If testers find lots of bugs, the testers are doing a bad job.",
+      "answer": "NO",
+      "explanation": "Finding bugs before users do is exactly the job."
+    },
+    {
+      "key": "tst-test-04",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "What's the difference between severity and priority?",
+      "options": [
+        {
+          "text": "They mean the same thing",
+          "correct": false
+        },
+        {
+          "text": "Severity is set by managers only",
+          "correct": false
+        },
+        {
+          "text": "Severity is the impact; priority is how soon to fix it",
+          "correct": true
+        },
+        {
+          "text": "Priority is how many users complain",
+          "correct": false
+        }
+      ],
+      "explanation": "A typo on the home page can be low severity but high priority. They answer different questions."
+    },
+    {
+      "key": "ba-test-02",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "ORDER",
+      "prompt": "Order the parts of this test scenario.",
+      "items": [
+        {
+          "text": "Then they see: Your cart is empty",
+          "correctPosition": 3
+        },
+        {
+          "text": "When they tap Checkout",
+          "correctPosition": 2
+        },
+        {
+          "text": "Given a user with an empty cart",
+          "correctPosition": 1
+        }
+      ],
+      "explanation": "Given sets the scene, When is the action, Then is the expected result."
+    },
+    {
+      "key": "tst-test-07",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A fix is ready for a bug you reported. What do you test?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Only the exact steps in the bug report",
+          "correct": false
+        },
+        {
+          "text": "Nothing, the developer tested it",
+          "correct": false
+        },
+        {
+          "text": "The whole system from scratch",
+          "correct": false
+        },
+        {
+          "text": "The fix, plus nearby features it could affect",
+          "correct": true
+        }
+      ],
+      "explanation": "Confirm the fix, then check its neighbors. Fixes often break something next door."
+    },
+    {
+      "key": "ba-test-03",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Tap the words that make this test result unclear.",
+      "text": "Checkout {{seems}} to work but looks {{odd}} on phones",
+      "explanation": "Report facts: what you did, what you expected and what you saw."
+    },
+    {
+      "key": "dev-test-02",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "TESTING",
+      "type": "ORDER",
+      "prompt": "Order these environments from first to last on a typical release path.",
+      "items": [
+        {
+          "text": "Production",
+          "correctPosition": 4
+        },
+        {
+          "text": "Developer's machine",
+          "correctPosition": 1
+        },
+        {
+          "text": "Test environment",
+          "correctPosition": 2
+        },
+        {
+          "text": "Staging",
+          "correctPosition": 3
+        }
+      ],
+      "explanation": "Code moves from a laptop through shared test environments to staging. Production comes last."
+    },
+    {
+      "key": "mgr-rel-01",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "YES_NO",
+      "prompt": "Release notes should list the known issues that are still open.",
+      "answer": "YES",
+      "explanation": "Being upfront about known issues builds trust and saves support time."
+    },
+    {
+      "key": "tst-rel-01",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The release just went live. What should testers check first?",
+      "options": [
+        {
+          "text": "Quick smoke tests of the most important user journeys",
+          "correct": true
+        },
+        {
+          "text": "Every screen in detail",
+          "correct": false
+        },
+        {
+          "text": "The color of every button",
+          "correct": false
+        },
+        {
+          "text": "Nothing, testing is over",
+          "correct": false
+        }
+      ],
+      "explanation": "Smoke tests confirm the critical paths work in production before anything else."
+    },
+    {
+      "key": "ba-rel-01",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "After release, users use a feature differently than planned. Best next step?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Tell users they're doing it wrong",
+          "correct": false
+        },
+        {
+          "text": "Remove the feature",
+          "correct": false
+        },
+        {
+          "text": "Ignore it, the spec was right",
+          "correct": false
+        },
+        {
+          "text": "Learn why, and feed it into the next requirements",
+          "correct": true
+        }
+      ],
+      "explanation": "Real usage beats assumptions. Treat it as research for the next iteration."
+    },
+    {
+      "key": "dev-rel-02",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "YES_NO",
+      "prompt": "Feature flags let you deploy code without switching the feature on for users.",
+      "answer": "YES",
+      "explanation": "Flags separate deploying from releasing, so features can be switched on gradually or off quickly."
+    },
+    {
+      "key": "mgr-rel-03",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "ORDER",
+      "prompt": "Order these release-day steps.",
+      "items": [
+        {
+          "text": "Deploy to production",
+          "correctPosition": 2
+        },
+        {
+          "text": "Announce the release to users",
+          "correctPosition": 4
+        },
+        {
+          "text": "Run smoke tests",
+          "correctPosition": 3
+        },
+        {
+          "text": "Get the go/no-go approval",
+          "correctPosition": 1
+        }
+      ],
+      "explanation": "Approve, deploy, check it works, then tell the world. Announcing before smoke tests invites embarrassment."
+    },
+    {
+      "key": "tst-rel-04",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Users report a problem nobody can reproduce. What's the best next step?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Close it as works for me",
+          "correct": false
+        },
+        {
+          "text": "Tell users to try harder",
+          "correct": false
+        },
+        {
+          "text": "Ask for details like device, steps and time, and check the logs",
+          "correct": true
+        },
+        {
+          "text": "Reinstall the server",
+          "correct": false
+        }
+      ],
+      "explanation": "Missing context is usually the difference. Gather details and check the logs before giving up."
+    },
+    {
+      "key": "mgr-rel-02",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "After go-live, a minor bug appears and users are asking about it. Best move?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Acknowledge it and share a workaround and a fix date",
+          "correct": true
+        },
+        {
+          "text": "Stay quiet until it's fixed",
+          "correct": false
+        },
+        {
+          "text": "Say it's a feature",
+          "correct": false
+        },
+        {
+          "text": "Roll back everything immediately",
+          "correct": false
+        }
+      ],
+      "explanation": "Honest, quick communication keeps trust. A minor bug rarely needs a full rollback."
+    },
+    {
+      "key": "tst-rel-02",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "YES_NO",
+      "prompt": "Bugs found in production should be turned into regression tests.",
+      "answer": "YES",
+      "explanation": "A test for every escaped bug stops it sneaking back in a later release."
+    },
+    {
+      "key": "dev-rel-01",
+      "role": "DEVELOPER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "A release needs a database change. What's the safest approach?",
+      "options": [
+        {
+          "text": "Change the live database by hand",
+          "correct": false
+        },
+        {
+          "text": "A scripted migration that's tested before release",
+          "correct": true
+        },
+        {
+          "text": "Change it after users complain",
+          "correct": false
+        },
+        {
+          "text": "Copy the database into a spreadsheet",
+          "correct": false
+        }
+      ],
+      "explanation": "Scripted, tested migrations are repeatable and reviewable. Manual changes are how data goes missing."
+    },
+    {
+      "key": "ba-rel-03",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "What's the best way to tell whether a new feature succeeded?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Check whether it moved its goal, like fewer support calls",
+          "correct": true
+        },
+        {
+          "text": "Count the lines of code",
+          "correct": false
+        },
+        {
+          "text": "Measure how long it took to build",
+          "correct": false
+        },
+        {
+          "text": "Count the meetings that discussed it",
+          "correct": false
+        }
+      ],
+      "explanation": "Success is measured by outcomes for users and the business, not by effort or output."
+    },
+    {
+      "key": "tst-rel-03",
+      "role": "TESTER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "ORDER",
+      "prompt": "Order these steps in a bug's life.",
+      "items": [
+        {
+          "text": "Close the bug",
+          "correctPosition": 4
+        },
+        {
+          "text": "Log the bug with clear steps",
+          "correctPosition": 1
+        },
+        {
+          "text": "Retest the fix",
+          "correctPosition": 3
+        },
+        {
+          "text": "Developer fixes it",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Log it, fix it, retest it, then close it. Closing before retesting is how bugs come back."
+    },
+    {
+      "key": "mgr-rel-05",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "At the last minute, a stakeholder asks for the release a bit earlier. Best reply?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Sure, we'll skip testing",
+          "correct": false
+        },
+        {
+          "text": "No, never",
+          "correct": false
+        },
+        {
+          "text": "Agree, then miss the date anyway",
+          "correct": false
+        },
+        {
+          "text": "Explain what would be cut or risked, and let them choose",
+          "correct": true
+        }
+      ],
+      "explanation": "Make the trade-off visible. Earlier dates cost scope or quality, and the stakeholder should choose which."
+    },
+    {
+      "key": "ba-rel-02",
+      "role": "BUSINESS_ANALYST",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "YES_NO",
+      "prompt": "A feature is only done when it meets its acceptance criteria.",
+      "answer": "YES",
+      "explanation": "Acceptance criteria are the agreed finish line. Without them, done means different things to different people."
+    },
+    {
+      "key": "mgr-rel-04",
+      "role": "MANAGER",
+      "kind": "SCORED",
+      "phase": "RELEASE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "The release is done. When should the team hold a retrospective?",
+      "timeLimitSeconds": 20,
+      "options": [
+        {
+          "text": "Only if something went wrong",
+          "correct": false
+        },
+        {
+          "text": "Sometime next year",
+          "correct": false
+        },
+        {
+          "text": "Soon, while details are fresh, whether it went well or badly",
+          "correct": true
+        },
+        {
+          "text": "Never, retros are a waste of time",
+          "correct": false
+        }
+      ],
+      "explanation": "Retros find what to keep as well as what to fix, and memories fade fast."
+    },
+    {
+      "key": "practice-mc",
+      "role": "MANAGER",
+      "kind": "PRACTICE",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Warm-up: what does QA stand for?",
+      "timeLimitSeconds": 8,
+      "options": [
+        {
+          "text": "Quality Assurance",
+          "correct": true
+        },
+        {
+          "text": "Quick Answer",
+          "correct": false
+        },
+        {
+          "text": "Queue Access",
+          "correct": false
+        },
+        {
+          "text": "Quiet Area",
+          "correct": false
+        }
+      ],
+      "explanation": "Just practice. Good luck in the real round!"
+    },
+    {
+      "key": "practice-yes-no",
+      "role": "BUSINESS_ANALYST",
+      "kind": "PRACTICE",
+      "type": "YES_NO",
+      "prompt": "Warm-up: a sprint usually lasts between one and four weeks.",
+      "timeLimitSeconds": 6,
+      "answer": "YES",
+      "explanation": "Just practice."
+    },
+    {
+      "key": "practice-order",
+      "role": "DEVELOPER",
+      "kind": "PRACTICE",
+      "type": "ORDER",
+      "prompt": "Warm-up: put these in delivery order.",
+      "timeLimitSeconds": 12,
+      "items": [
+        {
+          "text": "Test",
+          "correctPosition": 3
+        },
+        {
+          "text": "Plan",
+          "correctPosition": 1
+        },
+        {
+          "text": "Release",
+          "correctPosition": 4
+        },
+        {
+          "text": "Build",
+          "correctPosition": 2
+        }
+      ],
+      "explanation": "Just practice."
+    },
+    {
+      "key": "practice-words",
+      "role": "TESTER",
+      "kind": "PRACTICE",
+      "type": "PROBLEM_WORDS",
+      "prompt": "Warm-up: tap the two fruits.",
+      "timeLimitSeconds": 10,
+      "text": "The developer ate an {{apple}} and a {{banana}} before standup.",
+      "explanation": "Just practice."
+    },
+    {
+      "key": "incident-001",
+      "role": "DEVELOPER",
+      "kind": "INCIDENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Production is down right after the 5 pm deploy. What do you do first?",
+      "options": [
+        {
+          "text": "Debug directly in production",
+          "correct": false
+        },
+        {
+          "text": "Roll back to the last good release",
+          "correct": true
+        },
+        {
+          "text": "Wait for more user reports",
+          "correct": false
+        },
+        {
+          "text": "Push a quick patch without testing",
+          "correct": false
+        }
+      ],
+      "explanation": "Restore service first, investigate afterward."
+    },
+    {
+      "key": "incident-002",
+      "role": "MANAGER",
+      "kind": "INCIDENT",
+      "type": "MULTIPLE_CHOICE",
+      "prompt": "Customers can see other customers' orders after this morning's release. First move?",
+      "options": [
+        {
+          "text": "Wait to see if anyone complains",
+          "correct": false
+        },
+        {
+          "text": "Add a disclaimer to the page",
+          "correct": false
+        },
+        {
+          "text": "Take the feature offline and alert the security team",
+          "correct": true
+        },
+        {
+          "text": "Schedule a meeting for next week",
+          "correct": false
+        }
+      ],
+      "explanation": "A data leak is an emergency. Stop the exposure first, then investigate and inform the right people."
+    }
+  ],
+  "runPlans": [
+    {
+      "key": "default-5min",
+      "name": "Default 5-minute plan",
+      "roundLengthMinutes": 5,
+      "practice": [
+        "practice-mc",
+        "practice-yes-no",
+        "practice-order",
+        "practice-words"
+      ],
+      "incident": "incident-001",
+      "phases": {
+        "PLANNING": [
+          "mgr-plan-01",
+          "ba-plan-03",
+          "ba-plan-01",
+          "mgr-plan-02",
+          "ba-plan-02",
+          "mgr-plan-03",
+          "tst-plan-01",
+          "ba-plan-06",
+          "mgr-plan-05",
+          "dev-plan-01",
+          "ba-plan-04",
+          "mgr-plan-04",
+          "ba-plan-05",
+          "mgr-plan-06"
+        ],
+        "DEVELOPMENT": [
+          "dev-dev-02",
+          "mgr-dev-02",
+          "dev-dev-01",
+          "tst-dev-01",
+          "dev-dev-03",
+          "ba-dev-01",
+          "dev-dev-05",
+          "mgr-dev-01",
+          "dev-dev-08",
+          "tst-dev-02",
+          "ba-dev-02",
+          "dev-dev-04",
+          "tst-dev-04",
+          "dev-dev-09",
+          "ba-dev-03",
+          "mgr-dev-03",
+          "dev-dev-10",
+          "tst-dev-05",
+          "dev-dev-11",
+          "ba-dev-04",
+          "dev-dev-07",
+          "tst-dev-03",
+          "mgr-dev-04",
+          "dev-dev-06",
+          "ba-dev-05",
+          "dev-dev-12"
+        ],
+        "TESTING": [
+          "tst-test-02",
+          "tst-test-03",
+          "mgr-test-01",
+          "tst-test-01",
+          "ba-test-01",
+          "tst-test-05",
+          "dev-test-01",
+          "tst-test-06",
+          "mgr-test-02",
+          "tst-test-04",
+          "ba-test-02",
+          "tst-test-07",
+          "ba-test-03",
+          "dev-test-02"
+        ],
+        "RELEASE": [
+          "mgr-rel-01",
+          "tst-rel-01",
+          "ba-rel-01",
+          "dev-rel-02",
+          "mgr-rel-03",
+          "tst-rel-04",
+          "mgr-rel-02",
+          "tst-rel-02",
+          "dev-rel-01",
+          "ba-rel-03",
+          "tst-rel-03",
+          "mgr-rel-05",
+          "ba-rel-02",
+          "mgr-rel-04"
+        ]
+      }
+    },
+    {
+      "key": "quick-3min",
+      "name": "Quick 3-minute plan",
+      "roundLengthMinutes": 3,
+      "practice": [
+        "practice-mc",
+        "practice-yes-no",
+        "practice-order",
+        "practice-words"
+      ],
+      "incident": "incident-002",
+      "phases": {
+        "PLANNING": [
+          "mgr-plan-01",
+          "ba-plan-03",
+          "ba-plan-01",
+          "mgr-plan-02",
+          "ba-plan-02",
+          "mgr-plan-03",
+          "dev-plan-01"
+        ],
+        "DEVELOPMENT": [
+          "dev-dev-02",
+          "mgr-dev-02",
+          "dev-dev-01",
+          "tst-dev-01",
+          "dev-dev-03",
+          "ba-dev-01",
+          "dev-dev-05",
+          "mgr-dev-01",
+          "dev-dev-08",
+          "tst-dev-02",
+          "ba-dev-02",
+          "dev-dev-04",
+          "tst-dev-04",
+          "dev-dev-09",
+          "ba-dev-03"
+        ],
+        "TESTING": [
+          "tst-test-02",
+          "tst-test-03",
+          "mgr-test-01",
+          "tst-test-01",
+          "ba-test-01",
+          "tst-test-05",
+          "dev-test-01"
+        ],
+        "RELEASE": [
+          "mgr-rel-01",
+          "tst-rel-01",
+          "ba-rel-01",
+          "dev-rel-02",
+          "mgr-rel-03",
+          "tst-rel-04",
+          "mgr-rel-04"
+        ]
+      }
+    }
+  ]
+}
