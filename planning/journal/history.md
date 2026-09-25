@@ -22,3 +22,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch chore/ci-merge-checks, commits e96ee0b to b786e5c.
 - Completed: T3 (3486cc6); T5 (b31a78d); T7 (b786e5c).
 - Summary: S0-02 local tasks: T3, T5, T7 done; T1, T2, T4 done locally pending GitHub proofs; DI-30, DI-31 recorded
+
+## 2026-09-25-2247 S0-03
+
+- Outcome: paused. Started 2026-09-25T22:47, ended 2026-09-25T23:06.
+- Branch feat/en-08-arcade-theme, commits e96ee0b to 0124b8f.
+- Completed: T3 (59bd783); T4 (ad1496c); T6 (ff93798); T7 (b8bd831); T8 (ed3c7c0).
+- Summary: S0-03: T3, T4, T6, T7, T8 done; T2 in part; T1 pack, T5, T9 open
