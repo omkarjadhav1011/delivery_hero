@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 6992eb2 |
+| Last commit | 1d3291c |
 | Step | test-first |
-| Task | T6 |
+| Task | T7 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
 | Updated | 2026-09-25T11:02 |
-| Next action | OpenApiIT |
+| Next action | typecheck on fresh clone without next-env.d.ts |
 
 ## Completed tasks
 
@@ -24,6 +24,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T3 (69fb7af)
 - T4 (1af9889)
 - T5 (6992eb2)
+- T6 (1d3291c)
 
 ## Pending approvals
 

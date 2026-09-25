@@ -31,6 +31,11 @@ export default tseslint.config(
       },
     },
     rules: {
+      // typescript-eslint's type-aware recommended rules (DEC-176); Next.js already registers the plugin
+      ...Object.assign(
+        {},
+        ...tseslint.configs.recommendedTypeChecked.map((config) => config.rules ?? {}),
+      ),
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-floating-promises": "error",
       "react/no-danger": "error",
