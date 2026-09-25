@@ -104,3 +104,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
   - New tests: null entries, the one-character file, duplicate role, entry replacement, rollback on a mid-write failure, and the in-transaction recheck.
   - `./mvnw -B verify`: 30 unit and 19 integration tests pass, coverage met. The local seed run and `validate_seed.py` are clean.
   - T7 and T8 stay blocked (S1-04, Q-01).
+- 2026-09-26: T1 to T6 done and reviewed; T7 and T8 blocked. Actuals: about 35 minutes, about 350k tokens (main about 240k, subagents about 112k).
