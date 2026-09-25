@@ -1030,7 +1030,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | R-08 | R | Build | T-01 T6 | Planned |  |
 | R-09 | R | Build | H-01 T5, S2-26 T10, S2-26 T12, S2-26 T4 | Planned |  |
 | R-10 | R | Build | H-05 T1, S2-25 T2, S2-25 T3, S2-25 T4, S2-25 T5, S2-25 T6 | Planned |  |
-| R-11 | R | Build | S0-03 T1, S0-03 T2, S0-03 T5 | Planned |  |
+| R-11 | R | Build | S0-03 T1, S0-03 T2, S0-03 T5 | In progress |  |
 | S-01 | S | Covered by | FR-052, FR-053, FR-054, FR-055, FR-056, FR-057, FR-058 | Planned |  |
 | S-02 | S | Covered by | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-052, FR-053, FR-054, FR-055, FR-056, FR-057, FR-058 | Planned |  |
 | S-03 | S | Covered by | FR-014, FR-015, FR-016, FR-017, FR-052, FR-053, FR-054, FR-055, FR-056, FR-057, FR-058 | Planned |  |

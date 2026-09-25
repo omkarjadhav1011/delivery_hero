@@ -231,7 +231,7 @@ public class ContentValidator {
             }
         }
 
-        // TODO(US-56): document 11, section 6.3 has no code for a key that names no task (DI-32)
+        // TODO(US-56): document 11, section 6.3 has no code for a key that names no task (DI-35)
         void entry(String path, String key, Predicate<String> taskExists, Set<String> seen) {
             if (!taskExists.test(key)) {
                 error(path, "UNKNOWN_KEY", "No task has the key " + key + ".");

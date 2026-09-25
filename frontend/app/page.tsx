@@ -1,7 +1,7 @@
 import { copy } from "@/copy";
-import { PlaceholderPage } from "@/ui/PlaceholderPage";
+import { PhoneShell } from "@/player/PhoneShell";
 
 // The site's root: players arrive through the join link or QR code instead (LLD section 6.1)
 export default function HomePage() {
-  return <PlaceholderPage title={copy.home.title} />;
+  return <PhoneShell title={copy.home.title} />;
 }
