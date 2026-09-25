@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-04 |
 | Branch | feat/en-04-realtime-channel |
 | Start commit | 0f9b14a |
-| Last commit | 0f9b14a |
+| Last commit | 1a2e4a2 |
 | Step | test-first |
-| Task | T1 |
-| Attempts | 1 |
+| Task | T2 |
+| Attempts | 0 |
 | Started | 2026-09-26T00:34 |
 | Updated | 2026-09-26T00:44 |
-| Next action | StompConnectionIT AC-EN04-03 heartbeats |
+| Next action | TokenServiceTest |
 
 ## Completed tasks
 
-- none
+- T1 (1a2e4a2)
 
 ## Pending approvals
 
