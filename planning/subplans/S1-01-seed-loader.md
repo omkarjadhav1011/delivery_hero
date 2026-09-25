@@ -90,4 +90,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 
 ## Progress log
 
-None yet.
+- 2026-09-25: PC-01. Pulled forward to start next, because CI's e2e job fails at the seed step on every pull request until the loader exists.

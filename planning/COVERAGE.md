@@ -121,9 +121,9 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-EN06-04 | AC-EN | Build | S1-02 T7, S1-02 T9 | Planned | TC-EN06-04: End-to-end, `security-privacy` |
 | AC-EN07-01 | AC-EN | Build | S2-27 T2, S2-27 T3, S2-27 T4, S2-27 T8 | Planned | TC-EN07-01: Load, `load-test/round.js` |
 | AC-EN07-02 | AC-EN | Build | S2-27 T1, S2-27 T11, S2-27 T4 | Planned | TC-EN07-02: Load, `load-test/round.js` |
-| AC-EN08-01 | AC-EN | Build | S0-03 T3, S0-03 T4, S0-03 T6, S0-03 T9 | Planned | TC-EN08-01: Manual, MAN-02 |
-| AC-EN08-02 | AC-EN | Build | S0-03 T7, S1-02 T8 | Planned | TC-EN08-02: End-to-end, `security-privacy` |
-| AC-EN08-03 | AC-EN | Build | S0-03 T8, S2-24 T8 | Planned | TC-EN08-03: End-to-end, `accessibility` |
+| AC-EN08-01 | AC-EN | Build | S0-03 T3, S0-03 T4, S0-03 T6, S0-03 T9 | Tested | TC-EN08-01: Manual, MAN-02 |
+| AC-EN08-02 | AC-EN | Build | S0-03 T7, S1-02 T8 | Tested | TC-EN08-02: End-to-end, `security-privacy` |
+| AC-EN08-03 | AC-EN | Build | S0-03 T8, S2-24 T8 | Tested | TC-EN08-03: End-to-end, `accessibility` |
 | AC-EN09-01 | AC-EN | Build | S2-24 T7, S2-24 T8 | Planned | TC-EN09-01: End-to-end, `accessibility` |
 | AC-EN09-02 | AC-EN | Build | S2-24 T10, S2-24 T11, S2-24 T9, S2-26 T11 | Planned | TC-EN09-02: Manual, A11Y-01 to A11Y-09 |
 | AC-US01-01 | AC-US | Build | S0-05 T10, S0-05 T6 | Planned | TC-US01-01: End-to-end, `join-and-lobby` |
@@ -689,7 +689,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | EN-05 | EN | Build | S1-05 | Planned |  |
 | EN-06 | EN | Build | S0-06 T7 | Planned |  |
 | EN-07 | EN | Build | S2-27 | Planned |  |
-| EN-08 | EN | Build | S0-03 | Planned |  |
+| EN-08 | EN | Build | S0-03 | Tested |  |
 | EN-09 | EN | Build | S2-24 | Planned |  |
 | EP-01 | EP | Covered by | US-01, US-02, US-03, US-04, US-05, US-06, US-07, US-08, US-09 | Planned |  |
 | EP-02 | EP | Covered by | US-10, US-11, US-12 | Planned |  |
@@ -914,13 +914,13 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | NFR-21 | NFR | Covered by | OPS-16 | Scheduled |  |
 | NFR-22 | NFR | Covered by | OPS-13 | Scheduled |  |
 | NFR-23 | NFR | Covered by | TC-US62-02, TC-US65-01, OPS-13 | Planned |  |
-| NFR-24 | NFR | Covered by | TC-EN08-02 | Planned |  |
+| NFR-24 | NFR | Covered by | TC-EN08-02 | Tested |  |
 | NFR-25 | NFR | Covered by | TC-EN09-01, A11Y-05 | Planned |  |
 | NFR-26 | NFR | Covered by | TC-US40-02, A11Y-05 | Planned |  |
 | NFR-27 | NFR | Covered by | TC-US22-01, A11Y-08 | Planned |  |
 | NFR-28 | NFR | Covered by | TC-US23-03, TC-US24-04 | Planned |  |
 | NFR-29 | NFR | Covered by | A11Y-07, MAN-05 | Scheduled |  |
-| NFR-30 | NFR | Covered by | TC-EN08-03, A11Y-01, A11Y-02 | Planned |  |
+| NFR-30 | NFR | Covered by | TC-EN08-03, A11Y-01, A11Y-02 | Tested |  |
 | NFR-31 | NFR | Covered by | TC-EN09-01, A11Y-06 | Planned |  |
 | NFR-32 | NFR | Covered by | E2E-08, A11Y-04 | Scheduled |  |
 | NFR-33 | NFR | Covered by | OPS-22 | Scheduled |  |
@@ -1097,9 +1097,9 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-EN06-04 | TC-EN | Covered by | AC-EN06-04 | Planned |  |
 | TC-EN07-01 | TC-EN | Covered by | AC-EN07-01 | Planned |  |
 | TC-EN07-02 | TC-EN | Covered by | AC-EN07-02 | Planned |  |
-| TC-EN08-01 | TC-EN | Covered by | AC-EN08-01 | Planned |  |
-| TC-EN08-02 | TC-EN | Covered by | AC-EN08-02 | Planned |  |
-| TC-EN08-03 | TC-EN | Covered by | AC-EN08-03 | Planned |  |
+| TC-EN08-01 | TC-EN | Covered by | AC-EN08-01 | Tested |  |
+| TC-EN08-02 | TC-EN | Covered by | AC-EN08-02 | Tested |  |
+| TC-EN08-03 | TC-EN | Covered by | AC-EN08-03 | Tested |  |
 | TC-EN09-01 | TC-EN | Covered by | AC-EN09-01 | Planned |  |
 | TC-EN09-02 | TC-EN | Covered by | AC-EN09-02 | Planned |  |
 | TC-US01-01 | TC-US | Covered by | AC-US01-01 | Planned |  |
