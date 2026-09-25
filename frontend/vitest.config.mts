@@ -9,6 +9,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
     reporters: ["default", ["junit", { outputFile: "test-results/vitest-junit.xml" }]],
     coverage: {
