@@ -10,12 +10,12 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Branch | chore/ci-merge-checks |
 | Start commit | e96ee0b |
 | Last commit | e96ee0b |
-| Step | awaiting-approval |
-| Task |  |
+| Step | test-first |
+| Task | T3 |
 | Attempts | 0 |
 | Started | 2026-09-25T22:31 |
 | Updated | 2026-09-25T22:32 |
-| Next action | Plan the session |
+| Next action | grep uses: pins |
 
 ## Completed tasks
 
