@@ -1,5 +1,6 @@
 package app.deliveryhero.seed;
 
+import app.deliveryhero.lifecycle.GameInProgressCheck;
 import app.deliveryhero.seed.SeedImporter.Imported;
 import app.deliveryhero.seed.SeedImporter.Outcome;
 import app.deliveryhero.seed.SeedImporter.Refused;
@@ -21,10 +22,15 @@ public class SeedCommand {
     /** Exit status: nothing was imported (LLD section 5.10 step 3). */
     public static final int FAILED = 1;
 
-    private final SeedImporter importer;
+    /** The {@code DEPLOY_LOCKED} message of LLD section 5.12. */
+    static final String GAME_IN_PROGRESS = "A game is in progress. Try again after it ends.";
 
-    SeedCommand(SeedImporter importer) {
+    private final SeedImporter importer;
+    private final GameInProgressCheck games;
+
+    SeedCommand(SeedImporter importer, GameInProgressCheck games) {
         this.importer = importer;
+        this.games = games;
     }
 
     /**
@@ -36,6 +42,10 @@ public class SeedCommand {
         PrintStream out = System.out;
         if (args.size() != 1) {
             out.println("Usage: seed <file>");
+            return FAILED;
+        }
+        if (games.anyGameInProgress()) {
+            out.println("ERROR " + GAME_IN_PROGRESS + " Nothing was imported.");
             return FAILED;
         }
         Outcome outcome = importer.importFile(Path.of(args.getFirst()));

@@ -129,6 +129,29 @@ class SeedImportIT {
     }
 
     @Test
+    @DisplayName("AC-US56-04 blocked during games: with a game in LIVE it refuses and changes nothing")
+    void refusesWhileAGameIsInProgress(CapturedOutput output) {
+        insertGame("LIVE");
+
+        int status = seed.run(List.of(DS_01.toString()));
+
+        assertThat(status).isEqualTo(SeedCommand.FAILED);
+        assertThat(output.getOut()).contains("A game is in progress. Try again after it ends.");
+        assertThat(count("tasks")).isZero();
+        assertThat(count("run_plans")).isZero();
+        assertThat(jdbc.sql("SELECT state FROM games").query(String.class).single())
+                .isEqualTo("LIVE");
+    }
+
+    @Test
+    @DisplayName("A closed game doesn't block the seed")
+    void closedGameDoesNotBlock() {
+        insertGame("CLOSED");
+
+        assertThat(seed.run(List.of(DS_01.toString()))).isEqualTo(SeedCommand.IMPORTED);
+    }
+
+    @Test
     @DisplayName("A missing file is refused with status 1")
     void missingFile(CapturedOutput output) {
         assertThat(seed.run(List.of("no-such-seed.json"))).isEqualTo(SeedCommand.FAILED);
@@ -140,6 +163,23 @@ class SeedImportIT {
     void usage(CapturedOutput output) {
         assertThat(seed.run(List.of())).isEqualTo(SeedCommand.FAILED);
         assertThat(output.getOut()).contains("Usage: seed <file>");
+    }
+
+    /** A game row in {@code state}, with the times and projector key the table's checks need for it. */
+    void insertGame(String state) {
+        boolean finished = state.equals("CLOSED") || state.equals("CANCELLED");
+        jdbc.sql("""
+                        INSERT INTO games (id, code, projector_key, state, run_plan_name, round_length_minutes, snapshot,
+                                           results_at, closed_at)
+                        VALUES (?, 'K7PQ2M', ?, ?, 'Default 5-minute plan', 5, '{}'::jsonb, ?, ?)
+                        """)
+                .params(
+                        UUID.randomUUID(),
+                        finished ? null : "projector-key-for-test",
+                        state,
+                        finished ? java.sql.Timestamp.from(java.time.Instant.EPOCH) : null,
+                        finished ? java.sql.Timestamp.from(java.time.Instant.EPOCH) : null)
+                .update();
     }
 
     UUID taskId(String key) {
