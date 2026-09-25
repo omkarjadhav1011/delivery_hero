@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-04 |
 | Branch | feat/en-04-realtime-channel |
 | Start commit | 0f9b14a |
-| Last commit | 453a985 |
+| Last commit | 336af45 |
 | Step | test-first |
-| Task | T5 |
+| Task | T6 |
 | Attempts | 0 |
 | Started | 2026-09-26T00:34 |
-| Updated | 2026-09-26T00:55 |
-| Next action | StompConnectionIT AC-EN04-01 state after subscribe |
+| Updated | 2026-09-26T01:02 |
+| Next action | reconnect.test.ts AC-EN04-04 |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (b09a19a)
 - T3 (fffe7ab)
 - T4 (453a985)
+- T5 (336af45)
 
 ## Pending approvals
 
