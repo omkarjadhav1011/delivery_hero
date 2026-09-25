@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-56, US-19 |
 | Priority and points | Must, 4 |
@@ -50,7 +50,7 @@ The seed command validates the whole seed file, imports every character, task an
 
 ## Tasks
 
-- [ ] T1 `ContentValidator` with every field rule of SRS section 7.3 for characters, tasks and run plans, including the round length of 3 to 10 whole minutes, returning `ValidationReport` with `Issue.path`, in `app.deliveryhero.content`, test first: `ContentValidatorTest` AC-US19-01 (3 and 10 accepted, 2 and 11 refused), source: AC-US19-01, FR-018, FR-076 (shared), SRS 7.3, LLD 5.3
+- [x] T1 `ContentValidator` with every field rule of SRS section 7.3 for characters, tasks and run plans, including the round length of 3 to 10 whole minutes, returning `ValidationReport` with `Issue.path`, in `app.deliveryhero.content`, test first: `ContentValidatorTest` AC-US19-01 (3 and 10 accepted, 2 and 11 refused), source: AC-US19-01, FR-018, FR-076 (shared), SRS 7.3, LLD 5.3
 - [ ] T2 `SeedFile` records for format version 1 and `SeedImporter` parsing, validating the whole file (and run-plan keys against file or database) before writing, printing every error with its key and exiting with status 1, in `app.deliveryhero.seed`, test first: `SeedImportIT` AC-US56-02 with the DS-08 fixture in `backend/src/test/resources`, source: AC-US56-02, FR-075, DS-08, SRS 7.4, LLD 5.10
 - [ ] T3 One-transaction upsert: characters by role, tasks by key, run plans by key with their entries replaced; print the counts and log `SEED_IMPORTED` with counts only, in `app.deliveryhero.seed` and `app.deliveryhero.content`, test first: `SeedImportIT` AC-US56-01 (DS-01: 74 tasks, 4 characters, 2 run plans) and AC-US56-03 (re-import with mgr-plan-01 changed, still 74 tasks), source: AC-US56-01, AC-US56-03, DS-01, FR-075, DEC-40, document 10 section 8.4, LLD 5.10 and 5.14
 - [ ] T4 `SeedCommand` lock check: refuse and change nothing when any game row is in LOBBY through REVEAL, exiting non-zero with the `DEPLOY_LOCKED` message "A game is in progress. Try again after it ends."; the web lock endpoint and `DeployLockService` come in S2-05, in `app.deliveryhero.seed`, test first: `SeedImportIT` AC-US56-04 (a game row inserted in LIVE), source: AC-US56-04, FR-075, FR-090 (shared), US-68 (shared), LD-05 (shared), LLD 5.10 step 2, LLD 5.12
@@ -91,3 +91,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 ## Progress log
 
 - 2026-09-25: PC-01. Pulled forward to start next, because CI's e2e job fails at the seed step on every pull request until the loader exists.
+- 2026-09-25: T1 done. `ContentValidator` covers SRS 7.3 plus the run-plan list errors that `validate_seed.py` checks (unknown key, wrong list, listed twice, empty phase). Following the Python tool, a marker must be a whole token, so `{{word}}.` is refused. `ContentValidatorTest`: 19 passing.
