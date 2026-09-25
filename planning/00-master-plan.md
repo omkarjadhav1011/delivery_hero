@@ -34,14 +34,16 @@ The dates match `CONVENTIONS.md`, section 4.2, so there is no `## Phases` overri
 
 ### S0 Walking skeleton (26 points)
 
+EN-03 sits in S0-06 with EN-02, because two of its three criteria (AC-EN03-02, AC-EN03-03) need a production deploy; S0-02 builds the CI checks themselves and can finish without the host.
+
 | ID | Title | Stories | Points | Depends on | Target |
 |---|---|---|---|---|---|
 | S0-01 | Repository scaffold (`/scaffold-en01`) | EN-01 | 3 | none | Fri 25 Sep |
-| S0-02 | CI merge checks and the deploy workflow; actions pinned by SHA; actionlint (DI-22) | EN-03 | 3 | S0-01; OA-02 | Sat 26 Sep |
+| S0-02 | CI merge checks and the deploy workflow; actions pinned by SHA; actionlint (DI-22) | none (infrastructure) | — | S0-01; OA-02 | Sat 26 Sep |
 | S0-03 | Arcade theme and screen shells | EN-08 | 3 | S0-01 | Sat 26 Sep |
 | S0-04 | Real-time channel | EN-04 | 5 | S0-01 | Sat 26 – Sun 27 Sep |
 | S0-05 | Join and lobby, with the walking-skeleton end-to-end test | US-01, US-02, US-04 | 7 | S0-03, S0-04 | Mon 28 Sep |
-| S0-06 | First deploy: release, certificate, seed, OPS-01 to OPS-05, OPS-17, OPS-18, OPS-20, OPS-21; the `.previous` folder (DI-05) | EN-02 | 5 | S0-02, P0-02, P0-03; OA-18 to OA-21 | Tue 29 Sep |
+| S0-06 | First deploy and pipeline proof: release, certificate, seed, OPS-01 to OPS-05, OPS-17, OPS-18, OPS-21; the `.previous` folder (DI-05) | EN-02, EN-03 | 8 | S0-02, P0-02, P0-03; OA-18 to OA-21 | Tue 29 Sep |
 | S0-07 | CP-S0 capacity check, with numbers | none | — | S0-05; Q-03 | Tue 29 Sep |
 
 ### S1 Core game loop (80 points)

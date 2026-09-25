@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
+| State | active |
+| Session | 2026-09-25-0840 |
+| Subplan | PLAN |
+| Branch | docs/owner-actions |
+| Start commit | e2140cb |
+| Last commit | e2140cb |
+| Step | planning |
 | Task |  |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-25T08:40 |
+| Updated | 2026-09-25T08:58 |
+| Next action | Step 3: write registers and subplans |
 
 ## Completed tasks
 
