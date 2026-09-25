@@ -10,6 +10,13 @@ export type Credentials = { playerToken: string } | { projectorKey: string } | {
 /** Heartbeats in both directions (SRS section 6.3). */
 const HEARTBEAT_MS = 10_000;
 
+/**
+ * How many heartbeat intervals the client waits for server traffic before giving up on the connection. The server's
+ * first heartbeat can take up to two intervals after CONNECTED, so the library's default of 2 would drop healthy
+ * connections.
+ */
+const HEARTBEAT_TOLERANCE = 3;
+
 /** The refusal code of an ERROR frame for unknown or revoked credentials (API section 8.1). */
 const UNAUTHORIZED = "UNAUTHORIZED";
 
@@ -18,6 +25,7 @@ export interface StompConfig {
   connectHeaders: Record<string, string>;
   heartbeatIncoming: number;
   heartbeatOutgoing: number;
+  heartbeatTolerance: number;
   reconnectDelay: number;
   onConnect: () => void;
   onWebSocketClose: () => void;
@@ -74,6 +82,7 @@ export function stompJsClient(url: string): StompLike {
         connectHeaders: config.connectHeaders,
         heartbeatIncoming: config.heartbeatIncoming,
         heartbeatOutgoing: config.heartbeatOutgoing,
+        heartbeatToleranceMultiplier: config.heartbeatTolerance,
         reconnectDelay: config.reconnectDelay,
         onConnect: () => config.onConnect(),
         onWebSocketClose: () => config.onWebSocketClose(),
@@ -115,6 +124,7 @@ export function createStompConnection(options: StompConnectionOptions): StompCon
     connectHeaders: connectHeaders(credentials),
     heartbeatIncoming: HEARTBEAT_MS,
     heartbeatOutgoing: HEARTBEAT_MS,
+    heartbeatTolerance: HEARTBEAT_TOLERANCE,
     reconnectDelay: 0,
     onConnect: () => {
       online = true;

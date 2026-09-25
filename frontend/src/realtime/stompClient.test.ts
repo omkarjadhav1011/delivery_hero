@@ -77,6 +77,8 @@ describe("createStompConnection", () => {
     expect(client.connectHeaders).toEqual({ "player-token": "tok-123" });
     expect(client.config?.heartbeatIncoming).toBe(10_000);
     expect(client.config?.heartbeatOutgoing).toBe(10_000);
+    // Spring's broker may send its first heartbeat up to 20 s after CONNECTED
+    expect(client.config?.heartbeatTolerance).toBe(3);
     expect(client.config?.reconnectDelay).toBe(0);
     expect(client.activations).toBe(1);
   });

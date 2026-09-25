@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-04 |
 | Branch | feat/en-04-realtime-channel |
 | Start commit | 0f9b14a |
-| Last commit | a7cadd2 |
+| Last commit | f60cdcd |
 | Step | test-first |
-| Task | T7 |
-| Attempts | 0 |
+| Task | T8 |
+| Attempts | 1 |
 | Started | 2026-09-26T00:34 |
-| Updated | 2026-09-26T01:04 |
-| Next action | stompClient.test.ts |
+| Updated | 2026-09-26T01:25 |
+| Next action | Local stack check |
 
 ## Completed tasks
 
@@ -25,6 +25,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T4 (453a985)
 - T5 (336af45)
 - T6 (a7cadd2)
+- T7 (f60cdcd)
 
 ## Pending approvals
 

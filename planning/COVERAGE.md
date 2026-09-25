@@ -108,10 +108,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-EN03-01 | AC-EN | Build | S0-02 T6, S0-02 T7, S0-06 T4 | In progress | TC-EN03-01: Production, OPS-21 |
 | AC-EN03-02 | AC-EN | Build | S0-06 T1, S0-06 T9 | Planned | TC-EN03-02: Production, OPS-17 |
 | AC-EN03-03 | AC-EN | Build | S0-06 T1, S0-06 T10 | Planned | TC-EN03-03: Production, OPS-18 |
-| AC-EN04-01 | AC-EN | Build | S0-04 T5, S0-04 T8 | Planned | TC-EN04-01: Integration, `StompConnectionIT` |
-| AC-EN04-02 | AC-EN | Build | S0-04 T3, S0-04 T4 | Planned | TC-EN04-02: Integration, `StompConnectionIT` |
-| AC-EN04-03 | AC-EN | Build | S0-04 T1 | Planned | TC-EN04-03: Integration, `StompConnectionIT` |
-| AC-EN04-04 | AC-EN | Build | S0-04 T6, S0-04 T7, S1-16 T5, S1-16 T7 | Planned | TC-EN04-04: Frontend, `reconnect.test.ts` |
+| AC-EN04-01 | AC-EN | Build | S0-04 T5, S0-04 T8 | In progress | TC-EN04-01: Integration, `StompConnectionIT` |
+| AC-EN04-02 | AC-EN | Build | S0-04 T3, S0-04 T4 | Tested | TC-EN04-02: Integration, `StompConnectionIT` |
+| AC-EN04-03 | AC-EN | Build | S0-04 T1 | Implemented | TC-EN04-03: Integration, `StompConnectionIT` |
+| AC-EN04-04 | AC-EN | Build | S0-04 T6, S0-04 T7, S1-16 T5, S1-16 T7 | Tested | TC-EN04-04: Frontend, `reconnect.test.ts` |
 | AC-EN05-01 | AC-EN | Build | S1-05 T3 | Planned | TC-EN05-01: Unit, `GameSessionTest` |
 | AC-EN05-02 | AC-EN | Build | S1-05 T6 | Planned | TC-EN05-02: Unit, `GameSessionTest` |
 | AC-EN05-03 | AC-EN | Build | S1-05 T4, S1-05 T5 | Planned | TC-EN05-03: Unit, `RoundTimelineTest` |
@@ -685,7 +685,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | EN-01 | EN | Build | S0-01 T1, S0-01 T4 | Implemented |  |
 | EN-02 | EN | Build | S0-06 | Planned |  |
 | EN-03 | EN | Build | S0-06 | Planned |  |
-| EN-04 | EN | Build | S0-04 | Planned |  |
+| EN-04 | EN | Build | S0-04 | In progress |  |
 | EN-05 | EN | Build | S1-05 | Planned |  |
 | EN-06 | EN | Build | S0-06 T7 | Planned |  |
 | EN-07 | EN | Build | S2-27 | Planned |  |
@@ -1084,10 +1084,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-EN03-01 | TC-EN | Covered by | AC-EN03-01 | In progress |  |
 | TC-EN03-02 | TC-EN | Covered by | AC-EN03-02 | Planned |  |
 | TC-EN03-03 | TC-EN | Covered by | AC-EN03-03 | Planned |  |
-| TC-EN04-01 | TC-EN | Covered by | AC-EN04-01 | Planned |  |
-| TC-EN04-02 | TC-EN | Covered by | AC-EN04-02 | Planned |  |
-| TC-EN04-03 | TC-EN | Covered by | AC-EN04-03 | Planned |  |
-| TC-EN04-04 | TC-EN | Covered by | AC-EN04-04 | Planned |  |
+| TC-EN04-01 | TC-EN | Covered by | AC-EN04-01 | In progress |  |
+| TC-EN04-02 | TC-EN | Covered by | AC-EN04-02 | Tested |  |
+| TC-EN04-03 | TC-EN | Covered by | AC-EN04-03 | Implemented |  |
+| TC-EN04-04 | TC-EN | Covered by | AC-EN04-04 | Tested |  |
 | TC-EN05-01 | TC-EN | Covered by | AC-EN05-01 | Planned |  |
 | TC-EN05-02 | TC-EN | Covered by | AC-EN05-02 | Planned |  |
 | TC-EN05-03 | TC-EN | Covered by | AC-EN05-03 | Planned |  |

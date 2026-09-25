@@ -1,6 +1,7 @@
 package app.deliveryhero.realtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.command.ClientRole;
@@ -172,7 +173,8 @@ class StompConnectionIT {
             assertThat(silentClosed).isNotEqualTo(CloseStatus.NORMAL);
             assertThat(silence).isLessThanOrEqualTo(Duration.ofSeconds(20));
             assertThat(idle.isOpen()).isTrue();
-            assertThat(idle.heartbeatsReceived()).isGreaterThanOrEqualTo(2);
+            // The broker's first heartbeat comes 10 to 20 seconds after CONNECTED, then one every 10 seconds
+            assertThat(idle.heartbeatsReceived()).isGreaterThanOrEqualTo(1);
             assertThat(beating.isDone()).as("heartbeats still being sent").isFalse();
         }
     }
@@ -220,6 +222,20 @@ class StompConnectionIT {
             projector.sendTo(DestinationPolicy.answerDestination(GAME), "{\"type\":\"ANSWER_SUBMIT\"}");
             assertForbidden(projector);
         }
+    }
+
+    @Test
+    @DisplayName("The handshake accepts the site's own origin, dh.public-base-url, and refuses any other")
+    void onlyTheSitesOwnOriginMayConnect() throws Exception {
+        WebSocketHttpHeaders own = new WebSocketHttpHeaders();
+        own.setOrigin("http://localhost:8080");
+        WebSocketHttpHeaders foreign = new WebSocketHttpHeaders();
+        foreign.setOrigin("http://evil.example");
+
+        try (RawStompClient client = RawStompClient.open(port, own)) {
+            assertThat(client.isOpen()).isTrue();
+        }
+        assertThatThrownBy(() -> RawStompClient.open(port, foreign)).rootCause().hasMessageContaining("403");
     }
 
     /** The next submitted command of this type, skipping others such as late disconnects from earlier tests. */
