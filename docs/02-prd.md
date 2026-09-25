@@ -1,6 +1,6 @@
 # Delivery Hero — Product Requirements Document (PRD)
 
-> Document 02 of 18 · Version 1.2 (approved) · Drafted with Claude, approved by the owner
+> Document 02 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Project Charter v1.0 (decision log DEC-01 to DEC-72) |
 | Feeds into | 03 — SRS, 04 — User Stories, 05 — Acceptance Criteria, 12 — UI/UX Wireframes |
 
@@ -20,10 +19,10 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. Proposed decisions PD-01 to PD-21 recorded as DEC-73 to DEC-93 in the Charter (v1.1) |
-| 1.1 | 2026-09-23 | [Owner name], drafted with Claude | Editorial correction found while writing acceptance criteria: worked example 3 and the "share correct" definition used 3 of 4 items in the right position, which is impossible; both now use 2 of 4. No rule changed |
-| 1.2 | 2026-09-23 | [Owner name], drafted with Claude | Worked example 1 now uses the task's actual 20-second limit from the seed (4 s of 20 s, still 140 points). No rule changed |
+| 1.1 | 2026-09-23 | [Owner name] | Editorial correction found while writing acceptance criteria: worked example 3 and the "share correct" definition used 3 of 4 items in the right position, which is impossible; both now use 2 of 4. No rule changed |
+| 1.2 | 2026-09-23 | [Owner name] | Worked example 1 now uses the task's actual 20-second limit from the seed (4 s of 20 s, still 140 points). No rule changed |
 
 ---
 

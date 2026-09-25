@@ -1,6 +1,6 @@
 # Delivery Hero — Test Plan
 
-> Document 14 of 18 · Version 1.1 (approved) · Drafted with Claude, approved by the owner
+> Document 14 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -8,11 +8,11 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 14 — Test Plan |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude. The message sizes in section 7.6 were measured from the real task pool |
+| Drafting note | The message sizes in section 7.6 were measured from the real task pool |
 | Depends on | 01 — Charter v1.11 · 02 — PRD v1.2 · 03 — SRS v1.3 · 04 — User Stories v1.0 · 05 — Acceptance Criteria v1.1 · 09 — Software Architecture v1.1 · 11 — API Specification v1.0 · 12 — UI/UX Wireframes v1.0 · 13 — Coding Standards and Git Strategy v1.1 |
 | Feeds into | 15 — Test Cases · the test summary report at the go/no-go · 17 — Release Notes |
 
@@ -20,9 +20,10 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. TP-01 to TP-10 recorded as DEC-185 to DEC-194 (Charter v1.12); TP-10 applied to SRS section 6.3 (v1.4) |
 | 1.1 | 2026-09-23 | [Owner name] | End-to-end profile values revised by DEC-197 (section 7.4 and TP-02) |
+| 1.2 | 2026-09-24 | [Owner name] | Removed the drafting-support row from section 14 (DEC-212) |
 
 ---
 
@@ -496,7 +497,6 @@ gantt
 | Owner | Test manager and tester: writes and runs the automated tests, runs the load test and production checks, triages defects, writes the test summary report and makes the go/no-go decision |
 | Admins | Review the task pool by Wed 7 Oct; run the admin-panel exploratory charters in S2; help run the trial |
 | Trial group (5–10 colleagues) | Play the trial on their own phones, report problems and answer the survey |
-| Claude | Drafts the test cases (document 15), and helps analyze results on request |
 
 ## 15. Deliverables, metrics and reporting
 

@@ -1,6 +1,6 @@
 # Delivery Hero — Project Charter
 
-> Document 01 of 18 · Version 1.14 (approved) · Drafted with Claude, approved by the owner
+> Document 01 of 18 · Version 1.15 (approved)
 
 ## Document control
 
@@ -8,18 +8,17 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 01 — Project Charter |
-| Version | 1.14 |
+| Version | 1.15 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] — sponsor, host and developer |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude from the discovery session; reviewed and approved by the owner |
 | Related documents | All other project documents cite this charter and its decision log (Appendix A) |
 
 ### Revision history
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft from discovery |
+| 0.1 | 2026-09-23 | [Owner name] | First draft from discovery |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. Editorial fix: the streak definition in section 3 now matches DEC-24 |
 | 1.1 | 2026-09-23 | [Owner name] | Added DEC-73 to DEC-93 from the approved PRD; updated the most-missed question definition (DEC-88); marked OI-01 to OI-05 as settled |
 | 1.2 | 2026-09-23 | [Owner name] | Added DEC-94 to DEC-119 from the approved SRS; marked OI-06 as settled (DEC-96) |
@@ -35,6 +34,7 @@
 | 1.12 | 2026-09-23 | [Owner name] | Added DEC-185 to DEC-194 from the approved Test Plan |
 | 1.13 | 2026-09-23 | [Owner name] | Added DEC-195 to DEC-197 from the approved Test Cases; DEC-186 marked as revised by DEC-197 |
 | 1.14 | 2026-09-24 | [Owner name] | Added DEC-198 to DEC-206 from the approved Deployment Guide and DEC-207 to DEC-211 from the approved Technical Documentation; marked OI-07 as settled (DEC-200) |
+| 1.15 | 2026-09-24 | [Owner name] | Added DEC-212: documents carry no drafting credit. Revised DEC-71 and the wording of DEC-40, section 8, section 11.3 and R-10 to match |
 
 ---
 
@@ -208,7 +208,6 @@ flowchart LR
 | Players (about 40 colleagues) | End users | Join on their phones and play |
 | Trial run group (5–10 colleagues) | Testers | Play the trial run a week before the event and report problems |
 | Future teams | Future end users | Play in later events |
-| Claude | Drafting support | Drafts the documents and the task pool for the owner's approval |
 
 ## 9. Assumptions
 
@@ -274,7 +273,7 @@ flowchart LR
 
 | Deliverable | Description |
 |---|---|
-| Task pool seed file | 60–80 tasks (15–20 per character role) across the four task types, drafted by Claude and reviewed by the admins |
+| Task pool seed file | 60–80 tasks (15–20 per character role) across the four task types, each reviewed by the admins |
 | Loader script | Loads the seed file into the database; specified in the LLD |
 
 ## 12. Milestones and timeline
@@ -356,7 +355,7 @@ gantt
 | R-07 | The company network blocks the free subdomain on the host's laptop | Medium | High | Test during the trial run; fall back to a phone hotspot for the laptop | Host |
 | R-08 | Weak mobile signal in the room with every phone connected | Medium | High | Test during the trial run with all phones; small messages; reconnection within 5 seconds; choose a room with good signal | Host |
 | R-09 | No staging environment: the trial run is the first full test on production | Medium | Medium | Local Docker Compose mirrors production; automated merge checks; the trial run at E−7 is treated as the final test | Project owner |
-| R-10 | Tasks with debatable answers cause arguments or feel unfair | Medium | Medium | Claude drafts, admins review every task; readiness check; void-question control during the game | Admins |
+| R-10 | Tasks with debatable answers cause arguments or feel unfair | Medium | Medium | Admins review every task; readiness check; void-question control during the game | Admins |
 | R-11 | The pixel-art pack's license doesn't permit this use | Low | Medium | Choose a pack with a permissive license, such as CC0, and record any required credit in the README | Project owner |
 
 ## 15. Dependencies
@@ -466,7 +465,7 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-37 | Admin | Core admin features: task library (with code snippets, answers, time limits and explanations), character names and lines, run plan, and live host controls (open lobby, start practice, start round, void a question, advance the reveal). |
 | DEC-38 | Admin | Version 1.0 also includes the readiness check and test play with simulated players. Spreadsheet import and export and copying run plans come later. |
 | DEC-39 | Admin | After an event, admins can see only the top-10 list. |
-| DEC-40 | Admin | Claude drafts a pool of 60–80 tasks and the admins review it. It is delivered as a seed file loaded by script, right after the SRS is approved. |
+| DEC-40 | Admin | A pool of 60–80 tasks is drafted and the admins review it. It is delivered as a seed file loaded by script, right after the SRS is approved. |
 | DEC-41 | Identity | Players join through the link or QR code and type a name. There are no accounts, duplicate names get a number added, and identity lasts for one event. |
 | DEC-42 | Identity | Admins log in with one shared password set in the server configuration. |
 | DEC-43 | Identity | Each game gets a secret, display-only link for the projector; controls stay in the admin panel. |
@@ -497,7 +496,7 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-68 | Engineering | Before merging into main, tests, formatting and code analysis must pass, with at least 80% coverage on scoring and game logic. |
 | DEC-69 | Engineering | Every requirement gets a MoSCoW priority (Must, Should, Could, Won't). |
 | DEC-70 | Documentation | Documents are Markdown files in the repository's `docs` folder, with Mermaid diagrams. |
-| DEC-71 | Documentation | Document control lists the owner as owner and approver, notes that documents were drafted with Claude, and uses versions from 0.1 (draft) to 1.0 (approved). |
+| DEC-71 | Documentation | Document control lists the owner as owner and approver and uses versions from 0.1 (draft) to 1.0 (approved). Revised on 2026-09-24 by DEC-212: documents carry no drafting credit. |
 | DEC-72 | Roadmap | Later releases: typed answers with Jev, spreadsheet import and export, copying run plans, and support for remote or hybrid players. |
 | DEC-73 | Game rules | Practice round: the host starts it; a shared 30-second timer; it uses the run plan's practice tasks (the seed has one per task type); unscored, with feedback; the host can skip it. (PRD PD-01) |
 | DEC-74 | Game rules | Default time limits: multiple choice 15 s, yes/no swipe 8 s, tap to order 25 s, tap the problem words 20 s, incident 20 s. Admins can set any task to 5–60 s. (PD-02) |
@@ -638,3 +637,4 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-209 | Engineering | Live-reload development runs the backend (port 8081) and the Next.js dev server (port 3000) on the host, behind an Nginx dev proxy at `http://localhost:8080` (Setup Guide SG-03) |
 | DEC-210 | Engineering | Four profiles: `dev` (with public local defaults in `application-dev.yml`), `test`, `e2e` and `prod`. The local stack forces port 8080 with `SERVER_PORT` (Setup Guide SG-04) |
 | DEC-211 | Testing | Test tooling conventions: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to the local stack; the OpenAPI test writes the generated document to `backend/target/openapi.json` when it differs (Setup Guide SG-05) |
+| DEC-212 | Documentation | Documents carry no drafting credit. Document control, revision history, stakeholder and role tables name only people. Revises DEC-71 |

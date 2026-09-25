@@ -1,6 +1,6 @@
 # Delivery Hero — Software Architecture Document (SAD)
 
-> Document 09 of 18 · Version 1.2 (approved) · Drafted with Claude, approved by the owner
+> Document 09 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -12,7 +12,6 @@
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 23 September 2026 |
-| Drafting note | Drafted with Claude; reviewed and approved by the owner |
 | Depends on | 01 — Charter v1.6 (DEC-01 to DEC-146) · 03 — SRS v1.1 · 07 — HLD v1.1 · 08 — LLD v1.0 |
 | Feeds into | 10 — Database Design · 13 — Coding Standards · 16 — Deployment Guide · 18 — Setup Guide |
 
@@ -20,7 +19,7 @@
 
 | Version | Date | Author | Summary of changes |
 |---|---|---|---|
-| 0.1 | 2026-09-23 | [Owner name], drafted with Claude | First draft |
+| 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. AD-01 to AD-05 recorded as DEC-147 to DEC-151 (Charter v1.7) |
 | 1.1 | 2026-09-23 | [Owner name] | Development view: added `contracts/`, `docs/openapi.json` and `.githooks/` from Document 13 (DEC-175, DEC-177, DEC-180) |
 | 1.2 | 2026-09-24 | [Owner name] | Development view: the local stack in `deploy/` (DEC-207) and the coverage tool in `tools/` (DEC-196) |
