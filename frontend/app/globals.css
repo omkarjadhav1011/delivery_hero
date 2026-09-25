@@ -32,3 +32,22 @@
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* The dark theme for browser-drawn controls and scrollbars too (DEC-48) */
+:root {
+  color-scheme: dark;
+}
+
+/*
+ * Reduced motion (document 12, section 5.6; NFR-34): slides, shakes, pulses and confetti stop, and fades stay.
+ * Components animate movement only through Tailwind's motion-safe: variant; this is the safety net.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

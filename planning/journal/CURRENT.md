@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
-| Task |  |
+| State | active |
+| Session | 2026-09-25-2247 |
+| Subplan | S0-03 |
+| Branch | feat/en-08-arcade-theme |
+| Start commit | e96ee0b |
+| Last commit | e96ee0b |
+| Step | test-first |
+| Task | T3 |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-25T22:47 |
+| Updated | 2026-09-25T22:47 |
+| Next action | theme.test.ts AC-EN08-01 |
 
 ## Completed tasks
 

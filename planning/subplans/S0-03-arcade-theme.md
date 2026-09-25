@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | EN-08 |
 | Priority and points | Must, 3 |
@@ -50,7 +50,7 @@ Every phone, projector and admin screen renders in the dark retro theme with the
 
 - [ ] T1 Owner: choose the pixel-art pack for the four role characters (CC0 preferred) and confirm the interface icon set (Pixelarticons, MIT, or another open license), giving the license and any required credit, test first: none, source: R-11, DEC-50, DEC-168, document 12 section 5.5
 - [ ] T2 Record the chosen pack, icon set and Press Start 2P (SIL Open Font License 1.1) with license and credit in the README's "Credits and licenses" table, and add the license files beside the assets, in `README.md` and `frontend/public/`, test first: procedure (`npx markdownlint-cli2 "README.md"`; each table row has a license and no placeholder), source: R-11, DEC-50, DEC-167, DEC-168, MAN-02 [Blocked: waiting for T1]
-- [ ] T3 Theme: confirm the `@theme` tokens in `globals.css` match document 12 section 5.2 exactly, the three font stacks of section 5.3 (Press Start 2P self-hosted through `next/font/local`, display only and never under 16 px; system UI for text; system monospace for code), `rem` sizes, the 3 px focus ring and `prefers-reduced-motion`, in `frontend/app/globals.css` and `frontend/app/layout.tsx`, test first: `theme.test.ts` AC-EN08-01 (token values equal the section 5.2 table; the display class is never used below 1 rem), source: AC-EN08-01, DEC-48, DEC-166, DEC-167, NFR-25, document 12 sections 5.2, 5.3 and 5.6
+- [x] T3 Theme: confirm the `@theme` tokens in `globals.css` match document 12 section 5.2 exactly, the three font stacks of section 5.3 (Press Start 2P self-hosted through `next/font/local`, display only and never under 16 px; system UI for text; system monospace for code), `rem` sizes, the 3 px focus ring and `prefers-reduced-motion`, in `frontend/app/globals.css` and `frontend/app/layout.tsx`, test first: `theme.test.ts` AC-EN08-01 (token values equal the section 5.2 table; the display class is never used below 1 rem), source: AC-EN08-01, DEC-48, DEC-166, DEC-167, NFR-25, document 12 sections 5.2, 5.3 and 5.6
 - [ ] T4 Arcade UI kit: `ArcadeButton` (primary, secondary, danger), `SpeechBubble`, `TimerBar` (visuals only; timing comes with US-16), `CodeBlock` (own horizontal scroll with an edge fade), `Badge`, `Modal`, `PixelIcon` (text or accessible label always), with real buttons and accessible names, in `frontend/src/ui/`, test first: `ArcadeButton.test.tsx`, `PixelIcon.test.tsx`, `CodeBlock.test.tsx` AC-EN08-01 (variants use tokens only; icons have labels), source: AC-EN08-01, DEC-49, DEC-168, NFR-25, document 12 sections 5.5 and 5.7, LLD 6.7
 - [ ] T5 Character art: the four role images from the chosen pack, self-hosted, shown at 96 px on phones and 160 px on the projector through `SpeechBubble`, in `frontend/public/characters/` and `frontend/src/ui/SpeechBubble.tsx`, test first: `SpeechBubble.test.tsx` (image source is a relative path; name, role and prompt rendered), source: DEC-50, R-11, NFR-24, document 12 section 5.5 [Blocked: waiting for T1]
 - [ ] T6 Screen shells: the phone shell (top bar area, content, bottom actions, 320 px safe), the projector shell (16:9, 1920 × 1080 and 1280 × 720) and the admin shell (navigation and content), used by the placeholder pages from S0-01, with every string from `src/copy.ts`, in `frontend/src/player/`, `frontend/src/screen/`, `frontend/src/admin/components/` and `frontend/app/`, test first: `PhoneShell.test.tsx`, `ProjectorShell.test.tsx`, `AdminShell.test.tsx` (landmarks and headings present), source: AC-EN08-01, DEC-48, DEC-49, document 12 sections 5.4 and 6.1 to 6.3
@@ -88,4 +88,5 @@ Document 13, section 10, plus: the theme matches document 12 section 5.2; `secur
 
 ## Progress log
 
-None yet.
+- 2026-09-25: T1 answered by the owner. The icons are Pixelarticons (MIT; the license is checked at the source when the files are copied). The characters stay text-only placeholders for now, so T2's pack row and T5 stay open (R-11).
+- 2026-09-25: T3 done. `theme.test.ts` (AC-EN08-01) reads document 12 itself. The 14 tokens of section 5.2 and the text and code stacks of section 5.3 already matched. It also checks the 3 px focus ring and that no `font-display` class is below 1 rem; a `text-sm` probe fails it. Added `color-scheme: dark` and the `prefers-reduced-motion` safety net, which stops animations and keeps fades (section 5.6). All frontend checks pass: format, lint, typecheck, 15 tests and the build.
