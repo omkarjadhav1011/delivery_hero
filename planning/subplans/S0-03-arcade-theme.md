@@ -108,3 +108,4 @@ Document 13, section 10, plus: the theme matches document 12 section 5.2; `secur
   - 54 unit tests and 22 end-to-end tests pass, and every frontend check is clean.
   - Open: T1 (the pixel-art pack), T2 (its README row), T5 (the art) and T9 (the owner's MAN-02 visual check).
 - 2026-09-25: Session actuals: 22:47 to 23:07 (about 20 minutes), about 185k tokens in the main session plus about 95k in the two reviewers.
+- 2026-09-26: PR #11 merged on 2026-09-25. The status stays In progress for the open tasks T1, T2, T5 and T9.

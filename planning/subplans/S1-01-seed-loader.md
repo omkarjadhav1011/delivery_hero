@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-56, US-19 |
 | Priority and points | Must, 4 |
@@ -107,3 +107,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 - 2026-09-26: T1 to T6 done and reviewed; T7 and T8 blocked. Actuals: about 35 minutes, about 350k tokens (main about 240k, subagents about 112k).
 - 2026-09-26: backend-reviewer item 5. The content entities implement `Persistable`, so saving a new row inserts it without first selecting. `./mvnw -B verify`: 30 unit and 19 integration tests pass.
 - 2026-09-26: pull request #12 opened. The status is In review. T7 and T8 are still blocked, so the subplan stays open after the merge.
+- 2026-09-26: PR #12 merged on 2026-09-25 (8b7e483). The Deploy run fails at the copy step (no server yet, Q-01). The status is In progress again, since T7 (S1-04) and T8 (Q-01) are still open.
