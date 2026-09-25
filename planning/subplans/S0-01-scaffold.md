@@ -52,7 +52,7 @@ The backend (Spring Boot 4.1, Java 21, Maven) and frontend (Next.js 16 static ex
 
 ## Tasks
 
-- [ ] T1 Resume the existing branch `feat/en-01-scaffold` (three unmerged commits: backend, frontend, action pins): rebase on `main`, compare it with the `/scaffold-en01` Step 1 reading list and write the plan (files, versions with sources, ambiguities) into this subplan's progress log for the owner's approval, in the repository root, test first: none (procedure: `git log main..feat/en-01-scaffold`, `git diff --stat main...feat/en-01-scaffold`), source: EN-01, DEC-65, `/scaffold-en01` Step 1
+- [x] T1 Resume the existing branch `feat/en-01-scaffold` (three unmerged commits: backend, frontend, action pins): rebase on `main`, compare it with the `/scaffold-en01` Step 1 reading list and write the plan (files, versions with sources, ambiguities) into this subplan's progress log for the owner's approval, in the repository root, test first: none (procedure: `git log main..feat/en-01-scaffold`, `git diff --stat main...feat/en-01-scaffold`), source: EN-01, DEC-65, `/scaffold-en01` Step 1
 - [ ] T2 Backend build: Maven Wrapper 3.9, Spring Boot 4.1 parent, Java 21, `<finalName>delivery-hero</finalName>`, build info and Git commit info, the starters and springdoc-openapi 3.x, Spotless (palantir-java-format), Error Prone and NullAway with `engine` and `scoring` `@NullMarked`, in `backend/pom.xml` and `backend/.mvn/`, test first: `./mvnw -B spotless:check compile` fails on an unformatted file and a null dereference in `engine`, source: DEC-66, DEC-175, NFR-41 (shared), document 13 section 5.1, architecture document 9.1
 - [ ] T3 Surefire (`*Test`) and Failsafe (`*IT`) with `statelessTestsetReporter` and `usePhrasedTestCaseMethodName` true, and JaCoCo at 80% line coverage for `engine` and `scoring`, in `backend/pom.xml`, test first: a throwaway `@DisplayName("AC-EN01-02 ...")` test whose name appears in `target/surefire-reports/*.xml`, then `python3 tools/ac_coverage.py` with the document 15 section 8.3 command lists AC-EN01-02, source: DEC-196, DEC-175, NFR-41 (shared), document 15 section 8.3
 - [ ] T4 Packages of LLD 5.1 with `package-info.java`; `DeliveryHeroApplication` (web, or `seed <file>` without the web server, where `SeedCommand` prints that the loader arrives with US-56 and exits 2); `StartupCleanup` and `HousekeepingJob` stubs web-only; `GameProperties` on `dh.game.*` with the LLD 5.13 defaults and DEC-197 e2e overrides; the five profile files; ECS logging; security with one `admin` user from `DH_ADMIN_PASSWORD_HASH`; `GET /api/ops/deploy-lock` always unlocked, in `app.deliveryhero`, `app.deliveryhero.config`, `app.deliveryhero.lifecycle`, `app.deliveryhero.seed`, `app.deliveryhero.security`, `app.deliveryhero.api.ops`, test first: `GamePropertiesTest`, `SeedModeTest`, `DeployLockIT`, `HealthIT`, `ArchitectureTest` (empty rules allowed), source: EN-01, DEC-197, DEC-104 (shared), LLD 5.1, 5.8, 5.9, 5.10, 5.13, document 18 section 8.2, document 16 section 8.4, document 11 section 7.10
@@ -95,4 +95,27 @@ Document 13, section 10, plus: `./mvnw -B verify` and every frontend check pass;
 
 ## Progress log
 
-None yet.
+- 2026-09-25: T1 audit and scaffold plan (for the owner's approval). The branch was rebased cleanly onto `docs/planning-dec-212` (backup at `backup/en-01-scaffold-pre-rebase`). Baseline on the rebased branch:
+  - `./mvnw -B verify` passed: 8 unit tests, 5 integration tests (MigrationIT, HealthIT, DeployLockIT, OpenApiIT), and the Spotless, Error Prone/NullAway and JaCoCo gates.
+  - The frontend checks passed: `npm ci`, format, lint, typecheck, 11 Vitest tests and the static build, with `nginx/csp.conf` holding 14 hashes.
+
+  Protected files are untouched: only the workflow SHA pins, `GITLEAKS_VERSION` and a new `docs/openapi.json` changed. No unnamed libraries. Versions are the latest in each decided line, except NullAway 0.14.1, where 0.14.2 is out.
+
+  Planned fixes:
+  - T2: bump NullAway to 0.14.2 and drop the redundant `jspecify.version` override.
+  - T3: prove that a criterion ID reaches the XML reports and `ac_coverage.py`.
+  - T4: move `DeployLockIT` to `lifecycle` (document 15, section 8.1). Remove the early AC-US69-01 claim from `HealthIT`, since US-69 owns it.
+  - T7: add the type-aware typescript-eslint preset (DEC-176). Make `typecheck` work on a fresh clone, where `next-env.d.ts` is ignored.
+  - T8: serve Press Start 2P as woff2 (NFR-05, `.gitattributes`).
+  - T10: add `__pycache__/` to `.gitignore`, and never commit `deploy/DeployHero.lnk`.
+  - T11: run OPS-20 and the e2e smoke test from a fresh clone.
+
+  Readings (the decision log wins):
+  - `@NullMarked` only on `engine` and `scoring` (DEC-175), not every package (document 13, section 6.2).
+  - `dh.game.min-round-length` and `dh.game.random-seed` added for DEC-197, although LLD 5.13 doesn't list them.
+  - Browser targets in `package.json` `browserslist`, not `next.config` (LLD 6.6).
+  - Tailwind token names `--color-*` for document 12's `--bg` and the rest.
+  - `TODO(US-xx)` per the rules file.
+  - Page titles taken from the wireframes where the copy deck has none (DI-21).
+
+  Document issues for `doc-issues.md`: document 13 section 6.2 and the rules file (NullMarked scope); LLD 5.13 (the two keys); LLD 6.6 (browserslist); document 12 (token prefix).
