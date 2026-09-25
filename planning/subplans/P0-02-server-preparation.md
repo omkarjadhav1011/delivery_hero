@@ -62,7 +62,7 @@ The owner prepares the production machine exactly as document 16, sections 6.2 t
 - [ ] T7 Owner: install `deploy/host/journald-delivery-hero.conf` as `/etc/systemd/journald.conf.d/delivery-hero.conf` and restart journald, test first: none, source: OA-11, DG-04, DEC-201, FR-092, AC-US70-02 (shared), document 16 section 7.4 [Blocked: waiting for Q-01]
 - [ ] T8 Owner: install `deploy/host/cron-delivery-hero` as `/etc/cron.d/delivery-hero` (root, mode 644); the jobs log under `dh-backup`, `dh-certs` and `dh-dns` and start working once `.env` and the release exist (P0-03, S0-06), test first: none, source: OA-12, DG-01, DG-03, document 16 section 7.5 [Blocked: waiting for Q-01]
 - [ ] T9 Owner: install rclone from its website, create the private `delivery-hero-backups` bucket, the dynamic group `delivery-hero-server` and its policy, write `rclone.conf` as `deploy`, then run `rclone lsd oci:`, test first: none, source: OA-13, DG-03, DEC-200, document 16 section 7.6 [Blocked: waiting for Q-01]
-- [ ] T10 Owner: approve the document 16 section 7.3 fix for DI-05 (add `/opt/delivery-hero.previous` to the `install -d` line); S0-06 carries the pull request (owner approval needed: changes docs/), test first: none, source: DEC-203, DI-05, document 16 section 7.3 [Blocked: waiting for Q-01]
+- [ ] T10 Owner: approve the document 16 section 7.3 fix for DI-05 (add `/opt/delivery-hero.previous` to the `install -d` line); S0-06 carries the pull request (owner approval needed: changes docs/) (Owner approval needed: changes docs/), test first: none, source: DEC-203, DI-05, document 16 section 7.3 [Blocked: waiting for Q-01]
 
 ## Owner actions
 

@@ -11,3 +11,4 @@ What the documents don't settle, for the owner to decide. Format: `planning/CONV
 | Q-05 | Streak display: show the count from 2 (FR-040) or from 1 (P-08)? Show the flame from 3 (section 5.5) or from 2 (P-10) (DI-10)? | US-30, US-32 | Owner | Wed 30 Sep | Open |  |
 | Q-06 | Should a game left in Ended (reveal never started) also close automatically after 24 hours (DI-15)? | US-66 | Owner | Wed 7 Oct | Open |  |
 | Q-07 | Keep the readiness warning at "round seconds / 6" scored tasks, which asks for 100 tasks in a 10-minute round, or cap it (DI-16)? | US-58 | Owner | Wed 7 Oct | Open |  |
+| Q-08 | The load test's headroom run needs 150 players, but a game holds 100 (DI-25). Measure headroom another way, or allow more players only in the load-test game? | S2-27 | Owner | Fri 9 Oct | Open |  |
