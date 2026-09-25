@@ -1,0 +1,93 @@
+# S1-01 Seed loader and round-length rules
+
+| Field | Value |
+|---|---|
+| Status | Not started |
+| Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
+| Stories | US-56, US-19 |
+| Priority and points | Must, 4 |
+| Depends on | S0-01 |
+| Unblocks | S1-04, S2-09, S2-25, S1-18 |
+| Target dates | Wed 30 Sep |
+| Branch | feat/us-56-seed-loader |
+| Parallel-safe with | S1-02, S1-05 |
+
+## Goal
+
+The seed command validates the whole seed file, imports every character, task and run plan in one transaction (or nothing), updates by key on re-import, and refuses while a game is in progress. Round lengths outside 3 to 10 minutes are refused by the shared content rules.
+
+## Sources
+
+- Document 04: US-56, US-19; document 05: AC-US56-01 to AC-US56-04, AC-US19-01, AC-US19-02
+- SRS: FR-075, FR-018, FR-076 (run plan editor, S2-09), FR-090 (deploy lock, S2-05); sections 7.3 (field rules) and 7.4 (seed format and loader rules)
+- LLD: section 5.3 (`ContentValidator`, `ValidationReport`), 5.8 (`@ConditionalOnWebApplication` beans), 5.10 (seed loader), 5.14 (`SEED_IMPORTED`); LD-05
+- Document 10: sections 7.1 to 7.4 (content tables), 8.4 (from the seed file to the database)
+- Charter: DEC-40 (seed loader), DEC-136 (seed runs without the web server)
+- Document 15: section 6 (DS-01, DS-08); DI-08 (AC-US56-04 needs US-68)
+
+## Context to load
+
+- `node planning/scripts/run.mjs section 08 5.10`
+- `node planning/scripts/run.mjs section 08 5.3`
+- `node planning/scripts/run.mjs section 03 7.3`
+- `node planning/scripts/run.mjs section 03 7.4`
+- `node planning/scripts/run.mjs section 10 8.4`
+- `node planning/scripts/run.mjs section 10 7.3`
+- `node planning/scripts/run.mjs section 08 5.8`
+- `node planning/scripts/run.mjs section 15 6`
+- `node planning/scripts/run.mjs section 05 US-56`
+
+## Acceptance
+
+| Criterion | Test | Level | Location |
+|---|---|---|---|
+| AC-US56-01 | TC-US56-01 | Integration | `SeedImportIT` |
+| AC-US56-02 | TC-US56-02 | Integration | `SeedImportIT` |
+| AC-US56-03 | TC-US56-03 | Integration | `SeedImportIT` |
+| AC-US56-04 | TC-US56-04 | Integration | `SeedImportIT` |
+| AC-US19-01 | TC-US19-01 | Unit | `ContentValidatorTest` |
+| AC-US19-02 | TC-US19-02 | Integration | `GameLifecycleIT` |
+
+## Tasks
+
+- [ ] T1 `ContentValidator` with every field rule of SRS section 7.3 for characters, tasks and run plans, including the round length of 3 to 10 whole minutes, returning `ValidationReport` with `Issue.path`, in `app.deliveryhero.content`, test first: `ContentValidatorTest` AC-US19-01 (3 and 10 accepted, 2 and 11 refused), source: AC-US19-01, FR-018, FR-076 (shared), SRS 7.3, LLD 5.3
+- [ ] T2 `SeedFile` records for format version 1 and `SeedImporter` parsing, validating the whole file (and run-plan keys against file or database) before writing, printing every error with its key and exiting with status 1, in `app.deliveryhero.seed`, test first: `SeedImportIT` AC-US56-02 with the DS-08 fixture in `backend/src/test/resources`, source: AC-US56-02, FR-075, DS-08, SRS 7.4, LLD 5.10
+- [ ] T3 One-transaction upsert: characters by role, tasks by key, run plans by key with their entries replaced; print the counts and log `SEED_IMPORTED` with counts only, in `app.deliveryhero.seed` and `app.deliveryhero.content`, test first: `SeedImportIT` AC-US56-01 (DS-01: 74 tasks, 4 characters, 2 run plans) and AC-US56-03 (re-import with mgr-plan-01 changed, still 74 tasks), source: AC-US56-01, AC-US56-03, DS-01, FR-075, DEC-40, document 10 section 8.4, LLD 5.10 and 5.14
+- [ ] T4 `SeedCommand` lock check: refuse and change nothing when any game row is in LOBBY through REVEAL, exiting non-zero with the `DEPLOY_LOCKED` message "A game is in progress. Try again after it ends."; the web lock endpoint and `DeployLockService` come in S2-05, in `app.deliveryhero.seed`, test first: `SeedImportIT` AC-US56-04 (a game row inserted in LIVE), source: AC-US56-04, FR-075, FR-090 (shared), US-68 (shared), LD-05 (shared), LLD 5.10 step 2, LLD 5.12
+- [ ] T5 Seed mode of `DeliveryHeroApplication`: the `seed` argument starts without the web server, and `StartupCleanup` and `HousekeepingJob` stay out of that context through `@ConditionalOnWebApplication`, in `app.deliveryhero` and `app.deliveryhero.lifecycle`, test first: `SeedImportIT` context check that neither bean exists, source: DEC-136, LLD 5.8 and 5.10 step 1
+- [ ] T6 Local end-to-end run of the seed command on the local stack, plus `python3 tools/validate_seed.py seed/delivery-hero-seed.json`, fixing any wiring in `deploy/docker-compose.local.yml`, test first: procedure (run the command twice; the second run updates and duplicates nothing), source: AC-US56-01, AC-US56-03, FR-075, document 18 section 8.2
+- [ ] T7 Game keeps its length: a game created from a 5-minute plan still runs 5 minutes after the plan is changed to 7, in `GameLifecycleIT` (written with S1-04's `GameLifecycleService.create` and snapshot), test first: `GameLifecycleIT` AC-US19-02, source: AC-US19-02, FR-018, FR-072 (shared), document 10 section 8.5 [Blocked: waiting for S1-04 game creation]
+- [ ] T8 Owner: load the task pool on production with the seed command (OA-20), test first: none, source: AC-US56-01, document 16 section 9.5 [Blocked: waiting for Q-01]
+
+## Owner actions
+
+- OA-20: load the task pool on production with the seed command (Blocked: no production host, Q-01).
+
+## Verification
+
+- `/check` (backend: `cd backend && ./mvnw -B verify`, integration tests need Docker)
+- `python3 tools/validate_seed.py seed/delivery-hero-seed.json`
+- `docker compose -f deploy/docker-compose.local.yml run --rm backend seed /seed/delivery-hero-seed.json` twice on the local stack; the second run prints the same counts
+- Production seed run once Q-01 is answered (OA-20)
+
+## Risks and open questions
+
+- DI-08: AC-US56-04 needs the deploy lock (US-68, S2-05). This subplan builds the check the seed loader itself uses (LLD 5.10: any game row in LOBBY through REVEAL); S2-05 builds `DeployLockService` and `/api/ops/deploy-lock` on the same states, so both agree.
+- LLD section 5.10 gives exit statuses 0 and 1 only and no refusal code for the lock. Assumption: the refusal exits with status 1 and prints the `DEPLOY_LOCKED` message from LLD 5.12. If the owner wants a distinct code, record it in doc-issues.
+- T7 needs S1-04 (game creation and snapshot); it's written on S1-04's branch or right after it, so this subplan closes on Thu 1 Oct.
+- DI-04 / Q-01: no production host yet, so the production seed (OA-20) waits.
+- R-10 (shared): debatable task content is reviewed in S2-25; this subplan only enforces the SRS 7.3 rules.
+
+## Definition of done
+
+Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently on the local stack, DS-08 is refused with the task's key, the lock check refuses with a game in LIVE, and `tools/validate_seed.py` passes.
+
+## Claude Code playbook
+
+- `/dh`, then `/story` for US-56 (US-19 rides along); `/check` before `/pr`.
+- Reviewers: `backend-reviewer`; `spec-guardian` before the pull request (FR-075 and SRS 7.3, 7.4).
+- Pitfalls: validate the whole file before writing anything; one transaction; never let the seed process create `StartupCleanup` or `HousekeepingJob` (running the seed during a game would cancel it); the lock check refuses, never cancels; logs carry counts only, never task text.
+
+## Progress log
+
+None yet.
