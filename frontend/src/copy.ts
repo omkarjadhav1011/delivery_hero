@@ -13,6 +13,11 @@ export const copy = {
     // P-02
     title: "What should we call you?",
   },
+  reconnect: {
+    // P-19, the ReconnectBanner; the second line replaces the first after 5 seconds
+    banner: "Reconnecting…",
+    stillTrying: "Still trying… check your mobile data.",
+  },
   screen: {
     // S-01
     gettingReady: "Getting ready…",
