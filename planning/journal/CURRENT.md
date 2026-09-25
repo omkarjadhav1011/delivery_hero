@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-01 |
 | Branch | feat/us-56-seed-loader |
 | Start commit | 15d6fcd |
-| Last commit | 9082c7f |
+| Last commit | bcd5d27 |
 | Step | test-first |
-| Task | T5 |
+| Task | T6 |
 | Attempts | 0 |
 | Started | 2026-09-25T23:39 |
 | Updated | 2026-09-25T23:57 |
-| Next action | SeedImportIT seed-mode context has no cleanup beans |
+| Next action | Local seed run twice; validate_seed.py |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (6d3b2e6)
 - T3 (31d836e)
 - T4 (9082c7f)
+- T5 (bcd5d27)
 
 ## Pending approvals
 
