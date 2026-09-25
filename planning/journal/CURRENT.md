@@ -9,18 +9,19 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-03 |
 | Branch | feat/en-08-arcade-theme |
 | Start commit | e96ee0b |
-| Last commit | ad1496c |
+| Last commit | ff93798 |
 | Step | test-first |
-| Task | T6 |
+| Task | T7 |
 | Attempts | 0 |
 | Started | 2026-09-25T22:47 |
-| Updated | 2026-09-25T22:55 |
-| Next action | PhoneShell, ProjectorShell, AdminShell tests |
+| Updated | 2026-09-25T22:58 |
+| Next action | security-privacy.spec.ts AC-EN08-02 |
 
 ## Completed tasks
 
 - T3 (59bd783)
 - T4 (ad1496c)
+- T6 (ff93798)
 
 ## Pending approvals
 
