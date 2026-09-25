@@ -2,10 +2,14 @@ package app.deliveryhero.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.deliveryhero.DeliveryHeroApplication;
+import app.deliveryhero.lifecycle.HousekeepingJob;
+import app.deliveryhero.lifecycle.StartupCleanup;
 import app.deliveryhero.support.IntegrationTest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,9 +17,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.web.context.WebApplicationContext;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -38,6 +46,9 @@ class SeedImportIT {
 
     @Autowired
     JdbcClient jdbc;
+
+    @Autowired
+    PostgreSQLContainer postgres;
 
     @BeforeEach
     void emptyContent() {
@@ -149,6 +160,26 @@ class SeedImportIT {
         insertGame("CLOSED");
 
         assertThat(seed.run(List.of(DS_01.toString()))).isEqualTo(SeedCommand.IMPORTED);
+    }
+
+    @Test
+    @DisplayName("The seed mode starts without a web server and without the startup cleanup and housekeeping beans")
+    void seedModeContext() {
+        SpringApplication application = DeliveryHeroApplication.seedApplication();
+        application.setAdditionalProfiles("test");
+        application.setDefaultProperties(Map.of(
+                "spring.datasource.url", postgres.getJdbcUrl(),
+                "spring.datasource.username", postgres.getUsername(),
+                "spring.datasource.password", postgres.getPassword()));
+
+        try (ConfigurableApplicationContext context = application.run("seed", DS_01.toString())) {
+            assertThat(context).isNotInstanceOf(WebApplicationContext.class);
+            assertThat(context.getBeanNamesForType(StartupCleanup.class)).isEmpty();
+            assertThat(context.getBeanNamesForType(HousekeepingJob.class)).isEmpty();
+            assertThat(context.getBean(SeedCommand.class).run(List.of(DS_01.toString())))
+                    .isEqualTo(SeedCommand.IMPORTED);
+        }
+        assertThat(count("tasks")).isEqualTo(74);
     }
 
     @Test

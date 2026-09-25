@@ -28,10 +28,15 @@ public class DeliveryHeroApplication {
      * never start (LLD section 5.8).
      */
     static int runSeed(String[] args) {
-        SpringApplication application = new SpringApplication(DeliveryHeroApplication.class);
-        application.setWebApplicationType(WebApplicationType.NONE);
-        try (ConfigurableApplicationContext context = application.run(args)) {
+        try (ConfigurableApplicationContext context = seedApplication().run(args)) {
             return context.getBean(SeedCommand.class).run(Arrays.asList(args).subList(1, args.length));
         }
+    }
+
+    /** The application the seed command runs in: no web server, so no web-only beans (DEC-136). */
+    public static SpringApplication seedApplication() {
+        SpringApplication application = new SpringApplication(DeliveryHeroApplication.class);
+        application.setWebApplicationType(WebApplicationType.NONE);
+        return application;
     }
 }
