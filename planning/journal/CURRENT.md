@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 920fd45 |
+| Last commit | e6e416b |
 | Step | test-first |
-| Task | T10 |
+| Task | T11 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
 | Updated | 2026-09-25T11:07 |
-| Next action | git status clean; pin grep |
+| Next action | OPS-20 from a fresh clone |
 
 ## Completed tasks
 
@@ -27,6 +27,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T6 (1d3291c)
 - T7 (5c46557)
 - T8 (920fd45)
+- T10 (e6e416b)
 
 ## Pending approvals
 

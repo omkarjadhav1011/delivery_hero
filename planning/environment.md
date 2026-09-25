@@ -27,4 +27,5 @@ Recorded on 2026-09-24; rechecked on 2026-09-25.
 | ShellCheck | missing | `/check` skips it; CI still runs it |
 | actionlint | missing | `/check` skips it; CI still runs it |
 | gitleaks | missing | `/check` skips it; CI still runs it |
+| Port 8080 and 5432 | Held by native Windows services (Tomcat 11, PostgreSQL), 2026-09-25 | Start the local stack with `DH_LOCAL_PORT=8090 DH_LOCAL_DB_PORT=5433` and `E2E_BASE_URL=http://localhost:8090`, or stop those services |
 | k6 | missing | LT-01 runs from the load-generator instance (DEC-187); install it there |
