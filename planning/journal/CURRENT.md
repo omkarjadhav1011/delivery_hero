@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-02 |
 | Branch | chore/ci-merge-checks |
 | Start commit | e96ee0b |
-| Last commit | e96ee0b |
+| Last commit | 3486cc6 |
 | Step | test-first |
-| Task | T3 |
+| Task | T2 |
 | Attempts | 0 |
 | Started | 2026-09-25T22:31 |
 | Updated | 2026-09-25T22:32 |
-| Next action | grep uses: pins |
+| Next action | actionlint on both workflows; bad needs: probe |
 
 ## Completed tasks
 
-- none
+- T3 (3486cc6)
 
 ## Pending approvals
 
