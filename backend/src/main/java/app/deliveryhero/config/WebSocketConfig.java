@@ -3,6 +3,7 @@ package app.deliveryhero.config;
 import app.deliveryhero.realtime.HeartbeatWatchdog;
 import app.deliveryhero.realtime.StompAuthInterceptor;
 import app.deliveryhero.realtime.StompErrorHandler;
+import app.deliveryhero.realtime.StompEventListener;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -32,14 +33,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final TaskScheduler heartbeatScheduler;
     private final HeartbeatWatchdog watchdog;
     private final StompAuthInterceptor authInterceptor;
+    private final StompEventListener eventListener;
 
     public WebSocketConfig(
             @Qualifier("heartbeatScheduler") TaskScheduler heartbeatScheduler,
             HeartbeatWatchdog watchdog,
-            StompAuthInterceptor authInterceptor) {
+            StompAuthInterceptor authInterceptor,
+            StompEventListener eventListener) {
         this.heartbeatScheduler = heartbeatScheduler;
         this.watchdog = watchdog;
         this.authInterceptor = authInterceptor;
+        this.eventListener = eventListener;
     }
 
     @Override
@@ -60,8 +64,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        // Credentials are checked in CONNECT (DEC-133)
-        registration.interceptors(authInterceptor);
+        // Credentials are checked in CONNECT (DEC-133); the full state follows a confirmed subscription (DEC-146)
+        registration.interceptors(authInterceptor, eventListener);
     }
 
     @Override

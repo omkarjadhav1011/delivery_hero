@@ -3,6 +3,7 @@ package app.deliveryhero.realtime;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.realtime.StompRefusal.Code;
 import java.security.Principal;
+import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -80,7 +81,14 @@ public class StompAuthInterceptor implements ChannelInterceptor {
     private Optional<ClientPrincipal> authenticate(StompHeaderAccessor accessor) {
         String playerToken = accessor.getFirstNativeHeader(PLAYER_TOKEN);
         if (playerToken != null) {
-            return credentials.playerByTokenHash(tokens.hash(playerToken)).map(ClientPrincipal.class::cast);
+            String tokenHash = tokens.hash(playerToken);
+            Optional<PlayerPrincipal> player = credentials.playerByTokenHash(tokenHash);
+            Map<String, Object> attributes = accessor.getSessionAttributes();
+            if (player.isPresent() && attributes != null) {
+                // Kept for the Reconnect command once the connection is confirmed (LLD section 5.4.10)
+                attributes.put(StompEventListener.TOKEN_HASH, tokenHash);
+            }
+            return player.map(ClientPrincipal.class::cast);
         }
         String projectorKey = accessor.getFirstNativeHeader(PROJECTOR_KEY);
         if (projectorKey != null) {

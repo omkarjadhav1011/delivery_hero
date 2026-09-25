@@ -3,6 +3,11 @@ package app.deliveryhero.realtime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.engine.command.ClientRole;
+import app.deliveryhero.engine.command.ClientSubscribed;
+import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.command.Disconnect;
+import app.deliveryhero.engine.command.Reconnect;
 import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
@@ -28,11 +33,12 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 
 /** The STOMP endpoint at {@code /ws} over a real server port (EN-04, API section 8). */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import(PostgresTestConfiguration.class)
+@Import({PostgresTestConfiguration.class, GatewayTestConfiguration.class})
 @ExtendWith(OutputCaptureExtension.class)
 class StompConnectionIT {
 
@@ -58,6 +64,74 @@ class StompConnectionIT {
     void cleanUp() {
         heartbeats.shutdownNow();
         credentials.clear();
+        GatewayTestConfiguration.SUBMITTED.clear();
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 a valid player token connects and receives GAME_STATE after subscribing, not before")
+    void playerReceivesStateAfterSubscribing() throws Exception {
+        String token = registerPlayer(PLAYER);
+
+        try (RawStompClient player = RawStompClient.open(port)) {
+            player.connect(Map.of("player-token", token));
+            assertConnected(player);
+            assertThat(player.nextFrame(QUIET))
+                    .as("nothing before the subscription")
+                    .isNull();
+            assertThat(nextCommand(Reconnect.class).tokenHash()).isEqualTo(tokens.hash(token));
+
+            player.subscribe("s1", "/user/queue/game");
+
+            assertState(player, "GAME_STATE");
+            ClientSubscribed playerSubscribed = nextCommand(ClientSubscribed.class);
+            assertThat(playerSubscribed).satisfies(subscribed -> {
+                assertThat(subscribed.role()).isEqualTo(ClientRole.PLAYER);
+                assertThat(subscribed.playerId()).isEqualTo(PLAYER);
+            });
+        }
+        assertThat(nextCommand(Disconnect.class)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 a valid projector key connects and receives SCREEN_STATE after subscribing, not before")
+    void projectorReceivesStateAfterSubscribing() throws Exception {
+        credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
+
+        try (RawStompClient projector = RawStompClient.open(port)) {
+            projector.connect(Map.of("projector-key", PROJECTOR_KEY));
+            assertConnected(projector);
+            assertThat(projector.nextFrame(QUIET))
+                    .as("nothing before the subscription")
+                    .isNull();
+
+            projector.subscribe("s1", DestinationPolicy.screenTopic(GAME));
+
+            assertState(projector, "SCREEN_STATE");
+            assertThat(nextCommand(ClientSubscribed.class))
+                    .satisfies(subscribed -> assertThat(subscribed.role()).isEqualTo(ClientRole.PROJECTOR));
+        }
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 an authenticated admin session connects and receives LIVE_STATS after subscribing, not"
+            + " before")
+    void adminReceivesStateAfterSubscribing() throws Exception {
+        WebSocketHttpHeaders handshake = new WebSocketHttpHeaders();
+        handshake.setBasicAuth("admin", "delivery-hero-local");
+
+        try (RawStompClient admin = RawStompClient.open(port, handshake)) {
+            admin.connect(Map.of());
+            assertConnected(admin);
+            assertThat(admin.nextFrame(QUIET))
+                    .as("nothing before the subscription")
+                    .isNull();
+
+            admin.subscribe("s1", DestinationPolicy.adminTopic(GAME));
+
+            assertState(admin, "LIVE_STATS");
+            assertThat(nextCommand(ClientSubscribed.class))
+                    .satisfies(subscribed -> assertThat(subscribed.role()).isEqualTo(ClientRole.ADMIN));
+        }
     }
 
     @Test
@@ -146,6 +220,26 @@ class StompConnectionIT {
             projector.sendTo(DestinationPolicy.answerDestination(GAME), "{\"type\":\"ANSWER_SUBMIT\"}");
             assertForbidden(projector);
         }
+    }
+
+    /** The next submitted command of this type, skipping others such as late disconnects from earlier tests. */
+    private static <T extends Command> T nextCommand(Class<T> type) throws InterruptedException {
+        long deadline = System.nanoTime() + FRAME_TIMEOUT.toNanos();
+        while (System.nanoTime() < deadline) {
+            Command command = GatewayTestConfiguration.SUBMITTED.poll(100, TimeUnit.MILLISECONDS);
+            if (type.isInstance(command)) {
+                return type.cast(command);
+            }
+        }
+        throw new AssertionError("no " + type.getSimpleName() + " command was submitted");
+    }
+
+    private static void assertState(RawStompClient client, String type) throws InterruptedException {
+        Frame frame = client.nextFrame(FRAME_TIMEOUT);
+        assertThat(frame).isNotNull();
+        assertThat(frame.command()).isEqualTo("MESSAGE");
+        assertThat(frame.headers()).containsEntry("subscription", "s1");
+        assertThat(frame.body()).contains("\"type\":\"" + type + "\"").contains("\"serverTime\":1760000000000");
     }
 
     private static void assertForbidden(RawStompClient client) throws Exception {
