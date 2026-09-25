@@ -9,17 +9,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-03 |
 | Branch | feat/en-08-arcade-theme |
 | Start commit | e96ee0b |
-| Last commit | 59bd783 |
+| Last commit | ad1496c |
 | Step | test-first |
-| Task | T4 |
+| Task | T6 |
 | Attempts | 0 |
 | Started | 2026-09-25T22:47 |
-| Updated | 2026-09-25T22:51 |
-| Next action | ArcadeButton, PixelIcon, CodeBlock tests |
+| Updated | 2026-09-25T22:55 |
+| Next action | PhoneShell, ProjectorShell, AdminShell tests |
 
 ## Completed tasks
 
 - T3 (59bd783)
+- T4 (ad1496c)
 
 ## Pending approvals
 

@@ -1,0 +1,62 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { copy } from "@/copy";
+
+type AdminShellProps = {
+  title: string;
+  // The login page (A-01) shows no navigation
+  navigation?: boolean;
+  children?: ReactNode;
+};
+
+// The A-02 header's sections, in its order (document 12, section 9)
+const sections = [
+  { href: "/admin/tasks/", label: copy.admin.nav.tasks },
+  { href: "/admin/characters/", label: copy.admin.nav.characters },
+  { href: "/admin/run-plans/", label: copy.admin.nav.runPlans },
+  { href: "/admin/games/", label: copy.admin.nav.games },
+  { href: "/admin/past-games/", label: copy.admin.nav.pastGames },
+] as const;
+
+// Every admin screen's frame (document 12, sections 6.3 and 9): the header with the navigation, then the content.
+// Built for a laptop at 1280 px or more and fully usable with a keyboard (NFR-32).
+export function AdminShell({ title, navigation = true, children }: AdminShellProps) {
+  const pathname = usePathname();
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <header className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b-2 border-border bg-surface px-6 py-4">
+        <Link href="/admin/" className="font-display text-base text-accent">
+          {copy.admin.brand}
+        </Link>
+        {navigation && (
+          <nav aria-label={copy.admin.navLabel}>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {sections.map(({ href, label }) => {
+                const current = pathname.startsWith(href);
+                return (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      aria-current={current ? "page" : undefined}
+                      className={`underline-offset-4 hover:underline ${current ? "text-primary underline" : "text-text"}`}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        )}
+        {/* TODO(US-49): Log out, with the admin session */}
+      </header>
+      <main className="flex flex-1 flex-col gap-6 p-6">
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        {children}
+      </main>
+    </div>
+  );
+}
