@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 1af9889 |
+| Last commit | 6992eb2 |
 | Step | test-first |
-| Task | T5 |
+| Task | T6 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
 | Updated | 2026-09-25T11:02 |
-| Next action | MigrationIT |
+| Next action | OpenApiIT |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (364295a)
 - T3 (69fb7af)
 - T4 (1af9889)
+- T5 (6992eb2)
 
 ## Pending approvals
 
