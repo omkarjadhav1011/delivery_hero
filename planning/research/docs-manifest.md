@@ -5,20 +5,20 @@ A changed hash means the plan may be out of date: `/dh` reads the changed docume
 
 | Document | Lines | SHA-256 | Recorded |
 |---|---|---|---|
-| `01-project-charter.md` | 640 | `8bf4161b181b36ccdd4bc3e207c450b71b4a2e40c1a75fffe0960aeec17ab62c` | 2026-09-25 |
-| `02-prd.md` | 565 | `c5415912a0d985694568853021c1b7e3fa949c1c413979440c9c9924dd6f4e8b` | 2026-09-25 |
-| `03-srs.md` | 835 | `966f4663a7a60b0ba9666a0949a5e4bb34099487fd6f77c6f9ce5037981210d2` | 2026-09-25 |
-| `04-user-stories.md` | 450 | `d06c3a7b15b3b11a44250d0a7c10a4cae43fcc73fda26610c68d58669f6ad9fd` | 2026-09-25 |
-| `05-acceptance-criteria.md` | 825 | `b379ef8a049afcef7b03ca89c2b957ab064c4372f9a9a0c12548cf2cb623665b` | 2026-09-25 |
-| `06-use-cases.md` | 1133 | `5172a90526a11f26df4ee7973be2d882c568d513be727d641b3fae1253e94fd7` | 2026-09-25 |
-| `07-hld.md` | 585 | `bb7322585bb46207bf285c74cfd197f864679f6a922288574b94027a9abfb852` | 2026-09-25 |
-| `08-lld.md` | 755 | `952599a2c5dcbee0b57d7e31d8fb77c2275ab8fc59264f4c204790f9f5a1960f` | 2026-09-25 |
-| `09-software-architecture.md` | 495 | `4a8b62d68e255c48ab30650239195b6f86a803346cab2d6e89aaf2ba15934a2c` | 2026-09-25 |
-| `10-database-design.md` | 540 | `e6535fdcb3639e9a4c2ac4df797a3c94e5098d2610e75d15148892f99164e93a` | 2026-09-25 |
-| `11-api-specification.md` | 806 | `8c6c7f6eaccb79988c878323486d80e92be9c0e57cdea87edb2ebb2be07837ca` | 2026-09-25 |
-| `12-ui-ux-wireframes.md` | 1146 | `3c06133cd730b67b868496a7081539fb9d0a6d861361cdaffd3afe60802f5e66` | 2026-09-25 |
-| `13-coding-standards-git-strategy.md` | 743 | `49252569c5f47b4fd60be5ba6c3b10e5cd12c28f058d8736e9c618f5813d6d79` | 2026-09-25 |
-| `14-test-plan.md` | 636 | `dcd9b1c5e1f60857757990c4dcc6deafdcb75a68153068128fa44fa58f065486` | 2026-09-25 |
-| `15-test-cases.md` | 832 | `8c03022ae3e5bf5e3e219144316a80b4e8cc9e355b8af422109a47b5daee4a7a` | 2026-09-25 |
-| `16-deployment-guide.md` | 1029 | `26da254da406b4d24e0da663a3a3b08c45a83b445c71c9d3138584d45461b414` | 2026-09-25 |
-| `18-setup-guide.md` | 538 | `cac5b784c6b6b1bbb99b6e1e97dccc469b9881e1c7fe82b518f7bb24e2844d1f` | 2026-09-25 |
+| `01-project-charter.md` | 640 | `7a25dbdc099bbf6f62efa14e8ff345626ff86b056126720b956b00b62e75057b` | 2026-09-25 |
+| `02-prd.md` | 564 | `6280d7ed5d887a5674b7d01d02eec889525ece2f31581d68c45b1248ccb13fde` | 2026-09-25 |
+| `03-srs.md` | 834 | `9b4cfd49c5d7070a7f65b6e5e82a4c82e0bf44fa5dd268d210e94c69e7b3012b` | 2026-09-25 |
+| `04-user-stories.md` | 449 | `8cda53caa74d496f41c09536bd91b1383250eef85b7f6cf3f60350c8991223e0` | 2026-09-25 |
+| `05-acceptance-criteria.md` | 824 | `63120e5e34c2f9b06ab7b1f689db6d4e8f92c2cd6dab3506c52bff769abfb233` | 2026-09-25 |
+| `06-use-cases.md` | 1132 | `7759ab108ebf6351be9c9c0fcfcd9844c51c297946d563a6ff6ed8e773e6631c` | 2026-09-25 |
+| `07-hld.md` | 584 | `04d0f3f3a94945915fd8abd65a17a42c979e7215a976fd4b80d9003176701e18` | 2026-09-25 |
+| `08-lld.md` | 754 | `3ef8875215305003b2de24e4341374d3854a1f8bdd0f562766d4cfdc8b56f886` | 2026-09-25 |
+| `09-software-architecture.md` | 494 | `0bdd126462d43d92a397372a0547629a7ec9c29ee3888d99a65a6049d83007fb` | 2026-09-25 |
+| `10-database-design.md` | 540 | `1fdfda9ae0d8c2fb14617845e4eb20d87c0f46bc962ecd550c218a0dd2655023` | 2026-09-25 |
+| `11-api-specification.md` | 805 | `b3d6f999284b30e7f8751bae2492579e7d37407ce6b1ea0ab7dc2f6fd24fd34e` | 2026-09-25 |
+| `12-ui-ux-wireframes.md` | 1146 | `6a1d7e9e76dafe66d33fef32d6fea3bbf6513a080d59c6ff1fb19ff8ef596fa8` | 2026-09-25 |
+| `13-coding-standards-git-strategy.md` | 743 | `b43f10f969290e8dba28301086e9bd3863a33ce67f815efc0382eff1dcbb91d7` | 2026-09-25 |
+| `14-test-plan.md` | 636 | `699cfca4733d9378608217a9f2803457355defb11eea50e23cdef8b0f054ba94` | 2026-09-25 |
+| `15-test-cases.md` | 832 | `ac9eb1010ee9c7a91a6e42b6ebdc360dc1275876a07b11316a21125046434f92` | 2026-09-25 |
+| `16-deployment-guide.md` | 1029 | `b7c7259fd2fd42399e76edeb4af3150e09adce140d8e881ecbcb89c1a7dc0cfe` | 2026-09-25 |
+| `18-setup-guide.md` | 538 | `2b59d07bd858f3fa3e82ed57bfb0c8c3624d6f0c67c640b82bfdda93247ba497` | 2026-09-25 |
