@@ -140,8 +140,8 @@ Delivery Hero aims to meet WCAG 2.2 at level AA on the phone screens, the projec
 
 | Asset | License | Notes |
 |---|---|---|
-| Press Start 2P font | SIL Open Font License 1.1 | Self-hosted; used for display text only |
-| Pixel icon set: [name, for example Pixelarticons] | [license, for example MIT] | Confirm when chosen (DEC-168) |
+| Press Start 2P font by The Press Start 2P Project Authors | SIL Open Font License 1.1 | Self-hosted, for display text only; license in `frontend/app/fonts/OFL.txt` |
+| [Pixelarticons](https://github.com/halfmage/pixelarticons) 2.4.1 by Gerrit Halfmann | MIT | Seven icons' path data, drawn inline; license in `frontend/src/ui/icons/LICENSE` (DEC-168) |
 | Pixel-art pack: [name and author] | [license; CC0 preferred] | Record any required credit here (R-11) |
 | Open-source libraries | Their own licenses | Listed in `backend/pom.xml` and `frontend/package-lock.json` |
 

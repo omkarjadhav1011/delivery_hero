@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-03 |
 | Branch | feat/en-08-arcade-theme |
 | Start commit | e96ee0b |
-| Last commit | b8bd831 |
-| Step | test-first |
-| Task | T8 |
+| Last commit | ed3c7c0 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-25T22:47 |
 | Updated | 2026-09-25T23:01 |
-| Next action | accessibility.spec.ts AC-EN08-03 |
+| Next action | Reviewers, then wrap-up |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T4 (ad1496c)
 - T6 (ff93798)
 - T7 (b8bd831)
+- T8 (ed3c7c0)
 
 ## Pending approvals
 
