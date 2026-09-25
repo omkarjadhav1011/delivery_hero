@@ -9,21 +9,21 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 723d39a |
-| Step | awaiting-approval |
-| Task | T1 |
+| Last commit | 0fd2f71 |
+| Step | test-first |
+| Task | T2 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
-| Updated | 2026-09-25T10:54 |
-| Next action | Audit the rebased branch against /scaffold-en01 Step 1 and write the plan |
+| Updated | 2026-09-25T10:55 |
+| Next action | spotless:check compile fails on an unformatted file and a null dereference in engine |
 
 ## Completed tasks
 
-- none
+- T1 (0fd2f71)
 
 ## Pending approvals
 
-- T1 scaffold plan
+- none
 
 ## Failing tests
 
