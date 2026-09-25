@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 5c46557 |
+| Last commit | 920fd45 |
 | Step | test-first |
-| Task | T8 |
+| Task | T10 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
-| Updated | 2026-09-25T11:04 |
-| Next action | out/ holds only static files; csp.conf exists |
+| Updated | 2026-09-25T11:07 |
+| Next action | git status clean; pin grep |
 
 ## Completed tasks
 
@@ -26,6 +26,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T5 (6992eb2)
 - T6 (1d3291c)
 - T7 (5c46557)
+- T8 (920fd45)
 
 ## Pending approvals
 

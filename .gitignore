@@ -24,3 +24,7 @@ frontend/blob-report/
 *.iml
 .DS_Store
 Thumbs.db
+*.lnk
+
+# Python caches (planning scripts, hooks, tools)
+__pycache__/
