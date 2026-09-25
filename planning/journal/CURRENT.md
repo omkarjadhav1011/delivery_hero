@@ -9,17 +9,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 0fd2f71 |
+| Last commit | 364295a |
 | Step | test-first |
-| Task | T2 |
+| Task | T3 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
-| Updated | 2026-09-25T10:55 |
-| Next action | spotless:check compile fails on an unformatted file and a null dereference in engine |
+| Updated | 2026-09-25T11:00 |
+| Next action | AC-EN01-02 name in failsafe XML and ac_coverage |
 
 ## Completed tasks
 
 - T1 (0fd2f71)
+- T2 (364295a)
 
 ## Pending approvals
 
