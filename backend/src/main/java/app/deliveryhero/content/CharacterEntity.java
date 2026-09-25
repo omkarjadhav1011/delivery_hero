@@ -6,16 +6,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 /** A row of {@code characters}, keyed by role (document 10, section 7.1). Reaction lines are JSON arrays. */
 @Entity
 @Table(name = "characters")
-public class CharacterEntity {
+public class CharacterEntity implements Persistable<Role> {
 
     @Id
     @Enumerated(EnumType.STRING)
@@ -42,8 +46,13 @@ public class CharacterEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /** True until the row is saved or loaded, so a save inserts without first selecting (assigned keys). */
+    @Transient
+    private boolean isNew;
+
     protected CharacterEntity() {
         this(Role.MANAGER);
+        this.isNew = false;
     }
 
     public CharacterEntity(Role role) {
@@ -53,6 +62,7 @@ public class CharacterEntity {
         this.correctLines = "[]";
         this.wrongLines = "[]";
         this.updatedAt = Instant.EPOCH;
+        this.isNew = true;
     }
 
     /** Copies every field but the role; the reaction lines arrive already as JSON arrays. */
@@ -70,5 +80,21 @@ public class CharacterEntity {
 
     public String displayName() {
         return displayName;
+    }
+
+    @Override
+    public Role getId() {
+        return role;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    void markStored() {
+        this.isNew = false;
     }
 }

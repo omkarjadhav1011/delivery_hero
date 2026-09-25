@@ -3,16 +3,20 @@ package app.deliveryhero.content;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Persistable;
 
 /** A row of {@code run_plans}, a game template (document 10, section 7.3). Its lists are {@link RunPlanEntryEntity}. */
 @Entity
 @Table(name = "run_plans")
-public class RunPlanEntity {
+public class RunPlanEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -38,8 +42,13 @@ public class RunPlanEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /** True until the row is saved or loaded, so a save inserts without first selecting (assigned keys). */
+    @Transient
+    private boolean isNew;
+
     protected RunPlanEntity() {
         this(new UUID(0, 0), "", Instant.EPOCH);
+        this.isNew = false;
     }
 
     public RunPlanEntity(UUID id, String planKey, Instant now) {
@@ -48,6 +57,7 @@ public class RunPlanEntity {
         this.name = "";
         this.createdAt = now;
         this.updatedAt = now;
+        this.isNew = true;
     }
 
     /** Copies the name, round length and incident task; the lists are separate rows. */
@@ -68,5 +78,21 @@ public class RunPlanEntity {
 
     public int roundLengthMinutes() {
         return roundLengthMinutes;
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    void markStored() {
+        this.isNew = false;
     }
 }

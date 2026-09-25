@@ -9,18 +9,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Persistable;
 
 /** A row of {@code tasks} (document 10, section 7.2). Code and content are JSON, shaped by the task type. */
 @Entity
 @Table(name = "tasks")
-public class TaskEntity {
+public class TaskEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -70,8 +74,13 @@ public class TaskEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /** True until the row is saved or loaded, so a save inserts without first selecting (assigned keys). */
+    @Transient
+    private boolean isNew;
+
     protected TaskEntity() {
         this(new UUID(0, 0), "", Instant.EPOCH);
+        this.isNew = false;
     }
 
     public TaskEntity(UUID id, String taskKey, Instant now) {
@@ -84,6 +93,7 @@ public class TaskEntity {
         this.content = "{}";
         this.createdAt = now;
         this.updatedAt = now;
+        this.isNew = true;
     }
 
     /** Copies every field but the key; code and content arrive already as JSON. */
@@ -123,5 +133,21 @@ public class TaskEntity {
 
     public String prompt() {
         return prompt;
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    void markStored() {
+        this.isNew = false;
     }
 }

@@ -105,3 +105,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
   - `./mvnw -B verify`: 30 unit and 19 integration tests pass, coverage met. The local seed run and `validate_seed.py` are clean.
   - T7 and T8 stay blocked (S1-04, Q-01).
 - 2026-09-26: T1 to T6 done and reviewed; T7 and T8 blocked. Actuals: about 35 minutes, about 350k tokens (main about 240k, subagents about 112k).
+- 2026-09-26: backend-reviewer item 5. The content entities implement `Persistable`, so saving a new row inserts it without first selecting. `./mvnw -B verify`: 30 unit and 19 integration tests pass.
