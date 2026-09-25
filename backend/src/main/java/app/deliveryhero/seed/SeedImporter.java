@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -53,6 +55,8 @@ public class SeedImporter {
     public record Imported(Counts counts, List<String> warnings) implements Outcome {}
 
     public record Refused(List<String> errors, List<String> warnings) implements Outcome {}
+
+    private static final Logger log = LoggerFactory.getLogger(SeedImporter.class);
 
     private final JsonMapper json;
     private final ContentValidator validator;
@@ -82,7 +86,14 @@ public class SeedImporter {
         if (!check.errors.isEmpty()) {
             return new Refused(check.errors, check.warnings);
         }
-        return new Imported(writer.write(check.characters, check.tasks, check.plans), check.warnings);
+        Counts counts = writer.write(check.characters, check.tasks, check.plans);
+        log.atInfo()
+                .addKeyValue("event", "SEED_IMPORTED")
+                .addKeyValue("characters", counts.characters())
+                .addKeyValue("tasks", counts.tasks())
+                .addKeyValue("runPlans", counts.runPlans())
+                .log("Seed imported");
+        return new Imported(counts, check.warnings);
     }
 
     /** One pass over the file, collecting definitions, errors and warnings. */
