@@ -43,12 +43,12 @@ A placeholder for fixing the defects found at the trial run. At CP-T it is split
 
 ## Tasks
 
-- [ ] T1 Triage every `found-in:trial` issue by severity and area, and propose one defect subplan per Sev-1 or Sev-2 issue (plus cheap Sev-3 fixes) as a plan change for the owner's approval, in `planning/plan-changes.md`, test first: none, source: DEC-190, TP-06, document 14 section 12, `planning/CONVENTIONS.md` section 13
+- [ ] T1 Triage every `found-in:trial` issue by severity and area, and propose one defect subplan per Sev-1 or Sev-2 issue (plus cheap Sev-3 fixes) as a plan change for the owner's approval, in `planning/plan-changes.md`, test first: none, source: DEC-190 (shared), TP-06, document 14 section 12, `planning/CONVENTIONS.md` section 13
 - [ ] T2 For each approved defect subplan, write the failing regression test first, then the fix, on its own `fix/<issue>-<slug>` branch, test first: a regression test named after the issue and any criterion it breaks, source: TP-06, DEC-192, document 14 section 12
 - [ ] T3 Re-run the MAN and A11Y checks for areas the fixes changed, and record the new rows in `test-results/manual-results.csv` and `planning/check-results.md`, test first: none, source: MAN-01 (shared), A11Y-01 (shared), document 15 sections 17 and 18
-- [ ] T4 Owner: after each fix is merged and deployed, run the 5-minute smoke test (admin login, a test game with 5 bots through practice, then cancel), test first: none, source: document 14 section 7.14 [Blocked: waiting for Q-01]
-- [ ] T5 Run one exploratory session from document 14 Appendix D on the areas the trial found weakest, and log findings as issues, test first: none, source: document 14 section 13, Appendix D
-- [ ] T6 List the Sev-3 and Sev-4 issues left open as known issues for the release notes (H-05), test first: none, source: document 14 section 12, Appendix E
+- [ ] T4 Owner: after each fix is merged and deployed, run the 5-minute smoke test (admin login, a test game with 5 bots through practice, then cancel), test first: none, source: DEC-190 (shared), document 14 section 7.14 [Blocked: waiting for Q-01]
+- [ ] T5 Run one exploratory session from document 14 Appendix D on the areas the trial found weakest, and log findings as issues, test first: none, source: DEC-190 (shared), R-09 (shared), document 14 section 13, Appendix D
+- [ ] T6 List the Sev-3 and Sev-4 issues left open as known issues for the release notes (H-05), test first: none, source: DEC-190 (shared), DEC-191 (shared), document 14 section 12, Appendix E
 
 ## Owner actions
 

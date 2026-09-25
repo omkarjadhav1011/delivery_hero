@@ -46,12 +46,12 @@ Let an admin rename or remove a player in Lobby (US-09), and show "N of M finish
 
 ## Tasks
 
-- [ ] T1 Confirm at CP-T that the owner chose to build this Could story, test first: none, source: document 04 section 8, `planning/checkpoints.md` (CP-T)
-- [ ] T2 Rename applies the name rules (normalize, then add " 2" on a case-insensitive clash), in `app.deliveryhero.common` (`Names`) and `app.deliveryhero.engine` (`NameRegistry`), test first: `NamesTest` AC-US09-02, source: AC-US09-02, FR-013, BR-16
+- [ ] T1 Confirm at CP-T that the owner chose to build this Could story, test first: none, source: R-01 (shared), document 04 section 8, `planning/checkpoints.md` (CP-T)
+- [ ] T2 Rename applies the name rules (normalize, then add " 2" on a case-insensitive clash), in `app.deliveryhero.common` (`Names`) and `app.deliveryhero.engine` (`NameRegistry`), test first: `NamesTest` AC-US09-02, source: AC-US09-02, FR-013, BR-16 (shared)
 - [ ] T3 `RENAME_PLAYER` and `REMOVE_PLAYER` host actions, accepted only in LOBBY; remove sends REMOVED and invalidates the token, in `app.deliveryhero.engine` and `app.deliveryhero.api.admin` (`HostActionController`), test first: `HostActionsIT` AC-US09-04, source: AC-US09-04, AC-US09-03, FR-013, document 11 section 7.8
-- [ ] T4 Live control player list offers rename and remove only in Lobby, in `frontend/src/admin/components`, test first: a component test named AC-US09-04, source: AC-US09-04, document 12 A-09
+- [ ] T4 Live control player list offers rename and remove only in Lobby, in `frontend/src/admin/components`, test first: a component test named AC-US09-04, source: AC-US09-04, document 12 section 9 (live control screen)
 - [ ] T5 Phone handles REMOVED with "The host removed you from this game." from `src/copy.ts`, and the projector lobby shows the new name, in `frontend/src/player/screens` and `frontend/src/screen/views`, test first: `join-and-lobby` AC-US09-01 and AC-US09-03, source: AC-US09-01, AC-US09-03, E2E-01 (shared), document 11 section 8.5
-- [ ] T6 Projector practice view shows "N of M finished practice" and a progress bar from SCREEN_STATE `practice`, in `frontend/src/screen/views` (Practice), test first: `PracticeProgress.test.tsx` AC-US12-01, source: AC-US12-01, FR-017, document 12 S-03, document 11 section 8.6
+- [ ] T6 Projector practice view shows "N of M finished practice" and a progress bar from SCREEN_STATE `practice`, in `frontend/src/screen/views` (Practice), test first: `PracticeProgress.test.tsx` AC-US12-01, source: AC-US12-01, FR-017 (shared), document 12 S-03, document 11 section 8.6
 
 ## Owner actions
 

@@ -46,11 +46,11 @@ Players put items in order by tapping them in sequence, with Undo and Submit, ne
 
 ## Tasks
 
-- [ ] T1 Check that the public view of an ORDER task carries only the items in display order, never `correctPosition`, with its contract fixture, in `app.deliveryhero.content` (`PublicTaskView`) and `contracts/`, test first: `PublicTaskViewContractTest` for an ORDER task, source: AC-US27-01 (shared), NFR-12, document 08 section 5.2, document 11 section 8.5
+- [ ] T1 Check that the public view of an ORDER task carries only the items in display order, never `correctPosition`, with its contract fixture, in `app.deliveryhero.content` (`PublicTaskView`) and `contracts/`, test first: `PublicTaskViewContractTest` for an ORDER task, source: AC-US27-01 (shared), NFR-12 (shared), document 08 section 5.2, document 11 section 8.5
 - [ ] T2 `OrderTask` numbering: each tap numbers the next item, Submit stays disabled until every item is numbered, using tst-test-01's items, in `frontend/src/player/tasks/OrderTask.tsx`, test first: `TapToOrder.test.tsx` AC-US24-01, source: AC-US24-01, FR-031, DS-02 (shared), document 12 P-09
 - [ ] T3 Undo removes only the last number, in `frontend/src/player/tasks/OrderTask.tsx`, test first: `TapToOrder.test.tsx` AC-US24-02, source: AC-US24-02, FR-031, document 12 P-09
 - [ ] T4 Submit sends `ANSWER_SUBMIT` with `kind` ORDER and `itemIndexes` (every item's display index, in the chosen order) through the player store, in `frontend/src/player/tasks/OrderTask.tsx` and `frontend/src/player/store.ts`, test first: `TapToOrder.test.tsx` AC-US24-03, source: AC-US24-03, FR-031, document 11 section 8.4
-- [ ] T5 No dragging: pointer drags move nothing; every control has an accessible name and the P-09 strings come from `src/copy.ts`, in `frontend/src/player/tasks/OrderTask.tsx` and `frontend/src/copy.ts`, test first: `TapToOrder.test.tsx` AC-US24-04, source: AC-US24-04, NFR-28, NFR-31, document 12 P-09 and section 10
+- [ ] T5 No dragging: pointer drags move nothing; every control has an accessible name and the P-09 strings come from `src/copy.ts`, in `frontend/src/player/tasks/OrderTask.tsx` and `frontend/src/copy.ts`, test first: `TapToOrder.test.tsx` AC-US24-04, source: AC-US24-04, NFR-28 (shared), NFR-31, document 12 P-09 and section 10
 
 ## Owner actions
 

@@ -47,12 +47,12 @@ Phones show multiple-choice tasks as large buttons in stored order and yes/no ta
 
 ## Tasks
 
-- [ ] T1 Mirror the public task view and ANSWER_SUBMIT (`CHOICE`, `YES_NO`) in `frontend/src/types/messages.ts`, and add a player-store action that sends one answer and disables input until FEEDBACK or ANSWER_REJECTED, in `frontend/src/player/store.ts`, test first: `store.test.ts` (one send per task), source: FR-036, document 11 sections 8.4 and 9.1, document 08 section 6.3
-- [ ] T2 `MultipleChoiceTask`: options as large buttons in stored order, first tap submits `{optionIndex}`, later taps ignored, in `frontend/src/player/tasks`, test first: `MultipleChoice.test.tsx` AC-US22-02, source: AC-US22-02, FR-029, FR-036, document 12 P-07
+- [ ] T1 Mirror the public task view and ANSWER_SUBMIT (`CHOICE`, `YES_NO`) in `frontend/src/types/messages.ts`, and add a player-store action that sends one answer and disables input until FEEDBACK or ANSWER_REJECTED, in `frontend/src/player/store.ts`, test first: `store.test.ts` (one send per task), source: FR-036 (shared), document 11 sections 8.4 and 9.1, document 08 section 6.3
+- [ ] T2 `MultipleChoiceTask`: options as large buttons in stored order, first tap submits `{optionIndex}`, later taps ignored, in `frontend/src/player/tasks`, test first: `MultipleChoice.test.tsx` AC-US22-02, source: AC-US22-02, FR-029, FR-036 (shared), document 12 P-07
 - [ ] T3 Button size and order for mgr-plan-01's four options (at least 48 px tall, stored order), in `frontend/src/player/tasks` and `frontend/src/ui` (`ArcadeButton`), test first: `MultipleChoice.test.tsx` AC-US22-01 (stored order and the size class; the measured height is E2E-08 step 3), source: AC-US22-01, NFR-27, E2E-08 (shared)
 - [ ] T4 `YesNoTask` swipe: pointer events track horizontal movement; release beyond 25% of the width submits yes (right) or no (left); shorter swipes snap back, in `frontend/src/player/tasks`, test first: `YesNoSwipe.test.tsx` AC-US23-01 (98 px on 390 px), AC-US23-02 (60 px), source: AC-US23-01, AC-US23-02, FR-030, document 12 P-08
 - [ ] T5 Yes and No buttons that submit the same answers, disabled after the first answer, in `frontend/src/player/tasks`, test first: `YesNoSwipe.test.tsx` AC-US23-03, source: AC-US23-03, DEC-78, NFR-28
-- [ ] T6 Route the current task to its component by type in the player's task screen, with copy from `src/copy.ts` and reduced-motion fades, in `frontend/src/player/screens`, test first: a Vitest render test in `frontend/src/player/screens` for both types, source: FR-029, FR-030, DEC-179, document 08 section 6.3
+- [ ] T6 Route the current task to its component by type in the player's task screen, with copy from `src/copy.ts` and reduced-motion fades, in `frontend/src/player/screens`, test first: a Vitest render test in `frontend/src/player/screens` for both types, source: FR-029, FR-030, DEC-179 (shared), document 08 section 6.3
 
 ## Owner actions
 

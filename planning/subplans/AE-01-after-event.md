@@ -45,15 +45,15 @@ Close the game and prove no player data remains (OPS-13 and the backup check), s
 
 ## Tasks
 
-- [ ] T1 Owner: close the game if it isn't closed already (it closes itself 24 hours after the round otherwise), and check that past games lists its top 10, test first: none, source: FR-086, FR-087, AC-US65-01 (shared), AC-US64-01 (shared), document 16 section 11.1 [Blocked: waiting for Q-01]
-- [ ] T2 Owner: run OPS-13: query the database, search the logs and open the latest backup for player names; only the game summary and top 10 may remain, test first: none, source: OPS-13 (shared), NFR-22, NFR-23, document 15 section 11 [Blocked: waiting for Q-01]
+- [ ] T1 Owner: close the game if it isn't closed already (it closes itself 24 hours after the round otherwise), and check that past games lists its top 10, test first: none, source: FR-086 (shared), FR-087 (shared), AC-US65-01 (shared), AC-US64-01 (shared), document 16 section 11.1 [Blocked: waiting for Q-01]
+- [ ] T2 Owner: run OPS-13: query the database, search the logs and open the latest backup for player names; only the game summary and top 10 may remain, test first: none, source: OPS-13 (shared), NFR-22 (shared), NFR-23 (shared), document 15 section 11 [Blocked: waiting for Q-01]
 - [ ] T3 Owner: check the backup made after the close exists (`rclone lsl oci:delivery-hero-backups`) and holds no player names, and record T2 and T3 in `planning/check-results.md`, test first: none, source: document 16 section 11.5, OPS-13 (shared) [Blocked: waiting for Q-01]
 - [ ] T4 Owner: send the fun survey form to all players on Thu 22 Oct (E+1), test first: none, source: OA-27, A-08@01, Charter section 17
 - [ ] T5 Owner: report the survey results; compute the share of respondents rating 4 or 5 out of 5 against the 80% target and record SC-2 in `planning/check-results.md`, test first: none, source: SC-2, Charter section 6
 - [ ] T6 Write `planning/retrospective.md`: Summary, What went well, What didn't, Incidents (with times, from the journal's notes), Metrics (players, join times, load test, defects by severity, SC-1 and SC-2), Actions, test first: none, source: SC-1 (shared), SC-2, `planning/CONVENTIONS.md` section 21
 - [ ] T7 Write `planning/after-v1.md` (`| Item | Source | Why deferred | Priority |`), starting with W-01 to W-06, the Cut stories and the known Sev-3 and Sev-4 issues, test first: none, source: W-01, W-02, W-03, W-04, W-05, W-06, document 04 section 10, document 14 section 12, `planning/CONVENTIONS.md` section 21
-- [ ] T8 Archive the plan: run `trace.py` and `status.py`, and record their final summaries in the retrospective, test first: `node planning/scripts/run.mjs trace`, source: `planning/CONVENTIONS.md` section 21
-- [ ] T9 Owner: send the survey results and lessons learned to the admins as a short written summary by Tue 27 Oct (E+6), test first: none, source: Charter section 17, Charter section 12
+- [ ] T8 Archive the plan: run `trace.py` and `status.py`, and record their final summaries in the retrospective, test first: `node planning/scripts/run.mjs trace`, source: DEC-72, `planning/CONVENTIONS.md` section 21
+- [ ] T9 Owner: send the survey results and lessons learned to the admins as a short written summary by Tue 27 Oct (E+6), test first: none, source: SC-2, DEC-02, Charter section 17, Charter section 12
 
 ## Owner actions
 

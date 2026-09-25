@@ -48,7 +48,7 @@ The reveal opens with the most-missed question on the projector: the task with t
 
 ## Tasks
 
-- [ ] T1 `MostMissedService` picking the non-voided scored task with at least 5 attempts and the highest wrong share, in `app.deliveryhero.scoring`, test first: `MostMissedServiceTest` AC-US44-01, AC-US44-05, source: AC-US44-01, AC-US44-05, BR-10, BR-14, document 08 section 5.5
+- [ ] T1 `MostMissedService` picking the non-voided scored task with at least 5 attempts and the highest wrong share, in `app.deliveryhero.scoring`, test first: `MostMissedServiceTest` AC-US44-01, AC-US44-05, source: AC-US44-01, AC-US44-05, BR-10, BR-14 (shared), document 08 section 5.5
 - [ ] T2 Tie-breaks (more attempts, then earlier in the run plan) and the empty result when nothing qualifies, in `app.deliveryhero.scoring`, test first: `MostMissedServiceTest` AC-US44-03, AC-US44-04, source: AC-US44-03, AC-US44-04, BR-10, FR-060
 - [ ] T3 The step's content (prompt, code, correct answer, wrong share as a whole percentage, explanation) built for the reveal, in `app.deliveryhero.scoring`, test first: `MostMissedServiceTest` AC-US44-02 (dev-dev-11 at 70%), source: AC-US44-02, FR-060, document 11 section 9.7
 - [ ] T4 Make the most-missed step the reveal's first step when one qualifies, otherwise start with the top-10 countdown, in `app.deliveryhero.engine` (`RevealState`) and `app.deliveryhero.broadcast`, test first: `RevealStateTest` citing AC-US44-04, and the reveal-step contract fixture in `contracts/`, source: AC-US44-04, FR-060, document 11 sections 8.6 and 9.7

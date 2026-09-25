@@ -49,16 +49,16 @@ On the deployment freeze day (E−1), run the final regression and the coverage 
 
 ## Tasks
 
-- [ ] T1 Check the release entry criteria: a go decision at CP-T or CP-H, and every change since the trial passed CI and a production smoke test, from `planning/checkpoints.md` and the CI runs, test first: none, source: document 14 section 10, DEC-191
+- [ ] T1 Check the release entry criteria: a go decision at CP-T or CP-H, and every change since the trial passed CI and a production smoke test, from `planning/checkpoints.md` and the CI runs, test first: none, source: document 14 section 10, DEC-191 (shared)
 - [ ] T2 Final regression on `main`: the full backend and frontend suites and E2E-01 to E2E-09 against the local stack, test first: `/check e2e`, source: document 14 section 7.14, E2E-01 (shared), E2E-02 (shared), E2E-06 (shared), document 15 section 18
-- [ ] T3 Run the coverage report with `--strict-must` on the final reports and `test-results/manual-results.csv`; any Must criterion not passed stops the release, test first: `python3 tools/ac_coverage.py ... --strict-must`, source: DEC-189, DEC-191, document 15 section 8.3
+- [ ] T3 Run the coverage report with `--strict-must` on the final reports and `test-results/manual-results.csv`; any Must criterion not passed stops the release, test first: `python3 tools/ac_coverage.py ... --strict-must`, source: DEC-189 (shared), DEC-191 (shared), document 15 section 8.3
 - [ ] T4 In a fresh clone, run the documented local start command and confirm Nginx, backend and database start, the join page loads and health reports UP, test first: OPS-20 procedure, source: OPS-20 (shared), document 15 section 11
 - [ ] T5 Read the README and confirm it states that time limits are essential to the game; if not, propose the fix (owner approval needed: changes README.md), test first: OPS-22 procedure, source: OPS-22, NFR-33, document 15 section 11
-- [ ] T6 Owner: review the Dependabot alerts at E−1 and report any open critical alert, test first: none, source: OPS-16 (shared), NFR-21, document 15 section 11
+- [ ] T6 Owner: review the Dependabot alerts at E−1 and report any open critical alert, test first: none, source: OPS-16 (shared), NFR-21 (shared), document 15 section 11
 - [ ] T7 Owner: inspect the production log files for anything older than 7 days, test first: none, source: OPS-19 (shared), document 15 section 11 [Blocked: waiting for Q-01]
-- [ ] T8 Owner: run the production smoke test (admin login, a test game with 5 bots through practice, then cancel) and the day-before checklist: instance running, health UP and every service healthy, certificate more than 14 days left, last night's backup, disk under 80%, deployment freeze on, test first: none, source: document 16 section 11.1, document 14 section 7.14, GS-04 [Blocked: waiting for Q-01]
-- [ ] T9 Record OPS-16, OPS-19, OPS-20, OPS-22 and the checklist in `planning/check-results.md`, and GNG-1 again (no open Sev-1 or Sev-2), test first: `node planning/scripts/run.mjs validate`, source: document 14 section 10, document 15 section 17
-- [ ] T10 Tag `v1.0.0` locally on the `main` commit that is deployed, after T1 to T9 pass; stop for the owner's approval before `git push origin v1.0.0`, and check the admin footer shows the version and commit, test first: none, source: DEC-184, GS-04, document 13 section 9.6, `planning/CONVENTIONS.md` section 16
+- [ ] T8 Owner: run the production smoke test (admin login, a test game with 5 bots through practice, then cancel) and the day-before checklist: instance running, health UP and every service healthy, certificate more than 14 days left, last night's backup, disk under 80%, deployment freeze on, test first: none, source: document 16 section 11.1, document 14 section 7.14, GS-04 (shared) [Blocked: waiting for Q-01]
+- [ ] T9 Record OPS-16, OPS-19, OPS-20, OPS-22 and the checklist in `planning/check-results.md`, and GNG-1 again (no open Sev-1 or Sev-2), test first: `node planning/scripts/run.mjs validate`, source: DEC-195, document 14 section 10, document 15 section 17
+- [ ] T10 Tag `v1.0.0` locally on the `main` commit that is deployed, after T1 to T9 pass; stop for the owner's approval before `git push origin v1.0.0`, and check the admin footer shows the version and commit, test first: none, source: DEC-184 (shared), GS-04 (shared), document 13 section 9.6, `planning/CONVENTIONS.md` section 16
 
 ## Owner actions
 

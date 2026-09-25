@@ -46,12 +46,12 @@ Show the final-stretch red tint and pulsing clock on phones and the projector fr
 
 ## Tasks
 
-- [ ] T1 Confirm at CP-T that the owner chose to build these Could stories, test first: none, source: document 04 section 8, `planning/checkpoints.md` (CP-T)
+- [ ] T1 Confirm at CP-T that the owner chose to build these Could stories, test first: none, source: R-01 (shared), document 04 section 8, `planning/checkpoints.md` (CP-T)
 - [ ] T2 Prove an answer at 4:10 elapsed scores the same as earlier in the round, in `app.deliveryhero.scoring` (`ScoreCalculator`), test first: `ScoreCalculatorTest` AC-US35-02, source: AC-US35-02, DEC-17
-- [ ] T3 Final-stretch red frame, edge vignette and a clock pulsing at most once per second from `releaseAt`, on phones and the projector, respecting reduced motion, in `frontend/src/player/screens`, `frontend/src/screen/views` (Clock) and `frontend/src/time`, test first: a frontend test named AC-US35-01 for the switch at `releaseAt`, source: AC-US35-01, FR-049, NFR-29, document 12 S-07, document 11 section 8.5
+- [ ] T3 Final-stretch red frame, edge vignette and a clock pulsing at most once per second from `releaseAt`, on phones and the projector, respecting reduced motion, in `frontend/src/player/screens`, `frontend/src/screen/views` (Clock) and `frontend/src/time`, test first: a frontend test named AC-US35-01 for the switch at `releaseAt`, source: AC-US35-01, FR-049, NFR-29 (shared), document 12 S-07 (shared), document 11 section 8.5
 - [ ] T4 Owner: run MAN-06 (watch the last fifth of a 5-minute round on phones and projector) and record it in `test-results/manual-results.csv`, test first: none, source: MAN-06, AC-US35-01, document 15 section 12
 - [ ] T5 Feed events: streak milestones at 5, 10, 15 only, the first correct incident answer, late join, offline and online, phase change and freeze, in `app.deliveryhero.broadcast` (`ScreenBatch`), test first: `FeedEventTest` AC-US41-02, then `ScreenBatchIT` AC-US41-01, source: AC-US41-02, AC-US41-01, FR-057, document 11 section 9.6
-- [ ] T6 Projector feed shows events newest first with at most 4 visible, in `frontend/src/screen/views` (Feed), test first: `Feed.test.tsx` AC-US41-01, source: AC-US41-01, FR-057, document 12 S-05
+- [ ] T6 Projector feed shows events newest first with at most 4 visible, in `frontend/src/screen/views` (Feed), test first: `Feed.test.tsx` AC-US41-01, source: AC-US41-01, FR-057, document 12 S-05 (shared)
 
 ## Owner actions
 

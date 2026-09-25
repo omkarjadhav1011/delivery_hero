@@ -44,12 +44,12 @@ Run the live event in runbook mode from document 16, sections 11 to 14: the on-t
 ## Tasks
 
 - [ ] T1 Owner: on-the-day checklist: the instance shows Running with no idle-reclamation email, `/health` reports UP and every service is healthy, certificate more than 14 days left, last night's backup exists, disk under 80%, test first: none, source: document 16 section 11.1, R-02 (shared) [Blocked: waiting for Q-01]
-- [ ] T2 Confirm no merge is pending or planned, and that the deploy lock engages once the real game's lobby opens (a deploy run would stop with exit 75), test first: none, source: GS-04, DEC-103, OPS-08 (shared), document 13 section 9.6 [Blocked: waiting for Q-01]
-- [ ] T3 Owner: an hour before, run a test game with 5 bots through practice, then cancel it, test first: none, source: document 16 section 11.1, document 14 section 7.14 [Blocked: waiting for Q-01]
+- [ ] T2 Confirm no merge is pending or planned, and that the deploy lock engages once the real game's lobby opens (a deploy run would stop with exit 75), test first: none, source: GS-04 (shared), DEC-103 (shared), OPS-08 (shared), document 13 section 9.6 [Blocked: waiting for Q-01]
+- [ ] T3 Owner: an hour before, run a test game with 5 bots through practice, then cancel it, test first: none, source: DEC-62, DEC-204 (shared), document 16 section 11.1, document 14 section 7.14 [Blocked: waiting for Q-01]
 - [ ] T4 Owner: create the real game from the chosen run plan, open the projector link on the venue screen, and check the laptop's network or its phone hotspot, test first: none, source: document 16 section 11.1, R-07 (shared) [Blocked: waiting for Q-01]
 - [ ] T5 Owner: join from a phone, check the lobby, then remove that player, test first: none, source: document 16 section 11.1, AC-US09-03 (shared) [Blocked: waiting for Q-01]
 - [ ] T6 Owner: as the host, remind players at the start not to copy answers from each other, test first: none, source: R-04, Charter section 14
-- [ ] T7 Owner: run the game; on a problem use the troubleshooting table, start a stopped instance in the console, roll back only with no game in progress, or postpone (A-01@01); note each incident with its time in the journal's notes, test first: none, source: document 16 sections 12, 13 and 14, DEC-57, A-01@01 [Blocked: waiting for Q-01]
+- [ ] T7 Owner: run the game; on a problem use the troubleshooting table, start a stopped instance in the console, roll back only with no game in progress, or postpone (A-01 (shared)); note each incident with its time in the journal's notes, test first: none, source: document 16 sections 12, 13 and 14, DEC-57, A-01 (shared) [Blocked: waiting for Q-01]
 - [ ] T8 Owner: after the winner is shown, judge SC-1 against A-07@01 from host observation and the server logs, and record it in `planning/check-results.md`, test first: none, source: SC-1, A-07@01, Charter section 6 [Blocked: waiting for Q-01]
 
 ## Owner actions

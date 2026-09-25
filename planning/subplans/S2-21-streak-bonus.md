@@ -48,11 +48,11 @@ Fully correct scored answers build a streak; from a streak of 3 the next fully c
 
 ## Tasks
 
-- [ ] T1 Apply the ×1.5 multiplier to a fully correct scored answer when the streak before it is at least 3 (values from `scoring.yml`), in `app.deliveryhero.scoring` (`ScoreCalculator`), test first: `ScoreCalculatorTest` AC-US30-01, AC-US30-02 (140, then 210), source: AC-US30-01, AC-US30-02, BR-04, BR-07, document 08 section 5.5
-- [ ] T2 Reset the streak to 0 on a partly correct, wrong or timed-out scored task, and track each player's best streak, in `app.deliveryhero.scoring` and `app.deliveryhero.engine` (`PlayerState`), test first: `ScoreCalculatorTest` AC-US30-03, source: AC-US30-03, BR-07
-- [ ] T3 Leave the streak unchanged by the incident, whether answered correctly or not, in `app.deliveryhero.engine` (`GameSession`), test first: `GameSessionTest` AC-US30-05, source: AC-US30-05, BR-07, DEC-86
+- [ ] T1 Apply the ×1.5 multiplier to a fully correct scored answer when the streak before it is at least 3 (values from `scoring.yml`), in `app.deliveryhero.scoring` (`ScoreCalculator`), test first: `ScoreCalculatorTest` AC-US30-01, AC-US30-02 (140, then 210), source: AC-US30-01, AC-US30-02, BR-04 (shared), BR-07 (shared), document 08 section 5.5
+- [ ] T2 Reset the streak to 0 on a partly correct, wrong or timed-out scored task, and track each player's best streak, in `app.deliveryhero.scoring` and `app.deliveryhero.engine` (`PlayerState`), test first: `ScoreCalculatorTest` AC-US30-03, source: AC-US30-03, BR-07 (shared)
+- [ ] T3 Leave the streak unchanged by the incident, whether answered correctly or not, in `app.deliveryhero.engine` (`GameSession`), test first: `GameSessionTest` AC-US30-05, source: AC-US30-05, BR-07 (shared), DEC-86 (shared)
 - [ ] T4 Send the streak and whether the next fully correct answer is multiplied to the phone with each FEEDBACK, and keep them in the player store, in `app.deliveryhero.broadcast` and `frontend/src/player/store.ts`, test first: `MessageContractTest` (FEEDBACK fixture in `contracts/`) and `store.test.ts` citing AC-US30-01, source: AC-US30-01, FR-040, document 11 section 8.5
-- [ ] T5 Show the streak count and flame in `TopBar`, and the "×1.5" badge whenever the next fully correct answer will be multiplied, in `frontend/src/player/`, test first: `TopBar.test.tsx` AC-US30-04, source: AC-US30-04, FR-040, DEC-85, document 12 section 5.5, P-07 [Blocked: waiting for Q-05]
+- [ ] T5 Show the streak count and flame in `TopBar`, and the "×1.5" badge whenever the next fully correct answer will be multiplied, in `frontend/src/player/`, test first: `TopBar.test.tsx` AC-US30-04, source: AC-US30-04, FR-040, DEC-85, document 12 section 5.5, P-07 (shared) [Blocked: waiting for Q-05]
 
 ## Owner actions
 

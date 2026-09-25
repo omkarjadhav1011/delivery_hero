@@ -45,7 +45,7 @@ Tasks that contain code show it in monospace with its indentation preserved, and
 
 - [ ] T1 `CodeBlock` in monospace from the theme, preserving whitespace (four-space indentation of dev-dev-01), with its own horizontal scroll, in `frontend/src/ui/CodeBlock.tsx`, test first: `CodeBlock.test.tsx` AC-US26-01, source: AC-US26-01, FR-033, DS-01 (shared), document 12 P-11, document 08 section 6.1
 - [ ] T2 Render the task's code part through `CodeBlock` in the multiple-choice and yes/no task components (P-11 layout), as text only, in `frontend/src/player/tasks`, test first: `CodeBlock.test.tsx` AC-US26-01 (code rendered as literal text inside a task), source: AC-US26-01, FR-033, document 12 P-11, document 08 section 6.3
-- [ ] T3 Add the wide-code check to the `accessibility` spec: at 320 px a code line wider than the screen scrolls only inside its block, and the page doesn't scroll sideways, also at 200% text size, test first: `accessibility` AC-US26-02, source: AC-US26-02, E2E-08 (shared), DS-03 (shared), NFR-30, document 15 section 9
+- [ ] T3 Add the wide-code check to the `accessibility` spec: at 320 px a code line wider than the screen scrolls only inside its block, and the page doesn't scroll sideways, also at 200% text size, test first: `accessibility` AC-US26-02, source: AC-US26-02, E2E-08 (shared), DS-03 (shared), NFR-30 (shared), document 15 section 9
 
 ## Owner actions
 

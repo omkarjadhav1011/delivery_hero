@@ -53,8 +53,8 @@ The owner prepares the production machine exactly as document 16, sections 6.2 t
 
 ## Tasks
 
-- [ ] T1 Owner: create the instance (Ubuntu 24.04, `VM.Standard.A1.Flex`, 2 OCPUs, 12 GB, public IPv4, own SSH key, default 50 GB boot volume) and record the public IP and region in `planning/environment.md`, test first: none, source: OA-05, DEC-58, R-02 (shared), document 16 section 6.2 [Blocked: waiting for Q-01]
-- [ ] T2 Owner: open TCP 80 and 443 in the security list and in the instance's `iptables`, then `sudo netfilter-persistent save`, test first: none, source: OA-06, document 16 section 6.3 [Blocked: waiting for Q-01]
+- [ ] T1 Owner: create the instance (Ubuntu 24.04, `VM.Standard.A1.Flex`, 2 OCPUs, 12 GB, public IPv4, own SSH key, default 50 GB boot volume) and record the public IP and region in `planning/environment.md`, test first: none, source: OA-05, DEC-58 (shared), R-02 (shared), document 16 section 6.2 [Blocked: waiting for Q-01]
+- [ ] T2 Owner: open TCP 80 and 443 in the security list and in the instance's `iptables`, then `sudo netfilter-persistent save`, test first: none, source: NFR-13, DEC-205, OA-06, document 16 section 6.3 [Blocked: waiting for Q-01]
 - [ ] T3 Owner: create the DuckDNS subdomain, point it at the public IP, keep the token for `.env` in the password manager, and record the domain in `planning/environment.md`; `/dh` then checks it resolves, test first: none, source: OA-07, DG-01, DEC-198, R-07 (shared), document 16 section 6.4 [Blocked: waiting for Q-01]
 - [ ] T4 Owner: system basics (updates, UTC time zone, `unattended-upgrades`, `apache2-utils`, `rsync`), then Docker Engine and Compose from Docker's repository with `systemctl enable --now docker`, test first: none, source: OA-08, OA-09, AC-EN02-03 (shared), document 16 sections 7.1 and 7.2 [Blocked: waiting for Q-01]
 - [ ] T5 Owner: create the `deploy` user in the `docker` group and its folders with `sudo install -d -o deploy -g deploy -m 750 /opt/delivery-hero /opt/delivery-hero-staging /opt/delivery-hero.previous` (the third folder is DI-05: `deploy.sh` copies the live folder there and `deploy` can't create it in `/opt`), test first: none, source: OA-10, DI-05, DG-08, DEC-205, document 16 section 7.3 [Blocked: waiting for Q-01]
@@ -62,7 +62,7 @@ The owner prepares the production machine exactly as document 16, sections 6.2 t
 - [ ] T7 Owner: install `deploy/host/journald-delivery-hero.conf` as `/etc/systemd/journald.conf.d/delivery-hero.conf` and restart journald, test first: none, source: OA-11, DG-04, DEC-201, FR-092, AC-US70-02 (shared), document 16 section 7.4 [Blocked: waiting for Q-01]
 - [ ] T8 Owner: install `deploy/host/cron-delivery-hero` as `/etc/cron.d/delivery-hero` (root, mode 644); the jobs log under `dh-backup`, `dh-certs` and `dh-dns` and start working once `.env` and the release exist (P0-03, S0-06), test first: none, source: OA-12, DG-01, DG-03, document 16 section 7.5 [Blocked: waiting for Q-01]
 - [ ] T9 Owner: install rclone from its website, create the private `delivery-hero-backups` bucket, the dynamic group `delivery-hero-server` and its policy, write `rclone.conf` as `deploy`, then run `rclone lsd oci:`, test first: none, source: OA-13, DG-03, DEC-200, document 16 section 7.6 [Blocked: waiting for Q-01]
-- [ ] T10 Owner: approve the document 16 section 7.3 fix for DI-05 (add `/opt/delivery-hero.previous` to the `install -d` line); S0-06 carries the pull request (owner approval needed: changes docs/), test first: none, source: DI-05, document 16 section 7.3 [Blocked: waiting for Q-01]
+- [ ] T10 Owner: approve the document 16 section 7.3 fix for DI-05 (add `/opt/delivery-hero.previous` to the `install -d` line); S0-06 carries the pull request (owner approval needed: changes docs/), test first: none, source: DEC-203, DI-05, document 16 section 7.3 [Blocked: waiting for Q-01]
 
 ## Owner actions
 

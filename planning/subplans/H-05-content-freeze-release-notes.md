@@ -47,9 +47,9 @@ Hold the content freeze from Fri 16 Oct (task edits only fix errors), write docu
 ## Tasks
 
 - [ ] T1 From Fri 16 Oct, record the content freeze in the journal and confirm the admins' review (OA-23) is Done; after that, `seed/` and task edits only fix errors, each one checked, test first: `python3 tools/validate_seed.py seed/delivery-hero-seed.json`, source: GS-04, R-10 (shared), document 13 section 9.6, Charter section 12
-- [ ] T2 List the strings added to `src/copy.ts` that the copy deck lacks, for the owner's review before the freeze, test first: none, source: DI-21, document 12 section 10
+- [ ] T2 List the strings added to `src/copy.ts` that the copy deck lacks, for the owner's review before the freeze, test first: none, source: DEC-172, DEC-179 (shared), DI-21, document 12 section 10
 - [ ] T3 Draft `docs/17-release-notes-v1.0.md` with the document control table: version `v1.0.0`, what's in the release (stories Done), what was cut, known Sev-3 and Sev-4 issues from H-01, and the later-release stories W-01 to W-06. Owner approval needed: changes docs/, test first: `npx markdownlint-cli2 "docs/**/*.md" "README.md"`, source: Charter section 11.2, DEC-71, DEC-184, document 14 section 12, Appendix E, document 04 section 10
-- [ ] T4 Check the README and document 18 against the delivered behavior and propose any correction as a separate change. Owner approval needed: changes docs/, test first: `npx markdownlint-cli2 "docs/**/*.md" "README.md"`, source: Charter section 12 (documents 17–18 by Mon 19 Oct), document 13 section 8.3
+- [ ] T4 Check the README and document 18 against the delivered behavior and propose any correction as a separate change. Owner approval needed: changes docs/, test first: `npx markdownlint-cli2 "docs/**/*.md" "README.md"`, source: DEC-70, DEC-71, Charter section 12 (documents 17–18 by Mon 19 Oct), document 13 section 8.3
 - [ ] T5 Owner: send the player instructions (bring your phone, install Chrome, turn on mobile data), with the Chrome reminder for iPhone users, test first: none, source: OA-26, R-06 (shared), Charter section 17
 
 ## Owner actions

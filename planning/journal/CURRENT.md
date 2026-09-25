@@ -14,8 +14,8 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Task |  |
 | Attempts | 0 |
 | Started | 2026-09-25T08:40 |
-| Updated | 2026-09-25T08:58 |
-| Next action | Step 3: write registers and subplans |
+| Updated | 2026-09-25T09:26 |
+| Next action | Step 4: verify the plan (validate, trace, status) |
 
 ## Completed tasks
 
