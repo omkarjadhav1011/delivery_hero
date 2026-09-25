@@ -98,3 +98,4 @@ Document 13, section 10, plus: every check of document 13 section 5.1 runs in CI
   - `./mvnw -B package` fails on a failing unit test, a Spotless violation and an Error Prone `DeadException`.
   - `npm test` fails on a failing test.
   - An unformatted frontend file still builds. The backstop gap is recorded as DI-31.
+- 2026-09-25: ops-reviewer found no defects in the actionlint step. It noted that Appendix F lacks the step (DI-22) and that the digest needs manual bumps, like gitleaks. The digest was checked locally with `docker image inspect`. Session paused: the GitHub proofs for T1, T2, T4 and T6 wait until the owner allows pushing; T8 and T9 are owner tasks.
