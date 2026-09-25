@@ -39,8 +39,9 @@
 }
 
 /*
- * Reduced motion (document 12, section 5.6; NFR-34): slides, shakes, pulses and confetti stop, and fades stay.
- * Components animate movement only through Tailwind's motion-safe: variant; this is the safety net.
+ * Reduced motion (document 12, section 5.6; NFR-34). This safety net ends every CSS animation at once (shakes,
+ * pulses, confetti) and leaves transitions alone, so fades are built as transitions. Slides and other movement use
+ * Tailwind's motion-safe: variant, and so drop to the fade.
  */
 @media (prefers-reduced-motion: reduce) {
   *,

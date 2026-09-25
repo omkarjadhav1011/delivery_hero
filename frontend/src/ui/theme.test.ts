@@ -57,7 +57,8 @@ describe("theme", () => {
       ...sourceFiles(join(frontendRoot, "src")),
     ]) {
       for (const [className] of readFileSync(file, "utf8").matchAll(
-        /"[^"\n]*\bfont-display\b[^"\n]*"/g,
+        // Class lists in double quotes and in template literals
+        /["`][^"`\n]*\bfont-display\b[^"`\n]*["`]/g,
       )) {
         if (small.test(className)) offenders.push(`${file}: ${className}`);
       }

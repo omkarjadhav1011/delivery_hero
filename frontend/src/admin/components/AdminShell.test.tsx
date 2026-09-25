@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { copy } from "@/copy";
 import { AdminShell } from "./AdminShell";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/admin/tasks/" }));
+const navigation = vi.hoisted(() => ({ pathname: "/admin/tasks/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => navigation.pathname }));
 
 describe("AdminShell", () => {
   it("AC-EN08-01 has a banner, the admin navigation, a main landmark and the page heading", () => {
@@ -16,7 +17,19 @@ describe("AdminShell", () => {
     expect(screen.getByRole("heading", { level: 1, name: copy.admin.nav.tasks })).toBeTruthy();
   });
 
-  it("AC-EN08-01 marks the current section in the navigation", () => {
+  it.each(["/admin/tasks/", "/admin/tasks", "/admin/tasks/edit"])(
+    "AC-EN08-01 on %s, marks Tasks as the current section",
+    (pathname) => {
+      navigation.pathname = pathname;
+      render(<AdminShell title={copy.admin.nav.tasks}>Library</AdminShell>);
+      expect(
+        screen.getByRole("link", { name: copy.admin.nav.tasks }).getAttribute("aria-current"),
+      ).toBe("page");
+    },
+  );
+
+  it("AC-EN08-01 marks only the current section in the navigation", () => {
+    navigation.pathname = "/admin/tasks/";
     render(<AdminShell title={copy.admin.nav.tasks}>Library</AdminShell>);
     expect(
       screen.getByRole("link", { name: copy.admin.nav.tasks }).getAttribute("aria-current"),
@@ -29,6 +42,7 @@ describe("AdminShell", () => {
   it("AC-EN08-01 the login page has no navigation", () => {
     render(<AdminShell title={copy.admin.login.heading} navigation={false} />);
     expect(screen.queryByRole("navigation")).toBeNull();
+    expect(screen.queryByRole("banner")).toBeNull();
     expect(screen.getByRole("heading", { level: 1, name: copy.admin.login.heading })).toBeTruthy();
   });
 });
