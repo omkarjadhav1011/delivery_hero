@@ -49,6 +49,8 @@ public class SecurityConfig {
                     .permitAll();
             // Error dispatches keep their real status instead of turning into 401
             requests.requestMatchers("/error").permitAll();
+            // The STOMP handshake is open; CONNECT authenticates each connection (LLD section 5.6, DEC-133)
+            requests.requestMatchers(HttpMethod.GET, "/ws").permitAll();
             if (apiDocsEnabled) {
                 // API documentation exists only in the dev and test profiles; Nginx never exposes it
                 requests.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
