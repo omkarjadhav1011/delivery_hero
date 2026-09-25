@@ -18,7 +18,7 @@ class HealthIT {
     private MockMvcTester mvc;
 
     @Test
-    @DisplayName("AC-US69-01 health reports UP within 1 second, with no further detail")
+    @DisplayName("Health reports UP within 1 second, with no further detail")
     void healthReportsUp() {
         long started = System.nanoTime();
         MvcTestResult result = mvc.get().uri("/actuator/health").exchange();

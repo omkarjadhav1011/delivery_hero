@@ -1,4 +1,4 @@
-package app.deliveryhero.api.ops;
+package app.deliveryhero.lifecycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
