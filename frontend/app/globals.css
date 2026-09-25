@@ -32,3 +32,23 @@
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
+
+/* The dark theme for browser-drawn controls and scrollbars too (DEC-48) */
+:root {
+  color-scheme: dark;
+}
+
+/*
+ * Reduced motion (document 12, section 5.6; NFR-34). This safety net ends every CSS animation at once (shakes,
+ * pulses, confetti) and leaves transitions alone, so fades are built as transitions. Slides and other movement use
+ * Tailwind's motion-safe: variant, and so drop to the fade.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

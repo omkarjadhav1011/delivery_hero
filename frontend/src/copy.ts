@@ -20,6 +20,8 @@ export const copy = {
   admin: {
     // A-02 header and navigation
     brand: "DELIVERY HERO admin",
+    // The navigation's accessible name; not in the copy deck (DI-21)
+    navLabel: "Admin sections",
     nav: {
       tasks: "Tasks",
       characters: "Characters",

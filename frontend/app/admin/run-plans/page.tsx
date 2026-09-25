@@ -1,8 +1,8 @@
 import { copy } from "@/copy";
-import { PlaceholderPage } from "@/ui/PlaceholderPage";
+import { AdminShell } from "@/admin/components/AdminShell";
 
 // A-06 Run plans (document 12, section 9)
 // TODO(US-57): build the screen from document 12
 export default function RunPlansPage() {
-  return <PlaceholderPage title={copy.admin.nav.runPlans} />;
+  return <AdminShell title={copy.admin.nav.runPlans} />;
 }
