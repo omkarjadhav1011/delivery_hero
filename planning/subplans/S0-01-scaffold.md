@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | EN-01 |
 | Priority and points | Must, 3 |
@@ -52,17 +52,17 @@ The backend (Spring Boot 4.1, Java 21, Maven) and frontend (Next.js 16 static ex
 
 ## Tasks
 
-- [ ] T1 Resume the existing branch `feat/en-01-scaffold` (three unmerged commits: backend, frontend, action pins): rebase on `main`, compare it with the `/scaffold-en01` Step 1 reading list and write the plan (files, versions with sources, ambiguities) into this subplan's progress log for the owner's approval, in the repository root, test first: none (procedure: `git log main..feat/en-01-scaffold`, `git diff --stat main...feat/en-01-scaffold`), source: EN-01, DEC-65, `/scaffold-en01` Step 1
-- [ ] T2 Backend build: Maven Wrapper 3.9, Spring Boot 4.1 parent, Java 21, `<finalName>delivery-hero</finalName>`, build info and Git commit info, the starters and springdoc-openapi 3.x, Spotless (palantir-java-format), Error Prone and NullAway with `engine` and `scoring` `@NullMarked`, in `backend/pom.xml` and `backend/.mvn/`, test first: `./mvnw -B spotless:check compile` fails on an unformatted file and a null dereference in `engine`, source: DEC-66, DEC-175, NFR-41 (shared), document 13 section 5.1, architecture document 9.1
-- [ ] T3 Surefire (`*Test`) and Failsafe (`*IT`) with `statelessTestsetReporter` and `usePhrasedTestCaseMethodName` true, and JaCoCo at 80% line coverage for `engine` and `scoring`, in `backend/pom.xml`, test first: a throwaway `@DisplayName("AC-EN01-02 ...")` test whose name appears in `target/surefire-reports/*.xml`, then `python3 tools/ac_coverage.py` with the document 15 section 8.3 command lists AC-EN01-02, source: DEC-196, DEC-175, NFR-41 (shared), document 15 section 8.3
-- [ ] T4 Packages of LLD 5.1 with `package-info.java`; `DeliveryHeroApplication` (web, or `seed <file>` without the web server, where `SeedCommand` prints that the loader arrives with US-56 and exits 2); `StartupCleanup` and `HousekeepingJob` stubs web-only; `GameProperties` on `dh.game.*` with the LLD 5.13 defaults and DEC-197 e2e overrides; the five profile files; ECS logging; security with one `admin` user from `DH_ADMIN_PASSWORD_HASH`; `GET /api/ops/deploy-lock` always unlocked, in `app.deliveryhero`, `app.deliveryhero.config`, `app.deliveryhero.lifecycle`, `app.deliveryhero.seed`, `app.deliveryhero.security`, `app.deliveryhero.api.ops`, test first: `GamePropertiesTest`, `SeedModeTest`, `DeployLockIT`, `HealthIT`, `ArchitectureTest` (empty rules allowed), source: EN-01, DEC-197, DEC-104 (shared), LLD 5.1, 5.8, 5.9, 5.10, 5.13, document 18 section 8.2, document 16 section 8.4, document 11 section 7.10
-- [ ] T5 Flyway runs the existing V1 and V2 unchanged with `ddl-auto=validate` and `open-in-view=false`; a Testcontainers PostgreSQL 18 test starts the application twice on one database, in `backend/src/test/java/app/deliveryhero`, test first: `MigrationIT` AC-EN01-02 (first start applies V1 and V2, second applies nothing), source: AC-EN01-02, NFR-42, document 10 section 10.3
-- [ ] T6 OpenAPI check comparing the generated document with `docs/openapi.json` (written to `backend/target/openapi.json` on a difference), and `docs/openapi.json` created from it, in `backend/src/test/java/app/deliveryhero`, test first: `OpenApiIT`, source: NFR-44, DEC-175, document 18 section 8.5
-- [ ] T7 Frontend project: Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, `@stomp/stompjs` 7.x, Zustand 5.x, `qrcode` 1.5.x, `package-lock.json` committed; `next.config` static export with `trailingSlash`, unoptimized images and DEC-111 targets; npm scripts `dev`, `build` (with `postbuild` running `scripts/csp-hashes.mjs`), `format`, `format:check`, `lint`, `typecheck`, `test`; ESLint flat config, Prettier, Vitest with 80% line thresholds on `src/time` and the stores and a JUnit reporter, in `frontend/`, test first: `timeSync.test.ts` (`serverNow()` applies a stored offset) and `http.test.ts` (CSRF header, Problem Details), source: DEC-67, DEC-176, DEC-196, DEC-111, LLD 6.1, 6.2 and 6.6
-- [ ] T8 Placeholder pages for every route in LLD 6.1 showing their titles from `src/copy.ts` (search-parameter reads in `Suspense`), the `src/` folders with typed stubs naming their stories, and `scripts/csp-hashes.mjs` writing `nginx/csp.conf`, in `frontend/app` and `frontend/src`, test first: `npm run build` then a check that `out/` holds only static files and `frontend/nginx/csp.conf` exists, source: AC-EN01-03, DEC-67, LLD 6.1 and 6.6
-- [ ] T9 Playwright with axe-core (`E2E_BASE_URL`, `E2E_ADMIN_PASSWORD`, Chromium, one worker, one retry in CI, JUnit and HTML reporters), the three shared fixtures, and one smoke spec, in `frontend/e2e/`, test first: `smoke.spec.ts` AC-EN01-01 (home and join pages load with no axe or CSP violations; `/health` reports UP), source: AC-EN01-01, DEC-176, DEC-196, document 15 section 9, document 18 section 10.4
-- [ ] T10 Repository root: `.gitignore` (build output, dependencies, test reports, `.env` files, `frontend/nginx/csp.conf`) and `contracts/.gitkeep`; the action SHA pins and the `GITLEAKS_VERSION` in both workflows, changing nothing else in them, in the repository root and `.github/workflows/`, test first: procedure (`git status` clean after a full build; `grep -c '@[0-9a-f]\{40\}'` on both workflows), source: DEC-177 (shared), document 13 section 11
-- [ ] T11 OPS-20 on the local stack from a fresh clone: `docker compose -f deploy/docker-compose.local.yml up --build`, `curl -fsS http://localhost:8080/health`, the page at `/join/?code=TEST`, the security headers on `/`, a backend restart applying no migration, then the e2e profile and `npx playwright test`, test first: OPS-20 procedure (document 15 section 11), source: OPS-20, AC-EN01-01, AC-EN01-02, document 18 section 6
+- [x] T1 Resume the existing branch `feat/en-01-scaffold` (three unmerged commits: backend, frontend, action pins): rebase on `main`, compare it with the `/scaffold-en01` Step 1 reading list and write the plan (files, versions with sources, ambiguities) into this subplan's progress log for the owner's approval, in the repository root, test first: none (procedure: `git log main..feat/en-01-scaffold`, `git diff --stat main...feat/en-01-scaffold`), source: EN-01, DEC-65, `/scaffold-en01` Step 1
+- [x] T2 Backend build: Maven Wrapper 3.9, Spring Boot 4.1 parent, Java 21, `<finalName>delivery-hero</finalName>`, build info and Git commit info, the starters and springdoc-openapi 3.x, Spotless (palantir-java-format), Error Prone and NullAway with `engine` and `scoring` `@NullMarked`, in `backend/pom.xml` and `backend/.mvn/`, test first: `./mvnw -B spotless:check compile` fails on an unformatted file and a null dereference in `engine`, source: DEC-66, DEC-175, NFR-41 (shared), document 13 section 5.1, architecture document 9.1
+- [x] T3 Surefire (`*Test`) and Failsafe (`*IT`) with `statelessTestsetReporter` and `usePhrasedTestCaseMethodName` true, and JaCoCo at 80% line coverage for `engine` and `scoring`, in `backend/pom.xml`, test first: a throwaway `@DisplayName("AC-EN01-02 ...")` test whose name appears in `target/surefire-reports/*.xml`, then `python3 tools/ac_coverage.py` with the document 15 section 8.3 command lists AC-EN01-02, source: DEC-196, DEC-175, NFR-41 (shared), document 15 section 8.3
+- [x] T4 Packages of LLD 5.1 with `package-info.java`; `DeliveryHeroApplication` (web, or `seed <file>` without the web server, where `SeedCommand` prints that the loader arrives with US-56 and exits 2); `StartupCleanup` and `HousekeepingJob` stubs web-only; `GameProperties` on `dh.game.*` with the LLD 5.13 defaults and DEC-197 e2e overrides; the five profile files; ECS logging; security with one `admin` user from `DH_ADMIN_PASSWORD_HASH`; `GET /api/ops/deploy-lock` always unlocked, in `app.deliveryhero`, `app.deliveryhero.config`, `app.deliveryhero.lifecycle`, `app.deliveryhero.seed`, `app.deliveryhero.security`, `app.deliveryhero.api.ops`, test first: `GamePropertiesTest`, `SeedModeTest`, `DeployLockIT`, `HealthIT`, `ArchitectureTest` (empty rules allowed), source: EN-01, DEC-197, DEC-104 (shared), LLD 5.1, 5.8, 5.9, 5.10, 5.13, document 18 section 8.2, document 16 section 8.4, document 11 section 7.10
+- [x] T5 Flyway runs the existing V1 and V2 unchanged with `ddl-auto=validate` and `open-in-view=false`; a Testcontainers PostgreSQL 18 test starts the application twice on one database, in `backend/src/test/java/app/deliveryhero`, test first: `MigrationIT` AC-EN01-02 (first start applies V1 and V2, second applies nothing), source: AC-EN01-02, NFR-42, document 10 section 10.3
+- [x] T6 OpenAPI check comparing the generated document with `docs/openapi.json` (written to `backend/target/openapi.json` on a difference), and `docs/openapi.json` created from it, in `backend/src/test/java/app/deliveryhero`, test first: `OpenApiIT`, source: NFR-44, DEC-175, document 18 section 8.5
+- [x] T7 Frontend project: Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, `@stomp/stompjs` 7.x, Zustand 5.x, `qrcode` 1.5.x, `package-lock.json` committed; `next.config` static export with `trailingSlash`, unoptimized images and DEC-111 targets; npm scripts `dev`, `build` (with `postbuild` running `scripts/csp-hashes.mjs`), `format`, `format:check`, `lint`, `typecheck`, `test`; ESLint flat config, Prettier, Vitest with 80% line thresholds on `src/time` and the stores and a JUnit reporter, in `frontend/`, test first: `timeSync.test.ts` (`serverNow()` applies a stored offset) and `http.test.ts` (CSRF header, Problem Details), source: DEC-67, DEC-176, DEC-196, DEC-111, LLD 6.1, 6.2 and 6.6
+- [x] T8 Placeholder pages for every route in LLD 6.1 showing their titles from `src/copy.ts` (search-parameter reads in `Suspense`), the `src/` folders with typed stubs naming their stories, and `scripts/csp-hashes.mjs` writing `nginx/csp.conf`, in `frontend/app` and `frontend/src`, test first: `npm run build` then a check that `out/` holds only static files and `frontend/nginx/csp.conf` exists, source: AC-EN01-03, DEC-67, LLD 6.1 and 6.6
+- [x] T9 Playwright with axe-core (`E2E_BASE_URL`, `E2E_ADMIN_PASSWORD`, Chromium, one worker, one retry in CI, JUnit and HTML reporters), the three shared fixtures, and one smoke spec, in `frontend/e2e/`, test first: `smoke.spec.ts` AC-EN01-01 (home and join pages load with no axe or CSP violations; `/health` reports UP), source: AC-EN01-01, DEC-176, DEC-196, document 15 section 9, document 18 section 10.4
+- [x] T10 Repository root: `.gitignore` (build output, dependencies, test reports, `.env` files, `frontend/nginx/csp.conf`) and `contracts/.gitkeep`; the action SHA pins and the `GITLEAKS_VERSION` in both workflows, changing nothing else in them, in the repository root and `.github/workflows/`, test first: procedure (`git status` clean after a full build; `grep -c '@[0-9a-f]\{40\}'` on both workflows), source: DEC-177 (shared), document 13 section 11
+- [x] T11 OPS-20 on the local stack from a fresh clone: `docker compose -f deploy/docker-compose.local.yml up --build`, `curl -fsS http://localhost:8080/health`, the page at `/join/?code=TEST`, the security headers on `/`, a backend restart applying no migration, then the e2e profile and `npx playwright test`, test first: OPS-20 procedure (document 15 section 11), source: OPS-20, AC-EN01-01, AC-EN01-02, document 18 section 6
 
 ## Owner actions
 
@@ -95,4 +95,52 @@ Document 13, section 10, plus: `./mvnw -B verify` and every frontend check pass;
 
 ## Progress log
 
-None yet.
+- 2026-09-25: T1 audit and scaffold plan (for the owner's approval). The branch was rebased cleanly onto `docs/planning-dec-212` (backup at `backup/en-01-scaffold-pre-rebase`). Baseline on the rebased branch:
+  - `./mvnw -B verify` passed: 8 unit tests, 5 integration tests (MigrationIT, HealthIT, DeployLockIT, OpenApiIT), and the Spotless, Error Prone/NullAway and JaCoCo gates.
+  - The frontend checks passed: `npm ci`, format, lint, typecheck, 11 Vitest tests and the static build, with `nginx/csp.conf` holding 14 hashes.
+
+  Protected files are untouched: only the workflow SHA pins, `GITLEAKS_VERSION` and a new `docs/openapi.json` changed. No unnamed libraries. Versions are the latest in each decided line, except NullAway 0.14.1, where 0.14.2 is out.
+
+  Planned fixes:
+  - T2: bump NullAway to 0.14.2 and drop the redundant `jspecify.version` override.
+  - T3: prove that a criterion ID reaches the XML reports and `ac_coverage.py`.
+  - T4: move `DeployLockIT` to `lifecycle` (document 15, section 8.1). Remove the early AC-US69-01 claim from `HealthIT`, since US-69 owns it.
+  - T7: add the type-aware typescript-eslint preset (DEC-176). Make `typecheck` work on a fresh clone, where `next-env.d.ts` is ignored.
+  - T8: serve Press Start 2P as woff2 (NFR-05, `.gitattributes`).
+  - T10: add `__pycache__/` to `.gitignore`, and never commit `deploy/DeployHero.lnk`.
+  - T11: run OPS-20 and the e2e smoke test from a fresh clone.
+
+  Readings (the decision log wins):
+  - `@NullMarked` only on `engine` and `scoring` (DEC-175), not every package (document 13, section 6.2).
+  - `dh.game.min-round-length` and `dh.game.random-seed` added for DEC-197, although LLD 5.13 doesn't list them.
+  - Browser targets in `package.json` `browserslist`, not `next.config` (LLD 6.6).
+  - Tailwind token names `--color-*` for document 12's `--bg` and the rest.
+  - `TODO(US-xx)` per the rules file.
+  - Page titles taken from the wireframes where the copy deck has none (DI-21).
+
+  Document issues for `doc-issues.md`: document 13 section 6.2 and the rules file (NullMarked scope); LLD 5.13 (the two keys); LLD 6.6 (browserslist); document 12 (token prefix).
+- 2026-09-25: T2 done. Spotless rejects an unformatted file in `engine`, and NullAway rejects a `@Nullable` dereference there (a throwaway probe, removed). NullAway is now 0.14.2 (Maven Central). The JSpecify version comes from Spring Boot 4.1.1 (1.0.1). `./mvnw -B verify` passes.
+- 2026-09-25: T3 done with no code change. `MigrationIT` "AC-EN01-02 migrations apply once..." reaches `failsafe-reports/*.xml`. `tools/ac_coverage.py` (the document 15 section 8.3 command) counts 2 Must criteria automated: AC-EN01-02, and AC-US69-01 until T4 removes it. JaCoCo "All coverage checks have been met" with empty `engine`/`scoring`. ArchUnit 1.5 runs on JUnit 6.
+- 2026-09-25: T4 done. `DeployLockIT` moved to `app.deliveryhero.lifecycle` (document 15, section 8.1). `HealthIT` no longer claims AC-US69-01, which US-69 owns. The `dh.game` keys, the NullMarked scope, browserslist and the token prefix are recorded as DI-26 to DI-29. `./mvnw -B verify` passes.
+- 2026-09-25: T5 done with no code change. `MigrationIT` (PostgreSQL 18, Testcontainers) passes AC-EN01-02: the first start logs "Successfully applied 2 migrations" and the second "No migration necessary". `ddl-auto: validate` and `open-in-view: false` are set in `application.yml`.
+- 2026-09-25: T6 done with no code change. `OpenApiIT` passes: the generated document equals the committed `docs/openapi.json`, and no `backend/target/openapi.json` was written.
+- 2026-09-25: T7 done. ESLint adds typescript-eslint's `recommendedTypeChecked` rules to the TS block (DEC-176): a probe awaiting a non-promise now fails `await-thenable`, and `npm run lint` is clean. With `next-env.d.ts` and `.next/` removed, `tsc --noEmit` passes, so `typecheck` needs no change. All frontend checks pass: format, lint, typecheck, 11 tests with coverage, and the build.
+- 2026-09-25: T8 done. Press Start 2P is now served as woff2: 29.8 KB, down from 118 KB for the TTF (NFR-05). It was converted with fontTools in a throwaway venv, not a project dependency, and `OFL.txt` is kept. After `npm run build`, `out/` holds only static files (15 html, 12 js, 1 css, 52 txt, 1 woff2), and `nginx/csp.conf` exists with the same directives as `deploy/nginx/snippets/csp.conf.example` (14 hashes) (AC-EN01-03).
+- 2026-09-25: T10 done. `.gitignore` now also covers `__pycache__/` and `*.lnk`, which keeps a local shortcut out of `deploy/`, since `deploy.yml` copies all of it. After full backend and frontend builds, `git status` is clean. Every action is SHA-pinned: `ci.yml` 9 of 9 and `deploy.yml` 3 of 3. `GITLEAKS_VERSION` is v8.30.1.
+- 2026-09-25: T9 done with no code change. `smoke.spec.ts` passes 3 of 3 AC-EN01-01 tests against the e2e-profile stack (Chromium, one worker).
+- 2026-09-25: T11 done. OPS-20 passed from a fresh clone and is recorded in `check-results.md`. Native Tomcat and PostgreSQL services hold ports 8080 and 5432 on this laptop, so the stack ran with `DH_LOCAL_PORT=8090` and `DH_LOCAL_DB_PORT=5433` (noted in `environment.md`).
+- 2026-09-25: Review fixes (backend-reviewer, frontend-reviewer, ops-reviewer).
+  - `AdminProperties` is `@Validated`: `@NotBlank`, plus a bcrypt pattern of cost 12 or more (DEC-98), with a new `AdminPropertiesTest`.
+  - `/error` is permitted, so error dispatches keep their real status.
+  - `HealthIT` again starts with AC-US69-01. The test checks that criterion, so the never-broken naming rule applies. This reverses the T1 item.
+  - The page title comes from `copy.documentTitle`.
+  - The `fetch` exemption is narrowed to `src/api/http.ts`.
+  - `no-eval` is on, and `@stomp/stompjs` imports are restricted to `src/realtime`.
+  - The smoke spec now loads every LLD 6.1 route with axe and CSP checks: 13 of 13 pass on the e2e stack.
+  - The ops review found no defects in this branch. The `deploy.yml` path ignores predate it (DI-01 to DI-03); actionlint is DI-22 (S0-02).
+  - Deferred to their stories:
+    - `server.tomcat.remoteip.internal-proxies` for prod (LLD 5.9, before rate limits in US-01).
+    - The admin account isn't needed in seed mode (US-56).
+    - Session cookie attributes (US-49, TODO in `SecurityConfig`).
+    - Binding `dh.public-base-url` (US-04).
+    - Moving the 401 check to `security/SecurityIT` (US-49).

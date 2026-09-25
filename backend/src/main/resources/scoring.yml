@@ -1,0 +1,4 @@
+# Every scoring value, in one file (DEC-28, NFR-40), imported by application.yml.
+# TODO(US-28): the dh.scoring values of LLD section 5.5, bound by ScoringProperties
+dh:
+  scoring: {}

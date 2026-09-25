@@ -1,0 +1,24 @@
+# Local development (Setup Guide sections 7 and 8.2). These defaults are local-only and public on purpose (SG-02);
+# the local stack overrides them with environment variables.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/deliveryhero
+    username: dh_app
+    password: local-app
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+dh:
+  admin:
+    # bcrypt (cost 12) of the local-only admin password "delivery-hero-local", as in deploy/docker-compose.local.yml
+    password-hash: "${DH_ADMIN_PASSWORD_HASH:$2y$12$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm}"
+  public-base-url: ${DH_PUBLIC_BASE_URL:http://localhost:8080}
