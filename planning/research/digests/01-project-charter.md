@@ -1,6 +1,6 @@
 # Digest: 01 Project Charter
 
-Source: `docs/01-project-charter.md`, version 1.14 (approved 23 September 2026; last revision 2026-09-24).
+Source: `docs/01-project-charter.md`, version 1.15 (approved 23 September 2026; last revision 2026-09-24).
 
 ## Completeness
 
@@ -10,7 +10,7 @@ Source: `docs/01-project-charter.md`, version 1.14 (approved 23 September 2026; 
 
 ## Purpose
 
-The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, success criteria, scope, stakeholders, assumptions, constraints, deliverables, milestones, budget, risks and governance. Its Appendix A decision log (DEC-01 to DEC-211) is the top source of truth; every other document cites DEC IDs, and a later DEC wins over an earlier one.
+The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, success criteria, scope, stakeholders, assumptions, constraints, deliverables, milestones, budget, risks and governance. Its Appendix A decision log (DEC-01 to DEC-212) is the top source of truth; every other document cites DEC IDs, and a later DEC wins over an earlier one.
 
 ## Every ID the document defines
 
@@ -56,7 +56,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - R-07: company network blocks free subdomain on host laptop; Medium/High; test at trial run, phone hotspot fallback; host (14)
 - R-08: weak mobile signal with every phone connected; Medium/High; test at trial with all phones, small messages, reconnection within 5 s, good-signal room; host (14)
 - R-09: no staging, trial run is first full production test; Medium/Medium; local Compose mirrors production, automated merge checks, E−7 trial as final test; owner (14)
-- R-10: debatable answers; Medium/Medium; Claude drafts, admins review every task, readiness check, void control; admins (14)
+- R-10: debatable answers; Medium/Medium; admins review every task, readiness check, void control; admins (14)
 - R-11: pixel-art pack license doesn't permit use; Low/Medium; permissive license such as CC0, record credit in README; owner (14)
 
 ### Open items (section 18)
@@ -114,7 +114,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - DEC-37: Admin: task library (snippets, answers, time limits, explanations), character names and lines, run plan, live controls (open lobby, start practice, start round, void a question, advance reveal)
 - DEC-38: Admin: v1.0 includes readiness check and test play with simulated players; spreadsheet import/export and copying run plans later
 - DEC-39: Admin: after an event admins see only the top-10 list
-- DEC-40: Admin: Claude drafts 60–80 tasks, admins review; seed file loaded by script, delivered right after SRS approval
+- DEC-40: Admin: a pool of 60–80 tasks is drafted, admins review; seed file loaded by script, delivered right after SRS approval
 - DEC-41: Identity: join via link or QR and type a name; no accounts; duplicates get a number; identity lasts one event
 - DEC-42: Identity: admins log in with one shared password set in server configuration
 - DEC-43: Identity: each game gets a secret display-only projector link; controls stay in admin panel
@@ -145,7 +145,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - DEC-68: Engineering: before merge, tests, formatting and code analysis pass; at least 80% coverage on scoring and game logic
 - DEC-69: Engineering: every requirement gets a MoSCoW priority
 - DEC-70: Documentation: Markdown in `docs`, Mermaid diagrams
-- DEC-71: Documentation: document control lists owner as owner and approver, notes drafted with Claude, versions 0.1 (draft) to 1.0 (approved)
+- DEC-71: Documentation: document control lists owner as owner and approver, versions 0.1 (draft) to 1.0 (approved); revised by DEC-212 (no drafting credit)
 - DEC-72: Roadmap: later releases Jev typed answers, spreadsheet import/export, copying run plans, remote/hybrid players
 - DEC-73: Game rules: practice started by host; shared 30-s timer; run plan's practice tasks (seed has one per type); unscored with feedback; host can skip (PRD PD-01)
 - DEC-74: Game rules: default limits MC 15 s, yes/no 8 s, order 25 s, problem words 20 s, incident 20 s; admins set any task 5–60 s (PD-02)
@@ -286,6 +286,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - DEC-209: Engineering: live-reload dev runs backend (port 8081) and Next.js dev server (port 3000) on host behind Nginx dev proxy at `http://localhost:8080` (SG-03)
 - DEC-210: Engineering: four profiles `dev` (public local defaults in `application-dev.yml`), `test`, `e2e`, `prod`; local stack forces port 8080 with `SERVER_PORT` (SG-04)
 - DEC-211: Testing: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to local stack; OpenAPI test writes generated doc to `backend/target/openapi.json` when it differs (SG-05)
+- DEC-212: Documentation: documents carry no drafting credit; document control, revision history, stakeholder and role tables name only people; revises DEC-71
 
 ## What implementation must do
 
@@ -370,7 +371,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 
 ## Ordering and dependencies
 
-- Discovery → requirements docs 1–6 → seed draft (after SRS approval, DEC-40) → admin review → design docs 7–12 → engineering docs 13–16 → release notes and README 17–18 (12, 16, gantt). In practice all docs 1–16 and 18 are already approved (revision history 1.1–1.14); doc 17 remains.
+- Discovery → requirements docs 1–6 → seed draft (after SRS approval, DEC-40) → admin review → design docs 7–12 → engineering docs 13–16 → release notes and README 17–18 (12, 16, gantt). In practice all docs 1–16 and 18 are already approved (revision history 1.1–1.15); doc 17 remains.
 - Infrastructure and walking skeleton first (24–29 Sep), before core game loop (30 Sep–7 Oct), then admin panel, projector and reveal (5–12 Oct), then load test (12–13 Oct), trial (14 Oct), fixes (15–19 Oct) (12 gantt; R-01).
 - Oracle account (A-04) is a dependency for infrastructure; DuckDNS and Let's Encrypt; GitHub Actions allowance; licensed pixel-art pack (R-11); admin review availability (A-05); players with Chrome (A-02) (15).
 - Migration V2 must create characters before seed import can reference them (DEC-154).
