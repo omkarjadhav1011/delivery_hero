@@ -1,12 +1,12 @@
 # Master plan
 
-Status: **outline, waiting for the owner's approval** (`/plan-implementation`, step 2). Step 3 expands it after approval.
+Status: approved by the owner on 2026-09-25 (outline), expanded in step 3 of `/plan-implementation`.
 
 Sources: document 04, sections 7 to 9 (backlog, sprints, checkpoints, build order, dependencies); Charter sections 12 and 16; document 14, sections 10, 11 and 13; document 15, sections 9 to 14; document 16, sections 5 to 11; `research/traceability.md`. Phase IDs and windows follow `CONVENTIONS.md`, section 4.2.
 
-## Phases
+## Timeline
 
-The dates match `CONVENTIONS.md`, section 4.2, so there is no `## Phases` override.
+The dates match `CONVENTIONS.md`, section 4.2, so the plan has no phase-date override.
 
 | Phase | Dates | Goal | Points |
 |---|---|---|---|
@@ -128,3 +128,147 @@ Must stories first (49 points), then Should stories in document 04's build order
 ## Capacity note
 
 S0 has three working days left (Fri 25, Mon 28, Tue 29 Sep) plus the weekend, for 26 points. S1 plans 80 points in five working days. The end-of-S0 check (DI-07, Q-03) will almost certainly call for cutting Should and Could stories. The cut order is document 04, section 8: Could first, then Should from the bottom of the build order.
+
+## Dependency graph and critical path
+
+The critical path follows document 04, section 9: scaffold, real-time channel, state machine, task flow, task types, scoring, projector and reveal, and the load test, to the trial run. Its subplans are highlighted. Game creation (S1-01, S1-03, S1-04, S1-07) joins it at the start of the round (S1-08).
+
+```mermaid
+flowchart LR
+    P001[P0-01 Host] --> P002[P0-02 Server] --> P003[P0-03 Secrets]
+    S001[S0-01 Scaffold] --> S002[S0-02 CI]
+    S001 --> S003[S0-03 Theme]
+    S001 --> S004[S0-04 Real-time]
+    S003 --> S005[S0-05 Join and lobby]
+    S004 --> S005
+    S002 --> S006[S0-06 First deploy]
+    P003 --> S006
+    S005 --> S007[S0-07 CP-S0]
+    S001 --> S101[S1-01 Seed]
+    S102[S1-02 Security] --> S103[S1-03 Login]
+    S101 --> S104[S1-04 Create game]
+    S103 --> S104
+    S004 --> S105[S1-05 State machine]
+    S104 --> S106[S1-06 Projector lobby]
+    S104 --> S107[S1-07 Live control]
+    S105 --> S107
+    S105 --> S108[S1-08 Start round]
+    S106 --> S108
+    S107 --> S108
+    S108 --> S109[S1-09 Task flow]
+    S109 --> S111[S1-11 Task types]
+    S111 --> S112[S1-12 Server checks]
+    S112 --> S113[S1-13 Scoring]
+    S113 --> S201[S2-01 Top 10 and wall]
+    S201 --> S203[S2-03 Reveal]
+    S107 --> S210[S2-10 Test games]
+    S201 --> S227[S2-27 Load test]
+    S210 --> S227
+    S203 --> T01([T-01 Trial run])
+    S227 --> T01
+    T01 --> FZ01[FZ-01 Freeze] --> E01([E-01 Event])
+    classDef critical fill:#ffd6d6,stroke:#b00000,color:#000
+    class S001,S004,S105,S108,S109,S111,S112,S113,S201,S203,S227,T01 critical
+```
+
+## Capacity and checkpoints
+
+The rules come from document 04, section 8; the evaluations go into `checkpoints.md`.
+
+| Checkpoint | When | Rule | Subplan |
+|---|---|---|---|
+| CP-S0 | Tue 29 Sep | Points finished in S0, divided by its working days, times the working days left before the trial (about 10). If that's below the open Must points, cut every Should and Could story and review the event date (A-01@01). How velocity is counted is Q-03 (DI-07) | S0-07 |
+| CP-S1 | Tue 6 Oct | If any S1 Must story is unfinished, drop every Could story, work down the cut order, and consider moving the event date | S1-18 |
+| CP-T | Wed 14 Oct | Go/no-go on the nine criteria of document 14, section 11 (DEC-191) | T-01 |
+| CP-H | Mon 19 Oct | Only after a no-go: the same criteria again; if they fail, the event date moves | H-06 |
+
+## Cut order
+
+From document 04, section 8. Could stories go first (H-02, H-03, H-04), then Should stories from the bottom of this list:
+
+| Order | Stories | Subplan |
+|---|---|---|
+| 1 | US-26 | S2-11 |
+| 2 | US-24, US-25, US-29 (if cut, remove those tasks from the run plans) | S2-12, S2-13, S2-14 |
+| 3 | US-10, US-11 | S2-15 |
+| 4 | US-36 | S2-16 |
+| 5 | US-33, US-34 | S2-17, S2-18 |
+| 6 | US-47 | S2-19 |
+| 7 | US-44 | S2-20 |
+| 8 | US-30 | S2-21 |
+| 9 | US-63 (built ahead of the load test, but cut in this position; without it, LT-01, OPS-08 and OPS-09 need another way to create a test game) | S2-10 |
+| 10 | US-06, US-08, US-20 | S2-22 |
+| 11 | US-58, US-61, US-62 | S2-23 |
+| 12 | US-55, US-07, US-66, EN-09 | S2-24 |
+
+## Parallel work
+
+Subplans marked parallel-safe can run in separate sessions, each in its own Git worktree, on its own branch. `STATUS.md` conflicts are fixed by rerunning `/progress`.
+
+| Window | Can run side by side |
+|---|---|
+| S0 after S0-01 | S0-02 (CI), S0-03 (theme), S0-04 (real-time) |
+| S1 start | S1-01 (seed), S1-02 (security), S1-05 (state machine) |
+| S1 middle | S1-06 (projector lobby) and S1-07 (live control); S1-15 (join messages) beside the task flow |
+| S2 | the admin track (S2-07, S2-08, S2-09) beside the projector track (S2-01, S2-02, S2-03); S2-06 (backups) and S2-25 (content review) beside anything |
+
+## Quality gates
+
+From document 14, sections 10 and 13, and document 13, section 10.
+
+| Phase | Gate |
+|---|---|
+| Every story | The Definition of Done (document 13, section 10): merge checks green, every criterion passing, deployed and smoke-checked, documents updated |
+| S0 | CI checks live; first unit tests; the walking-skeleton end-to-end test; OPS-01 to OPS-05 on production |
+| S1 | Engine, scoring, content and security tests; contract fixtures; the golden path for multiple choice and yes/no |
+| S2 | Projector, reveal and admin end-to-end tests; accessibility scans and the manual checklist; restore by Mon 12 Oct; full regression Mon 12 Oct; load, resilience and security on production Tue 13 Oct |
+| Load test entry (Tue 13 Oct) | Must stories complete (Mon 12 Oct); deployed; no open Sev-1 |
+| Trial run entry (Wed 14 Oct) | Load test passed; production checks done; task review complete; manual accessibility checklist done; no open Sev-1 |
+| Release (Tue 20 Oct) | A go decision; every change since the trial passed CI and a production smoke test; final regression passed; no open Sev-1 or Sev-2; `v1.0.0` tagged |
+
+## Risks and the subplans that mitigate them
+
+| Risk | Mitigation in the plan |
+|---|---|
+| R-01 Schedule | CP-S0 (S0-07) and CP-S1 (S1-18) with the cut order; Must stories first in every phase |
+| R-02 Oracle machine and sign-up | P0-01 (Q-01: no host yet, DI-04); uptime alert (S1-17, S2-26); backups off the machine (S2-06) |
+| R-03 Crash mid-round | Load test (S2-27); trial (T-01); deploy lock (S2-05); health checks (S1-17) |
+| R-04 Copying answers | Host reminder at the start (E-01) |
+| R-05 Shared admin password | Rate-limited login over HTTPS, bcrypt hash (S1-03, P0-03) |
+| R-06 iPhone players in Safari | Chrome notice with copy link (S2-22); player instructions (H-05, OA-26) |
+| R-07 Company network blocks the subdomain | Checked in the trial (T-01); phone hotspot fallback |
+| R-08 Weak mobile signal | Reconnection (S1-16); checked in the trial (T-01) |
+| R-09 No staging | Local stack mirrors production (S0-01); test games on production (S2-10, S2-26) |
+| R-10 Debatable task answers | Content review (S2-25); readiness check and void (S2-23) |
+| R-11 Pixel-art license | License checked and credited in the README (S0-03) |
+
+## Owner actions by date
+
+From `owner-actions.md`; each row names the subplans it unblocks.
+
+| Due | Owner actions | For |
+|---|---|---|
+| Fri 25 Sep | OA-01, OA-02 (done); OA-03, OA-04 (Blocked: Q-01) | P0-01 |
+| Sat 26 Sep | OA-05 to OA-09 | P0-02 |
+| Sun 27 Sep | OA-10 to OA-12 | P0-02 |
+| Mon 28 Sep | OA-13 to OA-17 | P0-02, P0-03 |
+| Tue 29 Sep | OA-18 to OA-21 | S0-06 |
+| Tue 6 Oct | OA-22 uptime monitor | S1-17, S2-26 |
+| Wed 7 Oct | OA-23 content review | S2-25 |
+| Sun 11 Oct | OA-24 trial invitations | T-01 |
+| Tue 13 Oct | OA-25 load generator | S2-27 |
+| Mon 19 Oct | OA-26 player instructions | H-05 |
+| Thu 22 Oct | OA-27 survey | AE-01 |
+
+The owner decisions Q-01 to Q-07 (`open-questions.md`) come due between Sat 26 Sep and Wed 7 Oct; `/dh` raises each before the subplan that waits on it.
+
+## Working with Claude Code
+
+`planning/README.md` describes the `/dh` loop; this plan adds:
+
+- **Session loop.** Start every session with `/dh`. It picks the next eligible subplan (`next.py`), loads only that subplan's "Context to load" sections and proposes a session plan for approval. It then works task by task with `/story`'s conventions (failing tests first, named with criterion IDs; `/check`; the reviewers), and finishes with `/pr` and `/progress`.
+- **Context hygiene.** One subplan per session, with `/clear` between subplans. Anything worth keeping goes into the subplan's progress log, not the conversation.
+- **Parallel sessions** in separate worktrees for the windows above.
+- **Plan mode** for subplans that touch the engine, scoring, security or deployment: S0-04, S0-06, S1-02, S1-03, S1-05, S1-08, S1-09, S1-12, S1-13, S2-03, S2-05, S2-06, S2-17.
+- **Owner actions early.** `/dh` lists the owner actions for the coming phase before it starts, so nothing waits on the owner.
+- **Doc issues.** Where a doc issue or open question would block a subplan, `/dh` brings it to the owner with a proposed fix before that subplan starts.
