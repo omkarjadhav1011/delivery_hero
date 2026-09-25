@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
+import { copy } from "../src/copy";
 import "./globals.css";
 
 // Self-hosted display font (DEC-107, DEC-167), licensed under the SIL Open Font License (app/fonts/OFL.txt)
@@ -11,7 +12,7 @@ const pressStart2p = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Delivery Hero",
+  title: copy.documentTitle,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

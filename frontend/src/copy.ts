@@ -3,6 +3,8 @@
 // TODO(EN-08): the rest of the copy deck arrives with the screens that use it.
 export const copy = {
   brand: "DELIVERY HERO",
+  // The browser tab and screen-reader page title: the product name (Charter section 1)
+  documentTitle: "Delivery Hero",
   home: {
     // LLD section 6.1, app/page.tsx
     title: "Scan the QR code on the big screen",

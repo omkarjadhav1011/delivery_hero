@@ -49,6 +49,18 @@ export default tseslint.config(
         { name: "fetch", message: "Use src/api/http.ts for REST calls (CS-04)." },
       ],
       "no-console": ["error", { allow: ["error"] }],
+      "no-eval": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@stomp/stompjs",
+              message: "Use src/realtime for STOMP (document 13, section 7.3).",
+            },
+          ],
+        },
+      ],
     },
   },
   {
@@ -57,8 +69,12 @@ export default tseslint.config(
     rules: { "no-restricted-properties": "off" },
   },
   {
-    files: ["src/api/**"],
+    files: ["src/api/http.ts"],
     rules: { "no-restricted-globals": "off" },
+  },
+  {
+    files: ["src/realtime/**"],
+    rules: { "no-restricted-imports": "off" },
   },
   {
     // Node scripts and tooling configuration

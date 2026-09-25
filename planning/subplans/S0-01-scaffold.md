@@ -129,3 +129,18 @@ Document 13, section 10, plus: `./mvnw -B verify` and every frontend check pass;
 - 2026-09-25: T10 done. `.gitignore` now also covers `__pycache__/` and `*.lnk`, which keeps a local shortcut out of `deploy/`, since `deploy.yml` copies all of it. After full backend and frontend builds, `git status` is clean. Every action is SHA-pinned: `ci.yml` 9 of 9 and `deploy.yml` 3 of 3. `GITLEAKS_VERSION` is v8.30.1.
 - 2026-09-25: T9 done with no code change. `smoke.spec.ts` passes 3 of 3 AC-EN01-01 tests against the e2e-profile stack (Chromium, one worker).
 - 2026-09-25: T11 done. OPS-20 passed from a fresh clone and is recorded in `check-results.md`. Native Tomcat and PostgreSQL services hold ports 8080 and 5432 on this laptop, so the stack ran with `DH_LOCAL_PORT=8090` and `DH_LOCAL_DB_PORT=5433` (noted in `environment.md`).
+- 2026-09-25: Review fixes (backend-reviewer, frontend-reviewer, ops-reviewer).
+  - `AdminProperties` is `@Validated`: `@NotBlank`, plus a bcrypt pattern of cost 12 or more (DEC-98), with a new `AdminPropertiesTest`.
+  - `/error` is permitted, so error dispatches keep their real status.
+  - `HealthIT` again starts with AC-US69-01. The test checks that criterion, so the never-broken naming rule applies. This reverses the T1 item.
+  - The page title comes from `copy.documentTitle`.
+  - The `fetch` exemption is narrowed to `src/api/http.ts`.
+  - `no-eval` is on, and `@stomp/stompjs` imports are restricted to `src/realtime`.
+  - The smoke spec now loads every LLD 6.1 route with axe and CSP checks: 13 of 13 pass on the e2e stack.
+  - The ops review found no defects in this branch. The `deploy.yml` path ignores predate it (DI-01 to DI-03); actionlint is DI-22 (S0-02).
+  - Deferred to their stories:
+    - `server.tomcat.remoteip.internal-proxies` for prod (LLD 5.9, before rate limits in US-01).
+    - The admin account isn't needed in seed mode (US-56).
+    - Session cookie attributes (US-49, TODO in `SecurityConfig`).
+    - Binding `dh.public-base-url` (US-04).
+    - Moving the 401 check to `security/SecurityIT` (US-49).
