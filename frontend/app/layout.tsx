@@ -5,7 +5,7 @@ import "./globals.css";
 
 // Self-hosted display font (DEC-107, DEC-167), licensed under the SIL Open Font License (app/fonts/OFL.txt)
 const pressStart2p = localFont({
-  src: "./fonts/PressStart2P-Regular.ttf",
+  src: "./fonts/PressStart2P-Regular.woff2",
   variable: "--font-press-start-2p",
   display: "swap",
 });

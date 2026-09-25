@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 1d3291c |
+| Last commit | 5c46557 |
 | Step | test-first |
-| Task | T7 |
+| Task | T8 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
-| Updated | 2026-09-25T11:02 |
-| Next action | typecheck on fresh clone without next-env.d.ts |
+| Updated | 2026-09-25T11:04 |
+| Next action | out/ holds only static files; csp.conf exists |
 
 ## Completed tasks
 
@@ -25,6 +25,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T4 (1af9889)
 - T5 (6992eb2)
 - T6 (1d3291c)
+- T7 (5c46557)
 
 ## Pending approvals
 
