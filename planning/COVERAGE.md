@@ -105,7 +105,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-EN02-01 | AC-EN | Build | S0-06 T11, S0-06 T5, S0-06 T6, S0-06 T7 | Planned | TC-EN02-01: Production, OPS-01 |
 | AC-EN02-02 | AC-EN | Build | S0-06 T11, S0-06 T8 | Planned | TC-EN02-02: Production, OPS-02 |
 | AC-EN02-03 | AC-EN | Build | P0-02 T4, S0-06 T11, S0-06 T8 | Planned | TC-EN02-03: Production, OPS-03 |
-| AC-EN03-01 | AC-EN | Build | S0-02 T6, S0-02 T7, S0-06 T4 | Planned | TC-EN03-01: Production, OPS-21 |
+| AC-EN03-01 | AC-EN | Build | S0-02 T6, S0-02 T7, S0-06 T4 | In progress | TC-EN03-01: Production, OPS-21 |
 | AC-EN03-02 | AC-EN | Build | S0-06 T1, S0-06 T9 | Planned | TC-EN03-02: Production, OPS-17 |
 | AC-EN03-03 | AC-EN | Build | S0-06 T1, S0-06 T10 | Planned | TC-EN03-03: Production, OPS-18 |
 | AC-EN04-01 | AC-EN | Build | S0-04 T5, S0-04 T8 | Planned | TC-EN04-01: Integration, `StompConnectionIT` |
@@ -933,7 +933,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | NFR-40 | NFR | Build | S1-13 T1 | Planned | Verified by code review (document 15, section 16), so the scoring configuration file is built directly |
 | NFR-41 | NFR | Build | S0-02 T5 | In progress | The JaCoCo gate in CI (document 15, section 16) |
 | NFR-42 | NFR | Build | S0-01 T5 | Implemented | Flyway only, Hibernate validates at startup (document 15, section 16) |
-| NFR-43 | NFR | Build | S0-02 T1 | Planned | CI configuration review (document 15, section 16) |
+| NFR-43 | NFR | Build | S0-02 T1 | In progress | CI configuration review (document 15, section 16) |
 | NFR-44 | NFR | Build | S0-01 T6 | Implemented | The OpenAPI comparison test and the contract fixtures (document 15, section 16) |
 | OBJ-1 | OBJ | No implementation work |  |  | Business objective, measured by the success criteria (Charter section 5) |
 | OBJ-2 | OBJ | No implementation work |  |  | Business objective, measured by the success criteria (Charter section 5) |
@@ -1081,7 +1081,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-EN02-01 | TC-EN | Covered by | AC-EN02-01 | Planned |  |
 | TC-EN02-02 | TC-EN | Covered by | AC-EN02-02 | Planned |  |
 | TC-EN02-03 | TC-EN | Covered by | AC-EN02-03 | Planned |  |
-| TC-EN03-01 | TC-EN | Covered by | AC-EN03-01 | Planned |  |
+| TC-EN03-01 | TC-EN | Covered by | AC-EN03-01 | In progress |  |
 | TC-EN03-02 | TC-EN | Covered by | AC-EN03-02 | Planned |  |
 | TC-EN03-03 | TC-EN | Covered by | AC-EN03-03 | Planned |  |
 | TC-EN04-01 | TC-EN | Covered by | AC-EN04-01 | Planned |  |

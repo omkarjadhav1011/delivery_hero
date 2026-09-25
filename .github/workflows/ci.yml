@@ -63,6 +63,10 @@ jobs:
         run: |
           shellcheck .githooks/pre-push
           find . -name '*.sh' -not -path '*/node_modules/*' -print0 | xargs -0 -r shellcheck
+      - name: Workflows
+        env:
+          ACTIONLINT_IMAGE: rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 # latest release on 2026-09-25
+        run: docker run --rm -v "$PWD:/repo" --workdir /repo "$ACTIONLINT_IMAGE" -no-color
       - name: No raw hex colors in components
         run: |
           if grep -rnE '#[0-9A-Fa-f]{6}\b' frontend/src --include='*.tsx'; then
