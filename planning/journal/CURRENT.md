@@ -11,11 +11,11 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Start commit | e96ee0b |
 | Last commit | 3486cc6 |
 | Step | test-first |
-| Task | T4 |
+| Task | T5 |
 | Attempts | 0 |
 | Started | 2026-09-25T22:31 |
 | Updated | 2026-09-25T22:35 |
-| Next action | dependabot.yml vs Appendix E |
+| Next action | untested engine class fails verify |
 
 ## Completed tasks
 
