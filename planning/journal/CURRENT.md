@@ -9,19 +9,20 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-01 |
 | Branch | docs/planning-dec-212 |
 | Start commit | 723d39a |
-| Last commit | 69fb7af |
+| Last commit | 1af9889 |
 | Step | test-first |
-| Task | T4 |
+| Task | T5 |
 | Attempts | 0 |
 | Started | 2026-09-25T10:41 |
-| Updated | 2026-09-25T11:00 |
-| Next action | move DeployLockIT, drop AC-US69-01 prefix |
+| Updated | 2026-09-25T11:02 |
+| Next action | MigrationIT |
 
 ## Completed tasks
 
 - T1 (0fd2f71)
 - T2 (364295a)
 - T3 (69fb7af)
+- T4 (1af9889)
 
 ## Pending approvals
 
