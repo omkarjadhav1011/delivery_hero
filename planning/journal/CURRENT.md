@@ -9,19 +9,20 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-05 |
 | Branch | feat/us-01-join |
 | Start commit | 0d8ef70 |
-| Last commit | 103d148 |
+| Last commit | 386714e |
 | Step | test-first |
-| Task | T5 |
-| Attempts | 1 |
+| Task | T6 |
+| Attempts | 0 |
 | Started | 2026-09-26T08:09 |
-| Updated | 2026-09-26T08:34 |
-| Next action | IT: a joined player receives GAME_STATE with the final name |
+| Updated | 2026-09-26T08:37 |
+| Next action | JoinScreen.test.tsx AC-US01-01 and AC-US01-03 |
 
 ## Completed tasks
 
 - T1 (8a558b9)
 - T2 (4192874)
 - T4 (103d148)
+- T5 (386714e)
 
 ## Pending approvals
 

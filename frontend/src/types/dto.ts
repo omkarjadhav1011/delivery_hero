@@ -1,5 +1,5 @@
-// REST shapes, mirroring document 11. Only the shared error format exists so far.
-// TODO(US-01): the request and response types of each endpoint in document 11, section 7
+// REST shapes, mirroring document 11.
+// TODO(US-49): the admin endpoints' request and response types (document 11, section 7)
 
 /** One validation issue (document 11, section 6.3). */
 export type ValidationIssue = {
@@ -16,4 +16,44 @@ export type ProblemDetails = {
   code: string;
   detail: string | null;
   errors: ValidationIssue[];
+};
+
+/** A game's states, in order (LLD section 5.2). */
+export type GameState =
+  | "CREATED"
+  | "LOBBY"
+  | "PRACTICE"
+  | "COUNTDOWN"
+  | "LIVE"
+  | "FROZEN"
+  | "ENDED"
+  | "REVEAL"
+  | "RESULTS"
+  | "CLOSED"
+  | "CANCELLED";
+
+/** Why a phone can't join, as `reason` or as an error `code` (document 11, sections 6.2 and 7.2). */
+export type JoinRefusal =
+  "GAME_NOT_ACTIVE" | "LOBBY_NOT_OPEN" | "JOINING_CLOSED" | "GAME_FULL" | "RATE_LIMITED";
+
+/** `GET /api/games/{code}` (document 11, section 7.2). */
+export type GameStatusResponse = {
+  gameId: string;
+  code: string;
+  state: GameState;
+  test: boolean;
+  joinable: boolean;
+  reason: Exclude<JoinRefusal, "GAME_NOT_ACTIVE" | "RATE_LIMITED"> | null;
+};
+
+/** `POST /api/games/{code}/players` (document 11, section 7.2). */
+export type JoinRequest = {
+  name: string;
+};
+
+export type JoinResponse = {
+  gameId: string;
+  playerId: string;
+  name: string;
+  token: string;
 };
