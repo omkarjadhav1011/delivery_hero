@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-04 |
 | Branch | feat/us-59-create-game |
 | Start commit | 907f11b |
-| Last commit | b0fa8f3 |
+| Last commit | 98e8ef2 |
 | Step | test-first |
-| Task | T4 |
+| Task | T5 |
 | Attempts | 0 |
 | Started | 2026-09-26T22:10 |
-| Updated | 2026-09-26T22:32 |
-| Next action | GameLifecycleIT AC-US59-01 over REST |
+| Updated | 2026-09-26T22:36 |
+| Next action | NewGame.test.tsx |
 
 ## Completed tasks
 
@@ -24,6 +24,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (e1ebe27)
 - T9 (bc5503c)
 - T10 (b0fa8f3)
+- T4 (98e8ef2)
 
 ## Pending approvals
 
