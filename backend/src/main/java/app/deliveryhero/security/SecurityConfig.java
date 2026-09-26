@@ -80,12 +80,14 @@ public class SecurityConfig {
                 requests.requestMatchers(HttpMethod.POST, E2eGameController.PATH)
                         .permitAll();
             }
-            // TODO(US-49): form login at /api/admin/login, the DH_SESSION cookie and cookie-to-header CSRF
+            // TODO(US-49): form login at /api/admin/login and the DH_SESSION cookie
             requests.requestMatchers("/api/**").authenticated();
             requests.anyRequest().denyAll();
         });
-        // CSRF protects the admin session only; public joins carry no cookie to abuse (LLD section 5.9)
+        // CSRF protects the admin session only; public joins carry no cookie to abuse (LLD section 5.9). The
+        // single-page app reads the XSRF-TOKEN cookie and sends it back as X-XSRF-TOKEN (API section 5.2)
         http.csrf(csrf -> {
+            csrf.spa();
             csrf.ignoringRequestMatchers("/api/games/**");
             if (environment.matchesProfiles("e2e")) {
                 csrf.ignoringRequestMatchers(E2eGameController.PATH);

@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-02 |
 | Branch | chore/s0-02-ci-proofs |
 | Start commit | 2075aca |
-| Last commit | 2075aca |
-| Step | test-first |
-| Task | T1 |
-| Attempts | 0 |
+| Last commit | a0631f4 |
+| Step | implement |
+| Task |  |
+| Attempts | 1 |
 | Started | 2026-09-26T10:33 |
-| Updated | 2026-09-26T10:43 |
-| Next action | SecurityIT route and header checks |
+| Updated | 2026-09-26T10:48 |
+| Next action | T2 SecurityIT AC-EN06-02 CSRF |
 
 ## Completed tasks
 
-- none
+- T1 (a0631f4)
 
 ## Pending approvals
 
