@@ -1,10 +1,12 @@
 package app.deliveryhero.engine;
 
+import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
 import app.deliveryhero.engine.command.Command;
 import jakarta.annotation.PreDestroy;
+import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,16 +24,26 @@ public class GameEngine {
     private final TokenService tokens;
     private final PlayerTokens playerTokens;
     private final GameProperties properties;
+    private final Broadcaster broadcaster;
+    private final Clock clock;
 
-    public GameEngine(TokenService tokens, PlayerTokens playerTokens, GameProperties properties) {
+    public GameEngine(
+            TokenService tokens,
+            PlayerTokens playerTokens,
+            GameProperties properties,
+            Broadcaster broadcaster,
+            Clock clock) {
         this.tokens = tokens;
         this.playerTokens = playerTokens;
         this.properties = properties;
+        this.broadcaster = broadcaster;
+        this.clock = clock;
     }
 
-    /** Starts a session for a game. TODO(US-58): build it from the game row and its snapshot, in CREATED. */
+    /** Starts a session for a game. TODO(US-59): build it from the game row and its snapshot, in CREATED. */
     public GameSession create(UUID gameId, String code, GameState state, boolean test) {
-        GameSession session = new GameSession(gameId, code, state, test, properties.maxPlayers(), tokens, playerTokens);
+        GameSession session = new GameSession(
+                gameId, code, state, test, properties.maxPlayers(), tokens, playerTokens, broadcaster, clock);
         sessions.put(gameId, session);
         return session;
     }

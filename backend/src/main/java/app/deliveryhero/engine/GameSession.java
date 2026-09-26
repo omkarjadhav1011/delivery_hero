@@ -1,9 +1,12 @@
 package app.deliveryhero.engine;
 
+import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.broadcast.GameStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Names;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Disconnect;
@@ -11,6 +14,7 @@ import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.Reconnect;
+import java.time.Clock;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +46,8 @@ public final class GameSession {
     private final int maxPlayers;
     private final TokenService tokens;
     private final PlayerTokens playerTokens;
+    private final Broadcaster broadcaster;
+    private final Clock clock;
     private final ExecutorService thread;
 
     // Session state: read and written only on the session thread
@@ -57,7 +63,9 @@ public final class GameSession {
             boolean test,
             int maxPlayers,
             TokenService tokens,
-            PlayerTokens playerTokens) {
+            PlayerTokens playerTokens,
+            Broadcaster broadcaster,
+            Clock clock) {
         this.id = id;
         this.code = code;
         this.state = state;
@@ -65,6 +73,8 @@ public final class GameSession {
         this.maxPlayers = maxPlayers;
         this.tokens = tokens;
         this.playerTokens = playerTokens;
+        this.broadcaster = broadcaster;
+        this.clock = clock;
         this.thread = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "game-" + id));
     }
 
@@ -107,9 +117,7 @@ public final class GameSession {
             case Disconnect disconnect -> {
                 // TODO(US-05): mark the player offline and add an offline wall event (LLD 5.4.10)
             }
-            case ClientSubscribed subscribed -> {
-                // TODO(US-04): send the player's full GAME_STATE (LLD 5.4.10, DEC-146)
-            }
+            case ClientSubscribed subscribed -> subscribed(subscribed);
         }
     }
 
@@ -134,6 +142,23 @@ public final class GameSession {
                 .addKeyValue("playerId", playerId)
                 .log("Player joined");
         return new JoinResult.Joined(id, playerId, name, token);
+    }
+
+    /**
+     * Sends a player's full state to the connection whose subscription was just confirmed (LLD 5.4.10, DEC-146). A
+     * player of another game is ignored. TODO(US-16): send it again on every state change; S0 has none.
+     */
+    private void subscribed(ClientSubscribed subscribed) {
+        // TODO(S1-06): the projector's SCREEN_STATE; TODO(S1-07): the admin's LIVE_STATS
+        if (subscribed.role() != ClientRole.PLAYER || subscribed.playerId() == null) {
+            return;
+        }
+        PlayerState player = players.get(subscribed.playerId());
+        if (player == null) {
+            return;
+        }
+        GameStateMessage message = GameStateMessage.initial(clock.millis(), id, state, player.id(), player.name());
+        broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
     }
 
     private GetStatus.Status status() {
