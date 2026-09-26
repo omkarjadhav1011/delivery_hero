@@ -84,6 +84,14 @@ public class RunPlanEntity implements Persistable<UUID> {
         return roundLengthMinutes;
     }
 
+    public @Nullable UUID incidentTaskId() {
+        return incidentTaskId;
+    }
+
+    public int version() {
+        return version;
+    }
+
     @Override
     public UUID getId() {
         return id;

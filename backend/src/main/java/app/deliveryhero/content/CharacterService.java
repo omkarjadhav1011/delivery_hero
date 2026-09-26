@@ -91,6 +91,18 @@ public class CharacterService {
         return lines;
     }
 
+    /** Every character as it is stored now, for a game's snapshot (FR-072). */
+    public List<CharacterDefinition> all() {
+        return characters.findAll().stream()
+                .map(entity -> new CharacterDefinition(
+                        entity.role(),
+                        entity.displayName(),
+                        entity.introLine(),
+                        json.readValue(entity.correctLines(), LINES),
+                        json.readValue(entity.wrongLines(), LINES)))
+                .toList();
+    }
+
     private CharacterView view(CharacterEntity entity) {
         return new CharacterView(
                 entity.role(),
