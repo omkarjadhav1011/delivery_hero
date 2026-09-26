@@ -3,6 +3,7 @@ package app.deliveryhero.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
+import app.deliveryhero.config.AdminProperties;
 import app.deliveryhero.support.IntegrationTest;
 import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
@@ -13,8 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
@@ -32,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** The filter chain, security headers, CSRF and rate limits (LLD section 5.9, API section 5). */
 @IntegrationTest
+@ExtendWith(OutputCaptureExtension.class)
 @Import({SecurityIT.AdminProbe.class, SecurityIT.TestClock.class})
 class SecurityIT {
 
@@ -46,6 +51,9 @@ class SecurityIT {
 
     @Autowired
     private MutableClock clock;
+
+    @Autowired
+    private AdminProperties admin;
 
     @BeforeEach
     void resetProbe() {
@@ -278,6 +286,17 @@ class SecurityIT {
         assertThat(login("192.0.2.32", LOCAL_PASSWORD)).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
 
         assertThat(login("192.0.2.33", LOCAL_PASSWORD)).hasStatus(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("AC-US49-05 password storage: login logs carry the event and the IP address, never the password")
+    void loginLogsNeverContainThePassword(CapturedOutput output) {
+        assertThat(login("192.0.2.40", "a-wrong-guess")).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(login("192.0.2.40", LOCAL_PASSWORD)).hasStatus(HttpStatus.NO_CONTENT);
+
+        assertThat(output.getOut())
+                .contains("LOGIN_FAILED", "LOGIN_SUCCEEDED", "192.0.2.40")
+                .doesNotContain(LOCAL_PASSWORD, "a-wrong-guess", admin.passwordHash());
     }
 
     private void failLogins(String address, int failures) {

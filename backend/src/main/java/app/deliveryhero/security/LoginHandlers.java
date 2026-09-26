@@ -4,6 +4,8 @@ import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.DeliveryHeroException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -16,6 +18,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * without a valid admin session gets the same 401 (LLD section 5.9, API section 7.3).
  */
 class LoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailureHandler, AuthenticationEntryPoint {
+
+    private static final Logger log = LoggerFactory.getLogger(LoginHandlers.class);
 
     private final AdminSession session;
     private final RateLimiter limiter;
@@ -36,6 +40,11 @@ class LoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailu
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         session.start(request);
+        // The address only: never the password, the hash or the session ID (DEC-104, NFR-14)
+        log.atInfo()
+                .addKeyValue("event", "LOGIN_SUCCEEDED")
+                .addKeyValue("ip", request.getRemoteAddr())
+                .log("Admin logged in");
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
@@ -43,6 +52,10 @@ class LoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailu
     public void onAuthenticationFailure(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
         limiter.recordFailure(loginKey(request), RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+        log.atWarn()
+                .addKeyValue("event", "LOGIN_FAILED")
+                .addKeyValue("ip", request.getRemoteAddr())
+                .log("Admin login failed");
         unauthenticated(request, response);
     }
 

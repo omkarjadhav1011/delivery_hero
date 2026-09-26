@@ -29,9 +29,13 @@ class AdminSessionController {
     }
 
     @GetMapping(SecurityConfig.SESSION_PATH)
-    AdminSessionResponse session(HttpServletRequest request, CsrfToken csrf) {
-        // Reading the token writes the cookie (CookieCsrfTokenRepository saves it lazily)
-        csrf.getToken();
+    AdminSessionResponse session(HttpServletRequest request) {
+        // Reading the token writes the cookie (CookieCsrfTokenRepository saves it lazily). It's taken from the request
+        // rather than as a parameter, so the OpenAPI document doesn't list it as one
+        CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        if (csrf != null) {
+            csrf.getToken();
+        }
         boolean authenticated =
                 trust.isAuthenticated(SecurityContextHolder.getContext().getAuthentication());
         return new AdminSessionResponse(authenticated, authenticated ? session.expiresAt(request) : null);
