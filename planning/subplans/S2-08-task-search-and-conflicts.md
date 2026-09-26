@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | In progress |
 | Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-52, US-53 |
 | Priority and points | Must, 4 |
@@ -93,3 +93,4 @@ Document 13, section 10, plus: every criterion passes; no save without a matchin
 - 2026-09-26: Session actuals: 19:16 to 20:01 (about 45 minutes). About 200k tokens in the main session and about 190k in the four reviewers. Open: T6 (run plans), which waits for S2-09. After T6 the TC-US53-02 run plan half can be covered.
 - 2026-09-26: PR #25 opened for T1 to T5. The subplan is In review, and T6 stays open until S2-09 merges.
 - 2026-09-26: Document 11 v1.2 (PC-08): section 7.4 now states the key order, the two 422 responses and the version-first check; T1 and T3 already follow it (DI-64). T7 adds the three tests that were missing.
+- 2026-09-26: PR #25 merged on 2026-09-26. The status is In progress, for T6 (after S2-09) and T7.

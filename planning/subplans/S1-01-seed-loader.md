@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-56, US-19 |
 | Priority and points | Must, 4 |
@@ -106,3 +106,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 - 2026-09-26: pull request #12 opened. The status is In review. T7 and T8 are still blocked, so the subplan stays open after the merge.
 - 2026-09-26: PR #12 merged on 2026-09-25 (8b7e483). The Deploy run fails at the copy step (no server yet, Q-01). The status is In progress again, since T7 (S1-04) and T8 (Q-01) are still open.
 - 2026-09-26: PC-05: T7 (AC-US19-02, written with game creation) moved to S1-04 as T9, which removes the wait loop with S1-04; T8 (the production seed load, OA-20) moved to H-07 (PC-04). Every remaining task is ticked.
+- 2026-09-26: Every task is ticked (T7 and T8 moved out in PC-05), so the status is Done.

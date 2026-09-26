@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | EN-06 |
 | Priority and points | Must, 3 |
@@ -99,3 +99,4 @@ Document 13, section 10, plus: `SecurityIT` covers CSRF and both rate limits, `s
 - 2026-09-26: Actuals. 10:33 to about 11:25 (about 50 min), mostly Maven and Playwright runs. Main-session tokens aren't measured (an estimate of about 200k); the three reviewers used about 120k together. Status stays In progress: T1 to T8 are done, and T9 waits for S2-15 and S2-07 (carry AC-EN06-04 over in the CP-S1 notes). It becomes In review when the PR opens.
 - 2026-09-26: PR #18 open (https://github.com/omkarjadhav1011/delivery_hero/pull/18). Status In review; T9 stays blocked.
 - 2026-09-26: PR #18 merged. The Deploy run (36222135023) failed before deploying: the server secrets are empty because production doesn't exist yet (P0-01, P0-02). Production verification waits for P0-02; the status stays In review, and T9 stays blocked.
+- 2026-09-26: DEC-213 made development local-only, so the merged PR #18 no longer waits for a production check. The status is In progress, since T9 is still open.
