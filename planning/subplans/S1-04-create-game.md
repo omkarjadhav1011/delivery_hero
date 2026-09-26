@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-59, US-54 |
 | Priority and points | Must, 6 |
@@ -53,7 +53,7 @@ The host creates a game from a run plan, getting a code, join URL, QR code and p
 
 - [ ] T1 `SnapshotFactory`: copy the run plan (name, round length in seconds), practice, incident and phase lists with every time limit resolved to milliseconds, and all four characters into `GameSnapshot` (document 10 section 8.5), kept only in the backend, in `app.deliveryhero.lifecycle`, test first: `GameLifecycleIT` AC-US54-01 (mgr-plan-01's prompt edited after creation; the game keeps the old one, a new game gets the new one) and AC-US54-02 (Maya's lines edited mid-game), source: AC-US54-01, AC-US54-02, FR-072, DEC-130, document 10 section 8.5, LLD 5.8
 - [ ] T2 `GameLifecycleService.create(runPlanId, test, botCount)` in one transaction: refuse when a game is outside CLOSED and CANCELLED (409 `ANOTHER_GAME_OPEN` with the open game's link), apply the FR-077 plan rules (422 `VALIDATION_FAILED` with the reason), generate the 6-character code from the BR-17 (shared) alphabet and a 22-character projector key, save `GameEntity` in CREATED, then call `GameEngine.create` after commit; log `GAME_CREATED`, in `app.deliveryhero.lifecycle`, test first: `GameLifecycleIT` AC-US59-01, AC-US59-02 (a plan with an empty phase), AC-US59-03, source: AC-US59-01, AC-US59-02, AC-US59-03, FR-077, FR-079, BR-17 (shared), DEC-101, LLD 5.8
-- [ ] T3 `GameStateRecorder`: every state change written to the game row on its own single-thread executor, in order, never blocking a session; the seed lock check (S1-01) and later `StartupCleanup` rely on it, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderTest` ordered writes, source: LD-05, LLD 5.8, document 10 section 11
+- [x] T3 `GameStateRecorder`: every state change written to the game row on its own single-thread executor, in order, never blocking a session; the seed lock check (S1-01) and later `StartupCleanup` rely on it, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderTest` ordered writes, source: LD-05, LLD 5.8, document 10 section 11
 - [ ] T4 Admin game endpoints: `GET /api/admin/games/current` (200 or 204) and `POST /api/admin/games` returning the game view (code, join URL, projector URL, round length, `allowedActions`), errors as Problem Details, in `app.deliveryhero.api.admin` (`GameController`), test first: `GameLifecycleIT` AC-US59-01 over REST, source: AC-US59-01, AC-US59-03, FR-079, API 7.7
 - [ ] T5 New game screen: run plan picker, "Create game", the plan errors listed with Create disabled, then the code, join URL, QR code (`QrCode`) and projector URL; a refused creation links to the open game, in `frontend/app/admin/games/page.tsx` and `frontend/src/admin`, test first: `NewGame.test.tsx`, source: AC-US59-01, AC-US59-02, AC-US59-03, FR-079, document 12 New game screen
 - [ ] T8 Remove the dev-only STOMP test credentials now that joining and game creation register real ones: delete `DevCredentials`, the `dh.dev.*` keys and their TODO(US-01) in `application-dev.yml`, and the two "STOMP test" rows in document 18, section 6 (that document edit approved on its own when the task runs), in `app.deliveryhero.realtime`, test first: `StompConnectionIT` still passes with credentials from a real join and a real game, source: EN-04 (shared) as built (S0-04 T8), document 18 v1.1 section 6, PC-03
@@ -94,3 +94,4 @@ Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLi
 - 2026-09-26: DEC-213 (PC-04): T7 now runs on the local stack and isn't blocked; H-07 repeats the demonstration on production with a real phone.
 - 2026-09-26: PC-05: T9 (AC-US19-02, from S1-01 T7) added, so S1-01 no longer waits on this subplan.
 - 2026-09-26: PC-09: T6 and T7 moved to S1-07 (T9, T10); T10 added (read-only run plan list for T5).
+- 2026-09-26: T3 done: `GameStateRecorder` writes compare-and-set updates in order on its own thread (`GameStateRecorderTest`); the SQL itself is checked in `GameLifecycleIT` with T2.
