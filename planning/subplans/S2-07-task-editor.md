@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S2 (Wed 7 – Tue 13 Oct) |
 | Stories | US-51 |
 | Priority and points | Must, 8 |
@@ -98,3 +98,5 @@ Document 13, section 10, plus: every criterion passes, the preview and the phone
 - 2026-09-26: T4 done. `DELETE /api/admin/tasks/{id}?version=` answers 204, or 409 `TASK_IN_USE` with the detail "This task is used by: …" (LLD 5.12) and one `errors` entry per plan. In the seed, mgr-plan-01 is in both plans, so the refusal names "Default 5-minute plan, Quick 3-minute plan". `TaskApiIT` 9/9 (AC-US51-04, AC-US51-05).
 - 2026-09-26: T5 done. `PublicTaskView.of(TaskDefinition, characterName)` in content is the one mapping for phones and the preview: option and item texts in display order, tokens split at whitespace with markers removed, `timeLimitMs` from the effective limit, and no answer data. `POST /api/admin/tasks/public-view` validates, names the character from `characters`, and saves nothing. `PublicTaskViewTest` 4/4, `TaskApiIT` 10/10 (AC-US51-03).
 - 2026-09-26: Review fixes. backend-reviewer: no must-fix; spec-guardian: no conflict with the decision log; security-reviewer: no critical or high. Fixed: admin request errors (bad JSON or enum, missing `version`, malformed ID) now answer Problem Details with a code (`AdminRequestProblems`); concurrent create and delete races answer `DUPLICATE_KEY` and `TASK_IN_USE` instead of 500; unknown content fields are refused; a role without a character answers 422; tokens trim like the validator. Added tests: every seed task's public view carries only the section 9.1 fields, bad requests, CSRF. Recorded DI-58, DI-59 and DI-60. `TaskApiIT` 13/13; full `./mvnw -B verify` 72 of 73 integration tests pass, `OpenApiIT` waits for `docs/openapi.json`.
+- 2026-09-26: `docs/openapi.json` regenerated (owner approved); full `./mvnw -B verify` passes (73 integration tests); frontend format, lint, typecheck, 120 unit tests and build pass. PR #24 open (https://github.com/omkarjadhav1011/delivery_hero/pull/24). Status In review for T1 to T5; T6 is next, T7 stays blocked.
+- 2026-09-26: Actuals. 13:42 to about 14:45 (about 65 min). Main-session tokens aren't measured (an estimate of about 250k); the three reviewers used about 180k together.
