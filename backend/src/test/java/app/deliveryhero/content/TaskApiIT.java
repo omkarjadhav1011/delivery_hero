@@ -195,7 +195,8 @@ class TaskApiIT {
 
         assertThat(refused).hasStatus(HttpStatus.CONFLICT);
         assertThat(refused).bodyJson().isLenientlyEqualTo("""
-                {"status": 409, "code": "EDIT_CONFLICT"}
+                {"status": 409, "code": "EDIT_CONFLICT",
+                 "detail": "Someone else changed this since you opened it. Reload to see their changes."}
                 """);
         JsonNode kept =
                 body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
@@ -220,6 +221,83 @@ class TaskApiIT {
 
         assertThat(refused).bodyJson().isLenientlyEqualTo("""
                 {"status": 409, "code": "EDIT_CONFLICT"}
+                """);
+        assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
+                .hasStatusOk();
+    }
+
+    @Test
+    @DisplayName(
+            "AC-US53-01 AC-US51-05 conflict first: an outdated delete of a task in use gets EDIT_CONFLICT, not TASK_IN_USE")
+    void outdatedDeleteOfATaskInUseIsAConflict() {
+        String id = idOf("mgr-plan-01");
+        JsonNode opened =
+                body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
+        assertThat(opened.get("usedBy").findValuesAsString("name")).isNotEmpty();
+        Map<String, Object> change = asInput(opened);
+        change.put("prompt", "Changed meanwhile?");
+        assertThat(put("/api/admin/tasks/" + id, change)).hasStatusOk();
+
+        MvcTestResult refused = mvc.delete()
+                .uri(
+                        "/api/admin/tasks/{id}?version={version}",
+                        id,
+                        opened.get("version").asInt())
+                .with(ADMIN)
+                .with(csrf())
+                .exchange();
+
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 409, "code": "EDIT_CONFLICT"}
+                """);
+        assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
+                .hasStatusOk();
+    }
+
+    @Test
+    @DisplayName("AC-US53-01 conflict first: an outdated save with invalid content gets EDIT_CONFLICT, not 422")
+    void outdatedInvalidSaveIsAConflict() {
+        String id = idOf("mgr-plan-01");
+        JsonNode opened =
+                body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
+        Map<String, Object> changeByA = asInput(opened);
+        changeByA.put("prompt", "A's prompt?");
+        Map<String, Object> invalidByB = asInput(opened);
+        invalidByB.put("prompt", "");
+
+        assertThat(put("/api/admin/tasks/" + id, changeByA)).hasStatusOk();
+        MvcTestResult refused = put("/api/admin/tasks/" + id, invalidByB);
+        Map<String, Object> invalidAtCurrentVersion = new java.util.HashMap<>(invalidByB);
+        invalidAtCurrentVersion.put("version", opened.get("version").asInt() + 1);
+        MvcTestResult invalidOnly = put("/api/admin/tasks/" + id, invalidAtCurrentVersion);
+
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 409, "code": "EDIT_CONFLICT"}
+                """);
+        assertThat(invalidOnly).bodyJson().isLenientlyEqualTo("""
+                {"status": 422, "code": "VALIDATION_FAILED", "errors": [{"path": "prompt"}]}
+                """);
+        JsonNode kept =
+                body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
+        assertThat(kept.get("prompt").asString()).isEqualTo("A's prompt?");
+    }
+
+    @Test
+    @DisplayName("A delete with a non-numeric version gets 422 VALIDATION_FAILED (API section 7.4)")
+    void nonNumericDeleteVersionIsRefused() {
+        String id = idOf("mgr-plan-01");
+
+        MvcTestResult refused = mvc.delete()
+                .uri("/api/admin/tasks/{id}?version=abc", id)
+                .with(ADMIN)
+                .with(csrf())
+                .exchange();
+
+        assertThat(refused).hasStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 422, "code": "VALIDATION_FAILED", "errors": [{"path": "version"}]}
                 """);
         assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
                 .hasStatusOk();

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-52, US-53 |
 | Priority and points | Must, 4 |
@@ -54,7 +54,7 @@ Admins filter and search the task library, and a save based on an outdated copy 
 - [x] T4 Show "Someone else changed this since you opened it. Reload to see their changes." in the task editor on `EDIT_CONFLICT`, from `src/copy.ts`, in `frontend/src/admin/components`, test first: E2E-04 `content-admin` step 3 (A and B edit mgr-plan-01) named AC-US53-01, source: AC-US53-01, FR-073, E2E-04 (shared), document 12 section 9 (Task editor screen)
 - [x] T5 Check `version` on character updates (`PUT /api/admin/characters/{role}`); if S2-24 hasn't built that endpoint yet, build only its version-checked update here and leave the editor to US-55, in `app.deliveryhero.content`, test first: `CharacterApiIT` AC-US53-02, source: AC-US53-02, FR-073, US-55 (shared), document 11 section 7.5
 - [ ] T6 Check `version` on run plan update and delete (do this task after S2-09 merges, since the run plan endpoints are built there), in `app.deliveryhero.content`, test first: `RunPlanApiIT` AC-US53-02, source: AC-US53-02, FR-073, document 11 section 7.6
-- [ ] T7 Cover the document 11 v1.2 section 7.4 rules the merged code already follows but no test sends: an outdated delete of a task in use gets 409 `EDIT_CONFLICT`, not `TASK_IN_USE`; an outdated save with invalid content gets 409 `EDIT_CONFLICT`, not 422; `DELETE ?version=abc` gets 422 `VALIDATION_FAILED`, in `app.deliveryhero.content`, test first: three `TaskApiIT` tests named AC-US53-01, source: AC-US53-01, FR-073, document 11 section 7.4
+- [x] T7 Cover the document 11 v1.2 section 7.4 rules the merged code already follows but no test sends: an outdated delete of a task in use gets 409 `EDIT_CONFLICT`, not `TASK_IN_USE`; an outdated save with invalid content gets 409 `EDIT_CONFLICT`, not 422; `DELETE ?version=abc` gets 422 `VALIDATION_FAILED`, in `app.deliveryhero.content`, test first: three `TaskApiIT` tests named AC-US53-01, source: AC-US53-01, FR-073, document 11 section 7.4
 
 ## Owner actions
 
@@ -94,3 +94,7 @@ Document 13, section 10, plus: every criterion passes; no save without a matchin
 - 2026-09-26: PR #25 opened for T1 to T5. The subplan is In review, and T6 stays open until S2-09 merges.
 - 2026-09-26: Document 11 v1.2 (PC-08): section 7.4 now states the key order, the two 422 responses and the version-first check; T1 and T3 already follow it (DI-64). T7 adds the three tests that were missing.
 - 2026-09-26: PR #25 merged on 2026-09-26. The status is In progress, for T6 (after S2-09) and T7.
+- 2026-09-26: T7 done. Three `TaskApiIT` tests: an outdated delete of mgr-plan-01 (in use) gets 409 `EDIT_CONFLICT`; an outdated save with an empty prompt gets 409 `EDIT_CONFLICT`, while the same body at the current version gets 422 at `prompt`; `DELETE ?version=abc` gets 422 `VALIDATION_FAILED` at `version`. The code already followed section 7.4, so there's no production change. A probe that moved the version check after validation and the in-use check failed both conflict tests. It was reverted.
+- 2026-09-26: Review fixes (backend-reviewer, spec-guardian). The delete test is named AC-US53-01 AC-US51-05. The non-numeric test carries no criterion ID, because no criterion covers it, although the task named all three AC-US53-01. The AC-US53-01 save test now checks the `detail` message. DI-71 records the gaps in documents 05, 03 and 11. `./mvnw -B verify`: 86 integration tests pass. T6 (after S2-09) is still open.
+- 2026-09-26: Actuals. 21:43 to 22:02 (about 20 min). Main-session tokens aren't measured (an estimate of about 60k); backend-reviewer used about 27k and spec-guardian about 29k.
+- 2026-09-26: PR #28 opened for T7 (https://github.com/omkarjadhav1011/delivery_hero/pull/28). The status is In review; T6 stays open until S2-09 merges.
