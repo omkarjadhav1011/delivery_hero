@@ -244,6 +244,48 @@ class SecurityIT {
         assertThat(admin.isInvalid()).isTrue();
     }
 
+    @Test
+    @DisplayName("AC-US50-01 blocked: after 5 failed logins from one IP, the right password is refused with 429")
+    void fiveFailuresBlockTheAddress() {
+        failLogins("192.0.2.30", 5);
+
+        MvcTestResult refused = login("192.0.2.30", LOCAL_PASSWORD);
+        assertThat(refused).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 429, "code": "RATE_LIMITED", "detail": "Too many tries. Please wait a moment and try again."}
+                """);
+        assertThat(refused).headers().hasValue("Retry-After", "900");
+        assertThat(mvc.get().uri(AdminProbe.PATH).session(session(refused)).exchange())
+                .hasStatus(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    @DisplayName("AC-US50-02 unblocked: 15 minutes after the block started, the right password logs in")
+    void blockEndsAfterFifteenMinutes() {
+        failLogins("192.0.2.31", 5);
+        clock.advance(Duration.ofMinutes(14));
+        assertThat(login("192.0.2.31", LOCAL_PASSWORD)).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+
+        clock.advance(Duration.ofMinutes(1));
+
+        assertThat(login("192.0.2.31", LOCAL_PASSWORD)).hasStatus(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("AC-US50-03 other addresses: while one IP is blocked, another logs in")
+    void otherAddressesAreNotBlocked() {
+        failLogins("192.0.2.32", 5);
+        assertThat(login("192.0.2.32", LOCAL_PASSWORD)).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+
+        assertThat(login("192.0.2.33", LOCAL_PASSWORD)).hasStatus(HttpStatus.NO_CONTENT);
+    }
+
+    private void failLogins(String address, int failures) {
+        for (int failure = 0; failure < failures; failure++) {
+            assertThat(login(address, "not-the-password")).hasStatus(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     /** Logs in as the single-page app does: load the CSRF cookie, then post the form with it (API section 7.3). */
     private MvcTestResult login(String address, String password) {
         Cookie csrf = mvc.get()

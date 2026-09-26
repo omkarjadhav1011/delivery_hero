@@ -56,4 +56,43 @@ class RateLimiterTest {
         clock.advance(Duration.ofSeconds(1));
         assertThat(limiter.tryAcquire("answer:p1", RateLimiter.ANSWER)).isTrue();
     }
+
+    @Test
+    @DisplayName("AC-US50-01 blocked: the 5th failed login in 15 minutes blocks the key for 15 minutes")
+    void fifthFailureBlocks() {
+        for (int failure = 0; failure < 4; failure++) {
+            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+            clock.advance(Duration.ofMinutes(3));
+        }
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
+
+        limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isEqualTo(Duration.ofMinutes(15));
+    }
+
+    @Test
+    @DisplayName("AC-US50-02 unblocked: the block ends 15 minutes after it started")
+    void blockEnds() {
+        for (int failure = 0; failure < 5; failure++) {
+            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+        }
+        clock.advance(Duration.ofMinutes(14).plusSeconds(59));
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isEqualTo(Duration.ofSeconds(1));
+
+        clock.advance(Duration.ofSeconds(1));
+
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
+    }
+
+    @Test
+    @DisplayName("Failures more than 15 minutes apart never add up to a block")
+    void oldFailuresExpire() {
+        for (int failure = 0; failure < 5; failure++) {
+            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+            clock.advance(Duration.ofMinutes(16));
+        }
+
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
+    }
 }

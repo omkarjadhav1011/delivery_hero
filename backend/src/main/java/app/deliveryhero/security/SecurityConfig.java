@@ -74,7 +74,7 @@ public class SecurityConfig {
             RateLimiter rateLimiter,
             AdminSession adminSession,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver problems) {
-        LoginHandlers login = new LoginHandlers(adminSession, problems);
+        LoginHandlers login = new LoginHandlers(adminSession, rateLimiter, problems);
         http.authorizeHttpRequests(requests -> {
             // Health for Nginx's /health; the deploy lock, which Nginx never forwards (LLD section 5.9, DEC-137)
             requests.requestMatchers("/actuator/health", "/api/ops/**").permitAll();
