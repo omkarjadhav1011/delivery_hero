@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
-| Task |  |
+| State | active |
+| Session | 2026-09-26-1033 |
+| Subplan | S1-02 |
+| Branch | chore/s0-02-ci-proofs |
+| Start commit | 2075aca |
+| Last commit | 2075aca |
+| Step | test-first |
+| Task | T1 |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-26T10:33 |
+| Updated | 2026-09-26T10:43 |
+| Next action | SecurityIT route and header checks |
 
 ## Completed tasks
 
