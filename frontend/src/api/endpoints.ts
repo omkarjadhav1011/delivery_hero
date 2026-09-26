@@ -3,6 +3,8 @@ import type {
   GameStatusResponse,
   JoinRequest,
   JoinResponse,
+  TaskDetail,
+  TaskInput,
 } from "@/types/dto";
 import { ADMIN_LOGIN_PATH, http } from "./http";
 
@@ -38,4 +40,28 @@ export function adminLogin(password: string): Promise<void> {
 /** Ends the admin session (document 11, section 7.3); like every state-changing admin request it sends CSRF. */
 export function adminLogout(): Promise<void> {
   return http<void>("/api/admin/logout", { method: "POST" });
+}
+
+/** A task with its correct answers and the run plans that use it: admins only (document 11, section 7.4). */
+export function getTask(id: string): Promise<TaskDetail> {
+  return http<TaskDetail>(`/api/admin/tasks/${encodeURIComponent(id)}`);
+}
+
+export function createTask(input: TaskInput): Promise<TaskDetail> {
+  return http<TaskDetail>("/api/admin/tasks", { method: "POST", body: input });
+}
+
+/** Saves a change; `input.version` is the version last read. */
+export function updateTask(id: string, input: TaskInput): Promise<TaskDetail> {
+  return http<TaskDetail>(`/api/admin/tasks/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: input,
+  });
+}
+
+/** Deletes a task no run plan uses; otherwise the server refuses with TASK_IN_USE. */
+export function deleteTask(id: string, version: number): Promise<void> {
+  return http<void>(`/api/admin/tasks/${encodeURIComponent(id)}?version=${version}`, {
+    method: "DELETE",
+  });
 }
