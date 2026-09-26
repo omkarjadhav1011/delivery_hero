@@ -4,7 +4,7 @@ What the documents don't settle, for the owner to decide. Format: `planning/CONV
 
 | ID | Question | Blocks | Decider | Due | Status | Answer |
 |---|---|---|---|---|---|---|
-| Q-01 | Oracle Cloud can't be used without a card (OA-03 Blocked). Which production host do we use instead: Render and Neon (Charter A-04), another Linux VM with Docker (document 16, section 14), a machine you already have, or an Oracle account set up with someone else's card? Everything production-side depends on the answer (DI-04) | EN-02, OA-03 to OA-21, OPS-01 to OPS-22, LT-01, the trial run | Owner | Sat 26 Sep | Open |  |
+| Q-01 | Oracle Cloud can't be used without a card (OA-03 Blocked). Which production host do we use instead: Render and Neon (Charter A-04), another Linux VM with Docker (document 16, section 14), a machine you already have, or an Oracle account set up with someone else's card? Everything production-side depends on the answer (DI-04) (DEC-213: answer by Mon 12 Oct; production is up by Fri 16 Oct) | EN-02, OA-03 to OA-21, OPS-01 to OPS-22, LT-01, the trial run | Owner | Mon 12 Oct | Open |  |
 | Q-02 | In a 3-minute round the incident can run past the freeze (DI-06). Cap its latest start at the freeze minus its time limit, or allow the overlap and reword SRS section 3.2? | EN-05, US-33 | Owner | Tue 29 Sep | Open |  |
 | Q-03 | The end-of-S0 capacity check calls for a cut even if S0 goes to plan (DI-07). Measure velocity per working day as written, count weekend days, or compare S0 against its own 26 planned points? | CP-S0 | Owner | Tue 29 Sep | Open |  |
 | Q-04 | Should the deploy lock also cover Results, so a merge can't wipe players' review screens and hero cards (DI-09)? | US-68 | Owner | Tue 6 Oct | Open |  |

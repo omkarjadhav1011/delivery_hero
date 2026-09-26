@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-06, US-08, US-20 |
 | Priority and points | Should, 6 |
 | Depends on | S1-08 |
@@ -63,7 +63,6 @@ Smooth the edges on the day: browsers other than Chrome see a notice with a copy
 - [ ] T6 Player app goes from the join form straight to the task screen on a late join ("Joined late"), in `frontend/src/player/store.ts` and `frontend/src/player/screens/`, test first: `store.test.ts` citing AC-US08-01, source: AC-US08-01, document 08 section 6.3
 - [ ] T7 Ask for the screen wake lock in Practice, Countdown, Live and Frozen, re-acquire it when the page becomes visible again, release it afterwards, and ignore a missing API or a refusal without any error shown, in `frontend/src/player/` (a wake-lock hook), test first: Vitest hook test citing AC-US20-02 (no API, request rejected), source: AC-US20-02, FR-028, NFR-37
 - [ ] T8 Make sure the `resilience` spec's step 5 (no wake-lock API, clipboard denied, plays normally) runs, adding it if S1-16 left it out, in the frontend Playwright specs, test first: `resilience` AC-US20-02, source: AC-US20-02, E2E-06 (shared), DI-17
-- [ ] T9 Owner: MAN-03 on production: a phone with 30-second auto-lock left untouched for 2 minutes during a round keeps its screen on; record the result in `test-results/manual-results.csv` and `planning/check-results.md`, test first: none, source: MAN-03, AC-US20-01, document 15 section 12 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -95,4 +94,4 @@ Document 13, section 10, plus: MAN-03 recorded (or still blocked on Q-01 and lis
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T9 (MAN-03) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).

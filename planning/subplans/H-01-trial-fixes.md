@@ -7,8 +7,8 @@
 | Stories | none (infrastructure) |
 | Priority and points | Must, 0 |
 | Depends on | T-01 |
-| Unblocks | H-06, FZ-01 |
-| Target dates | Thu 15 – Mon 19 Oct |
+| Unblocks | FZ-01 |
+| Target dates | Mon 19 Oct |
 | Branch | fix/<issue>-<slug> (one per defect) |
 | Parallel-safe with | none |
 
@@ -79,4 +79,4 @@ Document 13, section 10, plus: every approved defect subplan is Done; no open Se
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04, PC-06): the trial is on Mon 19 Oct, so its fixes land that day; later fixes go through FZ-01's event-stopping rule. A no-go moves the event (H-06), so there is no re-check.

@@ -29,30 +29,30 @@ from _common import (CONTENT_FREEZE, DEPLOYMENT_FREEZE, EVENT, TRIAL_RUN, config
 LOAD_TEST = date(2026, 10, 13)
 S0_END = date(2026, 9, 29)
 S1_END = date(2026, 10, 6)
-RECHECK = date(2026, 10, 19)
 
 # Each phase: name, the /dh mode that drives it, rules (text, source) and the exit gate.
 PHASES: Dict[str, Dict] = {
     "P0": {"name": "Owner setup", "mode": "owner", "rules": [
+        ("Deferred by DEC-213: production waits for the host (Q-01, by Mon 12 Oct); owner setup finishes by Thu 15 Oct", "Charter, Appendix A: DEC-213"),
         ("Owner-checklist mode: Oracle account and Pay As You Go with the budget, instance and firewall, DuckDNS, server preparation, backups, .env, the admin password hash, image pinning, GitHub secrets", "document 16, sections 5 to 9"),
         ("One step at a time; verify from here what can be verified (DNS, /health, the certificate) and record the rest as the owner reports it", "planning/CONVENTIONS.md, section 19")],
-        "exit": "Every owner action the Sprint 0 deploy needs is Done"},
+        "exit": "Every owner action the first production deploy needs is Done by Thu 15 Oct (DEC-213)"},
     "S0": {"name": "Walking skeleton", "mode": "build", "rules": [
-        ("Goal: a phone joins a game on production and sees the lobby update live", "document 04, section 8"),
-        ("/scaffold-en01 first, then EN-02, EN-03, EN-04, EN-08, US-01, US-02 and US-04", "document 04, section 8"),
-        ("First deploy, the certificate, loading the seed, then OPS-01 to OPS-05", "document 16, section 9; document 14, section 13")],
-        "exit": "The walking skeleton demonstrated on production; the end-of-S0 capacity check (CP-S0) evaluated with numbers"},
+        ("Goal: a phone joins a game on the local stack and sees the lobby update live (DEC-213)", "document 04, section 8; DEC-213"),
+        ("/scaffold-en01 first, then EN-03 (the local merge gate), EN-04, EN-08, US-01, US-02 and US-04; EN-02 waits for the deploy point H-07", "document 04, section 8; DEC-213"),
+        ("Local stack only, with the Deploy workflow disabled (OA-28); the first deploy, the certificate, the seed and OPS-01 to OPS-05 at the deploy point H-07 by Fri 16 Oct", "DEC-213; document 16, section 9")],
+        "exit": "The walking skeleton demonstrated on the local stack (DEC-213); the end-of-S0 capacity check (CP-S0) evaluated with numbers"},
     "S1": {"name": "Build: core game loop", "mode": "build", "rules": [
         ("Goal: a full round end to end with multiple-choice and yes/no tasks, scoring and host controls, on the seed content", "document 04, section 8"),
         ("Could stories wait for hardening, and only if the trial run leaves time", "document 04, section 8")],
         "exit": "Every S1 Must story Done; the end-of-S1 check (CP-S1) evaluated"},
     "S2": {"name": "Build: projector, reveal, admin and operations", "mode": "build", "rules": [
         ("Should stories in the build order; cut from the bottom if time runs short", "document 04, section 8"),
-        ("Task review complete by Wed 7 Oct; Must feature complete and a full regression by Mon 12 Oct; the restore rehearsed (OPS-11) by Mon 12 Oct", "Charter section 12; document 14, section 13"),
+        ("Task review complete by Wed 7 Oct; Must feature complete and a full regression by Mon 12 Oct; the restore (OPS-11) rehearsed on production in H-08 after the first deploy", "Charter section 12; document 14, section 13; DEC-213"),
         ("Accessibility scans and the manual checklist (A11Y); MAN device checks; daily defect triage", "document 14, sections 7.5, 7.11 and 12")],
-        "exit": "The sprint's Must points Done, and the load test's entry criteria met (Must stories complete, deployed, no open Sev-1)"},
+        "exit": "The sprint's Must points Done, and the load test's entry criteria met (Must stories complete on the local stack, no open Sev-1; DEC-213)"},
     "LT": {"name": "Load test day", "mode": "test", "rules": [
-        ("LT-01 on production from the temporary second Arm instance (owner-assisted), or the owner's laptop", "document 15, section 10; DEC-187"),
+        ("LT-01 on the local stack by Tue 13 Oct; one 100-player repeat run on production in H-08 (Fri 16 to Sun 18 Oct)", "document 15, section 10; DEC-187; DEC-213"),
         ("Two passing 100-player runs, one 150-player headroom run, three back-to-back games; also OPS-14 (first load on 4G) and OPS-15 (ZAP baseline)", "document 14, section 7.6; document 15, section 11")],
         "exit": "Two 100-player runs meet every threshold, and memory returns to baseline after three back-to-back games (document 14, section 10)"},
     "T": {"name": "Trial run", "mode": "trial", "rules": [
@@ -61,11 +61,12 @@ PHASES: Dict[str, Dict] = {
         ("Draft the go/no-go from the evidence; the owner decides", "document 14, section 11")],
         "exit": "A go/no-go draft with every criterion's evidence (CP-T recorded)"},
     "H": {"name": "Hardening", "mode": "build", "rules": [
-        ("Defect fixes only (and Could stories only if the trial left time)", "document 04, section 8; document 14, section 13"),
+        ("Before the trial: the deploy point H-07 (Thu 15 to Fri 16 Oct) and the production checks H-08 (Fri 16 to Sun 18 Oct)", "DEC-213"),
+        ("Otherwise defect fixes only (and Could stories only if the trial left time)", "document 04, section 8; document 14, section 13"),
         ("Content freeze from Fri 16 Oct: task content edits only fix errors", "Charter section 12; .claude/rules/seed.md"),
         ("MAN and A11Y checks; exploratory sessions; document 17 (release notes) with the owner's approval, because it changes docs/", "document 14, section 13; Charter section 11.2"),
-        ("After a no-go, a shorter trial on Mon 19 Oct re-checks the same criteria; if that fails, the event date moves (A-01)", "document 14, section 11")],
-        "exit": "Every go/no-go criterion met, or the owner's explicit decision (CP-H if a re-check ran)"},
+        ("A no-go at the trial on Mon 19 Oct moves the event date (A-01); there's no re-check", "DEC-213; owner answer 2026-09-26")],
+        "exit": "H-07 and H-08 Done before the trial; every go/no-go criterion met, or the owner's explicit decision"},
     "FZ": {"name": "Deployment freeze", "mode": "release", "rules": [
         ("Only fixes for problems that would stop the event, through a pull request with green CI", "document 13, section 9.6 (GS-04)"),
         ("Final regression and a production smoke test; v1.0.0 tagged (the tag push only with the owner's approval)", "document 14, section 13; DEC-184"),
@@ -87,7 +88,6 @@ CHECKPOINTS = [
     {"id": "CP-S0", "date": S0_END, "name": "End of S0 capacity check", "source": "document 04, section 8"},
     {"id": "CP-S1", "date": S1_END, "name": "End of S1 check", "source": "document 04, section 8"},
     {"id": "CP-T", "date": TRIAL_RUN, "name": "Trial run go/no-go", "source": "document 14, section 11"},
-    {"id": "CP-H", "date": RECHECK, "name": "Go/no-go re-check after a no-go", "source": "document 14, section 11"},
 ]
 
 

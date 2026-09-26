@@ -23,18 +23,18 @@ MONTHS = {m: i for i, m in enumerate(
 # milestones (section 12). planning/00-master-plan.md can override them with a "Phases" table.
 PHASE_ORDER = ["P0", "S0", "S1", "S2", "T", "H", "FZ", "E", "AE"]
 DEFAULT_PHASES: Dict[str, Tuple[date, date]] = {
-    "P0": (date(2026, 9, 24), date(2026, 9, 29)),   # owner setup, due before the Sprint 0 deploy
+    "P0": (date(2026, 9, 24), date(2026, 10, 15)),  # owner setup, due before the first deploy (DEC-213)
     "S0": (date(2026, 9, 24), date(2026, 9, 29)),   # document 04, section 8
     "S1": (date(2026, 9, 30), date(2026, 10, 6)),
-    "S2": (date(2026, 10, 7), date(2026, 10, 13)),  # the load test on Tue 13 Oct
-    "T": (date(2026, 10, 14), date(2026, 10, 14)),  # trial run, E-7
-    "H": (date(2026, 10, 15), date(2026, 10, 19)),  # hardening; content freeze from Fri 16 Oct
+    "S2": (date(2026, 10, 7), date(2026, 10, 14)),  # the local load test by Tue 13 Oct (DEC-213)
+    "T": (date(2026, 10, 19), date(2026, 10, 19)),  # trial run, E-2 (DEC-213)
+    "H": (date(2026, 10, 15), date(2026, 10, 19)),  # deploy point, production checks, hardening; content freeze from Fri 16 Oct
     "FZ": (date(2026, 10, 20), date(2026, 10, 20)),  # deployment freeze, E-1
     "E": (date(2026, 10, 21), date(2026, 10, 21)),  # event day
     "AE": (date(2026, 10, 22), date(2026, 11, 30)),  # after the event
 }
 DATE_BOUND = {"T", "H", "FZ", "E", "AE"}  # subplans in these phases can't start before the phase does
-TRIAL_RUN = date(2026, 10, 14)
+TRIAL_RUN = date(2026, 10, 19)  # E-2 (DEC-213)
 CONTENT_FREEZE = date(2026, 10, 16)
 DEPLOYMENT_FREEZE = date(2026, 10, 20)
 EVENT = date(2026, 10, 21)

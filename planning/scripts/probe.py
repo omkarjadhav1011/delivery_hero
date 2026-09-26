@@ -137,7 +137,7 @@ def check_cert(domain: str) -> Dict:
 def classify_deploy(run_info: Optional[Dict], log: str = "") -> Dict:
     """Interprets a Deploy workflow run (document 16, section 10.1)."""
     if not run_info:
-        return result(None, "no Deploy run on main yet (a merge touching only docs, planning or .claude doesn't deploy)", code=None)
+        return result(None, "no Deploy run on main yet (a merge touching only docs, planning or .claude doesn't deploy, and the Deploy workflow stays disabled until the first deploy, DEC-213)", code=None)
     title = f"{run_info.get('displayTitle', '')} {run_info.get('url', '')}".strip()
     if run_info.get("status") != "completed":
         return result(None, f"the Deploy run is still {run_info.get('status')}: {title}", code=None)

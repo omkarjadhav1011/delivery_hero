@@ -47,6 +47,7 @@ The host creates a game from a run plan, getting a code, join URL, QR code and p
 | AC-US59-03 | TC-US59-03 | Integration | `GameLifecycleIT` |
 | AC-US54-01 | TC-US54-01 | Integration | `GameLifecycleIT` |
 | AC-US54-02 | TC-US54-02 | Integration | `GameLifecycleIT` |
+| AC-US19-02 | TC-US19-02 | Integration | `GameLifecycleIT` (T9, from S1-01 by PC-05) |
 
 ## Tasks
 
@@ -56,8 +57,9 @@ The host creates a game from a run plan, getting a code, join URL, QR code and p
 - [ ] T4 Admin game endpoints: `GET /api/admin/games/current` (200 or 204) and `POST /api/admin/games` returning the game view (code, join URL, projector URL, round length, `allowedActions`), errors as Problem Details, in `app.deliveryhero.api.admin` (`GameController`), test first: `GameLifecycleIT` AC-US59-01 over REST, source: AC-US59-01, AC-US59-03, FR-079, API 7.7
 - [ ] T5 New game screen: run plan picker, "Create game", the plan errors listed with Create disabled, then the code, join URL, QR code (`QrCode`) and projector URL; a refused creation links to the open game, in `frontend/app/admin/games/page.tsx` and `frontend/src/admin`, test first: `NewGame.test.tsx`, source: AC-US59-01, AC-US59-02, AC-US59-03, FR-079, document 12 New game screen
 - [ ] T6 Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared)
-- [ ] T7 Walking-skeleton demonstration on production: after the merge deploys, log in, create a game from the Default 5-minute plan, open the projector URL, join from a real phone and see the lobby count update live; record it in the progress log, test first: none, source: US-59, FR-079, E2E-01 (shared) [Blocked: waiting for Q-01]
+- [ ] T7 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59, FR-079, E2E-01 (shared)
 - [ ] T8 Remove the dev-only STOMP test credentials now that joining and game creation register real ones: delete `DevCredentials`, the `dh.dev.*` keys and their TODO(US-01) in `application-dev.yml`, and the two "STOMP test" rows in document 18, section 6 (that document edit approved on its own when the task runs), in `app.deliveryhero.realtime`, test first: `StompConnectionIT` still passes with credentials from a real join and a real game, source: EN-04 (shared) as built (S0-04 T8), document 18 v1.1 section 6, PC-03
+- [ ] T9 Game keeps its length: a game created from a 5-minute plan still runs 5 minutes after the plan is changed to 7, in `GameLifecycleIT` (from S1-01 T7, PC-05), test first: `GameLifecycleIT` AC-US19-02, source: AC-US19-02, FR-018 (shared), FR-072 (shared), document 10 section 8.5
 
 ## Owner actions
 
@@ -91,3 +93,5 @@ Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLi
 ## Progress log
 
 - 2026-09-26: T8 added by PC-03 (remove the dev-only STOMP test credentials left from S0-04).
+- 2026-09-26: DEC-213 (PC-04): T7 now runs on the local stack and isn't blocked; H-07 repeats the demonstration on production with a real phone.
+- 2026-09-26: PC-05: T9 (AC-US19-02, from S1-01 T7) added, so S1-01 no longer waits on this subplan.

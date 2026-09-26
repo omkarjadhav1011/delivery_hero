@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-57 |
 | Priority and points | Must, 5 |
 | Depends on | S1-03, S1-01 |
@@ -90,4 +90,4 @@ Document 13, section 10, plus: every criterion passes; every end-to-end spec exc
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-55, US-07, US-66, EN-09 |
 | Priority and points | Should, 6 |
 | Depends on | S1-03, S2-04, Q-06 |
@@ -66,8 +66,6 @@ Admins can edit each character's name and lines within the fixed shape, the join
 - [ ] T7 E2E-08 `accessibility` spec, step 1: axe-core on every admin screen and on every phone task type through practice; any WCAG 2.2 A or AA violation fails the spec, in the frontend Playwright specs, test first: `accessibility` AC-EN09-01, source: AC-EN09-01, E2E-08, DEC-176 (shared), NFR-25 (shared), NFR-31 (shared), document 15 section 9
 - [ ] T8 E2E-08 steps 2 to 5: no sideways scrolling on any phone screen at 320 px and at 200% text, multiple-choice buttons at least 48 px tall, reduced motion turns highlight and shake animations into fades, and the live control screen works by keyboard alone with a visible focus ring; leave the wide-code step to S2-11, test first: `accessibility` steps named AC-EN08-03 (shared), AC-US22-01 (shared) and AC-EN09-01, source: E2E-08, AC-EN09-01, AC-EN08-03 (shared), AC-US22-01 (shared), AC-US26-02 (shared), NFR-27 (shared), NFR-30 (shared), NFR-32, NFR-34, document 15 section 9
 - [ ] T9 Owner: on the build for the trial, run the laptop checks on the local stack in Chrome device emulation: A11Y-02 (320 px), A11Y-04 (keyboard only, including the reveal), A11Y-05 (color and icons), A11Y-07 (flashing), A11Y-08 (target sizes) and A11Y-09 (error messages), and record each in `planning/check-results.md`, test first: none, source: A11Y-02, A11Y-04, A11Y-05, A11Y-07, A11Y-08, A11Y-09, AC-EN09-02, document 15 section 13, document 14 Appendix B
-- [ ] T10 Owner: on production, run the phone checks: A11Y-01 (200% text on a phone), A11Y-03 (reduced motion through practice and the reveal) and A11Y-06 (TalkBack: join and answer two tasks), and record each in `planning/check-results.md`, test first: none, source: A11Y-01, A11Y-03, A11Y-06, AC-EN09-02, document 15 section 13 [Blocked: waiting for Q-01]
-- [ ] T11 Record AC-EN09-02 in `test-results/manual-results.csv` (the A11Y IDs in the notes); every failed item gets a GitHub issue with its severity and a new row when re-run, test first: `node planning/scripts/run.mjs validate`, source: AC-EN09-02, DEC-190, document 15 section 17 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -99,4 +97,4 @@ Document 13, section 10, plus: characters edit within the fixed shape and new ga
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T10 and T11 (A11Y on phones) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).

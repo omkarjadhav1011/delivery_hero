@@ -340,6 +340,10 @@ class TestStatusAndCheckpoints(RepoTest):
         led = trace.build_ledger(self.root)["ledger"]
         self.assertEqual(led["US-01"]["status"], "Tested")  # Done, but its deploy isn't verified yet
         self.repo.write("planning/check-results.md", "# Results\n\n| ID | Date | Result | By | Environment | Notes |\n|---|---|---|---|---|---|\n"
+                        "| S0-01 | 2026-09-29 | Pass | Claude | local stack | verified on the local stack |\n")
+        led = trace.build_ledger(self.root)["ledger"]
+        self.assertEqual(led["US-01"]["status"], "Tested")  # a local-stack row isn't a production verification (DEC-213)
+        self.repo.write("planning/check-results.md", "# Results\n\n| ID | Date | Result | By | Environment | Notes |\n|---|---|---|---|---|---|\n"
                         "| S0-01 | 2026-09-29 | Pass | probe.py | production | deployed (exit 0) |\n")
         led = trace.build_ledger(self.root)["ledger"]
         self.assertEqual(led["US-01"]["status"], "Verified in production")
@@ -350,7 +354,7 @@ class TestStatusAndCheckpoints(RepoTest):
         g = status.gather(self.root, date(2026, 9, 28))
         self.assertTrue(any("OA-01 is overdue" in i for i in g["inconsistencies"]))
         self.assertTrue(any(m[2].startswith("in") for m in g["milestones"]))
-        late = status.gather(self.root, date(2026, 10, 15))
+        late = status.gather(self.root, date(2026, 10, 20))  # after the trial run on Mon 19 Oct (DEC-213)
         self.assertTrue(any("passed" in m[2] for m in late["milestones"]))
         self.assertIsNotNone(late["go"])
 

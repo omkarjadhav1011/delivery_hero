@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-42 |
 | Priority and points | Must, 2 |
 | Depends on | S2-01 |
@@ -76,4 +76,4 @@ Document 13, section 10, plus: AC-US42-01 passes in an on-demand `resilience` ru
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.

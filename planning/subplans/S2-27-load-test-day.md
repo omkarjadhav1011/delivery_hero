@@ -3,18 +3,18 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | EN-07 |
 | Priority and points | Must, 3 |
-| Depends on | S2-01, S2-10, OA-25, Q-01 |
-| Unblocks | T-01 |
+| Depends on | S2-01, S2-10, OA-25 |
+| Unblocks | T-01, H-08 |
 | Target dates | Tue 13 Oct |
 | Branch | feat/en-07-load-test |
 | Parallel-safe with | S2-19, S2-20, S2-21, S2-22, S2-23, S2-24, S2-25 |
 
 ## Goal
 
-A repeatable k6 script plays a full 5-minute round on production with 100 virtual players, one projector and two admin screens, and LT-01 (runs 1 to 4), OPS-14 (first load on 4G) and OPS-15 (ZAP baseline) pass and are recorded on Tue 13 Oct, the day before the trial.
+A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 Oct (DEC-213; one 100-player repeat on production follows in H-08) with 100 virtual players, one projector and two admin screens, and LT-01 (runs 1 to 4), OPS-14 (first load on 4G) and OPS-15 (ZAP baseline) pass and are recorded on Tue 13 Oct, the day before the trial.
 
 ## Sources
 
@@ -61,7 +61,6 @@ A repeatable k6 script plays a full 5-minute round on production with 100 virtua
 - [ ] T7 Owner: set up the load generator (OA-25): the temporary Always Free Arm instance in the server's region with k6 and a clone of the repository, or the laptop fallback (DEC-187 (shared)); on the server, start `vmstat 5` and the `docker stats --no-stream` loop every 5 seconds, both writing to files, test first: none, source: LT-01, DEC-187 (shared), document 15 section 10 steps 1 to 3 [Blocked: waiting for Q-01]
 - [ ] T8 Owner: runs 1 and 2 with `PLAYERS=100`, outside working hours; after each, record the k6 summary, peak CPU and memory (below 70% and 4 GB), the largest message of each type and the number of backend errors, and review the backend logs, test first: none, source: LT-01, AC-EN07-01, R-03, NFR-04, NFR-11 (shared), document 15 section 10 steps 4 to 6 [Blocked: waiting for Q-01]
 - [ ] T9 Owner: run 3 with `PLAYERS=150` (headroom only) and run 4, three games back to back, checking after each close that backend memory is back within 10% of its level before the game; then delete the load-generator instance, test first: none, source: LT-01, R-03, NFR-04, document 15 section 10 steps 7 to 9 [Blocked: waiting for Q-01]
-- [ ] T10 Owner: OPS-14 against production with the T5 check, and OPS-15, the OWASP ZAP baseline (passive) scan of production: no high-risk alerts, the others reviewed and noted, test first: none, source: OPS-14, OPS-15, NFR-05 (shared), DEC-185, TP-01, document 15 section 11 [Blocked: waiting for Q-01]
 - [ ] T11 Record LT-01 (each run), OPS-14 and OPS-15 in `planning/check-results.md`, and AC-EN07-01, AC-EN07-02 and AC-US31-03 (shared) in `test-results/manual-results.csv` (check IDs in the notes); a failed threshold gets a GitHub issue with its severity, and LT-01 is re-run after the fix; keep the figures for T-01's test summary report, test first: `node planning/scripts/run.mjs validate`, source: LT-01, OPS-14, OPS-15, DS-09, AC-EN07-02, DEC-190 (shared), document 15 section 17 [Blocked: waiting for Q-01]
 
 ## Owner actions
@@ -98,4 +97,5 @@ Document 13, section 10, plus: `load-test/round.js` merged and documented by its
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T10 (OPS-14 and OPS-15 against production) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).
+- 2026-09-26: DEC-213, owner answer (PC-06): LT-01 runs on the local stack by Tue 13 Oct; one 100-player repeat run on production is H-08's task. Q-01 no longer blocks this subplan.

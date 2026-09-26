@@ -27,7 +27,7 @@ DOCS = {
 
 | Milestone | Date | Relative to E |
 |---|---|---|
-| Trial run | Wed 14 Oct | E-7 |
+| Trial run | Mon 19 Oct | E-2 |
 | Live event | Wed 21 Oct | E |
 
 ## 14. Risks

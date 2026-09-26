@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-68 |
 | Priority and points | Must, 2 |
 | Depends on | S1-04, S0-02, Q-04 |
@@ -52,7 +52,6 @@ The backend reports a deploy lock while a game is in progress, so the deploy scr
 - [ ] T2 Settle the RESULTS case of AC-US68-01: unlocked as written, or locked if the owner decides the lock covers Results (then a new DEC with `/decision` and the document 03, 05 and 08 changes, owner approval needed: changes docs/), in `app.deliveryhero.lifecycle` (Owner approval needed: changes docs/), test first: `DeployLockIT` AC-US68-01 RESULTS case, source: AC-US68-01, DEC-103, SD-10 [Blocked: waiting for Q-04]
 - [ ] T3 Build `DeployLockController` for `GET /api/ops/deploy-lock` returning `{"locked": true, "state": "LIVE"}`, in `app.deliveryhero.api.ops`, test first: `DeployLockIT` case named AC-US68-01 checking the exact body that `deploy.sh`'s `"locked": true` match expects, source: AC-US68-01, FR-090, document 11 section 7.10, document 16 Appendix B.3
 - [ ] T4 Confirm the endpoint is reachable only inside the machine: `deploy.sh` and `restore.sh` call it with `compose exec -T backend curl http://localhost:8080/api/ops/deploy-lock`, and Nginx's `location /api/ops/` refuses it from outside; change nothing in the scripts, in `deploy/nginx/snippets/routes.conf` (read only) and the local stack, test first: `curl -si http://localhost:8080/api/ops/deploy-lock` on the local stack is refused while the backend answers inside its container, source: AC-US68-02, FR-090, document 16 section 10.1, document 16 Appendix B.5
-- [ ] T5 Owner: run OPS-08 on production: open a test game's lobby, merge a harmless code change (not documentation-only, which skips the deploy), check the Deploy run stops with exit code 75 and "a game is in progress" without restarting anything, close the game, use Re-run jobs and check it deploys; record the result in `check-results.md` and `test-results/manual-results.csv`, test first: none, source: OPS-08, AC-US68-02, AC-US68-03, NFR-07 (shared), document 16 section 10.2 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -86,4 +85,4 @@ Document 13, section 10, plus: AC-US68-01 passes for every state, including the 
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T5 (OPS-08) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).

@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-71 |
 | Priority and points | Must, 3 |
-| Depends on | S0-06, OA-12, OA-13 |
-| Unblocks | S2-26 |
+| Depends on | S0-06 |
+| Unblocks | S2-26, H-08 |
 | Target dates | Fri 9 Oct |
 | Branch | feat/us-71-backups |
 | Parallel-safe with | S2-01, S2-02, S2-03, S2-04, S2-05, S2-07, S2-08, S2-09 |
@@ -47,11 +47,6 @@ Nightly database backups land in off-machine storage, old ones are cleaned up af
 ## Tasks
 
 - [ ] T1 Check the backup files against document 16 (nightly at 21:30 UTC, before every deploy and on demand; dump read back before upload; 14-day retention; rehearsal compares row counts) and fix only real gaps, in `deploy/scripts/backup.sh`, `deploy/scripts/restore.sh`, `deploy/host/cron-delivery-hero` and `deploy/.env.example`, test first: the CI ShellCheck step passes and `ops-reviewer` finds no gap against sections 11.5 and 11.6, source: AC-US71-01, AC-US71-03, FR-093, DG-03 (shared), document 16 sections 11.5 and 11.6
-- [ ] T2 Owner: confirm the scheduled jobs are installed (OA-12) and `rclone lsd oci:` lists the `delivery-hero-backups` bucket (OA-13), test first: none, source: AC-US71-01, DEC-200 (shared), document 16 sections 7.5 and 7.6 [Blocked: waiting for Q-01]
-- [ ] T3 Owner: run OPS-10 day one: after the nightly job, list the bucket and note the newest backup, test first: none, source: OPS-10, AC-US71-01, document 15 section 11 [Blocked: waiting for Q-01]
-- [ ] T4 Owner: run OPS-10 day two, the next day: a new backup exists beside yesterday's; record OPS-10 in `check-results.md` and AC-US71-01 in `test-results/manual-results.csv`, test first: none, source: OPS-10, AC-US71-01, document 15 section 17 [Blocked: waiting for Q-01]
-- [ ] T5 Owner: run OPS-11 by Mon 12 Oct: `scripts/backup.sh rehearsal`, then `scripts/restore.sh latest` into the scratch database; tasks, characters, run plans, games and top-10 counts match the live database; record OPS-11 and AC-US71-02, test first: none, source: OPS-11, AC-US71-02, NFR-10 (shared), document 16 section 11.6 [Blocked: waiting for Q-01]
-- [ ] T6 Owner: run OPS-12: place a dummy backup older than the 14-day retention in the bucket, run the backup job's cleanup, check the dummy is gone and newer backups remain; record OPS-12 and AC-US71-03, test first: none, source: OPS-12, AC-US71-03, document 16 section 11.5 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -86,4 +81,4 @@ Document 13, section 10, plus: OPS-10, OPS-11 and OPS-12 passed on production an
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T2 to T6 (OPS-10, OPS-11, OPS-12) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).
