@@ -57,3 +57,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch chore/s0-02-ci-proofs, commits 0a1aec2 to 5bad429.
 - Completed: T4 (b687b9d); T6 (5bad429).
 - Summary: S0-02: T1, T2, T4, T6 proven on GitHub (PR #16, scratch PR #17); Java 21 image restored; DI-48
+
+## 2026-09-26-1033 S1-02
+
+- Outcome: paused. Started 2026-09-26T10:33, ended 2026-09-26T11:15.
+- Branch chore/s0-02-ci-proofs, commits 2075aca to 0dc41d9.
+- Completed: T1 (a0631f4); T2 (6e6ab66); T3 (cb15962); T4 (ec1e586); T7 (7c8d706); T8 (c410fd6).
+- Summary: S1-02 T1-T8 done, reviews applied, T9 blocked

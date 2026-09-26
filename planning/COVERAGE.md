@@ -115,10 +115,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-EN05-01 | AC-EN | Build | S1-05 T3 | Planned | TC-EN05-01: Unit, `GameSessionTest` |
 | AC-EN05-02 | AC-EN | Build | S1-05 T6 | Planned | TC-EN05-02: Unit, `GameSessionTest` |
 | AC-EN05-03 | AC-EN | Build | S1-05 T4, S1-05 T5 | Planned | TC-EN05-03: Unit, `RoundTimelineTest` |
-| AC-EN06-01 | AC-EN | Build | S1-02 T1, S1-02 T5, S1-02 T6, S1-02 T8 | Planned | TC-EN06-01: End-to-end, `security-privacy` |
-| AC-EN06-02 | AC-EN | Build | S1-02 T2 | Planned | TC-EN06-02: Integration, `SecurityIT` |
-| AC-EN06-03 | AC-EN | Build | S1-02 T3, S1-02 T4 | Planned | TC-EN06-03: Integration, `SecurityIT` |
-| AC-EN06-04 | AC-EN | Build | S1-02 T7, S1-02 T9 | Planned | TC-EN06-04: End-to-end, `security-privacy` |
+| AC-EN06-01 | AC-EN | Build | S1-02 T1, S1-02 T5, S1-02 T6, S1-02 T8 | Tested | TC-EN06-01: End-to-end, `security-privacy` |
+| AC-EN06-02 | AC-EN | Build | S1-02 T2 | Tested | TC-EN06-02: Integration, `SecurityIT` |
+| AC-EN06-03 | AC-EN | Build | S1-02 T3, S1-02 T4 | Tested | TC-EN06-03: Integration, `SecurityIT` |
+| AC-EN06-04 | AC-EN | Build | S1-02 T7, S1-02 T9 | Tested | TC-EN06-04: End-to-end, `security-privacy` |
 | AC-EN07-01 | AC-EN | Build | S2-27 T2, S2-27 T3, S2-27 T4, S2-27 T8 | Planned | TC-EN07-01: Load, `load-test/round.js` |
 | AC-EN07-02 | AC-EN | Build | S2-27 T1, S2-27 T11, S2-27 T4 | Planned | TC-EN07-02: Load, `load-test/round.js` |
 | AC-EN08-01 | AC-EN | Build | S0-03 T3, S0-03 T4, S0-03 T6, S0-03 T9 | Tested | TC-EN08-01: Manual, MAN-02 |
@@ -668,7 +668,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | Tested |  |
 | DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | Tested |  |
 | DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Tested |  |
-| DS-05 | DS | Build | S1-02 T7, S1-02 T9 | Planned |  |
+| DS-05 | DS | Build | S1-02 T7, S1-02 T9 | In progress |  |
 | DS-06 | DS | Build | S1-08 T5, S1-13 T6, S1-16 T8 | Planned |  |
 | DS-07 | DS | Build | S2-01 T8, S2-10 T8, S2-10 T9, S2-26 T6 | Planned |  |
 | DS-08 | DS | Build | S1-01 T2 | Implemented |  |
@@ -687,7 +687,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | EN-03 | EN | Build | S0-06 | Planned |  |
 | EN-04 | EN | Build | S1-04 T8 | Tested |  |
 | EN-05 | EN | Build | S1-05 | Planned |  |
-| EN-06 | EN | Build | S0-06 T7 | Planned |  |
+| EN-06 | EN | Build | S0-06 T7 | Tested |  |
 | EN-07 | EN | Build | S2-27 | Planned |  |
 | EN-08 | EN | Build | S0-03 | Tested |  |
 | EN-09 | EN | Build | S2-24 | Planned |  |
@@ -906,11 +906,11 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | NFR-13 | NFR | Covered by | OPS-01, OPS-06 | Scheduled |  |
 | NFR-14 | NFR | Covered by | MAN-08 | Scheduled |  |
 | NFR-15 | NFR | Covered by | TC-US49-02, TC-US49-03, TC-US49-04 | Planned |  |
-| NFR-16 | NFR | Covered by | TC-EN06-02 | Planned |  |
+| NFR-16 | NFR | Covered by | TC-EN06-02 | Tested |  |
 | NFR-17 | NFR | Covered by | TC-EN06-03, TC-US50-01, TC-US50-02, TC-US50-03 | Planned |  |
 | NFR-18 | NFR | Covered by | TC-EN04-02, TC-US09-03, TC-US37-03, TC-US37-04 | Planned |  |
-| NFR-19 | NFR | Covered by | TC-EN06-04, E2E-07 | Planned |  |
-| NFR-20 | NFR | Covered by | TC-EN06-01, OPS-04 | Planned |  |
+| NFR-19 | NFR | Covered by | TC-EN06-04, E2E-07 | Tested |  |
+| NFR-20 | NFR | Covered by | TC-EN06-01, OPS-04 | Tested |  |
 | NFR-21 | NFR | Covered by | OPS-16 | Scheduled |  |
 | NFR-22 | NFR | Covered by | OPS-13 | Scheduled |  |
 | NFR-23 | NFR | Covered by | TC-US62-02, TC-US65-01, OPS-13 | Planned |  |
@@ -1091,10 +1091,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-EN05-01 | TC-EN | Covered by | AC-EN05-01 | Planned |  |
 | TC-EN05-02 | TC-EN | Covered by | AC-EN05-02 | Planned |  |
 | TC-EN05-03 | TC-EN | Covered by | AC-EN05-03 | Planned |  |
-| TC-EN06-01 | TC-EN | Covered by | AC-EN06-01 | Planned |  |
-| TC-EN06-02 | TC-EN | Covered by | AC-EN06-02 | Planned |  |
-| TC-EN06-03 | TC-EN | Covered by | AC-EN06-03 | Planned |  |
-| TC-EN06-04 | TC-EN | Covered by | AC-EN06-04 | Planned |  |
+| TC-EN06-01 | TC-EN | Covered by | AC-EN06-01 | Tested |  |
+| TC-EN06-02 | TC-EN | Covered by | AC-EN06-02 | Tested |  |
+| TC-EN06-03 | TC-EN | Covered by | AC-EN06-03 | Tested |  |
+| TC-EN06-04 | TC-EN | Covered by | AC-EN06-04 | Tested |  |
 | TC-EN07-01 | TC-EN | Covered by | AC-EN07-01 | Planned |  |
 | TC-EN07-02 | TC-EN | Covered by | AC-EN07-02 | Planned |  |
 | TC-EN08-01 | TC-EN | Covered by | AC-EN08-01 | Tested |  |

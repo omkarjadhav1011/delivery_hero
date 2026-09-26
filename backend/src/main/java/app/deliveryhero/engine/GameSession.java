@@ -15,6 +15,7 @@ import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.Reconnect;
+import app.deliveryhero.engine.command.SubmitAnswer;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.EnumSet;
@@ -118,6 +119,7 @@ public final class GameSession {
                 case Reconnect reconnect -> {}
                 case Disconnect disconnect -> {}
                 case ClientSubscribed subscribed -> {}
+                case SubmitAnswer answer -> {}
             }
         } finally {
             MDC.remove("gameId");
@@ -149,6 +151,10 @@ public final class GameSession {
                 // TODO(US-05): mark the player offline and add an offline wall event (LLD 5.4.10)
             }
             case ClientSubscribed subscribed -> subscribed(subscribed);
+            case SubmitAnswer answer -> {
+                // TODO(US-27): check and score in LIVE and FROZEN, and reply ANSWER_REJECTED otherwise (LLD 5.4.4).
+                // No state accepts answers yet, so there is nothing to score.
+            }
         }
     }
 
