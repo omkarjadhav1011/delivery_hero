@@ -2,6 +2,7 @@ package app.deliveryhero.realtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.engine.command.Join;
@@ -46,7 +47,7 @@ class PlayerStateIT {
 
     @AfterEach
     void discardGame() {
-        engine.discard(TestData.GAME_ID);
+        engine.discard(TestData.GAME_ID, EndReason.CANCELLED);
     }
 
     @Test

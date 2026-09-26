@@ -1,6 +1,7 @@
 package app.deliveryhero.engine;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
@@ -86,16 +87,25 @@ public class GameEngine {
         sessions.values().forEach(session -> session.enqueue(command));
     }
 
-    /** Drops a session: its tokens stop working and its thread ends. TODO(US-62): GAME_ENDED and the end reason. */
-    public void discard(UUID gameId) {
+    /**
+     * Drops a session after a close or cancel (LLD section 5.8): the projector gets GAME_ENDED with the reason, then
+     * the tokens and projector key stop working and the thread ends.
+     */
+    public void discard(UUID gameId, EndReason reason) {
         GameSession session = sessions.remove(gameId);
         if (session != null) {
-            session.close();
+            session.discard(reason);
         }
     }
 
+    /** The application is stopping: sessions end without a word, and startup cleanup cancels them (FR-089). */
     @PreDestroy
     void shutdown() {
-        sessions.keySet().forEach(this::discard);
+        sessions.keySet().forEach(gameId -> {
+            GameSession session = sessions.remove(gameId);
+            if (session != null) {
+                session.close();
+            }
+        });
     }
 }

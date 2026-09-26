@@ -7,6 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.DeliveryHeroException;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.Role;
@@ -82,7 +83,10 @@ class GameLifecycleIT {
     @BeforeEach
     void seededLibrary() {
         recorder.awaitWrites();
-        jdbc.sql("SELECT id FROM games").query(UUID.class).list().forEach(engine::discard);
+        jdbc.sql("SELECT id FROM games")
+                .query(UUID.class)
+                .list()
+                .forEach(id -> engine.discard(id, EndReason.CANCELLED));
         credentials.clear();
         jdbc.sql("DELETE FROM games").update();
         jdbc.sql("DELETE FROM run_plan_entries").update();
@@ -454,7 +458,7 @@ class GameLifecycleIT {
     private void cancel(GameDetails game) {
         recorder.record(game.id(), game.state(), GameState.CANCELLED);
         recorder.awaitWrites();
-        engine.discard(game.id());
+        engine.discard(game.id(), EndReason.CANCELLED);
     }
 
     private GameSnapshot sessionSnapshot(GameDetails game) {

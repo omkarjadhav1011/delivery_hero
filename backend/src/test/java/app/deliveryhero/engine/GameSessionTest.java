@@ -3,8 +3,12 @@ package app.deliveryhero.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.broadcast.GameEndedMessage;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.command.GetStatus;
@@ -20,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
@@ -35,7 +40,10 @@ class GameSessionTest {
     private final List<String> registered = new ArrayList<>();
     private final SecureRandom random = seeded();
     private final TokenService tokens = new TokenService(seeded());
-    private final Broadcaster broadcaster = new Broadcaster(mock(SimpMessageSendingOperations.class));
+    private final List<UUID> revokedProjectors = new ArrayList<>();
+    private final CountDownLatch projectorRevoked = new CountDownLatch(1);
+    private final SimpMessageSendingOperations messaging = mock(SimpMessageSendingOperations.class);
+    private final Broadcaster broadcaster = new Broadcaster(messaging);
     private GameSession session = newSession(new RecordingTokens());
 
     /** A seeded generator, so a run can be repeated (document 13, section 6). */
@@ -97,6 +105,9 @@ class GameSessionTest {
 
             @Override
             public void revoke(String tokenHash) {}
+
+            @Override
+            public void revokeProjector(UUID gameId) {}
         });
         CompletableFuture<JoinResult> reply = new CompletableFuture<>();
         session.enqueue(new Join("Priya", reply));
@@ -115,6 +126,22 @@ class GameSessionTest {
         assertThat(session.enqueue(new GetStatus(new CompletableFuture<>()))).isFalse();
     }
 
+    @Test
+    @DisplayName("AC-US37-03 revoked: Discard sends GAME_ENDED with the reason to the screen, then ends every token and"
+            + " the projector key, and the session takes no more commands")
+    void discardEndsTheGame() throws Exception {
+        join("Priya");
+
+        session.discard(EndReason.FINISHED);
+
+        verify(messaging, timeout(2000)).convertAndSend("/topic/games/" + TestData.GAME_ID + "/screen", (Object)
+                GameEndedMessage.of(CLOCK.millis(), EndReason.FINISHED));
+        assertThat(session.enqueue(new GetStatus(new CompletableFuture<>()))).isFalse();
+        assertThat(projectorRevoked.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(registered).isEmpty();
+        assertThat(revokedProjectors).containsExactly(TestData.GAME_ID);
+    }
+
     private JoinResult join(String name) throws Exception {
         CompletableFuture<JoinResult> reply = new CompletableFuture<>();
         session.enqueue(new Join(name, reply));
@@ -131,6 +158,12 @@ class GameSessionTest {
         @Override
         public void revoke(String tokenHash) {
             registered.remove(tokenHash);
+        }
+
+        @Override
+        public void revokeProjector(UUID gameId) {
+            revokedProjectors.add(gameId);
+            projectorRevoked.countDown();
         }
     }
 }

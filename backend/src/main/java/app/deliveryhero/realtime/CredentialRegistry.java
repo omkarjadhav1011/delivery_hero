@@ -43,6 +43,11 @@ public class CredentialRegistry implements ConnectionCredentials, PlayerTokens {
         revokePlayer(tokenHash);
     }
 
+    @Override
+    public void revokeProjector(UUID gameId) {
+        revokeProjector(new ProjectorPrincipal(gameId));
+    }
+
     public void registerProjector(ProjectorPrincipal projector, String projectorKey) {
         projectorKeyHashes.put(projector, tokens.hash(projectorKey));
     }

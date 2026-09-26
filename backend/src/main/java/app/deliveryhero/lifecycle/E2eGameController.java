@@ -1,5 +1,6 @@
 package app.deliveryhero.lifecycle;
 
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
 import app.deliveryhero.content.GameSnapshot;
@@ -48,7 +49,7 @@ public class E2eGameController {
     @PostMapping(PATH)
     @ResponseStatus(HttpStatus.CREATED)
     public OpenedGame open() {
-        engine.findByCode(CODE).ifPresent(old -> engine.discard(old.id()));
+        engine.findByCode(CODE).ifPresent(old -> engine.discard(old.id(), EndReason.CANCELLED));
         UUID gameId = Ids.newUuid(random);
         engine.create(gameId, CODE, GameState.LOBBY, false, NO_PLAN);
         return new OpenedGame(gameId, CODE);

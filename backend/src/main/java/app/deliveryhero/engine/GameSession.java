@@ -1,8 +1,10 @@
 package app.deliveryhero.engine;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.Names;
@@ -11,6 +13,7 @@ import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.Disconnect;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
@@ -129,18 +132,29 @@ public final class GameSession {
                 case Disconnect disconnect -> {}
                 case ClientSubscribed subscribed -> {}
                 case SubmitAnswer answer -> {}
+                case Discard discard -> {}
             }
         } finally {
             MDC.remove("gameId");
         }
     }
 
-    /** Ends the session: its tokens stop working, then its thread stops once the queue is empty. */
+    /**
+     * Ends the session after a close or cancel: GAME_ENDED goes out, then its tokens and projector key stop working,
+     * then its thread stops once the queue is empty (LLD section 5.4.3).
+     */
+    void discard(EndReason reason) {
+        if (enqueue(new Discard(reason))) {
+            thread.shutdown();
+        }
+    }
+
+    /** Ends the session without a word to its clients, when the application stops. */
     void close() {
         if (thread.isShutdown()) {
             return;
         }
-        thread.execute(() -> players.values().forEach(player -> playerTokens.revoke(player.tokenHash())));
+        thread.execute(this::revokeCredentials);
         thread.shutdown();
     }
 
@@ -160,6 +174,7 @@ public final class GameSession {
                 // TODO(US-05): mark the player offline and add an offline wall event (LLD 5.4.10)
             }
             case ClientSubscribed subscribed -> subscribed(subscribed);
+            case Discard discard -> ended(discard.reason());
             case SubmitAnswer answer -> {
                 // TODO(US-27): check and score in LIVE and FROZEN, and reply ANSWER_REJECTED otherwise (LLD 5.4.4).
                 // No state accepts answers yet, so there is nothing to score.
@@ -205,6 +220,17 @@ public final class GameSession {
         }
         GameStateMessage message = GameStateMessage.initial(clock.millis(), id, state, player.id(), player.name());
         broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
+    }
+
+    /** The projector hears why the game ended; TODO(US-62): phones get GAME_ENDED too. */
+    private void ended(EndReason reason) {
+        broadcaster.toScreen(id, GameEndedMessage.of(clock.millis(), reason));
+        revokeCredentials();
+    }
+
+    private void revokeCredentials() {
+        players.values().forEach(player -> playerTokens.revoke(player.tokenHash()));
+        playerTokens.revokeProjector(id);
     }
 
     private GetStatus.Status status() {

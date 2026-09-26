@@ -2,6 +2,7 @@ package app.deliveryhero.lifecycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.TestData;
@@ -37,7 +38,7 @@ class E2eGameIT {
 
     @AfterEach
     void discardGame() {
-        engine.findByCode(TestData.GAME_CODE).ifPresent(game -> engine.discard(game.id()));
+        engine.findByCode(TestData.GAME_CODE).ifPresent(game -> engine.discard(game.id(), EndReason.CANCELLED));
     }
 
     @Test

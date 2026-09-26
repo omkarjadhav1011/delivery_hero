@@ -1,5 +1,6 @@
 package app.deliveryhero.broadcast;
 
+import app.deliveryhero.realtime.DestinationPolicy;
 import app.deliveryhero.realtime.PlayerPrincipal;
 import java.util.UUID;
 import org.springframework.context.annotation.Lazy;
@@ -9,8 +10,8 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
 
 /**
- * Sends the game session's messages to phones (LLD section 5.7). Sending hands the message to the broker and never
- * waits on the network, so session threads may call it. The projector and admin batches arrive with S1-06 and S1-07.
+ * Sends the game session's messages to phones and the projector (LLD section 5.7). Sending hands the message to the broker and never
+ * waits on the network, so session threads may call it. The admin batch arrives with S1-07.
  */
 @Component
 public class Broadcaster {
@@ -37,5 +38,10 @@ public class Broadcaster {
                 PLAYER_QUEUE_FOR_USER,
                 message,
                 headers.getMessageHeaders());
+    }
+
+    /** Sends a message to the game's projector, on its screen topic (API section 8.6). */
+    public void toScreen(UUID gameId, Object message) {
+        messaging.convertAndSend(DestinationPolicy.screenTopic(gameId), message);
     }
 }

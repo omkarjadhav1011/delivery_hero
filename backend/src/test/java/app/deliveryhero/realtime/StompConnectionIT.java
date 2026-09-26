@@ -3,6 +3,7 @@ package app.deliveryhero.realtime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.GameEngine;
@@ -34,6 +35,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -45,6 +48,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import tools.jackson.databind.json.JsonMapper;
 
 /** The STOMP endpoint at {@code /ws} over a real server port (EN-04, API section 8). */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -80,6 +84,9 @@ class StompConnectionIT {
 
     @Autowired
     private JdbcClient jdbc;
+
+    @Autowired
+    private JsonMapper json;
 
     private final ScheduledExecutorService heartbeats = Executors.newSingleThreadScheduledExecutor();
 
@@ -149,7 +156,7 @@ class StompConnectionIT {
 
             assertState(projector, "SCREEN_STATE");
         } finally {
-            engine.discard(game.id());
+            engine.discard(game.id(), EndReason.CANCELLED);
             jdbc.sql("DELETE FROM games").update();
         }
     }
@@ -207,7 +214,7 @@ class StompConnectionIT {
                 assertThat(projector.isOpen()).isTrue();
             }
         } finally {
-            engine.discard(game.id());
+            engine.discard(game.id(), EndReason.CANCELLED);
             jdbc.sql("DELETE FROM games").update();
         }
     }
@@ -293,6 +300,32 @@ class StompConnectionIT {
         assertThat(output).doesNotContain(PROJECTOR_KEY).doesNotContain(wrongKey);
     }
 
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(EndReason.class)
+    @DisplayName("AC-US37-03 revoked: when the game ends, a connected projector gets GAME_ENDED with the reason, and"
+            + " opening the link again gets UNAUTHORIZED and no game data")
+    void endedGameRevokesTheProjectorLink(EndReason reason) throws Exception {
+        GameDetails game = createGame();
+        try (RawStompClient projector = connectedProjector(game.projectorKey())) {
+            projector.subscribe("s1", DestinationPolicy.screenTopic(game.id()));
+            assertState(projector, "SCREEN_STATE");
+
+            // Close (S2-04) and cancel (S2-23) end the game this way once they clear the key in the database
+            engine.discard(game.id(), reason);
+
+            Frame ended = projector.nextFrame(FRAME_TIMEOUT);
+            assertThat(ended).isNotNull();
+            assertThat(ended.command()).isEqualTo("MESSAGE");
+            assertThat(json.readTree(ended.body()).propertyNames())
+                    .containsExactlyInAnyOrder("type", "serverTime", "reason");
+            assertThat(ended.body()).contains("\"type\":\"GAME_ENDED\"").contains("\"reason\":\"" + reason + "\"");
+            assertThat(engine.find(game.id())).isEmpty();
+        } finally {
+            jdbc.sql("DELETE FROM games").update();
+        }
+        assertRefused(Map.of("projector-key", game.projectorKey()));
+    }
+
     @Test
     @DisplayName("AC-US37-04 wrong key: a created game's key with one character changed, another game's shape of key,"
             + " or an empty key gets UNAUTHORIZED and no game data")
@@ -308,7 +341,7 @@ class StompConnectionIT {
 
             assertThat(output).doesNotContain(key).doesNotContain(oneCharOff).doesNotContain(otherKey);
         } finally {
-            engine.discard(game.id());
+            engine.discard(game.id(), EndReason.CANCELLED);
             jdbc.sql("DELETE FROM games").update();
         }
     }
