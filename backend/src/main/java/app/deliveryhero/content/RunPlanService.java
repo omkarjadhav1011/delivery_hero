@@ -9,10 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Reads run plans with their tasks (LLD section 5.3). The run plan editor's writes come with US-57. */
+/** Reads run plans with their tasks (LLD section 5.3). The run plan editor's writes come with US-57 (S2-09). */
 @Service
 public class RunPlanService {
 
@@ -20,19 +21,42 @@ public class RunPlanService {
     private final RunPlanEntryRepository entries;
     private final TaskRepository tasks;
     private final TaskService taskService;
+    private final ContentValidator validator;
 
     RunPlanService(
-            RunPlanRepository plans, RunPlanEntryRepository entries, TaskRepository tasks, TaskService taskService) {
+            RunPlanRepository plans,
+            RunPlanEntryRepository entries,
+            TaskRepository tasks,
+            TaskService taskService,
+            ContentValidator validator) {
         this.plans = plans;
         this.entries = entries;
         this.tasks = tasks;
         this.taskService = taskService;
+        this.validator = validator;
     }
 
     /** The plan with its lists as they are stored now, or empty when there's no such plan. */
     @Transactional(readOnly = true)
     public Optional<RunPlanContents> load(UUID id) {
         return plans.findById(id).map(this::contents);
+    }
+
+    /** Every plan by name, with the counts the plan picker shows (API section 7.6). */
+    @Transactional(readOnly = true)
+    public List<RunPlanSummary> summaries() {
+        return plans.findAll(Sort.by("name")).stream()
+                .map(this::contents)
+                .map(plan -> new RunPlanSummary(
+                        plan.id(),
+                        plan.key(),
+                        plan.name(),
+                        plan.roundLengthMinutes(),
+                        plan.phases().values().stream().mapToInt(List::size).sum(),
+                        validator.validateForGame(plan).errors().size(),
+                        0, // TODO(US-58): the readiness warnings of BR-13
+                        plan.version()))
+                .toList();
     }
 
     private RunPlanContents contents(RunPlanEntity plan) {
