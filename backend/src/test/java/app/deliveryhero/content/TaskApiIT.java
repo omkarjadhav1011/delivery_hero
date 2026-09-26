@@ -179,6 +179,53 @@ class TaskApiIT {
     }
 
     @Test
+    @DisplayName(
+            "AC-US53-01 conflict: A and B open mgr-plan-01, A saves, then B's save is refused and A's change is kept")
+    void secondSaveOfTheSameVersionIsRefused() {
+        String id = idOf("mgr-plan-01");
+        JsonNode opened =
+                body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
+        Map<String, Object> changeByA = asInput(opened);
+        changeByA.put("prompt", "A's prompt?");
+        Map<String, Object> changeByB = asInput(opened);
+        changeByB.put("prompt", "B's prompt?");
+
+        assertThat(put("/api/admin/tasks/" + id, changeByA)).hasStatusOk();
+        MvcTestResult refused = put("/api/admin/tasks/" + id, changeByB);
+
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 409, "code": "EDIT_CONFLICT"}
+                """);
+        JsonNode kept =
+                body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
+        assertThat(kept.get("prompt").asString()).isEqualTo("A's prompt?");
+        assertThat(kept.get("version").asInt()).isEqualTo(opened.get("version").asInt() + 1);
+    }
+
+    @Test
+    @DisplayName("A delete with an outdated version is refused with EDIT_CONFLICT and the task stays")
+    void deleteOfAnOutdatedVersionIsRefused() {
+        JsonNode created = body(post("/api/admin/tasks", task("it-yn-09", "YES_NO", Map.of("answerYes", true))));
+        String id = created.get("id").asString();
+        Map<String, Object> change = asInput(created);
+        change.put("prompt", "Changed meanwhile?");
+        assertThat(put("/api/admin/tasks/" + id, change)).hasStatusOk();
+
+        MvcTestResult refused = mvc.delete()
+                .uri("/api/admin/tasks/{id}?version=0", id)
+                .with(ADMIN)
+                .with(csrf())
+                .exchange();
+
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 409, "code": "EDIT_CONFLICT"}
+                """);
+        assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
+                .hasStatusOk();
+    }
+
+    @Test
     @DisplayName("AC-US51-04 delete unused: a task in no run plan is deleted and leaves the library")
     void deletesAnUnusedTask() {
         JsonNode created = body(post("/api/admin/tasks", task("it-yn-03", "YES_NO", Map.of("answerYes", true))));
