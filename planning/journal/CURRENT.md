@@ -9,17 +9,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S2-08 |
 | Branch | main |
 | Start commit | 1758347 |
-| Last commit | 1870ebc |
-| Step | test-first |
-| Task | T3 |
+| Last commit | 749f191 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T19:16 |
-| Updated | 2026-09-26T19:28 |
-| Next action | TaskApiIT AC-US53-01 |
+| Updated | 2026-09-26T19:31 |
+| Next action | T5 CharacterApiIT AC-US53-02 |
 
 ## Completed tasks
 
 - T1 (1870ebc)
+- T3 (749f191)
 
 ## Pending approvals
 

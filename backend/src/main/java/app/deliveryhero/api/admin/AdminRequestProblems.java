@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -35,7 +36,8 @@ class AdminRequestProblems {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ProblemDetail> mismatch(MethodArgumentTypeMismatchException mismatch) {
-        if (mismatch.getName().equals("id")) {
+        // A path segment names an item (a task ID, a character's role), so one that can't exist is NOT_FOUND
+        if (mismatch.getParameter().hasParameterAnnotation(PathVariable.class)) {
             return ProblemHandler.response(new DeliveryHeroException(ApiErrorCode.NOT_FOUND));
         }
         return invalid(new Issue(mismatch.getName(), "PATTERN", "This value has the wrong format."));
