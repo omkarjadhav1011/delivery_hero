@@ -36,3 +36,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-56-seed-loader, commits 15d6fcd to 19d9f94.
 - Completed: T1 (dffffaa); T2 (6d3b2e6); T3 (31d836e); T4 (9082c7f); T5 (bcd5d27); T6 (7e5d990).
 - Summary: S1-01 T1-T6 done and reviewed; T7 and T8 blocked; AC-US56-01..04 and AC-US19-01 passing
+
+## 2026-09-26-0034 S0-04
+
+- Outcome: done. Started 2026-09-26T00:34, ended 2026-09-26T07:50.
+- Branch feat/en-04-realtime-channel, commits 0f9b14a to 2e6bb54.
+- Completed: T1 (1a2e4a2); T2 (b09a19a); T3 (fffe7ab); T4 (453a985); T5 (336af45); T6 (a7cadd2); T7 (f60cdcd); T8 (a9fad35).
+- Summary: S0-04 T1-T8 done and reviewed: STOMP /ws with auth, destination rules, watchdog, state after subscription; frontend reconnect schedule and client. Backend 64+30 tests, frontend 78 tests green. PR not yet opened.

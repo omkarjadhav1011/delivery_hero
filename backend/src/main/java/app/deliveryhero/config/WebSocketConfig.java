@@ -30,12 +30,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     static final long HEARTBEAT_MS = 10_000;
 
     /**
-     * The server's advertised sending interval. Spring's broker checks for due heartbeats every min(sending, receiving)
-     * interval and sends one only after more than the negotiated 10 s of silence, so advertising 10 s would let the
-     * first heartbeat slip to 20 s. Advertising 1 s makes it check every second; the rate stays max(1 s, the client's
-     * 10 s) = 10 s.
+     * The server's advertised sending interval, which is also how often Spring's broker checks for due heartbeats. It
+     * sends one once the negotiated 10 s pass without a message, and then on every check until other traffic flows,
+     * because its own heartbeat doesn't count as a write. Advertising 10 s would let the first heartbeat slip to 20 s;
+     * 2 s keeps every gap within about 12 s at one byte every 2 s while idle. STOMP allows sending more often than
+     * negotiated.
      */
-    static final long SERVER_HEARTBEAT_CHECK_MS = 1_000;
+    static final long SERVER_HEARTBEAT_CHECK_MS = 2_000;
 
     /** The largest inbound message (LLD section 5.6). */
     static final int INBOUND_LIMIT_BYTES = 8 * 1024;

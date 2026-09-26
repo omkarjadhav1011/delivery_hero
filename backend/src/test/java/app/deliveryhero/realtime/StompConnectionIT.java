@@ -183,7 +183,7 @@ class StompConnectionIT {
             assertThat(silence).isLessThanOrEqualTo(Duration.ofSeconds(20));
             assertThat(idle.isOpen()).isTrue();
             nextCommand(Disconnect.class, d -> d.connectionId().equals(silentConnection));
-            // The server's heartbeats: the first within about 10 s of CONNECTED, then about every 10 s
+            // The server's heartbeats: the first within about 12 s of CONNECTED, and no gap longer than that
             List<Long> beats = idle.heartbeatTimes();
             assertThat(beats).hasSizeGreaterThanOrEqualTo(2);
             long previous = connectedAt;
@@ -386,7 +386,8 @@ class StompConnectionIT {
         Frame frame = client.nextFrame(FRAME_TIMEOUT);
         assertThat(frame).isNotNull();
         assertThat(frame.command()).isEqualTo("CONNECTED");
-        // The server can send every 1 s and wants one every 10 s; with the client's 10,000,10,000 both rates are 10 s
-        assertThat(frame.headers()).containsEntry("heart-beat", "1000,10000");
+        // The server checks every 2 s and wants one every 10 s; with the client's 10000,10000 it sends at least every
+        // 10 s
+        assertThat(frame.headers()).containsEntry("heart-beat", "2000,10000");
     }
 }
