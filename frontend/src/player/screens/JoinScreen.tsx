@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { getGame, joinGame } from "@/api/endpoints";
 import { ApiError } from "@/api/http";
 import { copy } from "@/copy";
@@ -42,6 +42,23 @@ export function JoinScreen({ code, onJoined }: JoinScreenProps) {
   const [name, setName] = useState("");
   const hintId = useId();
   const errorId = useId();
+  const field = useRef<HTMLInputElement>(null);
+  const mounted = useRef(true);
+  const invalidName = view.kind === "form" && view.invalidName;
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  // After a refused name, focus moves to the field, whose description now reads the naming rules (P-02)
+  useEffect(() => {
+    if (invalidName) {
+      field.current?.focus();
+    }
+  }, [invalidName]);
 
   useEffect(() => {
     if (code === null) {
@@ -80,9 +97,8 @@ export function JoinScreen({ code, onJoined }: JoinScreenProps) {
   }
   if (view.kind === "message") {
     return (
-      <PhoneShell title={copy.brand}>
-        <p role="status">{copy.joinMessages[view.reason]}</p>
-      </PhoneShell>
+      // P-03 shows the brand once, above the message, so the message is the heading
+      <PhoneShell title={copy.joinMessages[view.reason]} />
     );
   }
 
@@ -93,6 +109,9 @@ export function JoinScreen({ code, onJoined }: JoinScreenProps) {
     }
     setView({ kind: "form", submitting: true, invalidName: false });
     joinGame(code, name).then(onJoined, (error: unknown) => {
+      if (!mounted.current) {
+        return;
+      }
       const reason = refusalOf(error);
       if (reason !== null) {
         setView({ kind: "message", reason });
@@ -108,6 +127,7 @@ export function JoinScreen({ code, onJoined }: JoinScreenProps) {
     <PhoneShell title={copy.join.title}>
       <form className="flex w-full flex-col gap-3 text-left" onSubmit={submit} noValidate>
         <input
+          ref={field}
           type="text"
           name="name"
           aria-label={copy.join.title}

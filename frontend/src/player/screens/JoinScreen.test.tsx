@@ -122,6 +122,7 @@ describe("JoinScreen", () => {
 
     const message = await screen.findByText(copy.join.invalidName);
     expect(field.getAttribute("aria-invalid")).toBe("true");
+    await waitFor(() => expect(document.activeElement).toBe(field));
     expect(field.getAttribute("aria-describedby")).toContain(message.id);
     expect(onJoined).not.toHaveBeenCalled();
   });

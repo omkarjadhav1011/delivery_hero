@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { ConnectionStatus } from "@/realtime/stompClient";
 import type { GameState, JoinResponse } from "@/types/dto";
+import { assertNever } from "@/types/assertNever";
 import type { PlayerMessage } from "@/types/messages";
 
 // The player app's Zustand store (LLD section 6.3). It changes only through the pure functions below, which apply a
@@ -40,10 +41,6 @@ export interface PlayerStore extends PlayerState {
   joined: (result: JoinResponse) => void;
   receive: (message: PlayerMessage) => void;
   setConnection: (connection: ConnectionStatus) => void;
-}
-
-function assertNever(value: never): never {
-  throw new Error(`Unhandled value: ${String(value)}`);
 }
 
 export function initialPlayerState(code: string): PlayerState {

@@ -5,7 +5,7 @@ import { S0_GAME_CODE, expect, expectNoAxeViolations, openS0Game, test } from ".
 // and 6 to 8 are added by the subplans that own US-03, US-05, US-07, US-08, US-09 and US-38.
 // TODO(US-59): a game from DS-03 in Created, opened by the admin, instead of the e2e profile's S0 game.
 
-const joinLink = `/join/?code=${S0_GAME_CODE}`;
+const joinLink = `/join?code=${S0_GAME_CODE}`;
 
 test.beforeEach(async ({ request }) => {
   await openS0Game(request);
@@ -51,7 +51,7 @@ test("AC-US01-03 E2E-01 step 5: a phone with an inactive code sees the inactive-
 }) => {
   const phone = await newPhone();
 
-  await phone.goto("/join/?code=ZZZZ22");
+  await phone.goto("/join?code=ZZZZ22");
 
   await expect(phone.getByText(copy.joinMessages.GAME_NOT_ACTIVE, { exact: true })).toBeVisible();
   await expect(phone.getByRole("textbox")).toHaveCount(0);

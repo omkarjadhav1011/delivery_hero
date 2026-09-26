@@ -14,7 +14,7 @@ test("NFR-05 E2E-09: the join page transfers under 1 MB to a new phone with an e
   await openS0Game(request);
   const phone = await newPhone();
 
-  await phone.goto(`/join/?code=${S0_GAME_CODE}`, { waitUntil: "networkidle" });
+  await phone.goto(`/join?code=${S0_GAME_CODE}`, { waitUntil: "networkidle" });
   await expect(phone.getByRole("textbox", { name: copy.join.title })).toBeVisible();
 
   const transferred = await phone.evaluate(() => {

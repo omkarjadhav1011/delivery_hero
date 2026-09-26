@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { assertNever } from "@/types/assertNever";
 import { copy } from "@/copy";
 import { PhoneShell } from "@/player/PhoneShell";
 import { Countdown } from "@/player/screens/Countdown";
@@ -19,7 +20,8 @@ const PLAYER_DESTINATIONS = ["/user/queue/game"] as const;
 // The phone app's entry point (LLD section 6.3): the join form, then the screen the server's GAME_STATE selects.
 // TODO(US-38): the Chrome check (P-01); TODO(US-05): restoring a saved token, the reconnect banner and a refused token
 export function PlayerApp() {
-  const code = useSearchParams().get("code");
+  // An empty ?code= is the same as none
+  const code = useSearchParams().get("code") || null;
   const screen = usePlayerStore((state) => state.screen);
   const name = usePlayerStore((state) => state.name);
   const token = usePlayerStore((state) => state.token);
@@ -32,7 +34,7 @@ export function PlayerApp() {
     reset(code ?? "");
   }, [code, reset]);
 
-  const connection = useStomp({
+  useStomp({
     credentials: token === undefined ? null : { playerToken: token },
     destinations: PLAYER_DESTINATIONS,
     onMessage: (_destination, message) => {
@@ -40,10 +42,8 @@ export function PlayerApp() {
         receive(message);
       }
     },
+    onStatusChange: setConnection,
   });
-  useEffect(() => {
-    setConnection(connection);
-  }, [connection, setConnection]);
 
   const onJoined = (result: JoinResponse) => {
     if (code !== null) {
@@ -64,8 +64,18 @@ export function PlayerApp() {
       return <Practice />;
     case "countdown":
       return <Countdown />;
-    default:
+    case "task":
+    case "lockout":
+    case "incident":
+    case "done":
+    case "timesUp":
+    case "results":
+    case "finished":
+    case "removed":
+    case "ended":
       // TODO(US-16 and later): the task, feedback, incident, done, time's up, results and ending screens
       return <PhoneShell title={copy.brand} />;
+    default:
+      return assertNever(screen);
   }
 }
