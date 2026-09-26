@@ -46,6 +46,73 @@
         "tags" : [ "character-controller" ]
       }
     },
+    "/api/admin/games" : {
+      "post" : {
+        "operationId" : "create_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateGameRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameView"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "game-controller" ]
+      }
+    },
+    "/api/admin/games/current" : {
+      "get" : {
+        "operationId" : "current",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "game-controller" ]
+      }
+    },
+    "/api/admin/run-plans" : {
+      "get" : {
+        "operationId" : "list_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RunPlanSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "run-plan-controller" ]
+      }
+    },
     "/api/admin/session" : {
       "get" : {
         "operationId" : "session",
@@ -431,6 +498,15 @@
           }
         }
       },
+      "CreateGameRequest" : {
+        "type" : "object",
+        "properties" : {
+          "runPlanId" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
       "DeployLockResponse" : {
         "type" : "object",
         "properties" : {
@@ -458,6 +534,51 @@
           "reason" : {
             "type" : "string",
             "enum" : [ "LOBBY_NOT_OPEN", "JOINING_CLOSED", "GAME_FULL" ]
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "CREATED", "LOBBY", "PRACTICE", "COUNTDOWN", "LIVE", "FROZEN", "ENDED", "REVEAL", "RESULTS", "CLOSED", "CANCELLED" ]
+          },
+          "test" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "GameView" : {
+        "type" : "object",
+        "properties" : {
+          "allowedActions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "joinUrl" : {
+            "type" : "string"
+          },
+          "liveDetailsAvailable" : {
+            "type" : "boolean"
+          },
+          "projectorUrl" : {
+            "type" : "string"
+          },
+          "roundLengthMinutes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "runPlanName" : {
+            "type" : "string"
           },
           "state" : {
             "type" : "string",
@@ -636,6 +757,41 @@
           "type" : {
             "type" : "string",
             "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          }
+        }
+      },
+      "RunPlanSummary" : {
+        "type" : "object",
+        "properties" : {
+          "errorCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "roundLengthMinutes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "scoredTaskCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "warningCount" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },

@@ -1,8 +1,11 @@
 import type {
   AdminSessionResponse,
+  CreateGameRequest,
   GameStatusResponse,
+  GameView,
   JoinRequest,
   JoinResponse,
+  RunPlanSummary,
   TaskDetail,
   TaskFilter,
   TaskInput,
@@ -78,4 +81,20 @@ export function deleteTask(id: string, version: number): Promise<void> {
   return http<void>(`/api/admin/tasks/${encodeURIComponent(id)}?version=${version}`, {
     method: "DELETE",
   });
+}
+
+/** Every run plan with its scored task and error counts, for the New game screen (document 11, section 7.6). */
+export function listRunPlans(): Promise<RunPlanSummary[]> {
+  return http<RunPlanSummary[]>("/api/admin/run-plans");
+}
+
+/** The open game, real or test, or null when none is open (document 11, section 7.7). */
+export async function getCurrentGame(): Promise<GameView | null> {
+  return (await http<GameView | undefined>("/api/admin/games/current")) ?? null;
+}
+
+/** Creates a game from a run plan; refused with ANOTHER_GAME_OPEN or VALIDATION_FAILED (document 11, 7.7). */
+export function createGame(runPlanId: string): Promise<GameView> {
+  const body: CreateGameRequest = { runPlanId };
+  return http<GameView>("/api/admin/games", { method: "POST", body });
 }

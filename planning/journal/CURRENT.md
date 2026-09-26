@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-04 |
 | Branch | feat/us-59-create-game |
 | Start commit | 907f11b |
-| Last commit | bc5503c |
+| Last commit | b0fa8f3 |
 | Step | test-first |
-| Task | T10 |
+| Task | T4 |
 | Attempts | 0 |
 | Started | 2026-09-26T22:10 |
 | Updated | 2026-09-26T22:32 |
-| Next action | RunPlanListIT |
+| Next action | GameLifecycleIT AC-US59-01 over REST |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T1 (a849528)
 - T2 (e1ebe27)
 - T9 (bc5503c)
+- T10 (b0fa8f3)
 
 ## Pending approvals
 

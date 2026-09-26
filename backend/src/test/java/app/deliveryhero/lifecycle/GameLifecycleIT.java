@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
@@ -108,6 +109,94 @@ class GameLifecycleIT {
         });
         assertThat(credentials.projectorByKey(game.projectorKey())).contains(new ProjectorPrincipal(game.id()));
         assertThat(lifecycle.current()).contains(game);
+    }
+
+    @Test
+    @DisplayName("AC-US59-01 links (API): the game view has the code, join URL, projector URL and Created's actions")
+    void createsAGameOverRest() {
+        assertThat(mvc.get().uri("/api/admin/games/current").with(ADMIN).exchange())
+                .hasStatus(HttpStatus.NO_CONTENT);
+
+        MvcTestResult created = post("/api/admin/games", Map.of("runPlanId", planId("default-5min")));
+
+        assertThat(created).hasStatus(HttpStatus.CREATED);
+        JsonNode view = body(created);
+        String code = view.get("code").asString();
+        String key =
+                jdbc.sql("SELECT projector_key FROM games").query(String.class).single();
+        assertThat(code).matches("[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}");
+        assertThat(view.get("state").asString()).isEqualTo("CREATED");
+        assertThat(view.get("test").asBoolean()).isFalse();
+        assertThat(view.get("runPlanName").asString()).isEqualTo("Default 5-minute plan");
+        assertThat(view.get("roundLengthMinutes").asInt()).isEqualTo(5);
+        assertThat(view.get("joinUrl").asString()).isEqualTo("http://localhost:8080/join?code=" + code);
+        assertThat(view.get("projectorUrl").asString()).isEqualTo("http://localhost:8080/screen?key=" + key);
+        assertThat(view.get("liveDetailsAvailable").asBoolean()).isTrue();
+        assertThat(view.get("allowedActions"))
+                .containsExactly(json.valueToTree("OPEN_LOBBY"), json.valueToTree("CANCEL"));
+        assertThat(view.has("snapshot")).isFalse();
+
+        MvcTestResult current =
+                mvc.get().uri("/api/admin/games/current").with(ADMIN).exchange();
+        assertThat(current).hasStatusOk();
+        assertThat(body(current)).isEqualTo(view);
+    }
+
+    @Test
+    @DisplayName("AC-US59-03 one at a time (API): a second game is refused with ANOTHER_GAME_OPEN")
+    void secondGameOverRest() {
+        assertThat(post("/api/admin/games", Map.of("runPlanId", planId("default-5min"))))
+                .hasStatus(HttpStatus.CREATED);
+
+        MvcTestResult refused = post("/api/admin/games", Map.of("runPlanId", planId("quick-3min")));
+
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT);
+        assertThat(body(refused).get("code").asString()).isEqualTo("ANOTHER_GAME_OPEN");
+        assertThat(body(refused).get("detail").asString())
+                .isEqualTo("Another game is still open. Close or cancel it first.");
+        assertThat(gameCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("AC-US59-02 broken plan (API): 422 VALIDATION_FAILED lists the plan's errors")
+    void brokenPlanOverRest() {
+        UUID quick = planId("quick-3min");
+        jdbc.sql("DELETE FROM run_plan_entries WHERE run_plan_id = ? AND list_name = 'TESTING'")
+                .param(quick)
+                .update();
+
+        MvcTestResult refused = post("/api/admin/games", Map.of("runPlanId", quick));
+
+        assertThat(refused).hasStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        JsonNode problem = body(refused);
+        assertThat(problem.get("code").asString()).isEqualTo("VALIDATION_FAILED");
+        assertThat(problem.get("errors").get(0).get("code").asString()).isEqualTo("EMPTY_PHASE");
+    }
+
+    @Test
+    @DisplayName("Creating a game needs a known plan, a plan ID, an admin session and the CSRF header")
+    void createRefusals() {
+        assertThat(post("/api/admin/games", Map.of("runPlanId", UUID.randomUUID())))
+                .hasStatus(HttpStatus.NOT_FOUND);
+        MvcTestResult missing = post("/api/admin/games", Map.of());
+        assertThat(missing).hasStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        assertThat(body(missing).get("errors").get(0).get("path").asString()).isEqualTo("runPlanId");
+        assertThat(mvc.post()
+                        .uri("/api/admin/games")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}")
+                        .exchange())
+                .hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(mvc.post()
+                        .uri("/api/admin/games")
+                        .with(ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}")
+                        .exchange())
+                .hasStatus(HttpStatus.FORBIDDEN);
+        assertThat(mvc.get().uri("/api/admin/games/current").exchange()).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(gameCount()).isZero();
     }
 
     @Test
@@ -337,6 +426,20 @@ class GameLifecycleIT {
         assertThat(read).hasStatusOk();
         JsonNode detail = json.readTree(read.getResponse().getContentAsByteArray());
         return json.convertValue(detail, new TypeReference<Map<String, Object>>() {});
+    }
+
+    private MvcTestResult post(String path, Map<String, Object> body) {
+        return mvc.post()
+                .uri(path)
+                .with(ADMIN)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(body))
+                .exchange();
+    }
+
+    private JsonNode body(MvcTestResult result) {
+        return json.readTree(result.getResponse().getContentAsByteArray());
     }
 
     private MvcTestResult put(String path, Map<String, Object> body) {
