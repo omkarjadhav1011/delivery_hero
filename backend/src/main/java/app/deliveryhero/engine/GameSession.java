@@ -65,6 +65,8 @@ public final class GameSession {
     private final Map<UUID, PlayerState> players = new LinkedHashMap<>();
     private final Map<String, UUID> tokenIndex = new HashMap<>();
     private final NameRegistry names = new NameRegistry();
+    /** Set by Discard: from then on nobody joins, and every other command is ignored. */
+    private boolean ended;
 
     GameSession(
             UUID id,
@@ -159,6 +161,19 @@ public final class GameSession {
     }
 
     private void handle(Command command) {
+        if (ended) {
+            // A command that raced the discard into the queue: callers hear at once, and no new token is issued
+            switch (command) {
+                case Join join -> join.reply().complete(new JoinResult.Refused(ApiErrorCode.JOINING_CLOSED));
+                case GetStatus query -> query.reply().complete(status());
+                case Reconnect reconnect -> {}
+                case Disconnect disconnect -> {}
+                case ClientSubscribed subscribed -> {}
+                case SubmitAnswer answer -> {}
+                case Discard discard -> {}
+            }
+            return;
+        }
         switch (command) {
             case Join join -> {
                 // A request that stopped waiting gets no player, so a retry doesn't leave a stray "Priya 2"
@@ -224,6 +239,7 @@ public final class GameSession {
 
     /** The projector hears why the game ended; TODO(US-62): phones get GAME_ENDED too. */
     private void ended(EndReason reason) {
+        ended = true;
         broadcaster.toScreen(id, GameEndedMessage.of(clock.millis(), reason));
         revokeCredentials();
     }
@@ -239,6 +255,9 @@ public final class GameSession {
 
     /** Why a phone can't join now, or null when it can (FR-005, FR-006, API section 7.2). */
     private @Nullable ApiErrorCode joinRefusal() {
+        if (ended) {
+            return ApiErrorCode.JOINING_CLOSED;
+        }
         if (state == GameState.CREATED) {
             return ApiErrorCode.LOBBY_NOT_OPEN;
         }

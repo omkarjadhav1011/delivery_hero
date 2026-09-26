@@ -8,9 +8,11 @@ import static org.mockito.Mockito.verify;
 
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
+import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
@@ -140,6 +142,18 @@ class GameSessionTest {
         assertThat(projectorRevoked.await(2, TimeUnit.SECONDS)).isTrue();
         assertThat(registered).isEmpty();
         assertThat(revokedProjectors).containsExactly(TestData.GAME_ID);
+    }
+
+    @Test
+    @DisplayName("AC-US37-03 revoked: a join that reaches the queue after Discard is refused and gets no token")
+    void joinAfterDiscardIsRefused() throws Exception {
+        session.enqueue(new Discard(EndReason.CANCELLED));
+
+        assertThat(join("Priya")).isEqualTo(new JoinResult.Refused(ApiErrorCode.JOINING_CLOSED));
+        CompletableFuture<GetStatus.Status> status = new CompletableFuture<>();
+        session.enqueue(new GetStatus(status));
+        assertThat(status.get(2, TimeUnit.SECONDS).reason()).isEqualTo(ApiErrorCode.JOINING_CLOSED);
+        assertThat(registered).isEmpty();
     }
 
     private JoinResult join(String name) throws Exception {
