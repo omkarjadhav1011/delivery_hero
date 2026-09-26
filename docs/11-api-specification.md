@@ -1,6 +1,6 @@
 # Delivery Hero — API Specification
 
-> Document 11 of 18 · Version 1.0 (approved)
+> Document 11 of 18 · Version 1.1 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 11 — API Specification |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
-| Date | 23 September 2026 |
+| Date | 26 September 2026 |
 | Depends on | 01 — Charter v1.8 (DEC-01 to DEC-158) · 03 — SRS v1.2 · 07 — HLD v1.1 · 08 — LLD v1.1 · 10 — Database Design v1.0 |
 | Feeds into | Frontend and backend implementation · 15 — Test Cases · the OpenAPI document generated from code (NFR-44) |
 
@@ -21,6 +21,7 @@
 |---|---|---|---|
 | 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. AP-01 to AP-07 recorded as DEC-159 to DEC-165 (Charter v1.9); ANSWER_REJECTED added to the SRS message catalog (v1.3) |
+| 1.1 | 2026-09-26 | [Owner name] | Section 8: the server's heart-beat value, the `FORBIDDEN` refusal code, and that every ERROR frame closes the connection (EN-04) |
 
 ---
 
@@ -456,6 +457,7 @@ Tied players share a rank, so `topTen` can hold more than 10 entries (DEC-155).
 
 - **Address:** `wss://<host>/ws`, a plain WebSocket speaking STOMP 1.2 (no SockJS; DEC-127).
 - **CONNECT headers:** `accept-version: 1.2`, `heart-beat: 10000,10000`, and either `player-token: <token>` (phones) or `projector-key: <key>` (projector). The admin panel sends neither; its session cookie authenticates the WebSocket handshake.
+- **CONNECTED:** the server answers `heart-beat: 2000,10000`. It expects a client heartbeat every 10 seconds and sends one at least every 10 seconds; an idle connection gets one every 2 seconds after the first 10.
 - **Refusal:** an unknown or revoked token or key gets an ERROR frame with `message: UNAUTHORIZED`, and the connection closes (FR-052).
 - **After connecting,** the client subscribes; the server sends the full state once the subscription is confirmed (DEC-146).
 
@@ -470,7 +472,7 @@ Tied players share a rank, so `topTen` can hold more than 10 entries (DEC-155).
 | `/app/games/{gameId}/answer` | Player to server | That game's players | ANSWER_SUBMIT |
 | `/app/time-sync` | Any client to server | Every client, including the projector (DEC-140) | TIME_SYNC request |
 
-Any other SUBSCRIBE or SEND is refused with an ERROR frame.
+Any other SUBSCRIBE or SEND, and any frame a client may not send (MESSAGE and the other server frames), is refused with an ERROR frame with `message: FORBIDDEN`. After any ERROR frame the connection closes.
 
 ### 8.3 Envelope
 

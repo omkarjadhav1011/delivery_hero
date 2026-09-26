@@ -48,6 +48,14 @@ logging:
   structured:
     format:
       console: ecs
+  level:
+    # At DEBUG, Spring's STOMP handling logs frames with their headers, player tokens and projector keys among them,
+    # so these stay at INFO whatever else is turned up (DEC-104)
+    org.springframework.web.socket.messaging: INFO
+    org.springframework.messaging.simp: INFO
+    # It logs every refused frame at ERROR with the WebSocket session ID; StompAuthInterceptor logs refusals without
+    # IDs instead (DEC-104)
+    org.springframework.web.socket.messaging.StompSubProtocolHandler: "OFF"
 
 dh:
   admin:
