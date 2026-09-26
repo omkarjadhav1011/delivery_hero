@@ -9,18 +9,19 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-02 |
 | Branch | chore/s0-02-ci-proofs |
 | Start commit | 2075aca |
-| Last commit | 6e6ab66 |
+| Last commit | cb15962 |
 | Step | test-first |
-| Task | T3 |
+| Task | T4 |
 | Attempts | 0 |
 | Started | 2026-09-26T10:33 |
 | Updated | 2026-09-26T10:52 |
-| Next action | RateLimiterTest and SecurityIT AC-EN06-03 |
+| Next action | RealtimeControllerTest AC-EN06-03 |
 
 ## Completed tasks
 
 - T1 (a0631f4)
 - T2 (6e6ab66)
+- T3 (cb15962)
 
 ## Pending approvals
 
