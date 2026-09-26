@@ -75,7 +75,7 @@ def checkpoints(root: Path, day: date, stories, state) -> List[Dict]:
     cpt = {"id": "CP-T", "date": TRIAL_RUN, "name": "Trial run go/no-go (Charter section 16, document 14 section 11)",
            "numbers": "see the go/no-go view", "verdict": "The owner decides go or no-go from the evidence."}
     out = []
-    for cp in (cp0, cp1, cpt):  # no CP-H: a no-go at the trial moves the event (DEC-213)
+    for cp in (cp0, cp1, cpt):  # no CP-H: a no-go at the trial moves the event (DEC-215)
         cp["applies"] = day >= cp["date"]
         cp["recorded"] = cp["id"] in recorded
         out.append(cp)

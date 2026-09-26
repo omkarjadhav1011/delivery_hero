@@ -93,3 +93,11 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Completed: T1 (1870ebc); T3 (749f191); T5 (89fa9af); T4 (bb387d1).
 - Summary: S2-08 T1-T5: task library filters and search, edit conflicts on tasks and characters, library screen and conflict message; reviews fixed; openapi.json and doc 11 v1.2 approved
 - Still failing: ConcurrentEditTest.characterUpdateRace: assertion at line 91
+
+## 2026-09-26-2104 PLAN
+
+- Outcome: done. Started 2026-09-26T21:04, ended 2026-09-26T21:11.
+- Branch docs/planning-dec-214-215, commits c35daea to 37f4400.
+- Completed: PLAN (94f3cc3).
+- Summary: State 4: Charter 1.17 and API 1.2 applied (PC-08), DI-68 to DI-70 logged, PR #27 open
+- Left pending: Owner approved plan changes 1-10 (DEC-214/215, S2-08 API v1.2, harness dates, research refresh)

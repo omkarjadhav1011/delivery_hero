@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | In progress |
 | Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-51 |
 | Priority and points | Must, 8 |
@@ -105,3 +105,4 @@ Document 13, section 10, plus: every criterion passes, the preview and the phone
 - 2026-09-26: T6 review fixes. frontend-reviewer: no must-fix; security-reviewer: no critical or high; spec-guardian: decisions confirmed, US-51 isn't complete until T7. Fixed: a task that can't be loaded hides the form (Save could create a new task); failed saves and deletes without field issues show a message; the new ID is encoded; blank options and items are copied per form; "Business Analyst" as the documents write it. Recorded DI-61 (E2E-04 wording) and DI-62 (the A-04 strings for review). 133 unit tests pass; `content-admin` and `accessibility` 8/8 on the rebuilt local stack.
 - 2026-09-26: T6 pushed to PR #24, retitled "feat(admin): task editor: API and editor screen" (the old scope `us-51` failed the title check). Status stays In review; T7 stays blocked. Actuals: 17:51 to about 18:50 (about 60 min); main-session tokens not measured (an estimate of about 200k), the three reviewers about 125k together.
 - 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.
+- 2026-09-26: PR #24 merged on 2026-09-26. The status is In progress, since T7 is still open (it waits for S1-11, S2-12 and S2-13).

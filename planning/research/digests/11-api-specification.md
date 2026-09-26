@@ -1,10 +1,10 @@
 # Digest: 11 — API Specification
 
-Source: `docs/11-api-specification.md`, version 1.0, approved 23 September 2026. Depends on Charter v1.8 (DEC-01 to DEC-158), SRS v1.2, HLD v1.1, LLD v1.1, Database Design v1.0. Feeds frontend and backend implementation, document 15 and the OpenAPI document generated from code (NFR-44).
+Source: `docs/11-api-specification.md`, version 1.2, approved 23 September 2026; last revision 2026-09-26 (1.1: section 8 heart-beat, `FORBIDDEN`, ERROR closes; 1.2: section 7.4 library order, 422s, version first). Depends on Charter v1.8 (DEC-01 to DEC-158), SRS v1.2, HLD v1.1, LLD v1.1, Database Design v1.0. Feeds frontend and backend implementation, document 15 and the OpenAPI document generated from code (NFR-44).
 
 ## Completeness
 
-- Line count: 806 (`wc -l`), read in full with the Read tool (lines 1–300, 300–599, 600–806).
+- Line count: 810 (`wc -l`). Read in full at v1.0 (806 lines); the v1.1 and v1.2 changes read from their diffs (870d9a7, fe6a5db) on 2026-09-26.
 - Last heading: `## 14. Approval`.
 - Last line read (line 806): `| Owner and approver | [Owner name] | ☑ Approved | 2026-09-23 |`.
 
@@ -90,11 +90,12 @@ Warnings:
 - `GET /api/admin/session` — auth none — 200 `{"authenticated": true, "expiresAt": "…"}` or `{"authenticated": false, "expiresAt": null}`; sets `XSRF-TOKEN`; no errors — FR-067 (7.3).
 - `POST /api/admin/login` — CSRF — form `username=admin`, `password=<shared password>` (`application/x-www-form-urlencoded`) — 204 with `DH_SESSION`; errors 401 `UNAUTHENTICATED`, 429 `RATE_LIMITED` — FR-067, FR-068 (7.3).
 - `POST /api/admin/logout` — session (and CSRF per 5.2) — 204; no errors — FR-067 (7.3).
-- `GET /api/admin/tasks` — session — query `role`, `phase`, `kind`, `type`, `q` (case-insensitive prompt search); summaries `id, key, role, kind, phase, type, prompt, effectiveTimeLimitSeconds, usedByCount, version`; errors 401 — FR-070 (7.4).
+- `GET /api/admin/tasks` — session — query `role`, `phase`, `kind`, `type`, `q` (case-insensitive prompt search); summaries `id, key, role, kind, phase, type, prompt, effectiveTimeLimitSeconds, usedByCount, version`, ordered by key; errors 401, 422 `VALIDATION_FAILED` (unknown filter value) — FR-070 (7.4).
 - `GET /api/admin/tasks/{id}` — session — task detail incl. correct answers; 401, 404 — FR-069 (7.4).
 - `POST /api/admin/tasks` — session — task input; 201 detail; 401, 422 `VALIDATION_FAILED` — FR-069 (7.4).
 - `PUT /api/admin/tasks/{id}` — session — input with `version`; 200 detail; 401, 404, 409 `EDIT_CONFLICT`, 422 — FR-069, FR-073 (7.4).
-- `DELETE /api/admin/tasks/{id}?version=3` — session — 204; 401, 404, 409 `TASK_IN_USE` or `EDIT_CONFLICT` — FR-069, FR-071 (7.4).
+- `DELETE /api/admin/tasks/{id}?version=3` — session — 204; 401, 404, 409 `TASK_IN_USE` or `EDIT_CONFLICT`, 422 `VALIDATION_FAILED` (missing or non-numeric `version`) — FR-069, FR-071 (7.4).
+- On save or delete the `version` is checked first (FR-073): an outdated copy gets 409 `EDIT_CONFLICT` even when its content would fail validation or the task is in use (7.4, v1.2).
 - `POST /api/admin/tasks/public-view` — session — input without `version`; returns public view (9.1), default time limit and tokens resolved, nothing saved; 401, 422 — FR-069, AP-05 (7.4).
 - `GET /api/admin/characters` — session — all four: `role, displayName, introLine, correctLines` (3), `wrongLines` (3), `version`; 401 — FR-074 (7.5).
 - `PUT /api/admin/characters/{role}` — session — same fields with `version`; 200 saved character; 401, 404, 409 `EDIT_CONFLICT`, 422 — FR-073, FR-074 (7.5).
@@ -136,7 +137,7 @@ Warnings:
 - `/topic/games/{gameId}/admin` — server to admin panels — admin sessions — LIVE_STATS, GAME_ENDED.
 - `/app/games/{gameId}/answer` — player to server — that game's players — ANSWER_SUBMIT.
 - `/app/time-sync` — any client to server — every client incl. projector (DEC-140) — TIME_SYNC request.
-- Any other SUBSCRIBE or SEND: ERROR frame.
+- Any other SUBSCRIBE or SEND, and any server-only frame a client sends: ERROR frame with `message: FORBIDDEN`; after any ERROR frame the connection closes (8, v1.1).
 
 ### Real-time messages
 
@@ -254,7 +255,7 @@ Ops (7.10): deploy-lock `locked` true from LOBBY to REVEAL (DEC-103); health ret
 STOMP (section 8):
 
 - `wss://<host>/ws`, plain WebSocket, STOMP 1.2, no SockJS (DEC-127) (8.1).
-- CONNECT headers `accept-version: 1.2`, `heart-beat: 10000,10000`, plus `player-token` or `projector-key`; admin sends neither (8.1).
+- CONNECT headers `accept-version: 1.2`, `heart-beat: 10000,10000`, plus `player-token` or `projector-key`; admin sends neither (8.1). CONNECTED answers `heart-beat: 2000,10000` (v1.1).
 - Server sends full state once subscription is confirmed (DEC-146) (8.1).
 - Envelope `type` + `serverTime` on every server message; clients ignore unknown fields (8.3).
 - Public task view fields (9.1): `key, type, role, characterName` (from game snapshot), `prompt, code, timeLimitMs` (resolved), `options` (MC only, display order, no correct flags), `items` (ORDER only, display order, no positions), `tokens` (PROBLEM_WORDS only: text split at whitespace, markers removed, no problem flags), `monospace` (PROBLEM_WORDS only). YES_NO has no type-specific fields; non-applicable fields are null.

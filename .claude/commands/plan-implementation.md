@@ -102,9 +102,9 @@ Write a short outline in `planning/00-master-plan.md` (you'll expand it in Step 
   - owner setup;
   - Sprint 0 (Thu 24 – Tue 29 Sep);
   - Sprint 1 (Wed 30 Sep – Tue 6 Oct);
-  - Sprint 2 (Wed 7 – Tue 13 Oct, with the load test on Tue 13 Oct);
-  - the trial run (Wed 14 Oct);
-  - hardening (Thu 15 – Mon 19 Oct, with the content freeze on Fri 16 Oct);
+  - Sprint 2 (Wed 7 – Wed 14 Oct, with the load test on the local stack on Tue 13 Oct, DEC-214);
+  - hardening (Thu 15 – Mon 19 Oct, with the deploy point H-07 and the content freeze on Fri 16 Oct);
+  - the trial run (Mon 19 Oct, DEC-213);
   - the deployment freeze (Tue 20 Oct);
   - the event (Wed 21 Oct);
   - after the event.
@@ -139,7 +139,7 @@ Use the layout in `planning/CONVENTIONS.md`, section 2. Create each register (`o
 - the load test (LT-01);
 - every production check (OPS-01 to OPS-22), manual check (MAN), accessibility check (A11Y) and trial-run procedure (TRIAL), at the times documents 14 and 15 set;
 - the checkpoints in document 4, section 8;
-- the go/no-go and its re-check on Monday 19 October;
+- the go/no-go on Monday 19 October (a no-go moves the event, DEC-215);
 - the v1.0.0 tag;
 - document 17 (owner approval needed);
 - the event-day runbook and the after-event checks.

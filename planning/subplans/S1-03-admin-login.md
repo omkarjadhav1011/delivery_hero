@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-49, US-50 |
 | Priority and points | Must, 4 |
@@ -100,3 +100,4 @@ Document 13, section 10, plus: `SecurityIT` covers every US-49 and US-50 integra
 - 2026-09-26: Actuals. 12:09 to 13:15 (about 65 min). Main-session tokens aren't measured (an estimate of about 250k); the four reviewers used about 185k together. Status stays In progress: T1 to T6 are done and T7 waits for Q-01 and OA-15. It becomes In review when the PR opens.
 - 2026-09-26: PR #21 open (https://github.com/omkarjadhav1011/delivery_hero/pull/21). Status In review; T7 stays blocked.
 - 2026-09-26: DEC-213 (PC-04): T7 (MAN-08) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).
+- 2026-09-26: PR #21 merged on 2026-09-26. T7 moved to H-08 (PC-04), so no task is open and the status is Done.

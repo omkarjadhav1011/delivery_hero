@@ -71,7 +71,7 @@ None.
 - The golden path grows with later subplans: practice (S2-15), incident (S2-17, S2-18), freeze (S2-16), reveal, results and review (S2-03, S2-19), close and past games (S2-04), hero cards (H-04). Each adds its own steps to E2E-02.
 - Q-05 (DI-10): streak display thresholds; this subplan shows the total only, and the streak indicator waits for S2-21.
 - DI-21: strings not in the copy deck are worded in its style and listed for review before the content freeze.
-- AC-US31-03 is measured only by the load test on production (LT-01, S2-27; blocked by Q-01 there).
+- AC-US31-03 is measured only by the load test: LT-01 on the local stack (S2-27, DEC-214), with one repeat on production in H-08.
 
 ## Definition of done
 

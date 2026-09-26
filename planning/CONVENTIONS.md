@@ -317,7 +317,7 @@ Cuts follow the cut order in document 04, section 8, and are only recommendation
 
 - **CP-S0** (Tue 29 Sep), the capacity check in document 04, section 8: S0 points done ÷ S0 working days × working days left before the trial run, compared with the open Must points.
 - **CP-S1** (Tue 6 Oct): any S1 Must story unfinished triggers the cut order.
-- **CP-T** (Mon 19 Oct, DEC-213): go/no-go. A no-go moves the event date (A-01); there is no re-check (owner answer 2026-09-26, PC-06).
+- **CP-T** (Mon 19 Oct, DEC-213): go/no-go. A no-go moves the event date (A-01); there is no re-check (DEC-215).
 - A checkpoint's evaluation and the owner's decision go into `checkpoints.md`. Until they do, `/dh` stops at state 6.
 - **Content freeze** from Fri 16 Oct: task content edits only fix errors. **Deployment freeze** from Tue 20 Oct: merges only for problems that would stop the event. **Event day** (Wed 21 Oct): no merges; the deploy lock must be verified.
 

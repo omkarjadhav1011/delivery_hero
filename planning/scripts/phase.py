@@ -52,7 +52,7 @@ PHASES: Dict[str, Dict] = {
         ("Accessibility scans and the manual checklist (A11Y); MAN device checks; daily defect triage", "document 14, sections 7.5, 7.11 and 12")],
         "exit": "The sprint's Must points Done, and the load test's entry criteria met (Must stories complete on the local stack, no open Sev-1; DEC-213)"},
     "LT": {"name": "Load test day", "mode": "test", "rules": [
-        ("LT-01 on the local stack by Tue 13 Oct; one 100-player repeat run on production in H-08 (Fri 16 to Sun 18 Oct)", "document 15, section 10; DEC-187; DEC-213"),
+        ("LT-01 on the local stack by Tue 13 Oct; one 100-player repeat run on production in H-08 (Fri 16 to Sun 18 Oct)", "document 15, section 10; DEC-187; DEC-214"),
         ("Two passing 100-player runs, one 150-player headroom run, three back-to-back games; also OPS-14 (first load on 4G) and OPS-15 (ZAP baseline)", "document 14, section 7.6; document 15, section 11")],
         "exit": "Two 100-player runs meet every threshold, and memory returns to baseline after three back-to-back games (document 14, section 10)"},
     "T": {"name": "Trial run", "mode": "trial", "rules": [
@@ -65,7 +65,7 @@ PHASES: Dict[str, Dict] = {
         ("Otherwise defect fixes only (and Could stories only if the trial left time)", "document 04, section 8; document 14, section 13"),
         ("Content freeze from Fri 16 Oct: task content edits only fix errors", "Charter section 12; .claude/rules/seed.md"),
         ("MAN and A11Y checks; exploratory sessions; document 17 (release notes) with the owner's approval, because it changes docs/", "document 14, section 13; Charter section 11.2"),
-        ("A no-go at the trial on Mon 19 Oct moves the event date (A-01); there's no re-check", "DEC-213; owner answer 2026-09-26")],
+        ("A no-go at the trial on Mon 19 Oct moves the event date (A-01); there's no re-check", "DEC-215")],
         "exit": "H-07 and H-08 Done before the trial; every go/no-go criterion met, or the owner's explicit decision"},
     "FZ": {"name": "Deployment freeze", "mode": "release", "rules": [
         ("Only fixes for problems that would stop the event, through a pull request with green CI", "document 13, section 9.6 (GS-04)"),

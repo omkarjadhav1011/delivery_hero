@@ -158,14 +158,14 @@ Section 20 of the conventions:
 - **owner (P0):** state 8 first, every time, until the Sprint 0 owner actions are Done.
 - **build (S0, S1, S2, H):** the story loop in state 9.
   - In S0, the first subplan runs `/scaffold-en01`: read `.claude/commands/scaffold-en01.md` and follow it. The scaffold may already exist on `feat/en-01-scaffold`, so check and reuse it rather than redoing it.
-  - Then EN-02, EN-03, the first deploy (OA-18 to OA-21) and OPS-01 to OPS-05.
+  - Then EN-03, EN-04, EN-08, US-01, US-02 and US-04 on the local stack (DEC-213). EN-02, the first deploy (OA-18 to OA-21) and OPS-01 to OPS-05 wait for the deploy point H-07.
   - In H, only defect fixes and approved Could stories. From Fri 16 Oct, seed edits only fix errors.
 - **test (Tue 13 Oct, load test):**
   1. Check LT-01's entry criteria (document 14, section 10).
-  2. Walk the owner through document 15, section 10 (`S section 15 10`), including OA-25 for the load generator.
+  2. Walk the owner through document 15, section 10 (`S section 15 10`) on the local stack (DEC-214), including OA-25 for k6 on the laptop.
   3. Record each run's thresholds in `check-results.md`.
   4. On a failure, propose performance fix subplans and a rerun.
-- **trial (Wed 14 Oct):**
+- **trial (Mon 19 Oct, DEC-213):**
   1. Before the trial, run `security-reviewer` as a full audit of the repository, and remind the owner of the OWASP ZAP baseline scan (document 14, section 7.8).
   2. Run the trial script (`S section 14 "Appendix C"`) and TRIAL-01 to TRIAL-07 (`S section 15 14`) as an owner checklist.
   3. Log each defect with a severity (`S section 14 12`), including every critical or high security finding, and propose a fix subplan in H for every Sev-1 and Sev-2.

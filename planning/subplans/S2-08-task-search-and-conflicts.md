@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Status | In progress |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-52, US-53 |
 | Priority and points | Must, 4 |
 | Depends on | S2-07 |
@@ -54,6 +54,7 @@ Admins filter and search the task library, and a save based on an outdated copy 
 - [x] T4 Show "Someone else changed this since you opened it. Reload to see their changes." in the task editor on `EDIT_CONFLICT`, from `src/copy.ts`, in `frontend/src/admin/components`, test first: E2E-04 `content-admin` step 3 (A and B edit mgr-plan-01) named AC-US53-01, source: AC-US53-01, FR-073, E2E-04 (shared), document 12 section 9 (Task editor screen)
 - [x] T5 Check `version` on character updates (`PUT /api/admin/characters/{role}`); if S2-24 hasn't built that endpoint yet, build only its version-checked update here and leave the editor to US-55, in `app.deliveryhero.content`, test first: `CharacterApiIT` AC-US53-02, source: AC-US53-02, FR-073, US-55 (shared), document 11 section 7.5
 - [ ] T6 Check `version` on run plan update and delete (do this task after S2-09 merges, since the run plan endpoints are built there), in `app.deliveryhero.content`, test first: `RunPlanApiIT` AC-US53-02, source: AC-US53-02, FR-073, document 11 section 7.6
+- [ ] T7 Cover the document 11 v1.2 section 7.4 rules the merged code already follows but no test sends: an outdated delete of a task in use gets 409 `EDIT_CONFLICT`, not `TASK_IN_USE`; an outdated save with invalid content gets 409 `EDIT_CONFLICT`, not 422; `DELETE ?version=abc` gets 422 `VALIDATION_FAILED`, in `app.deliveryhero.content`, test first: three `TaskApiIT` tests named AC-US53-01, source: AC-US53-01, FR-073, document 11 section 7.4
 
 ## Owner actions
 
@@ -91,3 +92,5 @@ Document 13, section 10, plus: every criterion passes; no save without a matchin
 - 2026-09-26: Review fixes (backend-reviewer, frontend-reviewer, security-reviewer, spec-guardian; none critical or high). `ConcurrentEditTest` covers the race between the read and the save for task update, task delete and character update. It found that `CharacterService` refused immutable line lists with a NullPointerException, now fixed. The library is sorted by key in Java, whatever the database collation, and reads the time limit from the entity's fields, not its JSON. The unit tests prove AC-US52-02 ("standup" gives mgr-dev-04) and AC-US52-03 (kind). The prompt cell links to its row header. The E2E conflict step puts back the seed file's prompt in `finally`. The copy comments cite DI-62 and DI-63. DI-64 logs the library order and which error wins between the version check and the others (doc 11). Not changed: an unknown JSON field is still ignored, as it is for `TaskInput`; `q` has no length cap (admins only, parameters bound); there's no search delay; status lines still use `role="status"` until `LiveAnnouncer` exists; the en dash for no phase stays in DI-63. Backend: 122 unit tests pass and 82 of 83 integration tests; the failure is `OpenApiIT`, which waits for `docs/openapi.json`. Frontend: format, lint, typecheck, the unit tests and the build pass. End-to-end: 40 of 40, and `content-admin` 7 of 7 twice.
 - 2026-09-26: Session actuals: 19:16 to 20:01 (about 45 minutes). About 200k tokens in the main session and about 190k in the four reviewers. Open: T6 (run plans), which waits for S2-09. After T6 the TC-US53-02 run plan half can be covered.
 - 2026-09-26: PR #25 opened for T1 to T5. The subplan is In review, and T6 stays open until S2-09 merges.
+- 2026-09-26: Document 11 v1.2 (PC-08): section 7.4 now states the key order, the two 422 responses and the version-first check; T1 and T3 already follow it (DI-64). T7 adds the three tests that were missing.
+- 2026-09-26: PR #25 merged on 2026-09-26. The status is In progress, for T6 (after S2-09) and T7.
