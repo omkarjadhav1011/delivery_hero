@@ -52,7 +52,7 @@ Admins log in with the shared password (checked against a bcrypt hash), get a 12
 
 ## Tasks
 
-- [ ] T1 `LoginHandlers`: form login at `POST /api/admin/login` for the single user `admin`, bcrypt check against `dh.admin.password-hash` (from `DH_ADMIN_PASSWORD_HASH`), 204 or 401 `UNAUTHENTICATED` with no redirects; `GET /api/admin/session`, in `app.deliveryhero.security`, test first: `SecurityIT` login returns 204 with the right password and 401 with a wrong one, source: AC-US49-01, FR-067, DEC-98, API 7.3, LLD 5.9
+- [x] T1 `LoginHandlers`: form login at `POST /api/admin/login` for the single user `admin`, bcrypt check against `dh.admin.password-hash` (from `DH_ADMIN_PASSWORD_HASH`), 204 or 401 `UNAUTHENTICATED` with no redirects; `GET /api/admin/session`, in `app.deliveryhero.security`, test first: `SecurityIT` login returns 204 with the right password and 401 with a wrong one, source: AC-US49-01, FR-067, DEC-98, API 7.3, LLD 5.9
 - [ ] T2 Session: `server.servlet.session.timeout=12h`, `DH_SESSION` cookie HttpOnly, Secure and SameSite=Strict, and `POST /api/admin/logout` ending the session, in `app.deliveryhero.security` and `backend/src/main/resources/application.yml`, test first: `SecurityIT` AC-US49-02 (action at 11 h 59 min works, at 12 h 01 min asks to log in), AC-US49-03 (old cookie refused after logout), AC-US49-04 (cookie flags), source: AC-US49-02, AC-US49-03, AC-US49-04, NFR-15, DEC-97, LLD 5.9 and 5.13
 - [ ] T3 Login attempt limit: `login:<ip>` blocks after 5 failures in 15 minutes for 15 minutes, refusing even the right password with 429 `RATE_LIMITED`; other addresses unaffected; the clock is injected, in `app.deliveryhero.security` (`RateLimiter`, `RateLimitFilter`), test first: `SecurityIT` AC-US50-01, AC-US50-02, AC-US50-03, source: AC-US50-01, AC-US50-02, AC-US50-03, FR-068, DEC-108 (shared), API 5.3, R-05
 - [ ] T4 Login and security logs: `LOGIN_SUCCEEDED`, `LOGIN_FAILED` and `RATE_LIMITED` carry the IP and limit only; the password never reaches a log line, in `app.deliveryhero.security`, test first: `SecurityIT` AC-US49-05 log capture during a failed and a successful login finds no password, source: AC-US49-05, NFR-14 (shared), DEC-104 (shared), LLD 5.14
@@ -91,4 +91,4 @@ Document 13, section 10, plus: `SecurityIT` covers every US-49 and US-50 integra
 
 ## Progress log
 
-None yet.
+- 2026-09-26: T1 done. Form login at `POST /api/admin/login` answers 204 or 401 `UNAUTHENTICATED` (new in `ApiErrorCode`, no detail: A-01 words its own message) with no redirect; `LoginHandlers` is also the entry point, so a call without a session gets the same Problem Details. `GET /api/admin/session` is open and loads the CSRF token, because login needs it (DI-51). Per LLD 5.9 only `/api/admin/**` is authenticated and other API paths are denied (owner choice). The request cache is off, so refused calls create no session. `AdminSession` keeps a fixed end from login (used by T2). `SecurityIT`: 12 pass.

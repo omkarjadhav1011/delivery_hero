@@ -15,8 +15,10 @@ public enum ApiErrorCode {
             422,
             "Invalid name",
             "Names can use letters, numbers, spaces, hyphens, apostrophes and full stops, up to 20 characters."),
-    RATE_LIMITED(429, "Rate limited", "Too many tries. Please wait a moment and try again.");
-    // TODO(US-49): the admin codes of API section 6.2 arrive with the endpoints that return them
+    RATE_LIMITED(429, "Rate limited", "Too many tries. Please wait a moment and try again."),
+    /** No valid admin session, or a failed login; the login screen words its own message (document 12, A-01). */
+    UNAUTHENTICATED(401, "Unauthenticated", null);
+    // TODO(US-51): the other admin codes of API section 6.2 arrive with the endpoints that return them
 
     private final int status;
     private final String title;

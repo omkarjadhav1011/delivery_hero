@@ -14,9 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 @IntegrationTest
 @Import(SecurityIT.AdminProbe.class)
 class SecurityIT {
+
+    /** The public local-only password whose hash is in application-test.yml (SG-02). */
+    private static final String LOCAL_PASSWORD = "delivery-hero-local";
 
     @Autowired
     private MockMvcTester mvc;
@@ -61,6 +67,61 @@ class SecurityIT {
     void everythingElseIsDenied() {
         assertThat(mvc.get().uri("/anything").with(user("admin").roles("ADMIN")).exchange())
                 .hasStatus(HttpStatus.FORBIDDEN);
+        // Only /api/admin/** is the admin API; other API paths are denied too (LLD section 5.9)
+        assertThat(mvc.get()
+                        .uri("/api/anything")
+                        .with(user("admin").roles("ADMIN"))
+                        .exchange())
+                .hasStatus(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    @DisplayName("Without a session, the admin API answers 401 UNAUTHENTICATED as Problem Details")
+    void adminApiWithoutSessionIsUnauthenticated() {
+        MvcTestResult refused = mvc.get().uri("/api/admin/tasks").exchange();
+        assertThat(refused).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 401, "code": "UNAUTHENTICATED"}
+                """);
+    }
+
+    @Test
+    @DisplayName("GET /api/admin/session without a login says so and sets the XSRF-TOKEN cookie")
+    void sessionWithoutLogin() {
+        MvcTestResult session = mvc.get().uri("/api/admin/session").exchange();
+        assertThat(session).hasStatusOk();
+        assertThat(session).bodyJson().isStrictlyEqualTo("""
+                {"authenticated": false, "expiresAt": null}
+                """);
+        assertThat(session.getResponse().getCookie("XSRF-TOKEN")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("AC-US49-01 login (API): the right password gets 204 and a session, with no redirect")
+    void loginWithTheRightPassword() {
+        MvcTestResult login = login("192.0.2.10", LOCAL_PASSWORD);
+        assertThat(login).hasStatus(HttpStatus.NO_CONTENT);
+        assertThat(login.getResponse().getHeader("Location")).isNull();
+
+        MvcTestResult session =
+                mvc.get().uri("/api/admin/session").session(session(login)).exchange();
+        assertThat(session).bodyJson().extractingPath("$.authenticated").isEqualTo(true);
+        assertThat(session).bodyJson().extractingPath("$.expiresAt").isNotNull();
+        assertThat(mvc.get().uri(AdminProbe.PATH).session(session(login)).exchange())
+                .hasStatusOk();
+    }
+
+    @Test
+    @DisplayName("AC-US49-01 login (API): a wrong password gets 401 UNAUTHENTICATED, with no redirect or session")
+    void loginWithAWrongPassword() {
+        MvcTestResult login = login("192.0.2.11", "not-the-password");
+        assertThat(login).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(login).bodyJson().isLenientlyEqualTo("""
+                {"status": 401, "code": "UNAUTHENTICATED"}
+                """);
+        assertThat(login.getResponse().getHeader("Location")).isNull();
+        assertThat(mvc.get().uri(AdminProbe.PATH).session(session(login)).exchange())
+                .hasStatus(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -151,6 +212,38 @@ class SecurityIT {
                 {"status": 429, "code": "RATE_LIMITED", "detail": "Too many tries. Please wait a moment and try again."}
                 """);
         assertThat(join("198.51.100.4")).hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    /** Logs in as the single-page app does: load the CSRF cookie, then post the form with it (API section 7.3). */
+    private MvcTestResult login(String address, String password) {
+        Cookie csrf = mvc.get()
+                .uri("/api/admin/session")
+                .with(from(address))
+                .exchange()
+                .getResponse()
+                .getCookie("XSRF-TOKEN");
+        assertThat(csrf).isNotNull();
+        return mvc.post()
+                .uri("/api/admin/login")
+                .with(from(address))
+                .cookie(csrf)
+                .header("X-XSRF-TOKEN", csrf.getValue())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", "admin")
+                .param("password", password)
+                .exchange();
+    }
+
+    private static MockHttpSession session(MvcTestResult result) {
+        MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
+        return session == null ? new MockHttpSession() : session;
+    }
+
+    private static RequestPostProcessor from(String address) {
+        return request -> {
+            request.setRemoteAddr(address);
+            return request;
+        };
     }
 
     private MvcTestResult join(String address) {
