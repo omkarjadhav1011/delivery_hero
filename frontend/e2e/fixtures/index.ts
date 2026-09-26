@@ -13,22 +13,49 @@ type Fixtures = {
   outsideRequests: string[];
   cspViolations: string[];
   expectMessage: (text: string) => Promise<void>;
+  /** A new phone: its own browser context and empty storage, with the same checks as `page`. */
+  newPhone: () => Promise<Page>;
 };
+
+async function blockOutsideRequests(page: Page, origin: string, blocked: string[]): Promise<void> {
+  await page.route("**/*", async (route) => {
+    const url = route.request().url();
+    if (new URL(url).origin === origin) {
+      await route.continue();
+    } else {
+      blocked.push(url);
+      await route.abort("blockedbyclient");
+    }
+  });
+}
+
+async function listenForCspViolations(page: Page, violations: string[]): Promise<void> {
+  await page.exposeFunction("__reportCspViolation", (violation: string) => {
+    violations.push(violation);
+  });
+  await page.addInitScript(() => {
+    document.addEventListener("securitypolicyviolation", (event) => {
+      const report = (window as unknown as { __reportCspViolation: (v: string) => void })
+        .__reportCspViolation;
+      report(`${event.effectiveDirective} blocked ${event.blockedURI || "inline code"}`);
+    });
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error" && /Content Security Policy/i.test(message.text())) {
+      violations.push(message.text());
+    }
+  });
+}
+
+function originOf(baseURL: string | undefined): string {
+  return new URL(baseURL ?? "http://localhost:8080").origin;
+}
 
 export const test = base.extend<Fixtures>({
   outsideRequests: [
     async ({ page, baseURL }, use) => {
-      const origin = new URL(baseURL ?? "http://localhost:8080").origin;
       const blocked: string[] = [];
-      await page.route("**/*", async (route) => {
-        const url = route.request().url();
-        if (new URL(url).origin === origin) {
-          await route.continue();
-        } else {
-          blocked.push(url);
-          await route.abort("blockedbyclient");
-        }
-      });
+      await blockOutsideRequests(page, originOf(baseURL), blocked);
       await use(blocked);
       expect(blocked, "requests to other sites (X-07, NFR-24)").toEqual([]);
     },
@@ -38,21 +65,7 @@ export const test = base.extend<Fixtures>({
   cspViolations: [
     async ({ page }, use) => {
       const violations: string[] = [];
-      await page.exposeFunction("__reportCspViolation", (violation: string) => {
-        violations.push(violation);
-      });
-      await page.addInitScript(() => {
-        document.addEventListener("securitypolicyviolation", (event) => {
-          const report = (window as unknown as { __reportCspViolation: (v: string) => void })
-            .__reportCspViolation;
-          report(`${event.effectiveDirective} blocked ${event.blockedURI || "inline code"}`);
-        });
-      });
-      page.on("console", (message) => {
-        if (message.type() === "error" && /Content Security Policy/i.test(message.text())) {
-          violations.push(message.text());
-        }
-      });
+      await listenForCspViolations(page, violations);
       await use(violations);
       expect(violations, "content security policy violations (NFR-19)").toEqual([]);
     },
@@ -63,6 +76,19 @@ export const test = base.extend<Fixtures>({
     await use(async (text: string) => {
       await expect(page.getByText(text, { exact: true })).toBeVisible();
     });
+  },
+
+  newPhone: async ({ browser, baseURL, outsideRequests, cspViolations }, use) => {
+    const contexts: Awaited<ReturnType<typeof browser.newContext>>[] = [];
+    await use(async () => {
+      const context = await browser.newContext({ baseURL });
+      contexts.push(context);
+      const phone = await context.newPage();
+      await blockOutsideRequests(phone, originOf(baseURL), outsideRequests);
+      await listenForCspViolations(phone, cspViolations);
+      return phone;
+    });
+    await Promise.all(contexts.map((context) => context.close()));
   },
 });
 
