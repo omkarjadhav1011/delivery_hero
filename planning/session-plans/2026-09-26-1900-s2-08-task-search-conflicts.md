@@ -20,4 +20,7 @@
 
 ## Result
 
-- Pending.
+- Commits: 1870ebc (T1), 749f191 (T3), 89fa9af (T5), d5f10cf (T2), 6ec58b9 (T4), bb387d1, 75bdf74 (review fixes), 4a79524 (`docs/openapi.json`, approved), fe6a5db (document 11 v1.2, approved).
+- Checks: backend `verify` passes (122 unit tests; 83 integration tests after the OpenAPI copy). The frontend checks pass: format, lint, typecheck, 141 unit tests and the build. End-to-end: 40/40 on the e2e stack, and `content-admin` 7/7 twice. Markdownlint is clean. shellcheck, actionlint and gitleaks aren't installed here.
+- Found: `CharacterService` refused immutable line lists (fixed, and `ConcurrentEditTest` covers it). DI-63 lists the library copy for the owner's review; DI-64 was resolved in document 11 v1.2.
+- Not done: T6 (run plans) waits for S2-09. The subplan stays In progress, and In review once the PR is open.
