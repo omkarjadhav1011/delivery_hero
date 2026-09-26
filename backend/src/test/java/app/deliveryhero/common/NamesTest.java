@@ -131,4 +131,10 @@ class NamesTest {
 
         assertThat(registry.unique("Alexandria Constan c")).isEqualTo("Alexandria Consta 11");
     }
+
+    @Test
+    @DisplayName("scratch: deliberately failing test for the S0-02 merge gate proof")
+    void scratchFailingTest() {
+        assertThat(1).isEqualTo(2);
+    }
 }
