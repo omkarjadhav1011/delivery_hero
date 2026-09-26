@@ -28,6 +28,20 @@ public record SiteProperties(@DefaultValue("") String publicBaseUrl) {
         }
     }
 
+    /** The address a phone opens to join the game with this code (API section 7.7). */
+    public String joinUrl(String code) {
+        return withoutTrailingSlash() + "/join?code=" + code;
+    }
+
+    /** The projector's address with the game's key, shown only in the admin panel (FR-052, API section 7.7). */
+    public String projectorUrl(String projectorKey) {
+        return withoutTrailingSlash() + "/screen?key=" + projectorKey;
+    }
+
+    private String withoutTrailingSlash() {
+        return publicBaseUrl.replaceAll("/+$", "");
+    }
+
     /** The site's origin, scheme, host and any port, as a browser sends it; empty when no address is configured. */
     public Optional<String> origin() {
         if (publicBaseUrl.isEmpty()) {

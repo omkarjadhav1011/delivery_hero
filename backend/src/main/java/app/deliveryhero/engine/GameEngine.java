@@ -5,8 +5,10 @@ import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
+import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.timer.TimerScheduler;
 import jakarta.annotation.PreDestroy;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -28,6 +30,8 @@ public class GameEngine {
     private final PlayerTokens playerTokens;
     private final GameProperties properties;
     private final Broadcaster broadcaster;
+    private final TimerScheduler timers;
+    private final SiteProperties site;
     private final Clock clock;
     private final SecureRandom random;
 
@@ -36,12 +40,16 @@ public class GameEngine {
             PlayerTokens playerTokens,
             GameProperties properties,
             Broadcaster broadcaster,
+            TimerScheduler timers,
+            SiteProperties site,
             Clock clock,
             SecureRandom random) {
         this.tokens = tokens;
         this.playerTokens = playerTokens;
         this.properties = properties;
         this.broadcaster = broadcaster;
+        this.timers = timers;
+        this.site = site;
         this.clock = clock;
         this.random = random;
     }
@@ -54,13 +62,16 @@ public class GameEngine {
                 state,
                 test,
                 snapshot,
+                site.joinUrl(code),
                 properties.maxPlayers(),
                 tokens,
                 playerTokens,
                 broadcaster,
+                timers,
                 clock,
                 random);
         sessions.put(gameId, session);
+        session.start();
         return session;
     }
 

@@ -7,6 +7,7 @@ import java.text.Normalizer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
@@ -130,5 +131,12 @@ class NamesTest {
         }
 
         assertThat(registry.unique("Alexandria Constan c")).isEqualTo("Alexandria Consta 11");
+    }
+
+    @ParameterizedTest(name = "\"{0}\" gives \"{1}\"")
+    @CsvSource({"Priya S, PS", "Priya, P", "Rahul 2, R2", "mei lin chen, ML", "José, J", "O'Neil-Smith jr., OJ"})
+    @DisplayName("The wall's initials are the first character of the first two words, in capitals (DI-77)")
+    void initialsComeFromTheFirstTwoWords(String name, String initials) {
+        assertThat(Names.initials(name)).isEqualTo(initials);
     }
 }

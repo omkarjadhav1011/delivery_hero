@@ -3,6 +3,11 @@ package app.deliveryhero.engine;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.ScreenStateMessage;
+import app.deliveryhero.broadcast.ScreenStateMessage.PlayerStatus;
+import app.deliveryhero.broadcast.ScreenStateMessage.ScreenPlayer;
+import app.deliveryhero.broadcast.WallEventsMessage;
+import app.deliveryhero.broadcast.WallEventsMessage.WallEvent;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
@@ -20,12 +25,19 @@ import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.Reconnect;
 import app.deliveryhero.engine.command.SubmitAnswer;
+import app.deliveryhero.engine.command.TimerFired;
+import app.deliveryhero.engine.timer.TimerKey;
+import app.deliveryhero.engine.timer.TimerScheduler;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +56,9 @@ public final class GameSession {
 
     private static final Logger log = LoggerFactory.getLogger(GameSession.class);
 
+    /** The screen batch interval (DEC-128). */
+    static final Duration FLUSH_INTERVAL = Duration.ofMillis(500);
+
     /** The states in which a phone may join (LLD section 5.4.3). */
     private static final Set<GameState> JOINABLE =
             EnumSet.of(GameState.LOBBY, GameState.PRACTICE, GameState.COUNTDOWN, GameState.LIVE);
@@ -52,19 +67,23 @@ public final class GameSession {
     private final String code;
     private final boolean test;
     private final GameSnapshot snapshot;
+    private final String joinUrl;
     private final int maxPlayers;
     private final TokenService tokens;
     private final PlayerTokens playerTokens;
     private final Broadcaster broadcaster;
+    private final TimerScheduler timers;
     private final Clock clock;
     private final SecureRandom random;
     private final ExecutorService thread;
 
     // Session state: read and written only on the session thread
     private GameState state;
-    private final Map<UUID, PlayerState> players = new LinkedHashMap<>();
+    private final SequencedMap<UUID, PlayerState> players = new LinkedHashMap<>();
     private final Map<String, UUID> tokenIndex = new HashMap<>();
     private final NameRegistry names = new NameRegistry();
+    /** Wall events since the last flush, sent together as one WALL_EVENTS (LLD section 5.7, DEC-128). */
+    private final List<WallEvent> pendingWallEvents = new ArrayList<>();
     /** Set by Discard: from then on nobody joins, and every other command is ignored. */
     private boolean ended;
 
@@ -74,10 +93,12 @@ public final class GameSession {
             GameState state,
             boolean test,
             GameSnapshot snapshot,
+            String joinUrl,
             int maxPlayers,
             TokenService tokens,
             PlayerTokens playerTokens,
             Broadcaster broadcaster,
+            TimerScheduler timers,
             Clock clock,
             SecureRandom random) {
         this.id = id;
@@ -85,10 +106,12 @@ public final class GameSession {
         this.state = state;
         this.test = test;
         this.snapshot = snapshot;
+        this.joinUrl = joinUrl;
         this.maxPlayers = maxPlayers;
         this.tokens = tokens;
         this.playerTokens = playerTokens;
         this.broadcaster = broadcaster;
+        this.timers = timers;
         this.clock = clock;
         this.random = random;
         this.thread = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "game-" + id));
@@ -135,6 +158,7 @@ public final class GameSession {
                 case ClientSubscribed subscribed -> {}
                 case SubmitAnswer answer -> {}
                 case Discard discard -> {}
+                case TimerFired fired -> {}
             }
         } finally {
             MDC.remove("gameId");
@@ -151,8 +175,19 @@ public final class GameSession {
         }
     }
 
+    /**
+     * Starts the screen batches if the game is already in the lobby, as the end-to-end games are; otherwise OpenLobby
+     * starts them (S1-07). Called once, before any command.
+     */
+    void start() {
+        if (state == GameState.LOBBY) {
+            scheduleFlush();
+        }
+    }
+
     /** Ends the session without a word to its clients, when the application stops. */
     void close() {
+        timers.cancelAll(id);
         if (thread.isShutdown()) {
             return;
         }
@@ -171,6 +206,7 @@ public final class GameSession {
                 case ClientSubscribed subscribed -> {}
                 case SubmitAnswer answer -> {}
                 case Discard discard -> {}
+                case TimerFired fired -> {}
             }
             return;
         }
@@ -190,6 +226,7 @@ public final class GameSession {
             }
             case ClientSubscribed subscribed -> subscribed(subscribed);
             case Discard discard -> ended(discard.reason());
+            case TimerFired fired -> timerFired(fired.key());
             case SubmitAnswer answer -> {
                 // TODO(US-27): check and score in LIVE and FROZEN, and reply ANSWER_REJECTED otherwise (LLD 5.4.4).
                 // No state accepts answers yet, so there is nothing to score.
@@ -213,6 +250,7 @@ public final class GameSession {
         players.put(playerId, new PlayerState(playerId, name, tokenHash));
         tokenIndex.put(tokenHash, playerId);
         playerTokens.register(tokenHash, id, playerId);
+        pendingWallEvents.add(WallEvent.joined(playerId, Names.initials(name), name));
         log.atInfo()
                 .addKeyValue("event", "PLAYER_JOINED")
                 .addKeyValue("playerId", playerId)
@@ -225,7 +263,12 @@ public final class GameSession {
      * player of another game is ignored. TODO(US-16): send it again on every state change; S0 has none.
      */
     private void subscribed(ClientSubscribed subscribed) {
-        // TODO(S1-06): the projector's SCREEN_STATE; TODO(S1-07): the admin's LIVE_STATS
+        if (subscribed.role() == ClientRole.PROJECTOR) {
+            // TODO(S1-07): send it again on OpenLobby, and on every later state change
+            broadcaster.toScreen(id, screenState());
+            return;
+        }
+        // TODO(S1-07): the admin's LIVE_STATS
         if (subscribed.role() != ClientRole.PLAYER || subscribed.playerId() == null) {
             return;
         }
@@ -240,6 +283,7 @@ public final class GameSession {
     /** The projector hears why the game ended; TODO(US-62): phones get GAME_ENDED too. */
     private void ended(EndReason reason) {
         ended = true;
+        timers.cancelAll(id);
         broadcaster.toScreen(id, GameEndedMessage.of(clock.millis(), reason));
         revokeCredentials();
     }
@@ -247,6 +291,36 @@ public final class GameSession {
     private void revokeCredentials() {
         players.values().forEach(player -> playerTokens.revoke(player.tokenHash()));
         playerTokens.revokeProjector(id);
+    }
+
+    private void timerFired(TimerKey key) {
+        switch (key.type()) {
+            case FLUSH -> {
+                flush();
+                scheduleFlush();
+            }
+        }
+    }
+
+    private void scheduleFlush() {
+        timers.schedule(id, TimerKey.FLUSH, clock.instant().plus(FLUSH_INTERVAL), key -> enqueue(new TimerFired(key)));
+    }
+
+    /** Sends what changed on the wall since the last flush, if anything did (LLD section 5.7). */
+    private void flush() {
+        if (!pendingWallEvents.isEmpty()) {
+            broadcaster.toScreen(id, WallEventsMessage.of(clock.millis(), pendingWallEvents));
+            pendingWallEvents.clear();
+        }
+    }
+
+    /** The projector's full state: the joined players newest first (FR-053). */
+    private ScreenStateMessage screenState() {
+        List<ScreenPlayer> newestFirst = players.sequencedValues().reversed().stream()
+                .map(player -> new ScreenPlayer(
+                        player.id(), Names.initials(player.name()), player.name(), PlayerStatus.ONLINE))
+                .toList();
+        return ScreenStateMessage.beforeTheRound(clock.millis(), id, state, test, joinUrl, newestFirst);
     }
 
     private GetStatus.Status status() {

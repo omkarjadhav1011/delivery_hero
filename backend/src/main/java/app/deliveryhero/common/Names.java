@@ -1,6 +1,7 @@
 package app.deliveryhero.common;
 
 import java.text.Normalizer;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /** Player names: normalization and the character rules of BR-16 (FR-003, DEC-120; LLD section 5.4.10). */
@@ -20,6 +21,23 @@ public final class Names {
     public static String normalize(String raw) {
         String nfc = Normalizer.normalize(raw, Normalizer.Form.NFC);
         return SPACES.matcher(nfc.strip()).replaceAll(" ");
+    }
+
+    /**
+     * The wall's initials for a display name: the first character of its first two words, in capitals ("Priya S" gives
+     * "PS", "Rahul 2" gives "R2"; DI-77).
+     */
+    public static String initials(String name) {
+        StringBuilder initials = new StringBuilder();
+        for (String word : name.split(" ", 3)) {
+            if (initials.codePointCount(0, initials.length()) == 2) {
+                break;
+            }
+            if (!word.isEmpty()) {
+                initials.appendCodePoint(word.codePointAt(0));
+            }
+        }
+        return initials.toString().toUpperCase(Locale.ROOT);
     }
 
     /** Whether a normalized name is 1 to 20 characters of the allowed kinds (BR-16). */

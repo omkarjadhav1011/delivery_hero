@@ -16,6 +16,7 @@ import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
+import app.deliveryhero.support.ManualTimers;
 import app.deliveryhero.support.TestData;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -66,10 +67,12 @@ class GameSessionTest {
                 GameState.LOBBY,
                 false,
                 TestData.EMPTY_SNAPSHOT,
+                "http://localhost:8080/join?code=" + TestData.GAME_CODE,
                 100,
                 tokens,
                 playerTokens,
                 broadcaster,
+                new ManualTimers(CLOCK),
                 CLOCK,
                 random);
     }
