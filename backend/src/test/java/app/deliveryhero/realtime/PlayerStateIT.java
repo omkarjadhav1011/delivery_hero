@@ -53,7 +53,7 @@ class PlayerStateIT {
     @DisplayName(
             "AC-US04-01 a joined player receives GAME_STATE with the final name after subscribing, and nothing else")
     void joinedPlayerReceivesGameState() throws Exception {
-        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false);
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false, TestData.EMPTY_SNAPSHOT);
         JoinResult.Joined priya = join(TestData.PRIYA_TYPED);
 
         try (RawStompClient phone = RawStompClient.open(port)) {
@@ -90,7 +90,7 @@ class PlayerStateIT {
     @Test
     @DisplayName("A second player's GAME_STATE carries their own name, never another player's")
     void eachPlayerGetsTheirOwnState() throws Exception {
-        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false);
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false, TestData.EMPTY_SNAPSHOT);
         join(TestData.PRIYA_TYPED);
         JoinResult.Joined sam = join("Sam");
 

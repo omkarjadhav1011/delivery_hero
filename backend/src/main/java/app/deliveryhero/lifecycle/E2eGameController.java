@@ -2,8 +2,11 @@ package app.deliveryhero.lifecycle;
 
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
+import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.GameEngine;
 import java.security.SecureRandom;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Test scaffolding for the walking skeleton's end-to-end tests, in the {@code e2e} profile only (DI-08, DI-24). It
  * opens a fresh game in LOBBY with code K7PQ2M, discarding any game with that code first, so a retried or repeated
  * spec still joins as exactly "Priya". The game lives only in memory: no {@code games} row, so the deploy lock and
- * the seed command are unaffected. TODO(US-59): delete it once {@code POST /api/admin/games} creates games (S1-04 T6).
+ * the seed command are unaffected. TODO(US-60): delete it once the fixtures open a game through the API (S1-07 T9).
  */
 @RestController
 @Profile("e2e")
@@ -35,7 +38,11 @@ public class E2eGameController {
         this.random = random;
     }
 
-    /** The game the specs join. TODO(US-59): on the seed's Quick 3-minute plan once sessions carry a snapshot. */
+    /** No plan: the join and lobby specs never reach a task. */
+    private static final GameSnapshot NO_PLAN =
+            new GameSnapshot(GameSnapshot.FORMAT_VERSION, "End-to-end lobby", 180, Map.of(), List.of(), null, Map.of());
+
+    /** The game the specs join. */
     public record OpenedGame(UUID gameId, String code) {}
 
     @PostMapping(PATH)
@@ -43,7 +50,7 @@ public class E2eGameController {
     public OpenedGame open() {
         engine.findByCode(CODE).ifPresent(old -> engine.discard(old.id()));
         UUID gameId = Ids.newUuid(random);
-        engine.create(gameId, CODE, GameState.LOBBY, false);
+        engine.create(gameId, CODE, GameState.LOBBY, false, NO_PLAN);
         return new OpenedGame(gameId, CODE);
     }
 }

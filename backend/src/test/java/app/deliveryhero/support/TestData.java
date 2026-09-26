@@ -1,5 +1,8 @@
 package app.deliveryhero.support;
 
+import app.deliveryhero.content.GameSnapshot;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Shared test data, named as in document 15's data sets (DS-02, DS-04), in one place for every test. */
@@ -17,6 +20,10 @@ public final class TestData {
     public static final String PRIYA_TYPED = "  Priya   S ";
 
     public static final String PRIYA = "Priya S";
+
+    /** A snapshot with no tasks, for sessions that only join and connect. */
+    public static final GameSnapshot EMPTY_SNAPSHOT =
+            new GameSnapshot(GameSnapshot.FORMAT_VERSION, "Test plan", 180, Map.of(), List.of(), null, Map.of());
 
     private TestData() {}
 }

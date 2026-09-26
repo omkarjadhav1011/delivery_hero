@@ -24,6 +24,8 @@ public enum ApiErrorCode {
     EDIT_CONFLICT(409, "Edit conflict", "Someone else changed this since you opened it. Reload to see their changes."),
     /** Deleting a task a run plan uses; the detail names the plans and {@code errors} lists them (FR-071). */
     TASK_IN_USE(409, "Task in use", "This task is used by: …"),
+    /** Creating a game while another is open, real or test (DEC-101). */
+    ANOTHER_GAME_OPEN(409, "Another game open", "Another game is still open. Close or cancel it first."),
     NOT_FOUND(404, "Not found", null);
     // The host codes of API section 6.2 arrive with the endpoints that return them
 
