@@ -101,7 +101,7 @@ public class ContentValidator {
             issues.error("type", "INCIDENT_NOT_MULTIPLE_CHOICE", "Incident tasks must be multiple choice.");
         }
         if (issues.length("prompt", task.prompt(), 1, 200) && words(task.prompt()) > PROMPT_WORDS_WARNING) {
-            issues.warning("prompt", "PROMPT_OVER_25_WORDS", "The prompt has more than 25 words.");
+            issues.warning("prompt", "PROMPT_OVER_25_WORDS", "Prompts should be 25 words or fewer.");
         }
         CodeSnippet code = task.code();
         if (code != null) {

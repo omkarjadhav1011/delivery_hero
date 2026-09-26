@@ -314,6 +314,49 @@ class ContentValidatorTest {
         assertThat(validator.validateSeedTask(withExplanation(" ")).warnings()).isEmpty();
     }
 
+    @Test
+    @DisplayName("AC-US51-06 default time limit: a yes/no task without one gets 8 seconds")
+    void yesNoDefaultsToEightSeconds() {
+        TaskDefinition yesNo = task("tst-test-02", TaskKind.SCORED, Phase.TESTING, new YesNoContent(false));
+
+        assertThat(validator.validateTask(yesNo).errors()).isEmpty();
+        assertThat(yesNo.effectiveTimeLimitSeconds()).isEqualTo(8);
+    }
+
+    @Test
+    @DisplayName("Default time limits follow DEC-74, and a set limit wins")
+    void defaultTimeLimits() {
+        TaskDefinition incident = new TaskDefinition(
+                "incident-9",
+                Role.DEVELOPER,
+                TaskKind.INCIDENT,
+                null,
+                TaskType.MULTIPLE_CHOICE,
+                "Down!",
+                null,
+                null,
+                mc(),
+                "Why");
+
+        assertThat(task("t", TaskKind.SCORED, Phase.PLANNING, mc()).effectiveTimeLimitSeconds())
+                .isEqualTo(15);
+        assertThat(order(2, 1, 3).effectiveTimeLimitSeconds()).isEqualTo(25);
+        assertThat(words("A {{b}} c").effectiveTimeLimitSeconds()).isEqualTo(20);
+        assertThat(incident.effectiveTimeLimitSeconds()).isEqualTo(20);
+        assertThat(withTimeLimit(42).effectiveTimeLimitSeconds()).isEqualTo(42);
+    }
+
+    @Test
+    @DisplayName("AC-US51-07 long prompt warning: a 30-word prompt saves, with a warning to keep to 25 words")
+    void thirtyWordPromptWarns() {
+        ValidationReport report =
+                validator.validateTask(withPrompt("word ".repeat(30).trim()));
+
+        assertThat(report.errors()).isEmpty();
+        assertThat(report.warnings())
+                .containsExactly(new Issue("prompt", "PROMPT_OVER_25_WORDS", "Prompts should be 25 words or fewer."));
+    }
+
     private static RunPlanDefinition plan(int minutes) {
         return new RunPlanDefinition("default-5min", "Default 5-minute plan", minutes, List.of(), null, Map.of());
     }

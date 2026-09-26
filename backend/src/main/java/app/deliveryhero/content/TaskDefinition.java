@@ -17,4 +17,21 @@ public record TaskDefinition(
         @Nullable CodeSnippet code,
         @Nullable Integer timeLimitSeconds,
         TaskContent content,
-        @Nullable String explanation) {}
+        @Nullable String explanation) {
+
+    /** The set limit, or the default for the task (DEC-74): incident tasks 20 seconds, whatever their type. */
+    public int effectiveTimeLimitSeconds() {
+        if (timeLimitSeconds != null) {
+            return timeLimitSeconds;
+        }
+        if (kind == TaskKind.INCIDENT) {
+            return 20;
+        }
+        return switch (type) {
+            case MULTIPLE_CHOICE -> 15;
+            case YES_NO -> 8;
+            case ORDER -> 25;
+            case PROBLEM_WORDS -> 20;
+        };
+    }
+}
