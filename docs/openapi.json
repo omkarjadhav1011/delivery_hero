@@ -9,6 +9,24 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/admin/session" : {
+      "get" : {
+        "operationId" : "session",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminSessionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "admin-session-controller" ]
+      }
+    },
     "/api/games/{code}" : {
       "get" : {
         "operationId" : "status",
@@ -92,6 +110,18 @@
   },
   "components" : {
     "schemas" : {
+      "AdminSessionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "authenticated" : {
+            "type" : "boolean"
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "DeployLockResponse" : {
         "type" : "object",
         "properties" : {

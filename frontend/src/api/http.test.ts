@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, http } from "./http";
+import { ApiError, http, setUnauthenticatedHandler } from "./http";
 
 function jsonResponse(status: number, body: unknown, contentType = "application/json"): Response {
   return new Response(body === undefined ? null : JSON.stringify(body), {
@@ -113,5 +113,57 @@ describe("http", () => {
     expect(error.status).toBe(502);
     expect(error.code).toBeNull();
     expect(error.problem).toBeNull();
+  });
+
+  it("posts a form URL-encoded, with the CSRF header, for the admin login", async () => {
+    document.cookie = "XSRF-TOKEN=abc123";
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    await http("/api/admin/login", {
+      method: "POST",
+      form: { username: "admin", password: "p&ss word" },
+    });
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    expect(init?.body).toBe("username=admin&password=p%26ss+word");
+    expect(init?.headers).toEqual({
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-XSRF-TOKEN": "abc123",
+    });
+  });
+
+  describe("UNAUTHENTICATED from the admin API", () => {
+    const toLogin = vi.fn();
+
+    beforeEach(() => {
+      setUnauthenticatedHandler(toLogin);
+    });
+
+    afterEach(() => {
+      toLogin.mockReset();
+      setUnauthenticatedHandler(null);
+    });
+
+    const unauthenticated = () =>
+      jsonResponse(401, { title: "Unauthenticated", status: 401, code: "UNAUTHENTICATED" });
+
+    it("AC-US49-02 sends the admin to login when a session has ended", async () => {
+      fetchMock.mockResolvedValue(unauthenticated());
+
+      await expect(http("/api/admin/tasks")).rejects.toBeInstanceOf(ApiError);
+
+      expect(toLogin).toHaveBeenCalledOnce();
+    });
+
+    it("leaves a failed login to the login screen", async () => {
+      fetchMock.mockResolvedValue(unauthenticated());
+
+      await expect(http("/api/admin/login", { method: "POST", form: {} })).rejects.toBeInstanceOf(
+        ApiError,
+      );
+
+      expect(toLogin).not.toHaveBeenCalled();
+    });
   });
 });

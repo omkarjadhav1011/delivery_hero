@@ -8,7 +8,10 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type RequestOptions = {
   method?: HttpMethod;
+  /** A JSON body. */
   body?: unknown;
+  /** Form fields, sent URL-encoded instead of a JSON body: only the admin login takes them (document 11, 7.3). */
+  form?: Record<string, string>;
   signal?: AbortSignal;
 };
 
@@ -17,6 +20,16 @@ const STATE_CHANGING: ReadonlySet<HttpMethod> = new Set(["POST", "PUT", "PATCH",
 /** The cookie and header of Spring Security's cookie-to-header CSRF protection (DEC-164). */
 export const CSRF_COOKIE = "XSRF-TOKEN";
 export const CSRF_HEADER = "X-XSRF-TOKEN";
+
+/** The admin login, which answers UNAUTHENTICATED for a wrong password rather than for an ended session. */
+export const ADMIN_LOGIN_PATH = "/api/admin/login";
+
+let onUnauthenticated: (() => void) | null = null;
+
+/** What happens when an admin call finds no valid session: the admin panel's shell sends the admin to login (A-01). */
+export function setUnauthenticatedHandler(handler: (() => void) | null): void {
+  onUnauthenticated = handler;
+}
 
 /** A failed request. The frontend chooses the user's message from `code`, never from the raw title. */
 export class ApiError extends Error {
@@ -71,8 +84,13 @@ async function toApiError(response: Response): Promise<ApiError> {
 export async function http<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = options.method ?? "GET";
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (options.body !== undefined) {
+  let body: string | undefined;
+  if (options.form !== undefined) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    body = new URLSearchParams(options.form).toString();
+  } else if (options.body !== undefined) {
     headers["Content-Type"] = "application/json";
+    body = JSON.stringify(options.body);
   }
   if (STATE_CHANGING.has(method)) {
     const token = readCookie(CSRF_COOKIE);
@@ -84,17 +102,24 @@ export async function http<T>(path: string, options: RequestOptions = {}): Promi
   const response = await fetch(path, {
     method,
     headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body,
     credentials: "same-origin",
     signal: options.signal,
   });
   if (!response.ok) {
-    throw await toApiError(response);
+    const error = await toApiError(response);
+    // An ended or missing admin session sends the admin to login from any admin call (FR-067)
+    if (
+      error.code === "UNAUTHENTICATED" &&
+      path.startsWith("/api/admin/") &&
+      path !== ADMIN_LOGIN_PATH
+    ) {
+      onUnauthenticated?.();
+    }
+    throw error;
   }
   if (response.status === 204) {
     return undefined as T;
   }
   return (await response.json()) as T;
 }
-
-// TODO(US-49): form-encoded login (document 11, section 7.3) and the session bootstrap that sets the CSRF cookie

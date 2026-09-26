@@ -55,6 +55,8 @@ export const copy = {
     brand: "DELIVERY HERO admin",
     // The navigation's accessible name; not in the copy deck (DI-21)
     navLabel: "Admin sections",
+    // A-02 header
+    logout: "Log out",
     nav: {
       tasks: "Tasks",
       characters: "Characters",
@@ -66,6 +68,9 @@ export const copy = {
       // A-01
       heading: "DELIVERY HERO · Admin",
       password: "Password",
+      submit: "Log in",
+      failed: "That password didn't work.",
+      rateLimited: "Too many tries. Please wait a moment and try again.",
     },
     // A-04 and A-08 headings
     editTask: "Edit task",

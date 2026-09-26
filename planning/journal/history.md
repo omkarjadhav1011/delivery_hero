@@ -64,3 +64,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch chore/s0-02-ci-proofs, commits 2075aca to 0dc41d9.
 - Completed: T1 (a0631f4); T2 (6e6ab66); T3 (cb15962); T4 (ec1e586); T7 (7c8d706); T8 (c410fd6).
 - Summary: S1-02 T1-T8 done, reviews applied, T9 blocked
+
+## 2026-09-26-1209 S1-03
+
+- Outcome: done. Started 2026-09-26T12:09, ended 2026-09-26T13:15.
+- Branch feat/us-49-admin-login, commits c46d91c to d538674.
+- Completed: T1 (8e866f9); T2 (ac88230); T3 (8ca8585); T4 (f04eb89); T5 (32c4045); T6 (b3ec9f6).
+- Summary: S1-03 T1-T6 done on feat/us-49-admin-login: admin login, 12h session, logout, login limit, A-01 screen, e2e login/logout; review fixes applied; T7 blocked on Q-01

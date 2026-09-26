@@ -21,4 +21,4 @@ A changed hash means the plan may be out of date: `/dh` reads the changed docume
 | `14-test-plan.md` | 636 | `699cfca4733d9378608217a9f2803457355defb11eea50e23cdef8b0f054ba94` | 2026-09-25 |
 | `15-test-cases.md` | 833 | `301ff1a78a187e26b8a4a86a560cb70c7855da340f66a6fec6283220f222562f` | 2026-09-26 |
 | `16-deployment-guide.md` | 1029 | `b7c7259fd2fd42399e76edeb4af3150e09adce140d8e881ecbcb89c1a7dc0cfe` | 2026-09-25 |
-| `18-setup-guide.md` | 541 | `5080f983a57fffcf3189b65b3462165767242558e346ef6eecb93f108ee0bc49` | 2026-09-26 |
+| `18-setup-guide.md` | 546 | `3c86c0d0c2e10fb84d9094072f80b1bfdf0ec2d2ae6baff61b9add7fb5623a38` | 2026-09-26 |
