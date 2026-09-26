@@ -685,7 +685,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | EN-01 | EN | Build | S0-01 T1, S0-01 T4 | Tested |  |
 | EN-02 | EN | Build | S0-06 | Planned |  |
 | EN-03 | EN | Build | S0-06 | Planned |  |
-| EN-04 | EN | Build | S0-04 | Tested |  |
+| EN-04 | EN | Build | S1-04 T8 | Tested |  |
 | EN-05 | EN | Build | S1-05 | Planned |  |
 | EN-06 | EN | Build | S0-06 T7 | Planned |  |
 | EN-07 | EN | Build | S2-27 | Planned |  |

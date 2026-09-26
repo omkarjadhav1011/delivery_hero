@@ -60,15 +60,15 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 
 | ID | Family | Defined at | Section | References |
 |---|---|---|---|---|
-| A11Y-01 | A11Y | 15:698 | 13. Manual accessibility checks | 6 in 15, 18 |
-| A11Y-02 | A11Y | 15:699 | 13. Manual accessibility checks | 6 in 15, 18 |
-| A11Y-03 | A11Y | 15:700 | 13. Manual accessibility checks | 6 in 15, 18 |
-| A11Y-04 | A11Y | 15:701 | 13. Manual accessibility checks | 5 in 15, 18 |
-| A11Y-05 | A11Y | 15:702 | 13. Manual accessibility checks | 7 in 15, 18 |
-| A11Y-06 | A11Y | 15:703 | 13. Manual accessibility checks | 5 in 15, 18 |
-| A11Y-07 | A11Y | 15:704 | 13. Manual accessibility checks | 6 in 15, 18 |
-| A11Y-08 | A11Y | 15:705 | 13. Manual accessibility checks | 5 in 15, 18 |
-| A11Y-09 | A11Y | 15:706 | 13. Manual accessibility checks | 6 in 15, 18 |
+| A11Y-01 | A11Y | 15:699 | 13. Manual accessibility checks | 6 in 15, 18 |
+| A11Y-02 | A11Y | 15:700 | 13. Manual accessibility checks | 6 in 15, 18 |
+| A11Y-03 | A11Y | 15:701 | 13. Manual accessibility checks | 6 in 15, 18 |
+| A11Y-04 | A11Y | 15:702 | 13. Manual accessibility checks | 5 in 15, 18 |
+| A11Y-05 | A11Y | 15:703 | 13. Manual accessibility checks | 7 in 15, 18 |
+| A11Y-06 | A11Y | 15:704 | 13. Manual accessibility checks | 5 in 15, 18 |
+| A11Y-07 | A11Y | 15:705 | 13. Manual accessibility checks | 6 in 15, 18 |
+| A11Y-08 | A11Y | 15:706 | 13. Manual accessibility checks | 5 in 15, 18 |
+| A11Y-09 | A11Y | 15:707 | 13. Manual accessibility checks | 6 in 15, 18 |
 | A-01 | A | 12:837 | A-01 · Login (FR-067, FR-068) | 5 in 12 |
 | A-01@01 | ASM | 01:216 | 9. Assumptions | 13 in 01, 02, 03, 04, 09, 14, 16 |
 | A-02 | A | 12:856 | A-02 · Home | 3 in 12 |
@@ -386,13 +386,13 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | ADR-18 | ADR | 09:414 | ADR-18 · Bots inside the engine | 1 in 09 |
 | ADR-19 | ADR | 09:421 | ADR-19 · Enforced boundaries and one error format | 2 in 09 |
 | ADR-20 | ADR | 09:428 | ADR-20 · Oracle Cloud Always Free hosting | 2 in 09 |
-| AP-01 | AP | 11:786 | 12. Decisions proposed in this document | 5 in 01, 11 |
-| AP-02 | AP | 11:787 | 12. Decisions proposed in this document | 5 in 01, 11 |
-| AP-03 | AP | 11:788 | 12. Decisions proposed in this document | 4 in 01, 11 |
-| AP-04 | AP | 11:789 | 12. Decisions proposed in this document | 4 in 01, 11 |
-| AP-05 | AP | 11:790 | 12. Decisions proposed in this document | 4 in 01, 11 |
-| AP-06 | AP | 11:791 | 12. Decisions proposed in this document | 4 in 01, 11 |
-| AP-07 | AP | 11:792 | 12. Decisions proposed in this document | 4 in 01, 11 |
+| AP-01 | AP | 11:788 | 12. Decisions proposed in this document | 5 in 01, 11 |
+| AP-02 | AP | 11:789 | 12. Decisions proposed in this document | 5 in 01, 11 |
+| AP-03 | AP | 11:790 | 12. Decisions proposed in this document | 4 in 01, 11 |
+| AP-04 | AP | 11:791 | 12. Decisions proposed in this document | 4 in 01, 11 |
+| AP-05 | AP | 11:792 | 12. Decisions proposed in this document | 4 in 01, 11 |
+| AP-06 | AP | 11:793 | 12. Decisions proposed in this document | 4 in 01, 11 |
+| AP-07 | AP | 11:794 | 12. Decisions proposed in this document | 4 in 01, 11 |
 | BR-01 | BR | 03:400 | 5. Business rules | 15 in 03, 05, 06, 07, 08, 09, 11, 14 |
 | BR-02 | BR | 03:401 | 5. Business rules | 14 in 03, 05, 06, 07, 08, 09, 14 |
 | BR-03 | BR | 03:402 | 5. Business rules | 13 in 03, 05, 06, 07, 08, 09, 13, 14 |
@@ -655,28 +655,28 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | DG-07 | DG | 16:552 | 17. Decisions proposed in this document | 8 in 01, 16 |
 | DG-08 | DG | 16:553 | 17. Decisions proposed in this document | 6 in 01, 16 |
 | DG-09 | DG | 16:554 | 17. Decisions proposed in this document | 4 in 01, 16 |
-| DS-01 | DS | 15:93 | 6. Test data sets | 1 in 15 |
-| DS-02 | DS | 15:94 | 6. Test data sets | 1 in 15 |
-| DS-03 | DS | 15:95 | 6. Test data sets | 10 in 01, 15 |
-| DS-04 | DS | 15:96 | 6. Test data sets | 1 in 15 |
-| DS-05 | DS | 15:97 | 6. Test data sets | 2 in 15 |
-| DS-06 | DS | 15:98 | 6. Test data sets | 2 in 15 |
-| DS-07 | DS | 15:99 | 6. Test data sets | 1 in 15 |
-| DS-08 | DS | 15:100 | 6. Test data sets | 1 in 15 |
-| DS-09 | DS | 15:101 | 6. Test data sets | 1 in 15 |
-| E2E-01 | E2E | 15:509 | E2E-01 · Join and lobby (`join-and-lobby`) | 4 in 15 |
-| E2E-02 | E2E | 15:524 | E2E-02 · Golden path (`golden-path`) | 4 in 15 |
-| E2E-03 | E2E | 15:553 | E2E-03 · Host controls (`host-controls`) | 3 in 15 |
-| E2E-04 | E2E | 15:567 | E2E-04 · Content administration (`content-admin`) | 3 in 15 |
-| E2E-05 | E2E | 15:581 | E2E-05 · Test games (`test-game`) | 5 in 15 |
-| E2E-06 | E2E | 15:594 | E2E-06 · Resilience (`resilience`) | 7 in 15 |
-| E2E-07 | E2E | 15:609 | E2E-07 · Security and privacy (`security-privacy`) | 6 in 15 |
-| E2E-08 | E2E | 15:617 | E2E-08 · Accessibility (`accessibility`) | 7 in 15 |
-| E2E-09 | E2E | 15:627 | E2E-09 · Page weight (`page-weight`) | 4 in 15 |
+| DS-01 | DS | 15:94 | 6. Test data sets | 1 in 15 |
+| DS-02 | DS | 15:95 | 6. Test data sets | 1 in 15 |
+| DS-03 | DS | 15:96 | 6. Test data sets | 10 in 01, 15 |
+| DS-04 | DS | 15:97 | 6. Test data sets | 1 in 15 |
+| DS-05 | DS | 15:98 | 6. Test data sets | 2 in 15 |
+| DS-06 | DS | 15:99 | 6. Test data sets | 2 in 15 |
+| DS-07 | DS | 15:100 | 6. Test data sets | 1 in 15 |
+| DS-08 | DS | 15:101 | 6. Test data sets | 1 in 15 |
+| DS-09 | DS | 15:102 | 6. Test data sets | 1 in 15 |
+| E2E-01 | E2E | 15:510 | E2E-01 · Join and lobby (`join-and-lobby`) | 4 in 15 |
+| E2E-02 | E2E | 15:525 | E2E-02 · Golden path (`golden-path`) | 4 in 15 |
+| E2E-03 | E2E | 15:554 | E2E-03 · Host controls (`host-controls`) | 3 in 15 |
+| E2E-04 | E2E | 15:568 | E2E-04 · Content administration (`content-admin`) | 3 in 15 |
+| E2E-05 | E2E | 15:582 | E2E-05 · Test games (`test-game`) | 5 in 15 |
+| E2E-06 | E2E | 15:595 | E2E-06 · Resilience (`resilience`) | 7 in 15 |
+| E2E-07 | E2E | 15:610 | E2E-07 · Security and privacy (`security-privacy`) | 6 in 15 |
+| E2E-08 | E2E | 15:618 | E2E-08 · Accessibility (`accessibility`) | 7 in 15 |
+| E2E-09 | E2E | 15:628 | E2E-09 · Page weight (`page-weight`) | 4 in 15 |
 | EN-01 | EN | 04:92 | 6.1 Enabler stories | 9 in 04, 05, 06, 18 |
 | EN-02 | EN | 04:93 | 6.1 Enabler stories | 8 in 04, 05, 06, 16 |
 | EN-03 | EN | 04:94 | 6.1 Enabler stories | 11 in 04, 05, 06, 14, 16 |
-| EN-04 | EN | 04:95 | 6.1 Enabler stories | 7 in 04, 05, 06 |
+| EN-04 | EN | 04:95 | 6.1 Enabler stories | 10 in 04, 05, 06, 08, 11, 18 |
 | EN-05 | EN | 04:96 | 6.1 Enabler stories | 10 in 04, 05, 06 |
 | EN-06 | EN | 04:97 | 6.1 Enabler stories | 6 in 04, 05, 06 |
 | EN-07 | EN | 04:98 | 6.1 Enabler stories | 13 in 04, 05, 06, 07, 09, 14 |
@@ -864,24 +864,24 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | HD-13 | HD | 07:536 | 15. Design decisions proposed in this HLD | 3 in 01, 07 |
 | HD-14 | HD | 07:537 | 15. Design decisions proposed in this HLD | 5 in 01, 07 |
 | HD-15 | HD | 07:538 | 15. Design decisions proposed in this HLD | 3 in 01, 07 |
-| LD-01 | LD | 08:715 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
-| LD-02 | LD | 08:716 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
-| LD-03 | LD | 08:717 | 7. Design decisions proposed in this LLD | 4 in 01, 08 |
-| LD-04 | LD | 08:718 | 7. Design decisions proposed in this LLD | 5 in 01, 08, 12 |
-| LD-05 | LD | 08:719 | 7. Design decisions proposed in this LLD | 6 in 01, 08, 09 |
-| LD-06 | LD | 08:720 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
-| LD-07 | LD | 08:721 | 7. Design decisions proposed in this LLD | 4 in 01, 08 |
-| LD-08 | LD | 08:722 | 7. Design decisions proposed in this LLD | 4 in 01, 08 |
-| LT-01 | LT | 15:58 | 4. How to read this document | 11 in 15, 18 |
-| MAN-01 | MAN | 15:684 | 12. Manual device and visual checks | 4 in 15, 18 |
-| MAN-02 | MAN | 15:685 | 12. Manual device and visual checks | 4 in 15, 18 |
-| MAN-03 | MAN | 15:686 | 12. Manual device and visual checks | 4 in 15, 18 |
-| MAN-04 | MAN | 15:687 | 12. Manual device and visual checks | 6 in 15, 18 |
-| MAN-05 | MAN | 15:688 | 12. Manual device and visual checks | 5 in 15, 18 |
-| MAN-06 | MAN | 15:689 | 12. Manual device and visual checks | 4 in 15, 18 |
-| MAN-07 | MAN | 15:690 | 12. Manual device and visual checks | 4 in 15, 18 |
-| MAN-08 | MAN | 15:691 | 12. Manual device and visual checks | 6 in 15, 18 |
-| MAN-09 | MAN | 15:692 | 12. Manual device and visual checks | 5 in 15, 18 |
+| LD-01 | LD | 08:721 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
+| LD-02 | LD | 08:722 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
+| LD-03 | LD | 08:723 | 7. Design decisions proposed in this LLD | 4 in 01, 08 |
+| LD-04 | LD | 08:724 | 7. Design decisions proposed in this LLD | 5 in 01, 08, 12 |
+| LD-05 | LD | 08:725 | 7. Design decisions proposed in this LLD | 6 in 01, 08, 09 |
+| LD-06 | LD | 08:726 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
+| LD-07 | LD | 08:727 | 7. Design decisions proposed in this LLD | 4 in 01, 08 |
+| LD-08 | LD | 08:728 | 7. Design decisions proposed in this LLD | 5 in 01, 08 |
+| LT-01 | LT | 15:59 | 4. How to read this document | 11 in 15, 18 |
+| MAN-01 | MAN | 15:685 | 12. Manual device and visual checks | 4 in 15, 18 |
+| MAN-02 | MAN | 15:686 | 12. Manual device and visual checks | 4 in 15, 18 |
+| MAN-03 | MAN | 15:687 | 12. Manual device and visual checks | 4 in 15, 18 |
+| MAN-04 | MAN | 15:688 | 12. Manual device and visual checks | 6 in 15, 18 |
+| MAN-05 | MAN | 15:689 | 12. Manual device and visual checks | 5 in 15, 18 |
+| MAN-06 | MAN | 15:690 | 12. Manual device and visual checks | 4 in 15, 18 |
+| MAN-07 | MAN | 15:691 | 12. Manual device and visual checks | 4 in 15, 18 |
+| MAN-08 | MAN | 15:692 | 12. Manual device and visual checks | 6 in 15, 18 |
+| MAN-09 | MAN | 15:693 | 12. Manual device and visual checks | 5 in 15, 18 |
 | NFR-01 | NFR | 03:645 | 8.1 Performance | 15 in 03, 04, 05, 07, 09, 14, 15 |
 | NFR-02 | NFR | 03:646 | 8.1 Performance | 13 in 03, 04, 05, 07, 09, 14, 15 |
 | NFR-03 | NFR | 03:647 | 8.1 Performance | 13 in 03, 04, 05, 06, 07, 09, 12, 14, 15 |
@@ -936,28 +936,28 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | OI-05 | OI | 01:402 | 18. Open items for later documents | 4 in 01, 02 |
 | OI-06 | OI | 01:403 | 18. Open items for later documents | 4 in 01, 03 |
 | OI-07 | OI | 01:404 | 18. Open items for later documents | 13 in 01, 03, 06, 07, 10, 16 |
-| OPS-01 | OPS | 15:657 | 11. Production and pipeline checks | 9 in 15, 16, 18 |
-| OPS-02 | OPS | 15:658 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-03 | OPS | 15:659 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-04 | OPS | 15:660 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-05 | OPS | 15:661 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-06 | OPS | 15:662 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-07 | OPS | 15:663 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-08 | OPS | 15:664 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-09 | OPS | 15:665 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-10 | OPS | 15:666 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
-| OPS-11 | OPS | 15:667 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
-| OPS-12 | OPS | 15:668 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
-| OPS-13 | OPS | 15:669 | 11. Production and pipeline checks | 11 in 15, 16, 18 |
-| OPS-14 | OPS | 15:670 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-15 | OPS | 15:671 | 11. Production and pipeline checks | 5 in 15, 16, 18 |
-| OPS-16 | OPS | 15:672 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
-| OPS-17 | OPS | 15:673 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-18 | OPS | 15:674 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-19 | OPS | 15:675 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
-| OPS-20 | OPS | 15:676 | 11. Production and pipeline checks | 10 in 15, 16, 18 |
-| OPS-21 | OPS | 15:677 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
-| OPS-22 | OPS | 15:678 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-01 | OPS | 15:658 | 11. Production and pipeline checks | 9 in 15, 16, 18 |
+| OPS-02 | OPS | 15:659 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-03 | OPS | 15:660 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-04 | OPS | 15:661 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-05 | OPS | 15:662 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-06 | OPS | 15:663 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-07 | OPS | 15:664 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-08 | OPS | 15:665 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-09 | OPS | 15:666 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-10 | OPS | 15:667 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
+| OPS-11 | OPS | 15:668 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
+| OPS-12 | OPS | 15:669 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
+| OPS-13 | OPS | 15:670 | 11. Production and pipeline checks | 11 in 15, 16, 18 |
+| OPS-14 | OPS | 15:671 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-15 | OPS | 15:672 | 11. Production and pipeline checks | 5 in 15, 16, 18 |
+| OPS-16 | OPS | 15:673 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
+| OPS-17 | OPS | 15:674 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-18 | OPS | 15:675 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-19 | OPS | 15:676 | 11. Production and pipeline checks | 6 in 15, 16, 18 |
+| OPS-20 | OPS | 15:677 | 11. Production and pipeline checks | 10 in 15, 16, 18 |
+| OPS-21 | OPS | 15:678 | 11. Production and pipeline checks | 7 in 15, 16, 18 |
+| OPS-22 | OPS | 15:679 | 11. Production and pipeline checks | 8 in 15, 16, 18 |
 | P-01 | P | 12:219 | P-01 · Switch to Chrome (FR-009) | 5 in 12 |
 | P-02 | P | 12:243 | P-02 · Join (FR-003 to FR-005, FR-011) | 7 in 12 |
 | P-03 | P | 12:269 | P-03 · Join messages (FR-002, FR-005, FR-006) | 10 in 12 |
@@ -1061,282 +1061,282 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | SD-24 | SD | 03:754 | 9. Specification decisions proposed in this SRS | 3 in 01, 03 |
 | SD-25 | SD | 03:755 | 9. Specification decisions proposed in this SRS | 5 in 01, 03 |
 | SD-26 | SD | 03:756 | 9. Specification decisions proposed in this SRS | 4 in 01, 03 |
-| SG-01 | SG | 18:423 | 15. Decisions proposed in this document | 6 in 01, 18 |
-| SG-02 | SG | 18:424 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| SG-03 | SG | 18:425 | 15. Decisions proposed in this document | 4 in 01, 18 |
-| SG-04 | SG | 18:426 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| SG-05 | SG | 18:427 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| TC-EN01-01 | TC-EN | 15:109 | Enablers | 3 in 15, 18 |
-| TC-EN01-02 | TC-EN | 15:110 | Enablers | 2 in 15, 18 |
-| TC-EN01-03 | TC-EN | 15:111 | Enablers | 2 in 15, 18 |
-| TC-EN02-01 | TC-EN | 15:112 | Enablers | 2 in 15 |
-| TC-EN02-02 | TC-EN | 15:113 | Enablers | 2 in 15 |
-| TC-EN02-03 | TC-EN | 15:114 | Enablers | 2 in 15 |
-| TC-EN03-01 | TC-EN | 15:115 | Enablers | 2 in 15 |
-| TC-EN03-02 | TC-EN | 15:116 | Enablers | 2 in 15 |
-| TC-EN03-03 | TC-EN | 15:117 | Enablers | 2 in 15 |
-| TC-EN04-01 | TC-EN | 15:118 | Enablers | 1 in 15 |
-| TC-EN04-02 | TC-EN | 15:119 | Enablers | 2 in 15 |
-| TC-EN04-03 | TC-EN | 15:120 | Enablers | 1 in 15 |
-| TC-EN04-04 | TC-EN | 15:121 | Enablers | 2 in 15 |
-| TC-EN05-01 | TC-EN | 15:122 | Enablers | 1 in 15 |
-| TC-EN05-02 | TC-EN | 15:123 | Enablers | 1 in 15 |
-| TC-EN05-03 | TC-EN | 15:124 | Enablers | 1 in 15 |
-| TC-EN06-01 | TC-EN | 15:125 | Enablers | 4 in 15 |
-| TC-EN06-02 | TC-EN | 15:126 | Enablers | 2 in 15 |
-| TC-EN06-03 | TC-EN | 15:127 | Enablers | 2 in 15 |
-| TC-EN06-04 | TC-EN | 15:128 | Enablers | 3 in 15 |
-| TC-EN07-01 | TC-EN | 15:129 | Enablers | 2 in 15 |
-| TC-EN07-02 | TC-EN | 15:130 | Enablers | 2 in 15 |
-| TC-EN08-01 | TC-EN | 15:131 | Enablers | 2 in 15 |
-| TC-EN08-02 | TC-EN | 15:132 | Enablers | 3 in 15 |
-| TC-EN08-03 | TC-EN | 15:133 | Enablers | 3 in 15 |
-| TC-EN09-01 | TC-EN | 15:134 | Enablers | 4 in 15 |
-| TC-EN09-02 | TC-EN | 15:135 | Enablers | 2 in 15 |
-| TC-US01-01 | TC-US | 15:141 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US01-02 | TC-US | 15:142 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US01-03 | TC-US | 15:143 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US02-01 | TC-US | 15:144 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US02-02 | TC-US | 15:145 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US02-03 | TC-US | 15:146 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US02-04 | TC-US | 15:147 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US02-05 | TC-US | 15:148 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US03-01 | TC-US | 15:149 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US03-02 | TC-US | 15:150 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US03-03 | TC-US | 15:151 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US03-04 | TC-US | 15:152 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US04-01 | TC-US | 15:153 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US04-02 | TC-US | 15:154 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US05-01 | TC-US | 15:155 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US05-02 | TC-US | 15:156 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US05-03 | TC-US | 15:157 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US05-04 | TC-US | 15:158 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US05-05 | TC-US | 15:159 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US06-01 | TC-US | 15:160 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US06-02 | TC-US | 15:161 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US06-03 | TC-US | 15:162 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US06-04 | TC-US | 15:163 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US07-01 | TC-US | 15:164 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US08-01 | TC-US | 15:165 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US08-02 | TC-US | 15:166 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US08-03 | TC-US | 15:167 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US09-01 | TC-US | 15:168 | EP-01 Joining and lobby | 2 in 15 |
-| TC-US09-02 | TC-US | 15:169 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US09-03 | TC-US | 15:170 | EP-01 Joining and lobby | 3 in 15 |
-| TC-US09-04 | TC-US | 15:171 | EP-01 Joining and lobby | 1 in 15 |
-| TC-US10-01 | TC-US | 15:177 | EP-02 Practice round | 2 in 15 |
-| TC-US10-02 | TC-US | 15:178 | EP-02 Practice round | 1 in 15 |
-| TC-US10-03 | TC-US | 15:179 | EP-02 Practice round | 2 in 15 |
-| TC-US10-04 | TC-US | 15:180 | EP-02 Practice round | 2 in 15 |
-| TC-US11-01 | TC-US | 15:181 | EP-02 Practice round | 1 in 15 |
-| TC-US11-02 | TC-US | 15:182 | EP-02 Practice round | 1 in 15 |
-| TC-US12-01 | TC-US | 15:183 | EP-02 Practice round | 1 in 15 |
-| TC-US13-01 | TC-US | 15:189 | EP-03 Round engine | 2 in 15 |
-| TC-US13-02 | TC-US | 15:190 | EP-03 Round engine | 1 in 15 |
-| TC-US13-03 | TC-US | 15:191 | EP-03 Round engine | 2 in 15 |
-| TC-US14-01 | TC-US | 15:192 | EP-03 Round engine | 2 in 15 |
-| TC-US14-02 | TC-US | 15:193 | EP-03 Round engine | 1 in 15 |
-| TC-US15-01 | TC-US | 15:194 | EP-03 Round engine | 1 in 15 |
-| TC-US15-02 | TC-US | 15:195 | EP-03 Round engine | 1 in 15 |
-| TC-US15-03 | TC-US | 15:196 | EP-03 Round engine | 1 in 15 |
-| TC-US16-01 | TC-US | 15:197 | EP-03 Round engine | 2 in 15 |
-| TC-US16-02 | TC-US | 15:198 | EP-03 Round engine | 1 in 15 |
-| TC-US16-03 | TC-US | 15:199 | EP-03 Round engine | 1 in 15 |
-| TC-US16-04 | TC-US | 15:200 | EP-03 Round engine | 1 in 15 |
-| TC-US17-01 | TC-US | 15:201 | EP-03 Round engine | 2 in 15 |
-| TC-US18-01 | TC-US | 15:202 | EP-03 Round engine | 2 in 15 |
-| TC-US18-02 | TC-US | 15:203 | EP-03 Round engine | 1 in 15 |
-| TC-US18-03 | TC-US | 15:204 | EP-03 Round engine | 1 in 15 |
-| TC-US19-01 | TC-US | 15:205 | EP-03 Round engine | 1 in 15 |
-| TC-US19-02 | TC-US | 15:206 | EP-03 Round engine | 1 in 15 |
-| TC-US20-01 | TC-US | 15:207 | EP-03 Round engine | 2 in 15 |
-| TC-US20-02 | TC-US | 15:208 | EP-03 Round engine | 3 in 15 |
-| TC-US21-01 | TC-US | 15:209 | EP-03 Round engine | 2 in 15 |
-| TC-US21-02 | TC-US | 15:210 | EP-03 Round engine | 1 in 15 |
-| TC-US22-01 | TC-US | 15:216 | EP-04 Task types | 3 in 15 |
-| TC-US22-02 | TC-US | 15:217 | EP-04 Task types | 1 in 15 |
-| TC-US23-01 | TC-US | 15:218 | EP-04 Task types | 1 in 15 |
-| TC-US23-02 | TC-US | 15:219 | EP-04 Task types | 1 in 15 |
-| TC-US23-03 | TC-US | 15:220 | EP-04 Task types | 3 in 15 |
-| TC-US24-01 | TC-US | 15:221 | EP-04 Task types | 1 in 15 |
-| TC-US24-02 | TC-US | 15:222 | EP-04 Task types | 1 in 15 |
-| TC-US24-03 | TC-US | 15:223 | EP-04 Task types | 2 in 15 |
-| TC-US24-04 | TC-US | 15:224 | EP-04 Task types | 2 in 15 |
-| TC-US25-01 | TC-US | 15:225 | EP-04 Task types | 1 in 15 |
-| TC-US25-02 | TC-US | 15:226 | EP-04 Task types | 1 in 15 |
-| TC-US25-03 | TC-US | 15:227 | EP-04 Task types | 1 in 15 |
-| TC-US25-04 | TC-US | 15:228 | EP-04 Task types | 1 in 15 |
-| TC-US26-01 | TC-US | 15:229 | EP-04 Task types | 1 in 15 |
-| TC-US26-02 | TC-US | 15:230 | EP-04 Task types | 2 in 15 |
-| TC-US27-01 | TC-US | 15:236 | EP-05 Scoring and feedback | 3 in 15 |
-| TC-US27-02 | TC-US | 15:237 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US27-03 | TC-US | 15:238 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US27-04 | TC-US | 15:239 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-01 | TC-US | 15:240 | EP-05 Scoring and feedback | 4 in 01, 15 |
-| TC-US28-02 | TC-US | 15:241 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-03 | TC-US | 15:242 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-04 | TC-US | 15:243 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-05 | TC-US | 15:244 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-06 | TC-US | 15:245 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US28-07 | TC-US | 15:246 | EP-05 Scoring and feedback | 2 in 15 |
-| TC-US29-01 | TC-US | 15:247 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-02 | TC-US | 15:248 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-03 | TC-US | 15:249 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-04 | TC-US | 15:250 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-05 | TC-US | 15:251 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-06 | TC-US | 15:252 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US29-07 | TC-US | 15:253 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US30-01 | TC-US | 15:254 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US30-02 | TC-US | 15:255 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US30-03 | TC-US | 15:256 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US30-04 | TC-US | 15:257 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US30-05 | TC-US | 15:258 | EP-05 Scoring and feedback | 1 in 15 |
-| TC-US31-01 | TC-US | 15:259 | EP-05 Scoring and feedback | 2 in 15 |
-| TC-US31-02 | TC-US | 15:260 | EP-05 Scoring and feedback | 2 in 15 |
-| TC-US31-03 | TC-US | 15:261 | EP-05 Scoring and feedback | 3 in 15 |
-| TC-US32-01 | TC-US | 15:262 | EP-05 Scoring and feedback | 2 in 15 |
-| TC-US33-01 | TC-US | 15:268 | EP-06 Timed events | 1 in 15 |
-| TC-US33-02 | TC-US | 15:269 | EP-06 Timed events | 3 in 15 |
-| TC-US33-03 | TC-US | 15:270 | EP-06 Timed events | 1 in 15 |
-| TC-US33-04 | TC-US | 15:271 | EP-06 Timed events | 1 in 15 |
-| TC-US33-05 | TC-US | 15:272 | EP-06 Timed events | 1 in 15 |
-| TC-US33-06 | TC-US | 15:273 | EP-06 Timed events | 1 in 15 |
-| TC-US33-07 | TC-US | 15:274 | EP-06 Timed events | 1 in 15 |
-| TC-US33-08 | TC-US | 15:275 | EP-06 Timed events | 1 in 15 |
-| TC-US34-01 | TC-US | 15:276 | EP-06 Timed events | 3 in 15 |
-| TC-US34-02 | TC-US | 15:277 | EP-06 Timed events | 1 in 15 |
-| TC-US34-03 | TC-US | 15:278 | EP-06 Timed events | 1 in 15 |
-| TC-US35-01 | TC-US | 15:279 | EP-06 Timed events | 2 in 15 |
-| TC-US35-02 | TC-US | 15:280 | EP-06 Timed events | 1 in 15 |
-| TC-US36-01 | TC-US | 15:281 | EP-06 Timed events | 2 in 15 |
-| TC-US36-02 | TC-US | 15:282 | EP-06 Timed events | 1 in 15 |
-| TC-US36-03 | TC-US | 15:283 | EP-06 Timed events | 1 in 15 |
-| TC-US36-04 | TC-US | 15:284 | EP-06 Timed events | 1 in 15 |
-| TC-US37-01 | TC-US | 15:290 | EP-07 Projector screen | 1 in 15 |
-| TC-US37-02 | TC-US | 15:291 | EP-07 Projector screen | 1 in 15 |
-| TC-US37-03 | TC-US | 15:292 | EP-07 Projector screen | 3 in 15 |
-| TC-US37-04 | TC-US | 15:293 | EP-07 Projector screen | 2 in 15 |
-| TC-US38-01 | TC-US | 15:294 | EP-07 Projector screen | 2 in 15 |
-| TC-US38-02 | TC-US | 15:295 | EP-07 Projector screen | 2 in 15 |
-| TC-US39-01 | TC-US | 15:296 | EP-07 Projector screen | 2 in 15 |
-| TC-US39-02 | TC-US | 15:297 | EP-07 Projector screen | 1 in 15 |
-| TC-US39-03 | TC-US | 15:298 | EP-07 Projector screen | 3 in 15 |
-| TC-US39-04 | TC-US | 15:299 | EP-07 Projector screen | 1 in 15 |
-| TC-US40-01 | TC-US | 15:300 | EP-07 Projector screen | 2 in 15 |
-| TC-US40-02 | TC-US | 15:301 | EP-07 Projector screen | 2 in 15 |
-| TC-US40-03 | TC-US | 15:302 | EP-07 Projector screen | 2 in 15 |
-| TC-US40-04 | TC-US | 15:303 | EP-07 Projector screen | 2 in 15 |
-| TC-US41-01 | TC-US | 15:304 | EP-07 Projector screen | 1 in 15 |
-| TC-US41-02 | TC-US | 15:305 | EP-07 Projector screen | 1 in 15 |
-| TC-US42-01 | TC-US | 15:306 | EP-07 Projector screen | 2 in 15 |
-| TC-US42-02 | TC-US | 15:307 | EP-07 Projector screen | 2 in 15 |
-| TC-US43-01 | TC-US | 15:313 | EP-08 Reveal and results | 2 in 15 |
-| TC-US43-02 | TC-US | 15:314 | EP-08 Reveal and results | 2 in 15 |
-| TC-US43-03 | TC-US | 15:315 | EP-08 Reveal and results | 2 in 15 |
-| TC-US43-04 | TC-US | 15:316 | EP-08 Reveal and results | 2 in 15 |
-| TC-US44-01 | TC-US | 15:317 | EP-08 Reveal and results | 1 in 15 |
-| TC-US44-02 | TC-US | 15:318 | EP-08 Reveal and results | 2 in 15 |
-| TC-US44-03 | TC-US | 15:319 | EP-08 Reveal and results | 1 in 15 |
-| TC-US44-04 | TC-US | 15:320 | EP-08 Reveal and results | 2 in 15 |
-| TC-US44-05 | TC-US | 15:321 | EP-08 Reveal and results | 1 in 15 |
-| TC-US45-01 | TC-US | 15:322 | EP-08 Reveal and results | 2 in 15 |
-| TC-US45-02 | TC-US | 15:323 | EP-08 Reveal and results | 1 in 15 |
-| TC-US45-03 | TC-US | 15:324 | EP-08 Reveal and results | 3 in 15 |
-| TC-US45-04 | TC-US | 15:325 | EP-08 Reveal and results | 1 in 15 |
-| TC-US46-01 | TC-US | 15:326 | EP-08 Reveal and results | 2 in 15 |
-| TC-US46-02 | TC-US | 15:327 | EP-08 Reveal and results | 2 in 15 |
-| TC-US46-03 | TC-US | 15:328 | EP-08 Reveal and results | 2 in 15 |
-| TC-US47-01 | TC-US | 15:329 | EP-08 Reveal and results | 2 in 15 |
-| TC-US47-02 | TC-US | 15:330 | EP-08 Reveal and results | 1 in 15 |
-| TC-US47-03 | TC-US | 15:331 | EP-08 Reveal and results | 1 in 15 |
-| TC-US47-04 | TC-US | 15:332 | EP-08 Reveal and results | 2 in 15 |
-| TC-US48-01 | TC-US | 15:333 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-02 | TC-US | 15:334 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-03 | TC-US | 15:335 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-04 | TC-US | 15:336 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-05 | TC-US | 15:337 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-06 | TC-US | 15:338 | EP-08 Reveal and results | 1 in 15 |
-| TC-US48-07 | TC-US | 15:339 | EP-08 Reveal and results | 2 in 15 |
-| TC-US49-01 | TC-US | 15:345 | EP-09 Admin access and content | 2 in 15 |
-| TC-US49-02 | TC-US | 15:346 | EP-09 Admin access and content | 2 in 15 |
-| TC-US49-03 | TC-US | 15:347 | EP-09 Admin access and content | 2 in 15 |
-| TC-US49-04 | TC-US | 15:348 | EP-09 Admin access and content | 2 in 15 |
-| TC-US49-05 | TC-US | 15:349 | EP-09 Admin access and content | 2 in 15 |
-| TC-US50-01 | TC-US | 15:350 | EP-09 Admin access and content | 2 in 15 |
-| TC-US50-02 | TC-US | 15:351 | EP-09 Admin access and content | 2 in 15 |
-| TC-US50-03 | TC-US | 15:352 | EP-09 Admin access and content | 2 in 15 |
-| TC-US51-01 | TC-US | 15:353 | EP-09 Admin access and content | 2 in 15 |
-| TC-US51-02 | TC-US | 15:354 | EP-09 Admin access and content | 2 in 15 |
-| TC-US51-03 | TC-US | 15:355 | EP-09 Admin access and content | 2 in 15 |
-| TC-US51-04 | TC-US | 15:356 | EP-09 Admin access and content | 1 in 15 |
-| TC-US51-05 | TC-US | 15:357 | EP-09 Admin access and content | 2 in 15 |
-| TC-US51-06 | TC-US | 15:358 | EP-09 Admin access and content | 1 in 15 |
-| TC-US51-07 | TC-US | 15:359 | EP-09 Admin access and content | 1 in 15 |
-| TC-US52-01 | TC-US | 15:360 | EP-09 Admin access and content | 2 in 15 |
-| TC-US52-02 | TC-US | 15:361 | EP-09 Admin access and content | 1 in 15 |
-| TC-US52-03 | TC-US | 15:362 | EP-09 Admin access and content | 1 in 15 |
-| TC-US53-01 | TC-US | 15:363 | EP-09 Admin access and content | 2 in 15 |
-| TC-US53-02 | TC-US | 15:364 | EP-09 Admin access and content | 1 in 15 |
-| TC-US54-01 | TC-US | 15:365 | EP-09 Admin access and content | 1 in 15 |
-| TC-US54-02 | TC-US | 15:366 | EP-09 Admin access and content | 1 in 15 |
-| TC-US55-01 | TC-US | 15:367 | EP-09 Admin access and content | 2 in 15 |
-| TC-US55-02 | TC-US | 15:368 | EP-09 Admin access and content | 1 in 15 |
-| TC-US55-03 | TC-US | 15:369 | EP-09 Admin access and content | 1 in 15 |
-| TC-US56-01 | TC-US | 15:370 | EP-09 Admin access and content | 1 in 15 |
-| TC-US56-02 | TC-US | 15:371 | EP-09 Admin access and content | 2 in 15 |
-| TC-US56-03 | TC-US | 15:372 | EP-09 Admin access and content | 1 in 15 |
-| TC-US56-04 | TC-US | 15:373 | EP-09 Admin access and content | 3 in 15 |
-| TC-US57-01 | TC-US | 15:379 | EP-10 Run plans and games | 2 in 15 |
-| TC-US57-02 | TC-US | 15:380 | EP-10 Run plans and games | 2 in 15 |
-| TC-US57-03 | TC-US | 15:381 | EP-10 Run plans and games | 1 in 15 |
-| TC-US57-04 | TC-US | 15:382 | EP-10 Run plans and games | 1 in 15 |
-| TC-US57-05 | TC-US | 15:383 | EP-10 Run plans and games | 1 in 15 |
-| TC-US58-01 | TC-US | 15:384 | EP-10 Run plans and games | 1 in 15 |
-| TC-US58-02 | TC-US | 15:385 | EP-10 Run plans and games | 1 in 15 |
-| TC-US58-03 | TC-US | 15:386 | EP-10 Run plans and games | 1 in 15 |
-| TC-US59-01 | TC-US | 15:387 | EP-10 Run plans and games | 1 in 15 |
-| TC-US59-02 | TC-US | 15:388 | EP-10 Run plans and games | 1 in 15 |
-| TC-US59-03 | TC-US | 15:389 | EP-10 Run plans and games | 2 in 15 |
-| TC-US60-01 | TC-US | 15:390 | EP-10 Run plans and games | 1 in 15 |
-| TC-US60-02 | TC-US | 15:391 | EP-10 Run plans and games | 2 in 15 |
-| TC-US60-03 | TC-US | 15:392 | EP-10 Run plans and games | 2 in 15 |
-| TC-US60-04 | TC-US | 15:393 | EP-10 Run plans and games | 2 in 15 |
-| TC-US60-05 | TC-US | 15:394 | EP-10 Run plans and games | 2 in 15 |
-| TC-US61-01 | TC-US | 15:395 | EP-10 Run plans and games | 3 in 15 |
-| TC-US61-02 | TC-US | 15:396 | EP-10 Run plans and games | 2 in 15 |
-| TC-US61-03 | TC-US | 15:397 | EP-10 Run plans and games | 1 in 15 |
-| TC-US61-04 | TC-US | 15:398 | EP-10 Run plans and games | 1 in 15 |
-| TC-US61-05 | TC-US | 15:399 | EP-10 Run plans and games | 1 in 15 |
-| TC-US62-01 | TC-US | 15:400 | EP-10 Run plans and games | 2 in 15 |
-| TC-US62-02 | TC-US | 15:401 | EP-10 Run plans and games | 2 in 15 |
-| TC-US62-03 | TC-US | 15:402 | EP-10 Run plans and games | 1 in 15 |
-| TC-US63-01 | TC-US | 15:403 | EP-10 Run plans and games | 2 in 15 |
-| TC-US63-02 | TC-US | 15:404 | EP-10 Run plans and games | 1 in 15 |
-| TC-US63-03 | TC-US | 15:405 | EP-10 Run plans and games | 2 in 15 |
-| TC-US63-04 | TC-US | 15:406 | EP-10 Run plans and games | 2 in 15 |
-| TC-US63-05 | TC-US | 15:407 | EP-10 Run plans and games | 1 in 15 |
-| TC-US63-06 | TC-US | 15:408 | EP-10 Run plans and games | 2 in 15 |
-| TC-US64-01 | TC-US | 15:414 | EP-11 After the event | 2 in 15 |
-| TC-US64-02 | TC-US | 15:415 | EP-11 After the event | 1 in 15 |
-| TC-US65-01 | TC-US | 15:416 | EP-11 After the event | 2 in 15 |
-| TC-US65-02 | TC-US | 15:417 | EP-11 After the event | 2 in 15 |
-| TC-US65-03 | TC-US | 15:418 | EP-11 After the event | 1 in 15 |
-| TC-US66-01 | TC-US | 15:419 | EP-11 After the event | 1 in 15 |
-| TC-US67-01 | TC-US | 15:420 | EP-11 After the event | 3 in 15 |
-| TC-US67-02 | TC-US | 15:421 | EP-11 After the event | 2 in 15 |
-| TC-US67-03 | TC-US | 15:422 | EP-11 After the event | 2 in 15 |
-| TC-US68-01 | TC-US | 15:428 | EP-12 Operations | 2 in 15 |
-| TC-US68-02 | TC-US | 15:429 | EP-12 Operations | 2 in 15 |
-| TC-US68-03 | TC-US | 15:430 | EP-12 Operations | 2 in 15 |
-| TC-US69-01 | TC-US | 15:431 | EP-12 Operations | 3 in 15 |
-| TC-US69-02 | TC-US | 15:432 | EP-12 Operations | 1 in 15 |
-| TC-US69-03 | TC-US | 15:433 | EP-12 Operations | 2 in 15 |
-| TC-US70-01 | TC-US | 15:434 | EP-12 Operations | 3 in 15 |
-| TC-US70-02 | TC-US | 15:435 | EP-12 Operations | 2 in 15 |
-| TC-US70-03 | TC-US | 15:436 | EP-12 Operations | 1 in 15 |
-| TC-US71-01 | TC-US | 15:437 | EP-12 Operations | 2 in 15 |
-| TC-US71-02 | TC-US | 15:438 | EP-12 Operations | 2 in 15 |
-| TC-US71-03 | TC-US | 15:439 | EP-12 Operations | 2 in 15 |
+| SG-01 | SG | 18:426 | 15. Decisions proposed in this document | 6 in 01, 18 |
+| SG-02 | SG | 18:427 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-03 | SG | 18:428 | 15. Decisions proposed in this document | 4 in 01, 18 |
+| SG-04 | SG | 18:429 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-05 | SG | 18:430 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| TC-EN01-01 | TC-EN | 15:110 | Enablers | 3 in 15, 18 |
+| TC-EN01-02 | TC-EN | 15:111 | Enablers | 2 in 15, 18 |
+| TC-EN01-03 | TC-EN | 15:112 | Enablers | 2 in 15, 18 |
+| TC-EN02-01 | TC-EN | 15:113 | Enablers | 2 in 15 |
+| TC-EN02-02 | TC-EN | 15:114 | Enablers | 2 in 15 |
+| TC-EN02-03 | TC-EN | 15:115 | Enablers | 2 in 15 |
+| TC-EN03-01 | TC-EN | 15:116 | Enablers | 2 in 15 |
+| TC-EN03-02 | TC-EN | 15:117 | Enablers | 2 in 15 |
+| TC-EN03-03 | TC-EN | 15:118 | Enablers | 2 in 15 |
+| TC-EN04-01 | TC-EN | 15:119 | Enablers | 1 in 15 |
+| TC-EN04-02 | TC-EN | 15:120 | Enablers | 2 in 15 |
+| TC-EN04-03 | TC-EN | 15:121 | Enablers | 1 in 15 |
+| TC-EN04-04 | TC-EN | 15:122 | Enablers | 2 in 15 |
+| TC-EN05-01 | TC-EN | 15:123 | Enablers | 1 in 15 |
+| TC-EN05-02 | TC-EN | 15:124 | Enablers | 1 in 15 |
+| TC-EN05-03 | TC-EN | 15:125 | Enablers | 1 in 15 |
+| TC-EN06-01 | TC-EN | 15:126 | Enablers | 4 in 15 |
+| TC-EN06-02 | TC-EN | 15:127 | Enablers | 2 in 15 |
+| TC-EN06-03 | TC-EN | 15:128 | Enablers | 2 in 15 |
+| TC-EN06-04 | TC-EN | 15:129 | Enablers | 3 in 15 |
+| TC-EN07-01 | TC-EN | 15:130 | Enablers | 2 in 15 |
+| TC-EN07-02 | TC-EN | 15:131 | Enablers | 2 in 15 |
+| TC-EN08-01 | TC-EN | 15:132 | Enablers | 2 in 15 |
+| TC-EN08-02 | TC-EN | 15:133 | Enablers | 3 in 15 |
+| TC-EN08-03 | TC-EN | 15:134 | Enablers | 3 in 15 |
+| TC-EN09-01 | TC-EN | 15:135 | Enablers | 4 in 15 |
+| TC-EN09-02 | TC-EN | 15:136 | Enablers | 2 in 15 |
+| TC-US01-01 | TC-US | 15:142 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US01-02 | TC-US | 15:143 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US01-03 | TC-US | 15:144 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US02-01 | TC-US | 15:145 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US02-02 | TC-US | 15:146 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US02-03 | TC-US | 15:147 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US02-04 | TC-US | 15:148 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US02-05 | TC-US | 15:149 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US03-01 | TC-US | 15:150 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US03-02 | TC-US | 15:151 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US03-03 | TC-US | 15:152 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US03-04 | TC-US | 15:153 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US04-01 | TC-US | 15:154 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US04-02 | TC-US | 15:155 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US05-01 | TC-US | 15:156 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US05-02 | TC-US | 15:157 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US05-03 | TC-US | 15:158 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US05-04 | TC-US | 15:159 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US05-05 | TC-US | 15:160 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US06-01 | TC-US | 15:161 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US06-02 | TC-US | 15:162 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US06-03 | TC-US | 15:163 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US06-04 | TC-US | 15:164 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US07-01 | TC-US | 15:165 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US08-01 | TC-US | 15:166 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US08-02 | TC-US | 15:167 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US08-03 | TC-US | 15:168 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US09-01 | TC-US | 15:169 | EP-01 Joining and lobby | 2 in 15 |
+| TC-US09-02 | TC-US | 15:170 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US09-03 | TC-US | 15:171 | EP-01 Joining and lobby | 3 in 15 |
+| TC-US09-04 | TC-US | 15:172 | EP-01 Joining and lobby | 1 in 15 |
+| TC-US10-01 | TC-US | 15:178 | EP-02 Practice round | 2 in 15 |
+| TC-US10-02 | TC-US | 15:179 | EP-02 Practice round | 1 in 15 |
+| TC-US10-03 | TC-US | 15:180 | EP-02 Practice round | 2 in 15 |
+| TC-US10-04 | TC-US | 15:181 | EP-02 Practice round | 2 in 15 |
+| TC-US11-01 | TC-US | 15:182 | EP-02 Practice round | 1 in 15 |
+| TC-US11-02 | TC-US | 15:183 | EP-02 Practice round | 1 in 15 |
+| TC-US12-01 | TC-US | 15:184 | EP-02 Practice round | 1 in 15 |
+| TC-US13-01 | TC-US | 15:190 | EP-03 Round engine | 2 in 15 |
+| TC-US13-02 | TC-US | 15:191 | EP-03 Round engine | 1 in 15 |
+| TC-US13-03 | TC-US | 15:192 | EP-03 Round engine | 2 in 15 |
+| TC-US14-01 | TC-US | 15:193 | EP-03 Round engine | 2 in 15 |
+| TC-US14-02 | TC-US | 15:194 | EP-03 Round engine | 1 in 15 |
+| TC-US15-01 | TC-US | 15:195 | EP-03 Round engine | 1 in 15 |
+| TC-US15-02 | TC-US | 15:196 | EP-03 Round engine | 1 in 15 |
+| TC-US15-03 | TC-US | 15:197 | EP-03 Round engine | 1 in 15 |
+| TC-US16-01 | TC-US | 15:198 | EP-03 Round engine | 2 in 15 |
+| TC-US16-02 | TC-US | 15:199 | EP-03 Round engine | 1 in 15 |
+| TC-US16-03 | TC-US | 15:200 | EP-03 Round engine | 1 in 15 |
+| TC-US16-04 | TC-US | 15:201 | EP-03 Round engine | 1 in 15 |
+| TC-US17-01 | TC-US | 15:202 | EP-03 Round engine | 2 in 15 |
+| TC-US18-01 | TC-US | 15:203 | EP-03 Round engine | 2 in 15 |
+| TC-US18-02 | TC-US | 15:204 | EP-03 Round engine | 1 in 15 |
+| TC-US18-03 | TC-US | 15:205 | EP-03 Round engine | 1 in 15 |
+| TC-US19-01 | TC-US | 15:206 | EP-03 Round engine | 1 in 15 |
+| TC-US19-02 | TC-US | 15:207 | EP-03 Round engine | 1 in 15 |
+| TC-US20-01 | TC-US | 15:208 | EP-03 Round engine | 2 in 15 |
+| TC-US20-02 | TC-US | 15:209 | EP-03 Round engine | 3 in 15 |
+| TC-US21-01 | TC-US | 15:210 | EP-03 Round engine | 2 in 15 |
+| TC-US21-02 | TC-US | 15:211 | EP-03 Round engine | 1 in 15 |
+| TC-US22-01 | TC-US | 15:217 | EP-04 Task types | 3 in 15 |
+| TC-US22-02 | TC-US | 15:218 | EP-04 Task types | 1 in 15 |
+| TC-US23-01 | TC-US | 15:219 | EP-04 Task types | 1 in 15 |
+| TC-US23-02 | TC-US | 15:220 | EP-04 Task types | 1 in 15 |
+| TC-US23-03 | TC-US | 15:221 | EP-04 Task types | 3 in 15 |
+| TC-US24-01 | TC-US | 15:222 | EP-04 Task types | 1 in 15 |
+| TC-US24-02 | TC-US | 15:223 | EP-04 Task types | 1 in 15 |
+| TC-US24-03 | TC-US | 15:224 | EP-04 Task types | 2 in 15 |
+| TC-US24-04 | TC-US | 15:225 | EP-04 Task types | 2 in 15 |
+| TC-US25-01 | TC-US | 15:226 | EP-04 Task types | 1 in 15 |
+| TC-US25-02 | TC-US | 15:227 | EP-04 Task types | 1 in 15 |
+| TC-US25-03 | TC-US | 15:228 | EP-04 Task types | 1 in 15 |
+| TC-US25-04 | TC-US | 15:229 | EP-04 Task types | 1 in 15 |
+| TC-US26-01 | TC-US | 15:230 | EP-04 Task types | 1 in 15 |
+| TC-US26-02 | TC-US | 15:231 | EP-04 Task types | 2 in 15 |
+| TC-US27-01 | TC-US | 15:237 | EP-05 Scoring and feedback | 3 in 15 |
+| TC-US27-02 | TC-US | 15:238 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US27-03 | TC-US | 15:239 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US27-04 | TC-US | 15:240 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-01 | TC-US | 15:241 | EP-05 Scoring and feedback | 4 in 01, 15 |
+| TC-US28-02 | TC-US | 15:242 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-03 | TC-US | 15:243 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-04 | TC-US | 15:244 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-05 | TC-US | 15:245 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-06 | TC-US | 15:246 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US28-07 | TC-US | 15:247 | EP-05 Scoring and feedback | 2 in 15 |
+| TC-US29-01 | TC-US | 15:248 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-02 | TC-US | 15:249 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-03 | TC-US | 15:250 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-04 | TC-US | 15:251 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-05 | TC-US | 15:252 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-06 | TC-US | 15:253 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US29-07 | TC-US | 15:254 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US30-01 | TC-US | 15:255 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US30-02 | TC-US | 15:256 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US30-03 | TC-US | 15:257 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US30-04 | TC-US | 15:258 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US30-05 | TC-US | 15:259 | EP-05 Scoring and feedback | 1 in 15 |
+| TC-US31-01 | TC-US | 15:260 | EP-05 Scoring and feedback | 2 in 15 |
+| TC-US31-02 | TC-US | 15:261 | EP-05 Scoring and feedback | 2 in 15 |
+| TC-US31-03 | TC-US | 15:262 | EP-05 Scoring and feedback | 3 in 15 |
+| TC-US32-01 | TC-US | 15:263 | EP-05 Scoring and feedback | 2 in 15 |
+| TC-US33-01 | TC-US | 15:269 | EP-06 Timed events | 1 in 15 |
+| TC-US33-02 | TC-US | 15:270 | EP-06 Timed events | 3 in 15 |
+| TC-US33-03 | TC-US | 15:271 | EP-06 Timed events | 1 in 15 |
+| TC-US33-04 | TC-US | 15:272 | EP-06 Timed events | 1 in 15 |
+| TC-US33-05 | TC-US | 15:273 | EP-06 Timed events | 1 in 15 |
+| TC-US33-06 | TC-US | 15:274 | EP-06 Timed events | 1 in 15 |
+| TC-US33-07 | TC-US | 15:275 | EP-06 Timed events | 1 in 15 |
+| TC-US33-08 | TC-US | 15:276 | EP-06 Timed events | 1 in 15 |
+| TC-US34-01 | TC-US | 15:277 | EP-06 Timed events | 3 in 15 |
+| TC-US34-02 | TC-US | 15:278 | EP-06 Timed events | 1 in 15 |
+| TC-US34-03 | TC-US | 15:279 | EP-06 Timed events | 1 in 15 |
+| TC-US35-01 | TC-US | 15:280 | EP-06 Timed events | 2 in 15 |
+| TC-US35-02 | TC-US | 15:281 | EP-06 Timed events | 1 in 15 |
+| TC-US36-01 | TC-US | 15:282 | EP-06 Timed events | 2 in 15 |
+| TC-US36-02 | TC-US | 15:283 | EP-06 Timed events | 1 in 15 |
+| TC-US36-03 | TC-US | 15:284 | EP-06 Timed events | 1 in 15 |
+| TC-US36-04 | TC-US | 15:285 | EP-06 Timed events | 1 in 15 |
+| TC-US37-01 | TC-US | 15:291 | EP-07 Projector screen | 1 in 15 |
+| TC-US37-02 | TC-US | 15:292 | EP-07 Projector screen | 1 in 15 |
+| TC-US37-03 | TC-US | 15:293 | EP-07 Projector screen | 3 in 15 |
+| TC-US37-04 | TC-US | 15:294 | EP-07 Projector screen | 2 in 15 |
+| TC-US38-01 | TC-US | 15:295 | EP-07 Projector screen | 2 in 15 |
+| TC-US38-02 | TC-US | 15:296 | EP-07 Projector screen | 2 in 15 |
+| TC-US39-01 | TC-US | 15:297 | EP-07 Projector screen | 2 in 15 |
+| TC-US39-02 | TC-US | 15:298 | EP-07 Projector screen | 1 in 15 |
+| TC-US39-03 | TC-US | 15:299 | EP-07 Projector screen | 3 in 15 |
+| TC-US39-04 | TC-US | 15:300 | EP-07 Projector screen | 1 in 15 |
+| TC-US40-01 | TC-US | 15:301 | EP-07 Projector screen | 2 in 15 |
+| TC-US40-02 | TC-US | 15:302 | EP-07 Projector screen | 2 in 15 |
+| TC-US40-03 | TC-US | 15:303 | EP-07 Projector screen | 2 in 15 |
+| TC-US40-04 | TC-US | 15:304 | EP-07 Projector screen | 2 in 15 |
+| TC-US41-01 | TC-US | 15:305 | EP-07 Projector screen | 1 in 15 |
+| TC-US41-02 | TC-US | 15:306 | EP-07 Projector screen | 1 in 15 |
+| TC-US42-01 | TC-US | 15:307 | EP-07 Projector screen | 2 in 15 |
+| TC-US42-02 | TC-US | 15:308 | EP-07 Projector screen | 2 in 15 |
+| TC-US43-01 | TC-US | 15:314 | EP-08 Reveal and results | 2 in 15 |
+| TC-US43-02 | TC-US | 15:315 | EP-08 Reveal and results | 2 in 15 |
+| TC-US43-03 | TC-US | 15:316 | EP-08 Reveal and results | 2 in 15 |
+| TC-US43-04 | TC-US | 15:317 | EP-08 Reveal and results | 2 in 15 |
+| TC-US44-01 | TC-US | 15:318 | EP-08 Reveal and results | 1 in 15 |
+| TC-US44-02 | TC-US | 15:319 | EP-08 Reveal and results | 2 in 15 |
+| TC-US44-03 | TC-US | 15:320 | EP-08 Reveal and results | 1 in 15 |
+| TC-US44-04 | TC-US | 15:321 | EP-08 Reveal and results | 2 in 15 |
+| TC-US44-05 | TC-US | 15:322 | EP-08 Reveal and results | 1 in 15 |
+| TC-US45-01 | TC-US | 15:323 | EP-08 Reveal and results | 2 in 15 |
+| TC-US45-02 | TC-US | 15:324 | EP-08 Reveal and results | 1 in 15 |
+| TC-US45-03 | TC-US | 15:325 | EP-08 Reveal and results | 3 in 15 |
+| TC-US45-04 | TC-US | 15:326 | EP-08 Reveal and results | 1 in 15 |
+| TC-US46-01 | TC-US | 15:327 | EP-08 Reveal and results | 2 in 15 |
+| TC-US46-02 | TC-US | 15:328 | EP-08 Reveal and results | 2 in 15 |
+| TC-US46-03 | TC-US | 15:329 | EP-08 Reveal and results | 2 in 15 |
+| TC-US47-01 | TC-US | 15:330 | EP-08 Reveal and results | 2 in 15 |
+| TC-US47-02 | TC-US | 15:331 | EP-08 Reveal and results | 1 in 15 |
+| TC-US47-03 | TC-US | 15:332 | EP-08 Reveal and results | 1 in 15 |
+| TC-US47-04 | TC-US | 15:333 | EP-08 Reveal and results | 2 in 15 |
+| TC-US48-01 | TC-US | 15:334 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-02 | TC-US | 15:335 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-03 | TC-US | 15:336 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-04 | TC-US | 15:337 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-05 | TC-US | 15:338 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-06 | TC-US | 15:339 | EP-08 Reveal and results | 1 in 15 |
+| TC-US48-07 | TC-US | 15:340 | EP-08 Reveal and results | 2 in 15 |
+| TC-US49-01 | TC-US | 15:346 | EP-09 Admin access and content | 2 in 15 |
+| TC-US49-02 | TC-US | 15:347 | EP-09 Admin access and content | 2 in 15 |
+| TC-US49-03 | TC-US | 15:348 | EP-09 Admin access and content | 2 in 15 |
+| TC-US49-04 | TC-US | 15:349 | EP-09 Admin access and content | 2 in 15 |
+| TC-US49-05 | TC-US | 15:350 | EP-09 Admin access and content | 2 in 15 |
+| TC-US50-01 | TC-US | 15:351 | EP-09 Admin access and content | 2 in 15 |
+| TC-US50-02 | TC-US | 15:352 | EP-09 Admin access and content | 2 in 15 |
+| TC-US50-03 | TC-US | 15:353 | EP-09 Admin access and content | 2 in 15 |
+| TC-US51-01 | TC-US | 15:354 | EP-09 Admin access and content | 2 in 15 |
+| TC-US51-02 | TC-US | 15:355 | EP-09 Admin access and content | 2 in 15 |
+| TC-US51-03 | TC-US | 15:356 | EP-09 Admin access and content | 2 in 15 |
+| TC-US51-04 | TC-US | 15:357 | EP-09 Admin access and content | 1 in 15 |
+| TC-US51-05 | TC-US | 15:358 | EP-09 Admin access and content | 2 in 15 |
+| TC-US51-06 | TC-US | 15:359 | EP-09 Admin access and content | 1 in 15 |
+| TC-US51-07 | TC-US | 15:360 | EP-09 Admin access and content | 1 in 15 |
+| TC-US52-01 | TC-US | 15:361 | EP-09 Admin access and content | 2 in 15 |
+| TC-US52-02 | TC-US | 15:362 | EP-09 Admin access and content | 1 in 15 |
+| TC-US52-03 | TC-US | 15:363 | EP-09 Admin access and content | 1 in 15 |
+| TC-US53-01 | TC-US | 15:364 | EP-09 Admin access and content | 2 in 15 |
+| TC-US53-02 | TC-US | 15:365 | EP-09 Admin access and content | 1 in 15 |
+| TC-US54-01 | TC-US | 15:366 | EP-09 Admin access and content | 1 in 15 |
+| TC-US54-02 | TC-US | 15:367 | EP-09 Admin access and content | 1 in 15 |
+| TC-US55-01 | TC-US | 15:368 | EP-09 Admin access and content | 2 in 15 |
+| TC-US55-02 | TC-US | 15:369 | EP-09 Admin access and content | 1 in 15 |
+| TC-US55-03 | TC-US | 15:370 | EP-09 Admin access and content | 1 in 15 |
+| TC-US56-01 | TC-US | 15:371 | EP-09 Admin access and content | 1 in 15 |
+| TC-US56-02 | TC-US | 15:372 | EP-09 Admin access and content | 2 in 15 |
+| TC-US56-03 | TC-US | 15:373 | EP-09 Admin access and content | 1 in 15 |
+| TC-US56-04 | TC-US | 15:374 | EP-09 Admin access and content | 3 in 15 |
+| TC-US57-01 | TC-US | 15:380 | EP-10 Run plans and games | 2 in 15 |
+| TC-US57-02 | TC-US | 15:381 | EP-10 Run plans and games | 2 in 15 |
+| TC-US57-03 | TC-US | 15:382 | EP-10 Run plans and games | 1 in 15 |
+| TC-US57-04 | TC-US | 15:383 | EP-10 Run plans and games | 1 in 15 |
+| TC-US57-05 | TC-US | 15:384 | EP-10 Run plans and games | 1 in 15 |
+| TC-US58-01 | TC-US | 15:385 | EP-10 Run plans and games | 1 in 15 |
+| TC-US58-02 | TC-US | 15:386 | EP-10 Run plans and games | 1 in 15 |
+| TC-US58-03 | TC-US | 15:387 | EP-10 Run plans and games | 1 in 15 |
+| TC-US59-01 | TC-US | 15:388 | EP-10 Run plans and games | 1 in 15 |
+| TC-US59-02 | TC-US | 15:389 | EP-10 Run plans and games | 1 in 15 |
+| TC-US59-03 | TC-US | 15:390 | EP-10 Run plans and games | 2 in 15 |
+| TC-US60-01 | TC-US | 15:391 | EP-10 Run plans and games | 1 in 15 |
+| TC-US60-02 | TC-US | 15:392 | EP-10 Run plans and games | 2 in 15 |
+| TC-US60-03 | TC-US | 15:393 | EP-10 Run plans and games | 2 in 15 |
+| TC-US60-04 | TC-US | 15:394 | EP-10 Run plans and games | 2 in 15 |
+| TC-US60-05 | TC-US | 15:395 | EP-10 Run plans and games | 2 in 15 |
+| TC-US61-01 | TC-US | 15:396 | EP-10 Run plans and games | 3 in 15 |
+| TC-US61-02 | TC-US | 15:397 | EP-10 Run plans and games | 2 in 15 |
+| TC-US61-03 | TC-US | 15:398 | EP-10 Run plans and games | 1 in 15 |
+| TC-US61-04 | TC-US | 15:399 | EP-10 Run plans and games | 1 in 15 |
+| TC-US61-05 | TC-US | 15:400 | EP-10 Run plans and games | 1 in 15 |
+| TC-US62-01 | TC-US | 15:401 | EP-10 Run plans and games | 2 in 15 |
+| TC-US62-02 | TC-US | 15:402 | EP-10 Run plans and games | 2 in 15 |
+| TC-US62-03 | TC-US | 15:403 | EP-10 Run plans and games | 1 in 15 |
+| TC-US63-01 | TC-US | 15:404 | EP-10 Run plans and games | 2 in 15 |
+| TC-US63-02 | TC-US | 15:405 | EP-10 Run plans and games | 1 in 15 |
+| TC-US63-03 | TC-US | 15:406 | EP-10 Run plans and games | 2 in 15 |
+| TC-US63-04 | TC-US | 15:407 | EP-10 Run plans and games | 2 in 15 |
+| TC-US63-05 | TC-US | 15:408 | EP-10 Run plans and games | 1 in 15 |
+| TC-US63-06 | TC-US | 15:409 | EP-10 Run plans and games | 2 in 15 |
+| TC-US64-01 | TC-US | 15:415 | EP-11 After the event | 2 in 15 |
+| TC-US64-02 | TC-US | 15:416 | EP-11 After the event | 1 in 15 |
+| TC-US65-01 | TC-US | 15:417 | EP-11 After the event | 2 in 15 |
+| TC-US65-02 | TC-US | 15:418 | EP-11 After the event | 2 in 15 |
+| TC-US65-03 | TC-US | 15:419 | EP-11 After the event | 1 in 15 |
+| TC-US66-01 | TC-US | 15:420 | EP-11 After the event | 1 in 15 |
+| TC-US67-01 | TC-US | 15:421 | EP-11 After the event | 3 in 15 |
+| TC-US67-02 | TC-US | 15:422 | EP-11 After the event | 2 in 15 |
+| TC-US67-03 | TC-US | 15:423 | EP-11 After the event | 2 in 15 |
+| TC-US68-01 | TC-US | 15:429 | EP-12 Operations | 2 in 15 |
+| TC-US68-02 | TC-US | 15:430 | EP-12 Operations | 2 in 15 |
+| TC-US68-03 | TC-US | 15:431 | EP-12 Operations | 2 in 15 |
+| TC-US69-01 | TC-US | 15:432 | EP-12 Operations | 3 in 15 |
+| TC-US69-02 | TC-US | 15:433 | EP-12 Operations | 1 in 15 |
+| TC-US69-03 | TC-US | 15:434 | EP-12 Operations | 2 in 15 |
+| TC-US70-01 | TC-US | 15:435 | EP-12 Operations | 3 in 15 |
+| TC-US70-02 | TC-US | 15:436 | EP-12 Operations | 2 in 15 |
+| TC-US70-03 | TC-US | 15:437 | EP-12 Operations | 1 in 15 |
+| TC-US71-01 | TC-US | 15:438 | EP-12 Operations | 2 in 15 |
+| TC-US71-02 | TC-US | 15:439 | EP-12 Operations | 2 in 15 |
+| TC-US71-03 | TC-US | 15:440 | EP-12 Operations | 2 in 15 |
 | TD-01 | TD | 09:452 | 13. Risks and technical debt | 1 in 09 |
 | TD-02 | TD | 09:453 | 13. Risks and technical debt | 1 in 09 |
 | TD-03 | TD | 09:454 | 13. Risks and technical debt | 1 in 09 |
@@ -1354,13 +1354,13 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | TP-08 | TP | 14:545 | 17. Decisions proposed in this document | 6 in 01, 14, 18 |
 | TP-09 | TP | 14:546 | 17. Decisions proposed in this document | 5 in 01, 14 |
 | TP-10 | TP | 14:547 | 17. Decisions proposed in this document | 7 in 01, 14 |
-| TRIAL-01 | TRIAL | 15:714 | 14. Trial run checks | 4 in 15, 18 |
-| TRIAL-02 | TRIAL | 15:715 | 14. Trial run checks | 3 in 15, 18 |
-| TRIAL-03 | TRIAL | 15:716 | 14. Trial run checks | 4 in 15, 18 |
-| TRIAL-04 | TRIAL | 15:717 | 14. Trial run checks | 4 in 15, 18 |
-| TRIAL-05 | TRIAL | 15:718 | 14. Trial run checks | 3 in 15, 18 |
-| TRIAL-06 | TRIAL | 15:719 | 14. Trial run checks | 3 in 15, 18 |
-| TRIAL-07 | TRIAL | 15:720 | 14. Trial run checks | 3 in 15, 18 |
+| TRIAL-01 | TRIAL | 15:715 | 14. Trial run checks | 4 in 15, 18 |
+| TRIAL-02 | TRIAL | 15:716 | 14. Trial run checks | 3 in 15, 18 |
+| TRIAL-03 | TRIAL | 15:717 | 14. Trial run checks | 4 in 15, 18 |
+| TRIAL-04 | TRIAL | 15:718 | 14. Trial run checks | 4 in 15, 18 |
+| TRIAL-05 | TRIAL | 15:719 | 14. Trial run checks | 3 in 15, 18 |
+| TRIAL-06 | TRIAL | 15:720 | 14. Trial run checks | 3 in 15, 18 |
+| TRIAL-07 | TRIAL | 15:721 | 14. Trial run checks | 3 in 15, 18 |
 | UC-01 | UC | 06:75 | 6. Use case overview | 15 in 06, 09 |
 | UC-02 | UC | 06:76 | 6. Use case overview | 8 in 06, 07 |
 | UC-03 | UC | 06:77 | 6. Use case overview | 7 in 06 |
@@ -1388,10 +1388,10 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | UC-25 | UC | 06:99 | 6. Use case overview | 10 in 06, 07 |
 | UC-26 | UC | 06:100 | 6. Use case overview | 7 in 06 |
 | UC-27 | UC | 06:101 | 6. Use case overview | 6 in 06, 07 |
-| US-01 | US | 04:106 | 6.2 EP-01 Joining and lobby | 12 in 04, 05, 06 |
-| US-02 | US | 04:107 | 6.2 EP-01 Joining and lobby | 12 in 04, 05, 06 |
+| US-01 | US | 04:106 | 6.2 EP-01 Joining and lobby | 15 in 04, 05, 06, 15, 18 |
+| US-02 | US | 04:107 | 6.2 EP-01 Joining and lobby | 13 in 04, 05, 06, 15 |
 | US-03 | US | 04:108 | 6.2 EP-01 Joining and lobby | 12 in 04, 05, 06 |
-| US-04 | US | 04:109 | 6.2 EP-01 Joining and lobby | 10 in 04, 05, 06 |
+| US-04 | US | 04:109 | 6.2 EP-01 Joining and lobby | 11 in 04, 05, 06, 15 |
 | US-05 | US | 04:110 | 6.2 EP-01 Joining and lobby | 12 in 04, 05, 06 |
 | US-06 | US | 04:111 | 6.2 EP-01 Joining and lobby | 10 in 04, 05, 06 |
 | US-07 | US | 04:112 | 6.2 EP-01 Joining and lobby | 10 in 04, 05, 06 |
