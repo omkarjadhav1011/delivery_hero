@@ -9,18 +9,19 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S2-08 |
 | Branch | main |
 | Start commit | 1758347 |
-| Last commit | 749f191 |
-| Step | implement |
-| Task |  |
+| Last commit | 89fa9af |
+| Step | test-first |
+| Task | T4 |
 | Attempts | 0 |
 | Started | 2026-09-26T19:16 |
-| Updated | 2026-09-26T19:31 |
-| Next action | T5 CharacterApiIT AC-US53-02 |
+| Updated | 2026-09-26T19:39 |
+| Next action | TaskEditorScreen EDIT_CONFLICT unit test, then E2E-04 step 3 |
 
 ## Completed tasks
 
 - T1 (1870ebc)
 - T3 (749f191)
+- T5 (89fa9af)
 
 ## Pending approvals
 
@@ -28,7 +29,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 ## Failing tests
 
-- none
+- TaskLibraryScreen opens a task: Link href without trailing slash in vitest
 
 ## Notes
 
