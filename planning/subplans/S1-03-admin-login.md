@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-49, US-50 |
 | Priority and points | Must, 4 |
@@ -99,3 +99,4 @@ Document 13, section 10, plus: `SecurityIT` covers every US-49 and US-50 integra
 - 2026-09-26: T6 done. `loginAsAdmin` in `e2e/fixtures` logs in on A-01 with `adminPassword` and waits for the admin navigation; `content-admin.spec.ts` step 1 (AC-US49-01) runs it, checks the `DH_SESSION` flags in the browser and runs axe on A-01. No wrong password is tried there: failures count per address for 15 minutes, so repeated runs would block the specs' own logins. Local e2e stack (ports 8090 and 5433): 34 passed. The Verification step by hand through Nginx: 5 wrong logins got 401, the 6th got 429, and the right password then got 429 with `Retry-After: 900`.
 - 2026-09-26: Reviews (backend, frontend, spec-guardian, security). Fixed: logout from the browser would have failed CSRF, because login rotates the token and nothing fetched a new one, so `AdminShell` now calls `GET /api/admin/session` on load as API 5.2 says, and sends a visitor without a session to login. Parallel guesses could all pass the limit while bcrypt ran, so `RateLimitFilter` now reserves each attempt before the check and settles it by the outcome (a 403 CSRF refusal counts nothing). Logout redirects only on success. The login message is in an always-present `role="status"` region and is cleared on each submit. The encoder uses cost 12 for timing parity. Tests cover login and logout without the token (403, session alive), and the e2e spec logs out in a real browser. Test names were corrected so each ID matches what the test checks. Recorded DI-55 (403 bodies), DI-56 (window, reset and venue NAT lockout) and DI-57 (TC-US49-05 location), and extended DI-51. Not done (consider only): `server.tomcat.remoteip.internal-proxies` (Tomcat trusts private ranges; only Nginx reaches the backend in production), a test of the `RATE_LIMITED` log fields, a hard cap on the limiter maps, and checking that Nginx logs no query strings (NFR-23). Checks: `./mvnw -B verify` passed (60 integration tests and all unit tests); frontend format, lint, typecheck, 120 tests and build passed; e2e on the local stack, 35 passed.
 - 2026-09-26: Actuals. 12:09 to 13:15 (about 65 min). Main-session tokens aren't measured (an estimate of about 250k); the four reviewers used about 185k together. Status stays In progress: T1 to T6 are done and T7 waits for Q-01 and OA-15. It becomes In review when the PR opens.
+- 2026-09-26: PR #21 open (https://github.com/omkarjadhav1011/delivery_hero/pull/21). Status In review; T7 stays blocked.
