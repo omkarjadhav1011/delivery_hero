@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test as base, type APIRequestContext, type Page } from "@playwright/test";
+import { copy } from "../../src/copy";
 
 // Shared fixtures for every end-to-end spec (document 15, section 9):
 // - the outside-request blocker fails a test on any request to another site (X-07, NFR-24);
@@ -102,6 +103,17 @@ export const S0_GAME_CODE = "K7PQ2M";
 export async function openS0Game(request: APIRequestContext): Promise<void> {
   const response = await request.post("/api/test/s0-game");
   expect(response.status(), "the backend runs with DH_PROFILE=e2e").toBe(201);
+}
+
+/**
+ * Logs in on A-01 with the admin password, as E2E-04 step 1 does, and waits for the admin panel (AC-US49-01). The
+ * later admin specs start with it.
+ */
+export async function loginAsAdmin(page: Page): Promise<void> {
+  await page.goto("/admin/login/");
+  await page.getByLabel(copy.admin.login.password).fill(adminPassword);
+  await page.getByRole("button", { name: copy.admin.login.submit }).click();
+  await expect(page.getByRole("navigation", { name: copy.admin.navLabel })).toBeVisible();
 }
 
 /** Fails on any detectable WCAG 2.2 A or AA violation (AC-EN09-01, DEC-176). */
