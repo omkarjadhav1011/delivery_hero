@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | US-01, US-02, US-04 |
 | Priority and points | Must, 7 |
@@ -118,3 +118,4 @@ None yet.
 - 2026-09-26: Final checks. `./mvnw -B verify`: 93 unit and 40 integration tests pass, and the coverage gates are met. Frontend format, lint, typecheck, 107 tests (store line coverage 91%) and the build pass. markdownlint is clean. `/e2e` on the rebuilt `e2e` stack: 27 of 27 specs pass. No pull request yet.
 - 2026-09-26: Actuals. 08:09 to 09:46 (about 1 h 40 min). Main-session tokens aren't measured (an estimate of about 400k); the three reviewers used about 200k.
 - 2026-09-26: PR #14 open.
+- 2026-09-26: Done. Merged in PR #14 (2026-09-26) with every task ticked and the criteria passing. The Deploy run on the merge failed at the rsync step because `DEPLOY_HOST` is empty (OA-17, waiting on Q-01), so the production deploy verification follows the first deploy (S0-06).
