@@ -1,4 +1,6 @@
 import { copy } from "../src/copy";
+import { randomUUID } from "node:crypto";
+import type { Page } from "@playwright/test";
 import { expect, expectNoAxeViolations, loginAsAdmin, test } from "./fixtures";
 
 // E2E-04 Content administration (document 15, section 9): step 1, from S1-03 (US-49). Steps 2 to 7 are added by the
@@ -36,4 +38,101 @@ test("AC-US49-03 E2E-04 step 1: Log out ends the session, and the admin panel th
 
   await page.goto("/admin/tasks/");
   await expect(page).toHaveURL(/\/admin\/login\/$/);
+});
+
+// Step 2, tasks (S2-07 T6). Keys carry a run suffix and each task is deleted at the end, so the spec can run again
+// on the same database. The phone preview check arrives with T7; deleting mgr-plan-01 moves to S2-08 T2, where the
+// library can find it.
+const text = copy.admin.taskEditor;
+const run = randomUUID().slice(0, 8);
+
+async function openNewTask(page: Page, key: string, type: keyof typeof text.types): Promise<void> {
+  await page.goto("/admin/tasks/edit/");
+  await expect(page.getByRole("heading", { level: 1, name: text.newTask })).toBeVisible();
+  await page.getByLabel(text.key).fill(key);
+  await page.getByLabel(text.role).selectOption("TESTER");
+  await page.getByLabel(text.phase).selectOption("TESTING");
+  await page.getByLabel(text.type).selectOption(type);
+  await page.getByLabel(text.prompt).fill("Which of these would you fix first?");
+  await page.getByLabel(text.explanation).fill("Severity first.");
+}
+
+async function saveAndCheck(page: Page, key: string): Promise<void> {
+  await page.getByRole("button", { name: text.save }).click();
+  await expect(page.getByText(text.saved, { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\/tasks\/edit\/\?id=[0-9a-f-]{36}$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: `${copy.admin.editTask} ${key}` }),
+  ).toBeVisible();
+}
+
+test("AC-US51-01 E2E-04 step 2: the admin creates one valid task of each type, then deletes each", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+  const saved: string[] = [];
+
+  await openNewTask(page, `e2e-mc-${run}`, "MULTIPLE_CHOICE");
+  await expectNoAxeViolations(page);
+  await page.getByLabel(text.optionText(1), { exact: true }).fill("Checkout fails for every user");
+  await page.getByLabel(text.optionText(2), { exact: true }).fill("A typo in the footer");
+  await saveAndCheck(page, `e2e-mc-${run}`);
+  saved.push(page.url());
+
+  await openNewTask(page, `e2e-yn-${run}`, "YES_NO");
+  await expect(page.getByText(text.timeLimitHint(8), { exact: true })).toBeVisible();
+  await page.getByLabel(text.no).check();
+  await saveAndCheck(page, `e2e-yn-${run}`);
+  saved.push(page.url());
+
+  await openNewTask(page, `e2e-order-${run}`, "ORDER");
+  await page.getByLabel(text.itemText(1), { exact: true }).fill("Integration test");
+  await page.getByLabel(text.itemText(2), { exact: true }).fill("Unit test");
+  await page.getByLabel(text.itemText(3), { exact: true }).fill("End-to-end test");
+  await saveAndCheck(page, `e2e-order-${run}`);
+  saved.push(page.url());
+
+  await openNewTask(page, `e2e-words-${run}`, "PROBLEM_WORDS");
+  await page
+    .getByLabel(text.markedText)
+    .fill("Warn when the balance is {{low}} for {{several}} days");
+  await saveAndCheck(page, `e2e-words-${run}`);
+  await expectNoAxeViolations(page);
+  saved.push(page.url());
+
+  for (const url of saved) {
+    await page.goto(url);
+    await expect(page.getByLabel(text.prompt)).toHaveValue("Which of these would you fix first?");
+    await page.getByRole("button", { name: text.delete }).click();
+    await expect(page).toHaveURL(/\/admin\/tasks\/$/);
+  }
+});
+
+test("AC-US51-02 E2E-04 step 2: invalid saves are refused, each message naming the problem", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+
+  // The correct-option radio allows only one, so two correct options can't be sent from here; TaskApiIT covers it
+  await openNewTask(page, `e2e-order-bad-${run}`, "ORDER");
+  await page.getByLabel(text.itemText(1), { exact: true }).fill("Unit test");
+  await page.getByLabel(text.correctPosition(1)).fill("1");
+  await page.getByLabel(text.itemText(2), { exact: true }).fill("Integration test");
+  await page.getByLabel(text.correctPosition(2)).fill("2");
+  await page.getByLabel(text.itemText(3), { exact: true }).fill("End-to-end test");
+  await page.getByRole("button", { name: text.save }).click();
+  await expect(
+    page.getByText("The display order must differ from the correct order.", { exact: true }),
+  ).toBeVisible();
+
+  await page.getByLabel(text.type).selectOption("PROBLEM_WORDS");
+  await page.getByLabel(text.markedText).fill("{{one}} {{two}} {{three}} {{four}} {{five}}");
+  await page.getByRole("button", { name: text.save }).click();
+  await expect(page.getByText("Mark 1 to 4 problem words.", { exact: true })).toBeVisible();
+
+  await page.getByLabel(text.prompt).fill("");
+  await page.getByRole("button", { name: text.save }).click();
+  await expect(page.getByText("Must be 1 to 200 characters.", { exact: true })).toBeVisible();
+  await expect(page.getByText(text.saved, { exact: true })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/admin\/tasks\/edit\/$/);
 });
