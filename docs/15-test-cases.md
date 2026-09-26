@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 15 — Test Cases |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
-| Date | 23 September 2026 |
+| Date | 26 September 2026 |
 | Drafting note | The catalog was generated from document 05 and checked to cover all 271 criteria exactly once; the coverage tool in section 8.3 was tested with sample reports |
 | Depends on | 03 — SRS v1.4 · 05 — Acceptance Criteria v1.2 · 11 — API Specification v1.0 · 12 — UI/UX Wireframes v1.0 · 13 — Coding Standards and Git Strategy v1.1 · 14 — Test Plan v1.0 |
 | Feeds into | The automated suites · manual test runs · the test summary report · 17 — Release Notes |
@@ -23,6 +23,7 @@
 | 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. TC-01 to TC-03 recorded as DEC-195 to DEC-197 (Charter v1.13); TC-03 applied to the Test Plan (v1.1) |
 | 1.1 | 2026-09-24 | [Owner name] | `SeedImportIT` runs the seed command as a separate application, so TC-US56-04 also proves no game is cancelled (LLD v1.3) |
+| 1.2 | 2026-09-26 | [Owner name] | Section 8 lists the test files added with US-01, US-02 and US-04: `IdsTest`, `PlayerStateIT` and `screens/Lobby.test.tsx` |
 
 ---
 
@@ -446,12 +447,12 @@ This document turns the Test Plan into concrete test cases. Every acceptance cri
 |---|---|---|
 | `scoring` | `ScoreCalculatorTest`, `RankingServiceTest`, `MostMissedServiceTest`, `ReviewBuilderTest`, `HeroCardServiceTest` | |
 | `engine` | `GameSessionTest`, `RoundTimelineTest`, `RevealStateTest` | |
-| `common` | `NamesTest`, `TokenServiceTest` | |
+| `common` | `NamesTest`, `TokenServiceTest`, `IdsTest` | |
 | `content` | `ContentValidatorTest`, `ReadinessCheckerTest`, `PublicTaskViewContractTest` | `TaskApiIT`, `CharacterApiIT`, `RunPlanApiIT` |
 | `broadcast` | `FeedEventTest`, `MessageContractTest` | `ScreenBatchIT` |
 | `simulation` | `BotDriverTest` | |
 | `api` | | `JoinIT`, `HostActionsIT` |
-| `realtime` | | `StompConnectionIT`, `AnswerFlowIT` |
+| `realtime` | | `StompConnectionIT`, `PlayerStateIT`, `AnswerFlowIT` |
 | `security` | | `SecurityIT` |
 | `lifecycle` | | `GameLifecycleIT`, `StartupCleanupIT`, `DeployLockIT` |
 | `seed` | | `SeedImportIT` |
@@ -468,7 +469,7 @@ This document turns the Test Plan into concrete test cases. Every acceptance cri
 | `time` | `timeSync.test.ts` |
 | `realtime` | `reconnect.test.ts` |
 | `browser` | `isSupportedChrome.test.ts` |
-| `player` | `session.test.ts`, `store.test.ts`, `TopBar.test.tsx`, `screens/ChromeNotice.test.tsx`, `screens/JoinScreen.test.tsx` |
+| `player` | `session.test.ts`, `store.test.ts`, `TopBar.test.tsx`, `screens/ChromeNotice.test.tsx`, `screens/JoinScreen.test.tsx`, `screens/Lobby.test.tsx` |
 | `player/tasks` | `MultipleChoice.test.tsx`, `YesNoSwipe.test.tsx`, `TapToOrder.test.tsx`, `ProblemWords.test.tsx` |
 | `ui` | `TimerBar.test.tsx`, `CodeBlock.test.tsx`, `QrCode.test.tsx` |
 | `screen/views` | `LobbyView.test.tsx`, `PracticeProgress.test.tsx`, `WallSquare.test.tsx`, `Feed.test.tsx` |

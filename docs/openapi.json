@@ -118,7 +118,7 @@
           },
           "reason" : {
             "type" : "string",
-            "enum" : [ "GAME_NOT_ACTIVE", "LOBBY_NOT_OPEN", "JOINING_CLOSED", "GAME_FULL", "INVALID_NAME", "RATE_LIMITED" ]
+            "enum" : [ "LOBBY_NOT_OPEN", "JOINING_CLOSED", "GAME_FULL" ]
           },
           "state" : {
             "type" : "string",
