@@ -22,7 +22,8 @@ test("AC-EN01-01 the join page loads with no accessibility or CSP violations", a
   const response = await page.goto("/join/?code=TEST");
 
   expect(response?.status()).toBe(200);
-  await expectMessage(copy.join.title);
+  // No game has that code, so the join page shows the inactive-link message (P-03)
+  await expectMessage(copy.joinMessages.GAME_NOT_ACTIVE);
   await expectNoAxeViolations(page);
 });
 

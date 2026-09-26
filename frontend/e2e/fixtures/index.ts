@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test as base, type Page } from "@playwright/test";
+import { expect, test as base, type APIRequestContext, type Page } from "@playwright/test";
 
 // Shared fixtures for every end-to-end spec (document 15, section 9):
 // - the outside-request blocker fails a test on any request to another site (X-07, NFR-24);
@@ -65,6 +65,18 @@ export const test = base.extend<Fixtures>({
     });
   },
 });
+
+/** The join code of the S0 game (DS-02). */
+export const S0_GAME_CODE = "K7PQ2M";
+
+/**
+ * Opens a fresh game in LOBBY with code K7PQ2M through the e2e profile's endpoint, discarding any earlier one, so a
+ * spec always starts with no players (DI-08, DI-24). TODO(US-59): create the game through the admin panel (S1-04 T6).
+ */
+export async function openS0Game(request: APIRequestContext): Promise<void> {
+  const response = await request.post("/api/test/s0-game");
+  expect(response.status(), "the backend runs with DH_PROFILE=e2e").toBe(201);
+}
 
 /** Fails on any detectable WCAG 2.2 A or AA violation (AC-EN09-01, DEC-176). */
 export async function expectNoAxeViolations(page: Page): Promise<void> {
