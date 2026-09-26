@@ -1,16 +1,16 @@
 # Digest: 01 Project Charter
 
-Source: `docs/01-project-charter.md`, version 1.15 (approved 23 September 2026; last revision 2026-09-24).
+Source: `docs/01-project-charter.md`, version 1.17 (approved 23 September 2026; last revision 2026-09-26).
 
 ## Completeness
 
-- Line count: 640 (checked with `wc -l`). Read in full, lines 1 to 640.
+- Line count: 648 (checked with `wc -l`). Read in full at v1.15 (640 lines); the v1.16 and v1.17 changes read from their diffs (4d53fc4, 8871ed7) on 2026-09-26.
 - Last heading: `## Appendix A — Decision log` (line 424).
 - Last line read (640): "| DEC-211 | Testing | Test tooling conventions: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to the local stack; the OpenAPI test writes the generated document to `backend/target/openapi.json` when it differs (Setup Guide SG-05) |"
 
 ## Purpose
 
-The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, success criteria, scope, stakeholders, assumptions, constraints, deliverables, milestones, budget, risks and governance. Its Appendix A decision log (DEC-01 to DEC-212) is the top source of truth; every other document cites DEC IDs, and a later DEC wins over an earlier one.
+The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, success criteria, scope, stakeholders, assumptions, constraints, deliverables, milestones, budget, risks and governance. Its Appendix A decision log (DEC-01 to DEC-215) is the top source of truth; every other document cites DEC IDs, and a later DEC wins over an earlier one.
 
 ## Every ID the document defines
 
@@ -55,7 +55,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - R-06: iPhone QR scan opens Safari; High/Medium; instructions before event, lobby note, Safari notice with copy-link button; host (14)
 - R-07: company network blocks free subdomain on host laptop; Medium/High; test at trial run, phone hotspot fallback; host (14)
 - R-08: weak mobile signal with every phone connected; Medium/High; test at trial with all phones, small messages, reconnection within 5 s, good-signal room; host (14)
-- R-09: no staging, trial run is first full production test; Medium/Medium; local Compose mirrors production, automated merge checks, E−7 trial as final test; owner (14)
+- R-09: no staging, and production arrives late (DEC-213): first deploy E−5, trial E−2, one day for fixes; High/High; local Compose mirrors production and every test runs there, automated merge checks, host chosen by E−9 and production up with OPS-01 to OPS-05 by E−5, E−2 trial as final test; owner (14)
 - R-10: debatable answers; Medium/Medium; admins review every task, readiness check, void control; admins (14)
 - R-11: pixel-art pack license doesn't permit use; Low/Medium; permissive license such as CC0, record credit in README; owner (14)
 
@@ -71,7 +71,7 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 
 ### Milestones (section 12; see "Dates and milestones" below for the full table)
 
-- Discovery complete; Infrastructure ready; Requirements docs approved (1–6); Task pool seed delivered; Design docs approved (7–12); Task review complete; Feature complete (Must); Load test passed; Trial run and go/no-go; Engineering and test docs approved (13–16); Content freeze; Release notes and technical docs (17–18); Deployment freeze; Live event; Event closed and survey sent; Survey results and lessons learned (12)
+- Discovery complete; Walking skeleton on the local stack; Requirements docs approved (1–6); Task pool seed delivered; Design docs approved (7–12); Task review complete; Feature complete (Must); Load test passed; Production host chosen; Engineering and test docs approved (13–16); Content freeze; Production ready; Trial run and go/no-go; Release notes and technical docs (17–18); Deployment freeze; Live event; Event closed and survey sent; Survey results and lessons learned (12)
 
 ### Decision log (Appendix A)
 
@@ -287,6 +287,9 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - DEC-210: Engineering: four profiles `dev` (public local defaults in `application-dev.yml`), `test`, `e2e`, `prod`; local stack forces port 8080 with `SERVER_PORT` (SG-04)
 - DEC-211: Testing: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to local stack; OpenAPI test writes generated doc to `backend/target/openapi.json` when it differs (SG-05)
 - DEC-212: Documentation: documents carry no drafting credit; document control, revision history, stakeholder and role tables name only people; revises DEC-71
+- DEC-213: Planning: local-only development until production; S0 walking skeleton on the local stack; Deploy workflow disabled until the first deploy; host (Q-01) chosen by Mon 12 Oct; production up with OPS-01 to OPS-05 by Fri 16 Oct; trial run and go/no-go Mon 19 Oct (E−2) on production; revises section 12 milestones and R-09
+- DEC-214: Testing: LT-01 (100 players) on the local stack by Tue 13 Oct; one repeat on production at H-08, 16–18 Oct
+- DEC-215: Planning: a no-go at the trial on Mon 19 Oct moves the event (A-01); no re-check on Tue 20 Oct (in effect replaces DEC-191's re-check, which DEC-215 doesn't name)
 
 ## What implementation must do
 
@@ -367,11 +370,11 @@ The Charter authorizes Delivery Hero v1.0 and sets its baseline: objectives, suc
 - Documents: 0.1 draft → 1.0 approved; produced one at a time in section 11.2 order (16).
 - Change control: decision changes recorded in Appendix A (update row with date and reason, or new ID); all affected documents updated in the same change (16).
 - Scope control: cut Could first, then Should; Must is the minimum (16).
-- Go/no-go at E−7: no open game-stopping bugs, passed 100-player load test, task pool reviewed and loaded (16; extended by DEC-191).
+- Go/no-go at E−2 (DEC-213): no open game-stopping bugs, passed 100-player load test, task pool reviewed and loaded (16; extended by DEC-191).
 
 ## Ordering and dependencies
 
-- Discovery → requirements docs 1–6 → seed draft (after SRS approval, DEC-40) → admin review → design docs 7–12 → engineering docs 13–16 → release notes and README 17–18 (12, 16, gantt). In practice all docs 1–16 and 18 are already approved (revision history 1.1–1.15); doc 17 remains.
+- Discovery → requirements docs 1–6 → seed draft (after SRS approval, DEC-40) → admin review → design docs 7–12 → engineering docs 13–16 → release notes and README 17–18 (12, 16, gantt). In practice all docs 1–16 and 18 are already approved (revision history 1.1–1.17); doc 17 remains.
 - Infrastructure and walking skeleton first (24–29 Sep), before core game loop (30 Sep–7 Oct), then admin panel, projector and reveal (5–12 Oct), then load test (12–13 Oct), trial (14 Oct), fixes (15–19 Oct) (12 gantt; R-01).
 - Oracle account (A-04) is a dependency for infrastructure; DuckDNS and Let's Encrypt; GitHub Actions allowance; licensed pixel-art pack (R-11); admin review availability (A-05); players with Chrome (A-02) (15).
 - Migration V2 must create characters before seed import can reference them (DEC-154).
@@ -390,16 +393,18 @@ Section 12 (baseline A-01; everything shifts if the event date moves):
 | Milestone | Date | E |
 |---|---|---|
 | Discovery complete | Wed 23 Sep 2026 | E−28 |
-| Infrastructure ready: Oracle machine, subdomain, HTTPS and deployed walking skeleton | Tue 29 Sep | E−22 |
+| Walking skeleton on the local stack (DEC-213) | Tue 29 Sep | E−22 |
 | Requirements documents approved (1–6) | Tue 29 Sep | E−22 |
 | Task pool seed file delivered for review (after SRS approval) | Wed 30 Sep | E−21 |
 | Design documents approved (7–12) | Tue 6 Oct | E−15 |
 | Task review complete | Wed 7 Oct | E−14 |
 | Feature complete for all Must requirements | Mon 12 Oct | E−9 |
 | Load test with 100 simulated players passed | Tue 13 Oct | E−8 |
-| Trial run on production, and go/no-go decision | Wed 14 Oct | E−7 |
+| Production host chosen (Q-01, DEC-213) | Mon 12 Oct | E−9 |
 | Engineering and test documents approved (13–16) | Wed 14 Oct | E−7 |
 | Content freeze | Fri 16 Oct | E−5 |
+| Production ready: host, subdomain, HTTPS, a deployed release and OPS-01 to OPS-05 passed (DEC-213) | Fri 16 Oct | E−5 |
+| Trial run on production, and go/no-go decision (DEC-213) | Mon 19 Oct | E−2 |
 | Release notes and technical documentation (17–18) | Mon 19 Oct | E−2 |
 | Deployment freeze and pre-event checks | Tue 20 Oct | E−1 |
 | Live event | Wed 21 Oct | E |
@@ -408,9 +413,9 @@ Section 12 (baseline A-01; everything shifts if the event date moves):
 
 Gantt ranges (12): Discovery 2026-09-21 to 09-23; req docs 09-24 to 09-29; design docs 09-30 to 10-06; eng/test docs 10-07 to 10-14; release notes/README 10-15 to 10-19; seed draft 09-28 to 09-30; admin task review 10-01 to 10-07; infra and walking skeleton 09-24 to 09-29; core game loop 09-30 to 10-07; admin panel, projector and reveal 10-05 to 10-12; load test 10-12 to 10-13; fixes and hardening 10-15 to 10-19; close event and survey 10-22 (1 day).
 
-Communication plan (17): after SRS approval seed to admins; E−10 trial-run invitation to 5–10 colleagues and admins; E−7 trial and go/no-go in person; E−2 player instructions (bring phone, install Chrome, turn on mobile data); E live event; E+1 fun survey form; E+6 survey results and lessons to admins.
+Communication plan (17): after SRS approval seed to admins; E−10 trial-run invitation to 5–10 colleagues and admins; E−2 trial and go/no-go in person (DEC-213); E−2 player instructions (bring phone, install Chrome, turn on mobile data); E live event; E+1 fun survey form; E+6 survey results and lessons to admins.
 
-Other dates: no-go re-check Mon 19 Oct (DEC-191); Spring Boot 3.x lost free support 30 June 2026, 4.1 supported until about July 2027 (DEC-123, 19).
+Other dates: no re-check after a no-go (DEC-215 over DEC-191's Mon 19 Oct re-check); Spring Boot 3.x lost free support 30 June 2026, 4.1 supported until about July 2027 (DEC-123, 19).
 
 ## Owner-only actions
 
@@ -425,7 +430,7 @@ Other dates: no-go re-check Mon 19 Oct (DEC-191); Spring Boot 3.x lost free supp
 - Approve any CSP fallback to `'unsafe-inline'` (DEC-135).
 - Approve every document and new DEC (DEC-03, 16).
 - Admins review every drafted task (DEC-40, A-05, R-10); content sign-off before content freeze.
-- Trial run: invite 5–10 colleagues at E−10, run trial at E−7, make go/no-go decision (16, 17, DEC-191, DEC-193).
+- Trial run: invite 5–10 colleagues at E−10, run trial at E−2, make go/no-go decision; a no-go moves the event (16, 17, DEC-191, DEC-193, DEC-213, DEC-215).
 - Test the venue: 1920×1080 projector, laptop with Chrome, network access to the subdomain, room with good mobile signal, hotspot fallback (A-03, R-07, R-08).
 - Send player instructions at E−2 (17); remind about Chrome for iPhone users (R-06).
 - Host the live event; close the event (E+1) (7.1, 12).

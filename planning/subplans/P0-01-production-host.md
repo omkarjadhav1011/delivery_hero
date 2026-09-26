@@ -14,7 +14,7 @@
 
 ## Goal
 
-The owner decides where production runs (Q-01), then opens the hosting account with its cost guardrails, so that the server can be prepared in P0-02 and the first deploy can happen by Tue 29 Sep.
+The owner decides where production runs (Q-01), then opens the hosting account with its cost guardrails, so that the server can be prepared in P0-02 and the first deploy can happen at the deploy point H-07 (Thu 15 – Fri 16 Oct, DEC-213).
 
 ## Sources
 
@@ -64,7 +64,7 @@ The owner decides where production runs (Q-01), then opens the hosting account w
 
 ## Risks and open questions
 
-- Q-01 / DI-04: no production host today, because Oracle sign-up needs a card the owner doesn't have. Every task after T1 waits on the answer; the due date is Sat 26 Sep so the first deploy can still land on Tue 29 Sep.
+- Q-01 / DI-04: no production host today, because Oracle sign-up needs a card the owner doesn't have. Every task after T1 waits on the answer; the due date is Mon 12 Oct (DEC-213) so production is ready by Fri 16 Oct.
 - R-02: the free machine may be reclaimed when idle or hit capacity limits. T4 (Pay As You Go) is its main guard; the documented fallback is DG-09 (any Docker host). If no host works in time, document 16 section 14 says to postpone the event (A-01@01).
 - A non-Oracle host changes backup storage (instance principal, Object Storage) and the firewall steps; T6 captures that as a plan change instead of improvising.
 

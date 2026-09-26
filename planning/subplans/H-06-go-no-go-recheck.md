@@ -14,13 +14,13 @@
 
 ## Goal
 
-Only after a no-go at CP-T on Mon 19 Oct: there is no re-check (owner answer 2026-09-26, DEC-213); the event date moves (A-01@01), and every date shifts by the same amount (Charter section 12).
+Only after a no-go at CP-T on Mon 19 Oct: there is no re-check (DEC-215); the event date moves (A-01@01), and every date shifts by the same amount (Charter section 12).
 
 ## Sources
 
-- Document 14, section 11 (go/no-go criteria; the shorter re-check trial on Mon 19 Oct), Appendix C (trial run script), Appendix E (test summary report)
+- Document 14, section 11 (go/no-go criteria), Appendix C (trial run script), Appendix E (test summary report)
 - Document 15, section 14 (TRIAL checks), section 8.3 (`--strict-must`)
-- DEC-191, TP-07; A-01@01
+- DEC-191, DEC-215, TP-07; A-01@01
 - `planning/CONVENTIONS.md`, section 15 (CP-T; no re-check since PC-06)
 
 ## Context to load
@@ -47,7 +47,7 @@ Only after a no-go at CP-T on Mon 19 Oct: there is no re-check (owner answer 202
 
 ## Owner actions
 
-None beyond T-01's (OA-24); the re-check group is the trial group again.
+None beyond T-01's (OA-24).
 
 ## Verification
 
@@ -57,9 +57,8 @@ None beyond T-01's (OA-24); the re-check group is the trial group again.
 
 ## Risks and open questions
 
-- Q-01 / DI-04: the re-check trial needs the production host.
-- R-01 (shared, schedule): a second no-go moves the event (A-01@01); the plan shifts every date by the same amount.
-- The shorter trial's exact content isn't defined beyond "re-checks the same criteria"; T4 re-runs the steps the no-go needs and asks the owner to confirm the list.
+- R-01 (shared, schedule): a no-go moves the event (A-01@01, DEC-215); the plan shifts every date by the same amount.
+- Document 14 (sections 11 and 13, TP-07) still describes a re-check on Mon 19 Oct; DEC-215 wins until it's updated.
 
 ## Definition of done
 
@@ -67,7 +66,7 @@ Document 13, section 10, plus: the owner's decision to move the event recorded, 
 
 ## Claude Code playbook
 
-- `/dh` switches to trial mode for the re-check.
+- `/dh` in trial mode presents T1 and T6 after CP-T.
 - No code changes in this subplan.
 - Reviewers: `spec-guardian` for the evidence against document 14, section 11.
 - Pitfalls: the decision is the owner's; never record names or answers in the registers (DEC-104).
@@ -75,3 +74,4 @@ Document 13, section 10, plus: the owner's decision to move the event recorded, 
 ## Progress log
 
 - 2026-09-26: PC-06: the owner answered that a no-go at the trial on Mon 19 Oct moves the event (A-01) with no re-check (DEC-213). Renamed; the re-check tasks T2 to T5 removed; T1 and T6 kept.
+- 2026-09-26: DEC-215 (PC-08): the remaining re-check lines removed and DEC-215 cited.

@@ -14,7 +14,7 @@
 
 ## Goal
 
-A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 Oct (DEC-213; one 100-player repeat on production follows in H-08) with 100 virtual players, one projector and two admin screens, and LT-01 (runs 1 to 4), OPS-14 (first load on 4G) and OPS-15 (ZAP baseline) pass and are recorded on Tue 13 Oct, the day before the trial.
+A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 Oct (DEC-214; one 100-player repeat on production follows in H-08) with 100 virtual players, one projector and two admin screens, and LT-01 (runs 1 to 4) passes and is recorded on Tue 13 Oct. The OPS-14 check (first load on 4G) is built here; OPS-14 and OPS-15 (ZAP baseline) run against production in H-08.
 
 ## Sources
 
@@ -24,8 +24,8 @@ A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 
 - Document 15: section 10 (LT-01 steps 1 to 9), DS-09, section 11 (OPS-14, OPS-15), E2E-09 (page weight), section 17 (recording results).
 - Document 03: NFR-01, NFR-02, NFR-04, NFR-05, NFR-06, NFR-11.
 - Document 11: sections 5.3 (rate limits), 7.3 (admin session), 7.7 (test games), 7.8 (host actions), 8.4 to 8.7 (real-time messages).
-- Charter: section 14 (R-03); Appendix A: DEC-185 (ZAP baseline), DEC-187 (load test setup), DEC-104.
-- Owner action OA-25; open question Q-01; doc issues DI-04, DI-11.
+- Charter: section 14 (R-03); Appendix A: DEC-185 (ZAP baseline), DEC-187 (load test setup), DEC-104, DEC-214 (load test on the local stack).
+- Owner action OA-25; doc issue DI-11.
 
 ## Context to load
 
@@ -57,37 +57,37 @@ A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 
 - [ ] T3 Virtual player behavior (DS-09): join, connect and synchronize time; answer each task after a random 2–12 seconds, 70% correct, 20% wrong and 10% left to time out; answer the incident within 2–8 seconds; the script takes correct answers from the seed file in the cloned repository, because the server never sends them before Results (DI-11); joins are paced under the 120-per-minute limit per IP, in `load-test/round.js`, test first: the local dry run shows answers of all three kinds and an incident burst, source: DS-09, LT-01, AC-EN07-01, document 14 section 7.6, document 11 section 5.3
 - [ ] T4 Measurements: `feedback_latency` from SEND to FEEDBACK, `projector_lag` from a player's feedback to the matching projector update, the size of every player message during the round and of RESULTS, and `ws_connect_failures`; a `handleSummary` report shows each threshold as pass or fail and the largest message of each type, in `load-test/round.js`, test first: the local dry run writes the report with every figure, source: AC-EN07-01, AC-EN07-02, AC-US31-03 (shared), AC-US39-03 (shared), NFR-01 (shared), NFR-02 (shared), NFR-06, document 15 section 10 step 5
 - [ ] T5 On-demand OPS-14 check: a Playwright run against a `BASE_URL` with network throttling at 9 Mbps down, 1.5 Mbps up and 100 ms latency, checking the join screen appears within 3 seconds and the bytes transferred stay under 1 MB (the E2E-09 byte count), kept out of the CI suite, in the frontend Playwright specs, test first: the check run against the local stack, source: OPS-14, NFR-05 (shared), E2E-09 (shared), DEC-185, document 15 section 11
-- [ ] T6 Check the load test entry criteria on Mon 12 Oct evening: every Must story complete (`node planning/scripts/run.mjs status`), the build deployed, no open Sev-1 issue, and on the day no game open on production and the Default plan loaded; list any gap for the owner, test first: none, source: LT-01, document 14 section 10, document 15 section 10 step 2 [Blocked: waiting for Q-01]
-- [ ] T7 Owner: set up the load generator (OA-25): the temporary Always Free Arm instance in the server's region with k6 and a clone of the repository, or the laptop fallback (DEC-187 (shared)); on the server, start `vmstat 5` and the `docker stats --no-stream` loop every 5 seconds, both writing to files, test first: none, source: LT-01, DEC-187 (shared), document 15 section 10 steps 1 to 3 [Blocked: waiting for Q-01]
-- [ ] T8 Owner: runs 1 and 2 with `PLAYERS=100`, outside working hours; after each, record the k6 summary, peak CPU and memory (below 70% and 4 GB), the largest message of each type and the number of backend errors, and review the backend logs, test first: none, source: LT-01, AC-EN07-01, R-03, NFR-04, NFR-11 (shared), document 15 section 10 steps 4 to 6 [Blocked: waiting for Q-01]
-- [ ] T9 Owner: run 3 with `PLAYERS=150` (headroom only) and run 4, three games back to back, checking after each close that backend memory is back within 10% of its level before the game; then delete the load-generator instance, test first: none, source: LT-01, R-03, NFR-04, document 15 section 10 steps 7 to 9 [Blocked: waiting for Q-01]
-- [ ] T11 Record LT-01 (each run), OPS-14 and OPS-15 in `planning/check-results.md`, and AC-EN07-01, AC-EN07-02 and AC-US31-03 (shared) in `test-results/manual-results.csv` (check IDs in the notes); a failed threshold gets a GitHub issue with its severity, and LT-01 is re-run after the fix; keep the figures for T-01's test summary report, test first: `node planning/scripts/run.mjs validate`, source: LT-01, OPS-14, OPS-15, DS-09, AC-EN07-02, DEC-190 (shared), document 15 section 17 [Blocked: waiting for Q-01]
+- [ ] T6 Check the load test entry criteria on Mon 12 Oct evening: every Must story complete (`node planning/scripts/run.mjs status`), the local stack running the build from `main`, no open Sev-1 issue, and on the day no game open on the local stack and the Default plan loaded; list any gap for the owner, test first: none, source: LT-01, DEC-214, document 14 section 10, document 15 section 10 step 2
+- [ ] T7 Owner: set up the load generator (OA-25): k6 on the laptop with a clone of the repository, against the local stack (DEC-214); on the local host, start the `docker stats --no-stream` loop every 5 seconds (and `vmstat 5` where available), writing to files, test first: none, source: LT-01, DEC-187 (shared), DEC-214, document 15 section 10 steps 1 to 3
+- [ ] T8 Owner: runs 1 and 2 with `PLAYERS=100`, outside working hours; after each, record the k6 summary, peak CPU and memory (below 70% and 4 GB), the largest message of each type and the number of backend errors, and review the backend logs, test first: none, source: LT-01, AC-EN07-01, R-03, NFR-04, NFR-11 (shared), document 15 section 10 steps 4 to 6
+- [ ] T9 Owner: run 3 with `PLAYERS=150` (headroom only) and run 4, three games back to back, checking after each close that backend memory is back within 10% of its level before the game, test first: none, source: LT-01, R-03, NFR-04, document 15 section 10 steps 7 to 9
+- [ ] T11 Record LT-01 (each run, environment "local", DEC-214) in `planning/check-results.md`, and AC-EN07-01, AC-EN07-02 and AC-US31-03 (shared) in `test-results/manual-results.csv` (check IDs in the notes); a failed threshold gets a GitHub issue with its severity, and LT-01 is re-run after the fix; keep the figures for T-01's test summary report, test first: `node planning/scripts/run.mjs validate`, source: LT-01, OPS-14, OPS-15, DS-09, AC-EN07-02, DEC-190 (shared), document 15 section 17
 
 ## Owner actions
 
 | ID | Action | Due |
 |---|---|---|
-| OA-25 | Create the temporary load-generator Arm instance with k6, or prepare the laptop fallback | Tue 13 Oct |
+| OA-25 | Install k6 on the laptop and clone the repository for the local load test (DEC-214) | Tue 13 Oct |
 
 ## Verification
 
 - The local dry run of `load-test/round.js` with `PLAYERS=5` passes and writes its report (T1 to T4).
 - `/check` for the repository and frontend checks (the script and the OPS-14 check).
 - LT-01 exit criterion (document 14, section 10): two 100-player runs meet every threshold, and memory returns to baseline after three back-to-back games.
-- OPS-14 and OPS-15 recorded in `check-results.md`.
+- LT-01 recorded in `check-results.md` with the environment "local"; OPS-14 and OPS-15 are recorded by H-08.
 
 ## Risks and open questions
 
-- Q-01 / DI-04: no production host yet, so every run on production is blocked; T1 to T5 go ahead on the local stack. The load test entry and go/no-go criterion 2 need a production run; if Q-01 is still open on Tue 13 Oct, `/dh` raises it with the owner, and this subplan doesn't substitute a local run for LT-01.
+- DEC-214: LT-01 runs on the local stack, so it doesn't wait for Q-01. The one 100-player repeat on production is H-08 T24, from the Arm load generator (OA-29).
 - R-03 (crash mid-round): the load test is its main mitigation, with the trial (T-01) and the deploy lock (S2-05). A failed run means a fix, a re-run and possibly Should stories cut to make room.
 - The load test holds a test game open, so the deploy lock stops merges from deploying during the runs; no merges are planned for the test window.
 - DI-11: answers never reach a phone before Results, so the virtual players can't learn them from the server; T3 reads them from the seed file. The script is never served to phones.
 - Run 3 with 150 players passes the 100-player cap per game (`GAME_FULL`) unless the test game allows it; if the cap refuses players past 100, record run 3 as headroom measured up to the cap and ask the owner.
-- OA-25: if the Arm instance can't be created, the laptop fallback measures network time as well; the server's own processing times separate it (document 14, section 7.6).
+- k6 and the stack share the laptop (DEC-214), so the CPU and memory figures include k6's own load; record k6's share from `docker stats` and the host's monitor alongside them, and the production repeat in H-08 gives the clean figures. Document 14, section 7.6 and DEC-187 assume a separate load generator (doc issue to raise with the owner).
 
 ## Definition of done
 
-Document 13, section 10, plus: `load-test/round.js` merged and documented by its command; runs 1 and 2 pass every threshold, memory returns to baseline in run 4, OPS-14 and OPS-15 pass; every result recorded in `check-results.md` and `manual-results.csv`.
+Document 13, section 10, plus: `load-test/round.js` merged and documented by its command; runs 1 and 2 pass every threshold, memory returns to baseline in run 4, the OPS-14 check is merged; every result recorded in `check-results.md` and `manual-results.csv`.
 
 ## Claude Code playbook
 
@@ -99,3 +99,4 @@ Document 13, section 10, plus: `load-test/round.js` merged and documented by its
 
 - 2026-09-26: DEC-213 (PC-04): T10 (OPS-14 and OPS-15 against production) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).
 - 2026-09-26: DEC-213, owner answer (PC-06): LT-01 runs on the local stack by Tue 13 Oct; one 100-player repeat run on production is H-08's task. Q-01 no longer blocks this subplan.
+- 2026-09-26: DEC-214 (PC-08): T6 to T11 unblocked and rewritten for the local stack; the load-generator instance moves to H-08 T24 (OA-29); OPS-14 and OPS-15 are H-08's (T23).

@@ -103,7 +103,7 @@ Must stories first (49 points), then Should stories in document 04's build order
 | S2-24 | Character editing, privacy note, auto-close, accessibility checks | US-55, US-07, US-66, EN-09 | 6 | S1-03, S2-04; Q-06 | Tue 13 Oct |
 | S2-25 | Content review before the freeze (owner and admins) | none | — | S1-01; OA-23 | Wed 7 Oct |
 | S2-26 | Local checks before the trial: an on-demand E2E-06 run (DI-17), the Appendix B accessibility pass, OPS-16 at E−7; the production checks moved to H-08 | none | — | S0-06, S2-06, S2-10 | Thu 8 – Wed 14 Oct |
-| S2-27 | Load test day on the local stack: LT-01 (DEC-213; OPS-14, OPS-15 and a production repeat in H-08) | EN-07 | 3 | S2-01, S2-10; OA-25 | Tue 13 Oct |
+| S2-27 | Load test day on the local stack: LT-01 (DEC-214; OPS-14, OPS-15 and a production repeat in H-08) | EN-07 | 3 | S2-01, S2-10; OA-25 | Tue 13 Oct |
 
 ### T, H, FZ, E and AE
 
@@ -115,7 +115,7 @@ Must stories first (49 points), then Should stories in document 04's build order
 | H-03 | Final-stretch visuals and live feed | US-35, US-41 | 4 | T-01, S2-01 | Fri 16 Oct |
 | H-04 | Hero card | US-48 | 3 | T-01, S2-03 | Fri 16 Oct |
 | H-05 | Content freeze, document 17 and player instructions (owner approval needed: changes docs/) | none | — | OA-26 | Fri 16 – Mon 19 Oct |
-| H-06 | No-go: move the event (A-01); no re-check (PC-06) | none | — | T-01 | Mon 19 Oct |
+| H-06 | No-go: move the event (A-01); no re-check (DEC-215) | none | — | T-01 | Mon 19 Oct |
 | H-07 | Deploy point: first production deploy, certificate, seed, OPS-01 to OPS-05, OPS-17, OPS-18, the walking skeleton on production (DEC-213) | EN-02, EN-03 | 8 | S0-06, P0-02, P0-03; Q-01; OA-18 to OA-21 | Thu 15 – Fri 16 Oct |
 | H-08 | Production checks: OPS-06 to OPS-15, OPS-19, MAN and A11Y on production, the production regression, a 100-player load-test repeat (DEC-213) | none | — | H-07, S2-06, S2-26, S2-27; Q-01; OA-11 to OA-13, OA-22 | Fri 16 – Sun 18 Oct |
 | FZ-01 | Final regression, OPS-16, OPS-19, OPS-20, OPS-22, `v1.0.0` tag, day-before checklist | none | — | H-01, H-05 | Tue 20 Oct |

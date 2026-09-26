@@ -5,7 +5,7 @@ A changed hash means the plan may be out of date: `/dh` reads the changed docume
 
 | Document | Lines | SHA-256 | Recorded |
 |---|---|---|---|
-| `01-project-charter.md` | 640 | `7a25dbdc099bbf6f62efa14e8ff345626ff86b056126720b956b00b62e75057b` | 2026-09-25 |
+| `01-project-charter.md` | 648 | `615be206f893a1f93dc7f3f8b7e9f9262689959a8ffeb17670d51e8461d23653` | 2026-09-26 |
 | `02-prd.md` | 564 | `6280d7ed5d887a5674b7d01d02eec889525ece2f31581d68c45b1248ccb13fde` | 2026-09-25 |
 | `03-srs.md` | 834 | `9b4cfd49c5d7070a7f65b6e5e82a4c82e0bf44fa5dd268d210e94c69e7b3012b` | 2026-09-25 |
 | `04-user-stories.md` | 449 | `8cda53caa74d496f41c09536bd91b1383250eef85b7f6cf3f60350c8991223e0` | 2026-09-25 |
@@ -15,7 +15,7 @@ A changed hash means the plan may be out of date: `/dh` reads the changed docume
 | `08-lld.md` | 760 | `4d2462c9143bf6a4b7d4d95828e7eb4d141dd98c24ffa773b4a0ab29f4cd1817` | 2026-09-26 |
 | `09-software-architecture.md` | 494 | `0bdd126462d43d92a397372a0547629a7ec9c29ee3888d99a65a6049d83007fb` | 2026-09-25 |
 | `10-database-design.md` | 540 | `1fdfda9ae0d8c2fb14617845e4eb20d87c0f46bc962ecd550c218a0dd2655023` | 2026-09-25 |
-| `11-api-specification.md` | 807 | `84976862e27a92909c34f2fe7722bfd3e84e8d6e39ab3424005a347b758716f5` | 2026-09-26 |
+| `11-api-specification.md` | 810 | `e7573c71517575390eaf770175b72b07761039c2a0a4a7511008a6a2f9183b1d` | 2026-09-26 |
 | `12-ui-ux-wireframes.md` | 1146 | `6a1d7e9e76dafe66d33fef32d6fea3bbf6513a080d59c6ff1fb19ff8ef596fa8` | 2026-09-25 |
 | `13-coding-standards-git-strategy.md` | 743 | `b43f10f969290e8dba28301086e9bd3863a33ce67f815efc0382eff1dcbb91d7` | 2026-09-25 |
 | `14-test-plan.md` | 636 | `699cfca4733d9378608217a9f2803457355defb11eea50e23cdef8b0f054ba94` | 2026-09-25 |

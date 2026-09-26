@@ -14,7 +14,7 @@ from typing import List
 from _hooklib import project_dir, read_input, run
 
 MILESTONES = [
-    ("trial run", date(2026, 10, 14)),
+    ("trial run", date(2026, 10, 19)),  # DEC-213
     ("content freeze", date(2026, 10, 16)),
     ("deployment freeze", date(2026, 10, 20)),
     ("event", date(2026, 10, 21)),

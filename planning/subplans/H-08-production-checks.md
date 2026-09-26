@@ -6,7 +6,7 @@
 | Phase | H (Thu 15 – Mon 19 Oct) |
 | Stories | none (owner) |
 | Priority and points | Must, 0 |
-| Depends on | H-07, S2-06, S2-26, S2-27, Q-01, OA-11, OA-12, OA-13, OA-22 |
+| Depends on | H-07, S2-06, S2-26, S2-27, Q-01, OA-11, OA-12, OA-13, OA-22, OA-29 |
 | Unblocks | T-01 |
 | Target dates | Fri 16 – Sun 18 Oct |
 | Branch | ops/production-checks |
@@ -18,7 +18,7 @@ The checks that need production, moved here from S1 and S2 by DEC-213, run in th
 
 ## Sources
 
-- Charter, Appendix A: DEC-213; owner answer 2026-09-26 on the load test (PC-06)
+- Charter, Appendix A: DEC-213; DEC-214 (the load-test repeat on production)
 - Document 15: sections 10 (LT-01), 11 (OPS-06 to OPS-15, OPS-19), 12 (MAN), 13 (A11Y), 17
 - Document 16: sections 7.4, 7.5, 7.6, 10.2, 11.5 to 11.7
 - Moved here by PC-04 from S1-03 T7, S1-17 T5 to T7, S2-05 T5, S2-06 T2 to T6, S2-22 T9, S2-24 T10 and T11, S2-26 T1 to T7, T9 and T10, and S2-27 T10
@@ -61,11 +61,11 @@ The checks that need production, moved here from S1 and S2 by DEC-213, run in th
 - [ ] T21 Confirm the restore rehearsal (S2-06 T5) is recorded in `check-results.md` by Mon 12 Oct; if it isn't, put it first in the owner's Mon 12 Oct checklist, since go/no-go criterion 7 needs it (from S2-26 T9, DEC-213), test first: none, source: OPS-11 (shared), NFR-10, document 16 section 11.6, document 14 section 11 [Blocked: waiting for Q-01]
 - [ ] T22 Owner: full regression on Mon 12 Oct, after feature completion: a manual pass of document 14 Appendix A items 1 to 11 on production (redirect, renewal dry run, reboot, headers, health, HSTS, uptime alert, deploy lock, restart, backup and restore, privacy), reusing this week's results where nothing changed since (from S2-26 T10, DEC-213), test first: none, source: R-09 (shared), OPS-01 (shared), OPS-08 (shared), OPS-10 (shared), document 14 section 7.14, Appendix A [Blocked: waiting for Q-01]
 - [ ] T23 Owner: OPS-14 (shared) against production with the T5 check, and OPS-15 (shared), the OWASP ZAP baseline (passive) scan of production: no high-risk alerts, the others reviewed and noted (from S2-27 T10, DEC-213), test first: none, source: OPS-14 (shared), OPS-15 (shared), NFR-05 (shared), DEC-185 (shared), TP-01, document 15 section 11 [Blocked: waiting for Q-01]
-- [ ] T24 Owner: one 100-player repeat of LT-01 on production from the load generator (OA-25), recorded in `planning/check-results.md` with the environment "production" (owner answer 2026-09-26, PC-06), test first: none, source: LT-01 (shared), AC-EN07-01 (shared), document 15 section 10 [Blocked: waiting for Q-01]
+- [ ] T24 Owner: one 100-player repeat of LT-01 on production from the Arm load-generator instance (OA-29), then delete the instance, recorded in `planning/check-results.md` with the environment "production" (DEC-214), test first: none, source: LT-01 (shared), AC-EN07-01 (shared), document 15 section 10 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
-OA-11, OA-12, OA-13 and OA-22 (due Tue 13 to Fri 16 Oct), and OA-25 for the load-test repeat.
+OA-11, OA-12, OA-13 and OA-22 (due Tue 13 to Fri 16 Oct), and OA-29 for the load-test repeat.
 
 ## Verification
 
