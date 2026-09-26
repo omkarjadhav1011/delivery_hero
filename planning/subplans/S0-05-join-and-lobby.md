@@ -6,7 +6,7 @@
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | US-01, US-02, US-04 |
 | Priority and points | Must, 7 |
-| Depends on | S0-03, S0-04 |
+| Depends on | S0-04 |
 | Unblocks | S0-07 |
 | Target dates | Mon 28 Sep |
 | Branch | feat/us-01-join |
@@ -101,3 +101,4 @@ Document 13, section 10, plus: every US-01 and US-02 criterion passes at its lev
 ## Progress log
 
 None yet.
+- 2026-09-26: Depends on now lists S0-04 only (PC-02): the S0-03 work this subplan needs is merged in PR #11.

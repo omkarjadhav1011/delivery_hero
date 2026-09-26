@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Done |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | EN-04 |
 | Priority and points | Must, 5 |
@@ -111,3 +111,4 @@ Document 13, section 10, plus: `StompConnectionIT` passes all three backend crit
   - Frontend: 3 s `connectionTimeout`, `discardWebsocketOnCommFailure`, STOMP 1.2 only, and the browser's `offline`/`online` events (drop, or retry at once). There is a final `refused` status on `UNAUTHORIZED` or `FORBIDDEN`, malformed messages are dropped, the hook status is kept per credentials key, and the adapter test mocks `@stomp/stompjs`. 78 frontend tests pass.
   - Recorded, not built: `RealtimeController` (time sync with S1-08, answers with S1-02). Document changes for the owner: DI-36 to DI-42.
 - 2026-09-26: Session actuals: about 2 hours (00:34 to 02:40). Main session tokens estimated at about 450k; the three reviewers used about 274k.
+- 2026-09-26: Done. Merged in PR #13 (2026-09-26) with every task ticked and the criteria passing. The production deploy verification follows the first deploy (S0-06).

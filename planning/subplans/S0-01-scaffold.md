@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | EN-01 |
 | Priority and points | Must, 3 |
@@ -145,3 +145,4 @@ Document 13, section 10, plus: `./mvnw -B verify` and every frontend check pass;
     - Binding `dh.public-base-url` (US-04).
     - Moving the 401 check to `security/SecurityIT` (US-49).
 - 2026-09-26: PR #9 merged on 2026-09-25 (e96ee0b). Every task is done. The Deploy run fails at the copy step because `DEPLOY_HOST` is empty, since there is no server yet, so production verification (OPS-20 on production, section 20) waits for Q-01. The status stays In review until then.
+- 2026-09-26: Done. Merged in PR #9 (2026-09-25) with every task ticked and the criteria passing. The production deploy verification follows the first deploy (S0-06).
