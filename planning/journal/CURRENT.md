@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | PLAN |
 | Branch | docs/planning-dec-214-215 |
 | Start commit | c35daea |
-| Last commit | c35daea |
-| Step | awaiting-approval |
+| Last commit | 94f3cc3 |
+| Step | implement |
 | Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T21:04 |
-| Updated | 2026-09-26T21:04 |
-| Next action | Apply approved plan changes for DEC-214/215 and API 1.2 |
+| Updated | 2026-09-26T21:09 |
+| Next action | Owner: push and open PR; then the doc issues and the In review reconciliation |
 
 ## Completed tasks
 
-- none
+- PLAN (94f3cc3)
 
 ## Pending approvals
 

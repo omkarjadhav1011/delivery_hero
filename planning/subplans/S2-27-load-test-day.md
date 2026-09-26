@@ -83,7 +83,7 @@ A repeatable k6 script plays a full 5-minute round on the local stack by Tue 13 
 - The load test holds a test game open, so the deploy lock stops merges from deploying during the runs; no merges are planned for the test window.
 - DI-11: answers never reach a phone before Results, so the virtual players can't learn them from the server; T3 reads them from the seed file. The script is never served to phones.
 - Run 3 with 150 players passes the 100-player cap per game (`GAME_FULL`) unless the test game allows it; if the cap refuses players past 100, record run 3 as headroom measured up to the cap and ask the owner.
-- k6 and the stack share the laptop (DEC-214), so the CPU and memory figures include k6's own load; record k6's share from `docker stats` and the host's monitor alongside them, and the production repeat in H-08 gives the clean figures. Document 14, section 7.6 and DEC-187 assume a separate load generator (doc issue to raise with the owner).
+- k6 and the stack share the laptop (DEC-214), so the CPU and memory figures include k6's own load; record k6's share from `docker stats` and the host's monitor alongside them, and the production repeat in H-08 gives the clean figures. Document 14, section 7.6 and DEC-187 assume a separate load generator (DI-70).
 
 ## Definition of done
 

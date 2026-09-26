@@ -58,7 +58,7 @@ None beyond T-01's (OA-24).
 ## Risks and open questions
 
 - R-01 (shared, schedule): a no-go moves the event (A-01@01, DEC-215); the plan shifts every date by the same amount.
-- Document 14 (sections 11 and 13, TP-07) still describes a re-check on Mon 19 Oct; DEC-215 wins until it's updated.
+- Document 14 (sections 11 and 13, TP-07) still describes a re-check on Mon 19 Oct (DI-68); DEC-215 wins until it's updated.
 
 ## Definition of done
 
