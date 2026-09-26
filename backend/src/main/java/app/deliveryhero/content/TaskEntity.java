@@ -119,6 +119,10 @@ public class TaskEntity implements Persistable<UUID> {
         return taskKey;
     }
 
+    public Role role() {
+        return role;
+    }
+
     public TaskKind kind() {
         return kind;
     }
@@ -133,6 +137,34 @@ public class TaskEntity implements Persistable<UUID> {
 
     public String prompt() {
         return prompt;
+    }
+
+    public @Nullable String code() {
+        return code;
+    }
+
+    public @Nullable Integer timeLimitSeconds() {
+        return timeLimitSeconds == null ? null : timeLimitSeconds.intValue();
+    }
+
+    public String content() {
+        return content;
+    }
+
+    public @Nullable String explanation() {
+        return explanation;
+    }
+
+    public int version() {
+        return version;
+    }
+
+    public Instant createdAt() {
+        return createdAt;
+    }
+
+    public Instant updatedAt() {
+        return updatedAt;
     }
 
     @Override

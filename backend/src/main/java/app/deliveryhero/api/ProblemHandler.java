@@ -14,6 +14,11 @@ public class ProblemHandler {
     @ExceptionHandler(DeliveryHeroException.class)
     ResponseEntity<ProblemDetail> refused(DeliveryHeroException refusal) {
         ProblemDetail problem = ProblemFactory.of(refusal.code());
+        String detail = refusal.detail();
+        if (detail != null) {
+            problem.setDetail(detail);
+        }
+        problem.setProperty("errors", refusal.errors());
         return ResponseEntity.status(problem.getStatus()).body(problem);
     }
 }
