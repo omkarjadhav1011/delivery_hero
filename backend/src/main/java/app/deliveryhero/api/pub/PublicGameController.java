@@ -9,7 +9,6 @@ import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.springframework.http.HttpStatus;
@@ -41,7 +40,14 @@ public class PublicGameController {
         submit(code, new GetStatus(reply));
         GetStatus.Status status = await(reply);
         return new GameStatusResponse(
-                status.gameId(), status.code(), status.state(), status.test(), status.joinable(), status.reason());
+                status.gameId(),
+                status.code(),
+                status.state(),
+                status.test(),
+                status.joinable(),
+                status.reason() == null
+                        ? null
+                        : NotJoinableReason.valueOf(status.reason().name()));
     }
 
     @PostMapping("/players")
@@ -62,11 +68,9 @@ public class PublicGameController {
      * has one discarded while the request was on its way (FR-002).
      */
     private void submit(String code, Command command) {
-        try {
-            engine.findByCode(code)
-                    .orElseThrow(() -> new DeliveryHeroException(ApiErrorCode.GAME_NOT_ACTIVE))
-                    .enqueue(command);
-        } catch (RejectedExecutionException e) {
+        boolean queued =
+                engine.findByCode(code).map(session -> session.enqueue(command)).orElse(false);
+        if (!queued) {
             throw new DeliveryHeroException(ApiErrorCode.GAME_NOT_ACTIVE);
         }
     }
@@ -77,8 +81,12 @@ public class PublicGameController {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while waiting for the game session", e);
-        } catch (ExecutionException | TimeoutException e) {
-            throw new IllegalStateException("The game session didn't reply", e);
+        } catch (TimeoutException e) {
+            // The session skips a Join whose caller stopped waiting
+            reply.cancel(false);
+            throw new IllegalStateException("The game session didn't reply in time", e);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException("The game session failed the request", e);
         }
     }
 }

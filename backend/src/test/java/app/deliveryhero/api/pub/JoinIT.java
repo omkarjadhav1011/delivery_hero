@@ -133,7 +133,7 @@ class JoinIT {
     @Test
     @DisplayName("The end-to-end game endpoint doesn't exist outside the e2e profile")
     void e2eGameEndpointIsAbsent() {
-        assertThat(mvc.post().uri("/api/test/s0-game").exchange()).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(mvc.post().uri("/api/test/s0-game").exchange()).hasStatus4xxClientError();
     }
 
     private void openLobby() {

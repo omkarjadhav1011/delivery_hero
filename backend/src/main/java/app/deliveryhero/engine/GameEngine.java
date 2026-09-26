@@ -6,6 +6,7 @@ import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
 import app.deliveryhero.engine.command.Command;
 import jakarta.annotation.PreDestroy;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
@@ -26,24 +27,27 @@ public class GameEngine {
     private final GameProperties properties;
     private final Broadcaster broadcaster;
     private final Clock clock;
+    private final SecureRandom random;
 
     public GameEngine(
             TokenService tokens,
             PlayerTokens playerTokens,
             GameProperties properties,
             Broadcaster broadcaster,
-            Clock clock) {
+            Clock clock,
+            SecureRandom random) {
         this.tokens = tokens;
         this.playerTokens = playerTokens;
         this.properties = properties;
         this.broadcaster = broadcaster;
         this.clock = clock;
+        this.random = random;
     }
 
     /** Starts a session for a game. TODO(US-59): build it from the game row and its snapshot, in CREATED. */
     public GameSession create(UUID gameId, String code, GameState state, boolean test) {
         GameSession session = new GameSession(
-                gameId, code, state, test, properties.maxPlayers(), tokens, playerTokens, broadcaster, clock);
+                gameId, code, state, test, properties.maxPlayers(), tokens, playerTokens, broadcaster, clock, random);
         sessions.put(gameId, session);
         return session;
     }

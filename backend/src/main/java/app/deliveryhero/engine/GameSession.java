@@ -4,6 +4,7 @@ import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.Names;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.command.ClientRole;
@@ -14,6 +15,7 @@ import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.Reconnect;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,7 @@ public final class GameSession {
     private final PlayerTokens playerTokens;
     private final Broadcaster broadcaster;
     private final Clock clock;
+    private final SecureRandom random;
     private final ExecutorService thread;
 
     // Session state: read and written only on the session thread
@@ -65,7 +69,8 @@ public final class GameSession {
             TokenService tokens,
             PlayerTokens playerTokens,
             Broadcaster broadcaster,
-            Clock clock) {
+            Clock clock,
+            SecureRandom random) {
         this.id = id;
         this.code = code;
         this.state = state;
@@ -75,6 +80,7 @@ public final class GameSession {
         this.playerTokens = playerTokens;
         this.broadcaster = broadcaster;
         this.clock = clock;
+        this.random = random;
         this.thread = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "game-" + id));
     }
 
@@ -86,30 +92,55 @@ public final class GameSession {
         return code;
     }
 
-    /** Adds a command to the queue; it runs later on the session thread. Never blocks. */
-    public void enqueue(Command command) {
-        thread.execute(() -> {
-            MDC.put("gameId", id.toString());
-            try {
-                handle(command);
-            } catch (RuntimeException e) {
-                // One failed command never stops the session (document 13, section 6.5)
-                log.atError().addKeyValue("event", "COMMAND_FAILED").setCause(e).log("Command {} failed", command);
-            } finally {
-                MDC.remove("gameId");
+    /**
+     * Adds a command to the queue; it runs later on the session thread. Never blocks. Returns false when the session
+     * has been discarded, so the command is dropped.
+     */
+    public boolean enqueue(Command command) {
+        try {
+            thread.execute(() -> run(command));
+            return true;
+        } catch (RejectedExecutionException e) {
+            return false;
+        }
+    }
+
+    private void run(Command command) {
+        MDC.put("gameId", id.toString());
+        try {
+            handle(command);
+        } catch (RuntimeException e) {
+            // One failed command never stops the session, and a waiting caller hears at once (document 13, 6.5)
+            log.atError().addKeyValue("event", "COMMAND_FAILED").setCause(e).log("Command {} failed", command);
+            switch (command) {
+                case Join join -> join.reply().completeExceptionally(e);
+                case GetStatus query -> query.reply().completeExceptionally(e);
+                case Reconnect reconnect -> {}
+                case Disconnect disconnect -> {}
+                case ClientSubscribed subscribed -> {}
             }
-        });
+        } finally {
+            MDC.remove("gameId");
+        }
     }
 
     /** Ends the session: its tokens stop working, then its thread stops once the queue is empty. */
     void close() {
+        if (thread.isShutdown()) {
+            return;
+        }
         thread.execute(() -> players.values().forEach(player -> playerTokens.revoke(player.tokenHash())));
         thread.shutdown();
     }
 
     private void handle(Command command) {
         switch (command) {
-            case Join join -> join.reply().complete(join(join.rawName()));
+            case Join join -> {
+                // A request that stopped waiting gets no player, so a retry doesn't leave a stray "Priya 2"
+                if (!join.reply().isDone()) {
+                    join.reply().complete(join(join.rawName()));
+                }
+            }
             case GetStatus query -> query.reply().complete(status());
             case Reconnect reconnect -> {
                 // TODO(US-05): bind the connection and mark the player connected (LLD 5.4.10)
@@ -133,7 +164,7 @@ public final class GameSession {
         String name = names.unique(normalized);
         String token = tokens.newToken();
         String tokenHash = tokens.hash(token);
-        UUID playerId = UUID.randomUUID();
+        UUID playerId = Ids.newUuid(random);
         players.put(playerId, new PlayerState(playerId, name, tokenHash));
         tokenIndex.put(tokenHash, playerId);
         playerTokens.register(tokenHash, id, playerId);

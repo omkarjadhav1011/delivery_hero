@@ -73,7 +73,12 @@ public class SecurityConfig {
             requests.anyRequest().denyAll();
         });
         // CSRF protects the admin session only; public joins carry no cookie to abuse (LLD section 5.9)
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/games/**", E2eGameController.PATH));
+        http.csrf(csrf -> {
+            csrf.ignoringRequestMatchers("/api/games/**");
+            if (environment.matchesProfiles("e2e")) {
+                csrf.ignoringRequestMatchers(E2eGameController.PATH);
+            }
+        });
         http.exceptionHandling(
                 exceptions -> exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         return http.build();

@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-05 |
 | Branch | feat/us-01-join |
 | Start commit | 0d8ef70 |
-| Last commit | 13521dd |
-| Step | test-first |
-| Task | T10 |
+| Last commit | aeeb2af |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T08:09 |
-| Updated | 2026-09-26T09:19 |
-| Next action | join-and-lobby spec |
+| Updated | 2026-09-26T09:27 |
+| Next action | reviewers, then wrap-up |
 
 ## Completed tasks
 
@@ -26,6 +26,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T6 (6a1408c)
 - T7 (e6ea123)
 - T8 (13521dd)
+- T11 (aeeb2af)
 
 ## Pending approvals
 

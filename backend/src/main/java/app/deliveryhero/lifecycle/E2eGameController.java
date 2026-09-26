@@ -1,7 +1,9 @@
 package app.deliveryhero.lifecycle;
 
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Ids;
 import app.deliveryhero.engine.GameEngine;
+import java.security.SecureRandom;
 import java.util.UUID;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -26,9 +28,11 @@ public class E2eGameController {
     static final String CODE = "K7PQ2M";
 
     private final GameEngine engine;
+    private final SecureRandom random;
 
-    E2eGameController(GameEngine engine) {
+    E2eGameController(GameEngine engine, SecureRandom random) {
         this.engine = engine;
+        this.random = random;
     }
 
     /** The game the specs join. TODO(US-59): on the seed's Quick 3-minute plan once sessions carry a snapshot. */
@@ -38,7 +42,7 @@ public class E2eGameController {
     @ResponseStatus(HttpStatus.CREATED)
     public OpenedGame open() {
         engine.findByCode(CODE).ifPresent(old -> engine.discard(old.id()));
-        UUID gameId = UUID.randomUUID();
+        UUID gameId = Ids.newUuid(random);
         engine.create(gameId, CODE, GameState.LOBBY, false);
         return new OpenedGame(gameId, CODE);
     }

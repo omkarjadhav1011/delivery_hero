@@ -1,6 +1,5 @@
 package app.deliveryhero.api.pub;
 
-import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.GameState;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -12,4 +11,4 @@ public record GameStatusResponse(
         GameState state,
         boolean test,
         boolean joinable,
-        @Nullable ApiErrorCode reason) {}
+        @Nullable NotJoinableReason reason) {}
