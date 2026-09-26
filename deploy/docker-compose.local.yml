@@ -37,8 +37,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/deliveryhero
       SPRING_DATASOURCE_USERNAME: dh_app
       SPRING_DATASOURCE_PASSWORD: local-app
-      # bcrypt (cost 12) of the local-only admin password "delivery-hero-local"; $$ is a literal $
-      DH_ADMIN_PASSWORD_HASH: "$$2y$$12$$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm"
+      # bcrypt (cost 12) of the local-only admin password "DHAdmin"; $$ is a literal $
+      DH_ADMIN_PASSWORD_HASH: "$$2b$$12$$EJG9VVIEQaFE9x5R9ogZ8OB.S39vZIHig8jHnKly/aCzlhj69z3IW"
       DH_PUBLIC_BASE_URL: http://localhost:${DH_LOCAL_PORT:-8080}
     volumes:
       - ../seed:/seed:ro

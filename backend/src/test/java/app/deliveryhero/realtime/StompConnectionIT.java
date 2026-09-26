@@ -122,7 +122,7 @@ class StompConnectionIT {
             + " before")
     void adminReceivesStateAfterSubscribing() throws Exception {
         WebSocketHttpHeaders handshake = new WebSocketHttpHeaders();
-        handshake.setBasicAuth("admin", "delivery-hero-local");
+        handshake.setBasicAuth("admin", "DHAdmin");
 
         try (RawStompClient admin = RawStompClient.open(port, handshake)) {
             admin.connect(Map.of());

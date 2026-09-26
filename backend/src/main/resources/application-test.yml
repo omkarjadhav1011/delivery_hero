@@ -7,6 +7,6 @@ springdoc:
 
 dh:
   admin:
-    # The public local-only hash of "delivery-hero-local" (SG-02), as in application-dev.yml
-    password-hash: "$2y$12$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm"
+    # The public local-only hash of "DHAdmin" (SG-02), as in application-dev.yml
+    password-hash: "$2b$12$EJG9VVIEQaFE9x5R9ogZ8OB.S39vZIHig8jHnKly/aCzlhj69z3IW"
   public-base-url: http://localhost:8080
