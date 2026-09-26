@@ -85,3 +85,11 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-51-task-editor, commits fd834b7 to 41d167f.
 - Completed: T6 (f934c11).
 - Summary: S2-07 T6 editor screen done and pushed to PR #24; T7 blocked
+
+## 2026-09-26-1916 S2-08
+
+- Outcome: paused. Started 2026-09-26T19:16, ended 2026-09-26T20:02.
+- Branch main, commits 1758347 to fe6a5db.
+- Completed: T1 (1870ebc); T3 (749f191); T5 (89fa9af); T4 (bb387d1).
+- Summary: S2-08 T1-T5: task library filters and search, edit conflicts on tasks and characters, library screen and conflict message; reviews fixed; openapi.json and doc 11 v1.2 approved
+- Still failing: ConcurrentEditTest.characterUpdateRace: assertion at line 91

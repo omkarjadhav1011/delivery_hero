@@ -9,11 +9,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -50,6 +53,29 @@ public class TaskService {
         this.random = random;
     }
 
+    /** The library's rows that match the filter, by key, without answers (FR-070). */
+    @Transactional(readOnly = true)
+    public List<TaskSummary> list(TaskFilter filter) {
+        Map<UUID, Long> uses = plans.countUses().stream()
+                .collect(Collectors.toMap(RunPlanRepository.TaskUse::getTaskId, RunPlanRepository.TaskUse::getPlans));
+        // Sorted here, so the order doesn't depend on the database's collation
+        return tasks.findAll(filter.specification()).stream()
+                .sorted(Comparator.comparing(TaskEntity::taskKey))
+                .map(entity -> new TaskSummary(
+                        entity.id(),
+                        entity.taskKey(),
+                        entity.role(),
+                        entity.kind(),
+                        entity.phase(),
+                        entity.taskType(),
+                        entity.prompt(),
+                        TaskDefinition.effectiveTimeLimitSeconds(
+                                entity.timeLimitSeconds(), entity.kind(), entity.taskType()),
+                        uses.getOrDefault(entity.id(), 0L).intValue(),
+                        entity.version()))
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public TaskDetail get(UUID id) {
         return detail(find(id), List.of());
@@ -77,10 +103,14 @@ public class TaskService {
     public TaskDetail update(UUID id, TaskInput input) {
         TaskEntity entity = find(id);
         TaskDefinition task = definition(input, entity.taskKey(), true);
+        requireVersion(entity, input.version());
         ValidationReport report = checked(task);
-        // TODO(US-53): refuse with EDIT_CONFLICT when input.version() isn't entity.version() (S2-08)
         entity.apply(task, codeJson(task), json.writeValueAsString(task.content()), now());
-        return detail(tasks.saveAndFlush(entity), report.warnings());
+        try {
+            return detail(tasks.saveAndFlush(entity), report.warnings());
+        } catch (OptimisticLockingFailureException changedMeanwhile) {
+            throw new DeliveryHeroException(ApiErrorCode.EDIT_CONFLICT);
+        }
     }
 
     /** What phones would get for the input, from the same mapping they use; nothing is saved (AP-05). */
@@ -99,7 +129,7 @@ public class TaskService {
     @Transactional
     public void delete(UUID id, int version) {
         TaskEntity entity = find(id);
-        // TODO(US-53): refuse with EDIT_CONFLICT when version isn't entity.version() (S2-08)
+        requireVersion(entity, version);
         List<RunPlanEntity> users = plans.findUsing(entity.id());
         if (!users.isEmpty()) {
             List<String> names = users.stream().map(RunPlanEntity::name).toList();
@@ -115,12 +145,21 @@ public class TaskService {
             tasks.flush();
         } catch (DataIntegrityViolationException usedMeanwhile) {
             throw new DeliveryHeroException(ApiErrorCode.TASK_IN_USE);
+        } catch (OptimisticLockingFailureException changedMeanwhile) {
+            throw new DeliveryHeroException(ApiErrorCode.EDIT_CONFLICT);
         }
     }
 
     /** The time as PostgreSQL stores it, so a saved detail equals the one read back. */
     private Instant now() {
         return clock.instant().truncatedTo(ChronoUnit.MICROS);
+    }
+
+    /** EDIT_CONFLICT unless the version sent is the stored one, so an outdated copy never overwrites (FR-073). */
+    private static void requireVersion(TaskEntity entity, @Nullable Integer version) {
+        if (version == null || version != entity.version()) {
+            throw new DeliveryHeroException(ApiErrorCode.EDIT_CONFLICT);
+        }
     }
 
     private TaskEntity find(UUID id) {

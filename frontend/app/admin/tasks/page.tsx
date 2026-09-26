@@ -1,8 +1,6 @@
-import { copy } from "@/copy";
-import { AdminShell } from "@/admin/components/AdminShell";
+import { TaskLibraryScreen } from "@/admin/screens/TaskLibraryScreen";
 
 // A-03 Task library (document 12, section 9)
-// TODO(US-52): build the screen from document 12
 export default function TaskLibraryPage() {
-  return <AdminShell title={copy.admin.nav.tasks} />;
+  return <TaskLibraryScreen />;
 }
