@@ -42,6 +42,9 @@ services:
       DH_PUBLIC_BASE_URL: http://localhost:${DH_LOCAL_PORT:-8080}
     volumes:
       - ../seed:/seed:ro
+    ports:
+      # The API documentation (dev profile) and direct API calls, bypassing Nginx; local only (SG-02)
+      - "127.0.0.1:${DH_LOCAL_BACKEND_PORT:-8081}:8080"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/actuator/health"]
       interval: 5s

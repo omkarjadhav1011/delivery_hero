@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.1 (approved)
+> Document 18 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -8,7 +8,7 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 18 — Technical Documentation: the README and this Setup Guide |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 26 September 2026 |
@@ -23,6 +23,7 @@
 | 0.1 | 2026-09-24 | [Owner name] | First draft |
 | 1.0 | 2026-09-24 | [Owner name] | Approved, with the README. SG-01 to SG-05 recorded as DEC-207 to DEC-211 (Charter v1.14); SG-01 applied to document 13's CI outline (v1.2) |
 | 1.1 | 2026-09-26 | [Owner name] | Section 6: the dev profile's STOMP test token and projector key (EN-04) |
+| 1.2 | 2026-09-26 | [Owner name] | Sections 6, 6.5, 7.2 and 12 and Appendix: the local stack publishes the backend on `127.0.0.1:8081` (`DH_LOCAL_BACKEND_PORT`) for the API documentation |
 
 ---
 
@@ -119,7 +120,7 @@ docker compose -f deploy/docker-compose.local.yml up --build
 | Service | What it is | Address |
 |---|---|---|
 | `postgres` | PostgreSQL 18, set up by the same role script as production | `127.0.0.1:5432` |
-| `backend` | The Spring Boot app, built from source in Docker, `dev` profile | Only inside the stack |
+| `backend` | The Spring Boot app, built from source in Docker, `dev` profile | `127.0.0.1:8081`, for the API documentation at <http://localhost:8081/swagger-ui.html> |
 | `nginx` | The static frontend built from source, behind production's headers and routes | <http://localhost:8080> |
 
 The first build downloads dependencies and takes a few minutes. Later builds reuse the Maven and npm caches.
@@ -158,6 +159,7 @@ Chrome treats `http://localhost` as a secure context. The admin session cookie, 
 |---|---|---|
 | `DH_LOCAL_PORT` | `8080` | The site's port on your computer |
 | `DH_LOCAL_DB_PORT` | `5432` | The database's port on your computer, if another PostgreSQL uses 5432 |
+| `DH_LOCAL_BACKEND_PORT` | `8081` | The backend's port on your computer, for the API documentation |
 | `DH_PROFILE` | `dev` | The backend's profile; the end-to-end tests use `e2e` |
 
 For example, `DH_LOCAL_PORT=8090 dhc up --build` serves the site on port 8090.
@@ -215,7 +217,7 @@ flowchart LR
 - Frontend changes reload in the browser at once.
 - Backend changes need a restart of step 2, or your IDE's hot swap.
 - The content security policy isn't applied in this mode, because the Next.js dev server relies on inline code. The local stack and the end-to-end tests check it.
-- The backend's API documentation is at <http://localhost:8081/swagger-ui.html>. It's on only in the `dev` and `test` profiles, and never through Nginx.
+- The backend's API documentation is at <http://localhost:8081/swagger-ui.html>, the same address the local stack's backend uses (section 6). It's on only in the `dev` and `test` profiles, and never through Nginx.
 - To stop, press Ctrl+C in both terminals, then run `dhc --profile devproxy down`.
 
 ### 7.3 On a real phone
@@ -382,7 +384,7 @@ The manual, accessibility, production and trial-run procedures are in document 1
 
 | Symptom | Likely cause | What to do |
 |---|---|---|
-| "Port is already allocated" when starting | Something else uses 8080 or 5432, or the dev proxy and local `nginx` are both running | Stop the other process or service, or set `DH_LOCAL_PORT` or `DH_LOCAL_DB_PORT` (section 6.5) |
+| "Port is already allocated" when starting | Something else uses 8080, 8081 or 5432, the dev proxy and local `nginx` are both running, or the local stack's backend and a backend on your computer both use 8081 | Stop the other process or service, or set `DH_LOCAL_PORT`, `DH_LOCAL_BACKEND_PORT` or `DH_LOCAL_DB_PORT` (section 6.5) |
 | The backend never becomes healthy | Startup error, often a failed migration | `dhc logs backend`; for a local-only migration problem, `dhc down -v` |
 | Admin sign-in doesn't stick | Opened through an address other than `localhost` | Use `http://localhost:8080`, where Chrome accepts the Secure cookie |
 | CSP violations in the console on the local stack | The frontend image is stale | `dhc up -d --build nginx` |
@@ -504,6 +506,9 @@ services:
       DH_PUBLIC_BASE_URL: http://localhost:${DH_LOCAL_PORT:-8080}
     volumes:
       - ../seed:/seed:ro
+    ports:
+      # The API documentation (dev profile) and direct API calls, bypassing Nginx; local only (SG-02)
+      - "127.0.0.1:${DH_LOCAL_BACKEND_PORT:-8081}:8080"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/actuator/health"]
       interval: 5s
