@@ -50,3 +50,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-01-join, commits 0d8ef70 to a4d2665.
 - Completed: T1 (8a558b9); T2 (4192874); T4 (103d148); T5 (386714e); T6 (6a1408c); T7 (e6ea123); T8 (13521dd); T11 (aeeb2af).
 - Summary: S0-05 T1-T11 done, reviews applied, all checks and 27 e2e specs green; PR not opened yet
+
+## 2026-09-26-1004 S0-02
+
+- Outcome: done. Started 2026-09-26T10:04, ended 2026-09-26T10:25.
+- Branch chore/s0-02-ci-proofs, commits 0a1aec2 to 5bad429.
+- Completed: T4 (b687b9d); T6 (5bad429).
+- Summary: S0-02: T1, T2, T4, T6 proven on GitHub (PR #16, scratch PR #17); Java 21 image restored; DI-48

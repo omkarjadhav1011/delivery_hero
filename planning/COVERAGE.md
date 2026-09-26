@@ -665,9 +665,9 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | DG-08 | DG | No implementation work |  |  | Deployment decision; realized by the deployment files and document 16 |
 | DG-09 | DG | No implementation work |  |  | Deployment decision; realized by the deployment files and document 16 |
 | DS-01 | DS | Build | S1-01 T3, S2-08 T1, S2-11 T1, S2-25 T4 | In progress |  |
-| DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | In progress |  |
-| DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | In progress |  |
-| DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Implemented |  |
+| DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | Tested |  |
+| DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | Tested |  |
+| DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Tested |  |
 | DS-05 | DS | Build | S1-02 T7, S1-02 T9 | Planned |  |
 | DS-06 | DS | Build | S1-08 T5, S1-13 T6, S1-16 T8 | Planned |  |
 | DS-07 | DS | Build | S2-01 T8, S2-10 T8, S2-10 T9, S2-26 T6 | Planned |  |
