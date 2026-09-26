@@ -294,6 +294,26 @@ class StompConnectionIT {
     }
 
     @Test
+    @DisplayName("AC-US37-04 wrong key: a created game's key with one character changed, another game's shape of key,"
+            + " or an empty key gets UNAUTHORIZED and no game data")
+    void wrongProjectorKeyGetsNoGameData(CapturedOutput output) throws Exception {
+        GameDetails game = createGame();
+        String key = game.projectorKey();
+        String oneCharOff = key.substring(0, key.length() - 1) + (key.endsWith("A") ? "B" : "A");
+        String otherKey = tokens.newToken();
+        try {
+            assertRefused(Map.of("projector-key", oneCharOff));
+            assertRefused(Map.of("projector-key", otherKey));
+            assertRefused(Map.of("projector-key", ""));
+
+            assertThat(output).doesNotContain(key).doesNotContain(oneCharOff).doesNotContain(otherKey);
+        } finally {
+            engine.discard(game.id());
+            jdbc.sql("DELETE FROM games").update();
+        }
+    }
+
+    @Test
     @DisplayName("AC-EN04-02 a player subscribing to another game's screen, or a projector sending an answer, is"
             + " refused")
     void destinationsOutsideTheRoleAreRefused() throws Exception {
