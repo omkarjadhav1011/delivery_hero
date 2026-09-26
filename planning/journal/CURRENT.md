@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-05 |
 | Branch | feat/us-01-join |
 | Start commit | 0d8ef70 |
-| Last commit | 6a1408c |
+| Last commit | e6ea123 |
 | Step | test-first |
-| Task | T7 |
+| Task | T8 |
 | Attempts | 0 |
 | Started | 2026-09-26T08:09 |
-| Updated | 2026-09-26T09:09 |
-| Next action | store.test.ts AC-US04-02 and Lobby.test.tsx AC-US04-01 |
+| Updated | 2026-09-26T09:11 |
+| Next action | QrCode.test.tsx AC-US01-02 |
 
 ## Completed tasks
 
@@ -24,6 +24,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T4 (103d148)
 - T5 (386714e)
 - T6 (6a1408c)
+- T7 (e6ea123)
 
 ## Pending approvals
 
