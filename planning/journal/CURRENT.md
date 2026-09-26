@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
+| State | active |
+| Session | 2026-09-26-2210 |
+| Subplan | S1-04 |
+| Branch | feat/us-59-create-game |
+| Start commit | 907f11b |
+| Last commit | 907f11b |
+| Step | plan-session |
 | Task |  |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-26T22:10 |
+| Updated | 2026-09-26T22:10 |
+| Next action | Plan the session |
 
 ## Completed tasks
 

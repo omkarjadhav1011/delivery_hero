@@ -57,6 +57,8 @@ The host runs the game from one live control screen that offers exactly the acti
 - [ ] T6 Confirmation for Cancel and Close: a `Modal` with "Cancel this game? All player data will be deleted." or "Close this event? Everything except the top 10 will be deleted."; nothing is sent until the host confirms, then the request carries `"confirm": true`, in `frontend/src/admin/components`, test first: `LiveControl.test.tsx` AC-US60-02, source: AC-US60-02, FR-080, DEC-160, document 12 section 9 (live control screen)
 - [ ] T7 Stale screen: on 409 `NOT_ALLOWED_NOW` the panel takes `currentState`, reloads `GET /api/admin/games/current` and redraws its buttons, with no error banner, in `frontend/src/admin` and `frontend/src/api`, test first: `LiveControl.test.tsx` AC-US60-04 (a Lobby screen sends `START_PRACTICE` after the round started and refreshes to Countdown), source: AC-US60-04, FR-081, LLD 5.12
 - [ ] T8 `host-controls` spec, E2E-03 steps 1 to 5 with two admin contexts and two phones, the game created through `POST /api/admin/games` from the Quick 3-minute plan (DI-24): another game is refused with a link to the open one; Cancel and Close ask first; a double `START_ROUND` starts the round once; B's stale "Start practice" changes nothing and B refreshes; the live screen shows state, time remaining, players and incident status and lists the scored tasks; steps 6 (void) and 7 (cancel) are added by S2-23, in `frontend/e2e`, test first: the spec, source: E2E-03, AC-US60-02, AC-US60-03, AC-US60-04, AC-US60-05, AC-US59-03 (shared), DS-03 (shared)
+- [ ] T9 Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, then open the lobby with `OPEN_LOBBY` through T2 and delete `E2eGameController`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared) (from S1-04 T6, PC-09)
+- [ ] T10 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the lobby, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59, FR-079, E2E-01 (shared) (from S1-04 T7, PC-09)
 
 ## Owner actions
 
@@ -90,3 +92,4 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 ## Progress log
 
 None yet.
+- 2026-09-26: PC-09: T9 (end-to-end fixtures through the API) and T10 (walking-skeleton demonstration on the local stack) moved here from S1-04 T6 and T7.

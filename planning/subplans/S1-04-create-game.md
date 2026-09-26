@@ -14,7 +14,7 @@
 
 ## Goal
 
-The host creates a game from a run plan, getting a code, join URL, QR code and projector URL; the game runs on its own snapshot of the plan, tasks and characters, so later edits never change it; only one game may be open at a time. This completes the walking-skeleton demonstration on production.
+The host creates a game from a run plan, getting a code, join URL, QR code and projector URL; the game runs on its own snapshot of the plan, tasks and characters, so later edits never change it; only one game may be open at a time.
 
 ## Sources
 
@@ -56,25 +56,23 @@ The host creates a game from a run plan, getting a code, join URL, QR code and p
 - [ ] T3 `GameStateRecorder`: every state change written to the game row on its own single-thread executor, in order, never blocking a session; the seed lock check (S1-01) and later `StartupCleanup` rely on it, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderTest` ordered writes, source: LD-05, LLD 5.8, document 10 section 11
 - [ ] T4 Admin game endpoints: `GET /api/admin/games/current` (200 or 204) and `POST /api/admin/games` returning the game view (code, join URL, projector URL, round length, `allowedActions`), errors as Problem Details, in `app.deliveryhero.api.admin` (`GameController`), test first: `GameLifecycleIT` AC-US59-01 over REST, source: AC-US59-01, AC-US59-03, FR-079, API 7.7
 - [ ] T5 New game screen: run plan picker, "Create game", the plan errors listed with Create disabled, then the code, join URL, QR code (`QrCode`) and projector URL; a refused creation links to the open game, in `frontend/app/admin/games/page.tsx` and `frontend/src/admin`, test first: `NewGame.test.tsx`, source: AC-US59-01, AC-US59-02, AC-US59-03, FR-079, document 12 New game screen
-- [ ] T6 Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared)
-- [ ] T7 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59, FR-079, E2E-01 (shared)
 - [ ] T8 Remove the dev-only STOMP test credentials now that joining and game creation register real ones: delete `DevCredentials`, the `dh.dev.*` keys and their TODO(US-01) in `application-dev.yml`, and the two "STOMP test" rows in document 18, section 6 (that document edit approved on its own when the task runs), in `app.deliveryhero.realtime`, test first: `StompConnectionIT` still passes with credentials from a real join and a real game, source: EN-04 (shared) as built (S0-04 T8), document 18 v1.1 section 6, PC-03
 - [ ] T9 Game keeps its length: a game created from a 5-minute plan still runs 5 minutes after the plan is changed to 7, in `GameLifecycleIT` (from S1-01 T7, PC-05), test first: `GameLifecycleIT` AC-US19-02, source: AC-US19-02, FR-018 (shared), FR-072 (shared), document 10 section 8.5
+- [ ] T10 Read-only `GET /api/admin/run-plans`: summaries with `id`, `key`, `name`, `roundLengthMinutes`, `scoredTaskCount`, `errorCount` (the FR-077 errors T2 checks), `warningCount` (0 until the readiness check, S2-23) and `version`, for T5's plan picker; S2-09 T2 adds the rest of the run plan API, in `app.deliveryhero.content` and `app.deliveryhero.api.admin` (`RunPlanController`), test first: `RunPlanListIT` the seed's plans with counts, and a plan with an empty phase showing one error, source: API 7.6, FR-077, PC-09
 
 ## Owner actions
 
-- The production demonstration (T7) needs the host and the first deploy: OA-18 to OA-21 (all waiting on Q-01).
+- None (the demonstration moved to S1-07 T10, PC-09).
 
 ## Verification
 
 - `/check` (backend verify with integration tests, frontend checks)
-- `/e2e` for `join-and-lobby` with the new fixture
+- `/e2e` for `join-and-lobby` (still on `E2eGameController` until S1-07 T9)
 - Local: `curl` `POST /api/admin/games` with a session cookie and CSRF header; a second call returns 409 `ANOTHER_GAME_OPEN`
-- Production (T7) once Q-01 is answered
 
 ## Risks and open questions
 
-- DI-04 / Q-01: no production host yet, so the walking-skeleton demonstration can't finish; T7 stays blocked, and everything else here closes locally.
+- PC-09: T6 and T7 moved to S1-07, because joining needs the lobby open; the S0 walking-skeleton milestone now waits on S1-05 and S1-07.
 - DI-08: the ordering US-49 before US-59 isn't in document 04's graph; the plan puts S1-03 first.
 - DI-24: `e2e-mini` (DS-03) needs the run-plan API from S2-09; the fixtures use the Quick 3-minute plan until then.
 - DI-14 (shared): cancel is allowed in every state before Results; `allowedActions` in the game view follows DEC-87 (shared), built in S1-05's state table.
@@ -82,7 +80,7 @@ The host creates a game from a run plan, getting a code, join URL, QR code and p
 
 ## Definition of done
 
-Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLifecycleIT`, end-to-end fixtures create games through the API, and T7 is recorded as blocked or done.
+Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLifecycleIT`, and the New game screen creates a game from the run plan list (the fixtures and the demonstration are S1-07 T9 and T10, PC-09).
 
 ## Claude Code playbook
 
@@ -95,3 +93,4 @@ Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLi
 - 2026-09-26: T8 added by PC-03 (remove the dev-only STOMP test credentials left from S0-04).
 - 2026-09-26: DEC-213 (PC-04): T7 now runs on the local stack and isn't blocked; H-07 repeats the demonstration on production with a real phone.
 - 2026-09-26: PC-05: T9 (AC-US19-02, from S1-01 T7) added, so S1-01 no longer waits on this subplan.
+- 2026-09-26: PC-09: T6 and T7 moved to S1-07 (T9, T10); T10 added (read-only run plan list for T5).
