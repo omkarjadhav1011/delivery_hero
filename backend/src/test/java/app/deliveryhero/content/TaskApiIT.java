@@ -178,6 +178,48 @@ class TaskApiIT {
     }
 
     @Test
+    @DisplayName("AC-US51-04 delete unused: a task in no run plan is deleted and leaves the library")
+    void deletesAnUnusedTask() {
+        JsonNode created = body(post("/api/admin/tasks", task("it-yn-03", "YES_NO", Map.of("answerYes", true))));
+        String id = created.get("id").asString();
+
+        MvcTestResult deleted = mvc.delete()
+                .uri(
+                        "/api/admin/tasks/{id}?version={version}",
+                        id,
+                        created.get("version").asInt())
+                .with(ADMIN)
+                .with(csrf())
+                .exchange();
+
+        assertThat(deleted).hasStatus(HttpStatus.NO_CONTENT);
+        assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
+                .hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("AC-US51-05 delete in use: mgr-plan-01 isn't deleted, and the refusal names \"Default 5-minute plan\"")
+    void refusesToDeleteATaskInUse() {
+        String id = idOf("mgr-plan-01");
+
+        MvcTestResult refused = mvc.delete()
+                .uri("/api/admin/tasks/{id}?version=0", id)
+                .with(ADMIN)
+                .with(csrf())
+                .exchange();
+
+        assertThat(refused).hasStatus(HttpStatus.CONFLICT);
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 409, "code": "TASK_IN_USE",
+                 "detail": "This task is used by: Default 5-minute plan, Quick 3-minute plan",
+                 "errors": [{"path": "usedBy", "code": "TASK_IN_USE", "message": "Default 5-minute plan"},
+                            {"path": "usedBy", "code": "TASK_IN_USE", "message": "Quick 3-minute plan"}]}
+                """);
+        assertThat(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange())
+                .hasStatusOk();
+    }
+
+    @Test
     @DisplayName("An unknown task ID answers 404 NOT_FOUND; without a session, 401")
     void unknownTaskAndNoSession() {
         String unknown = "/api/admin/tasks/00000000-0000-4000-8000-000000000000";

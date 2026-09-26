@@ -75,6 +75,24 @@ public class TaskService {
         return detail(tasks.saveAndFlush(entity), report.warnings());
     }
 
+    /** Deletes a task no run plan uses; otherwise TASK_IN_USE names each plan (FR-071). */
+    @Transactional
+    public void delete(UUID id, int version) {
+        TaskEntity entity = find(id);
+        // TODO(US-53): refuse with EDIT_CONFLICT when version isn't entity.version() (S2-08)
+        List<RunPlanEntity> users = plans.findUsing(entity.id());
+        if (!users.isEmpty()) {
+            List<String> names = users.stream().map(RunPlanEntity::name).toList();
+            throw new DeliveryHeroException(
+                    ApiErrorCode.TASK_IN_USE,
+                    "This task is used by: " + String.join(", ", names),
+                    names.stream()
+                            .map(name -> new Issue("usedBy", "TASK_IN_USE", name))
+                            .toList());
+        }
+        tasks.delete(entity);
+    }
+
     /** The time as PostgreSQL stores it, so a saved detail equals the one read back. */
     private Instant now() {
         return clock.instant().truncatedTo(ChronoUnit.MICROS);
