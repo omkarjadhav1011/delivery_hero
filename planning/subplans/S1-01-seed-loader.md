@@ -46,7 +46,6 @@ The seed command validates the whole seed file, imports every character, task an
 | AC-US56-03 | TC-US56-03 | Integration | `SeedImportIT` |
 | AC-US56-04 | TC-US56-04 | Integration | `SeedImportIT` |
 | AC-US19-01 | TC-US19-01 | Unit | `ContentValidatorTest` |
-| AC-US19-02 | TC-US19-02 | Integration | `GameLifecycleIT` |
 
 ## Tasks
 
@@ -56,8 +55,6 @@ The seed command validates the whole seed file, imports every character, task an
 - [x] T4 `SeedCommand` lock check: refuse and change nothing when any game row is in LOBBY through REVEAL, exiting non-zero with the `DEPLOY_LOCKED` message "A game is in progress. Try again after it ends."; the web lock endpoint and `DeployLockService` come in S2-05, in `app.deliveryhero.seed`, test first: `SeedImportIT` AC-US56-04 (a game row inserted in LIVE), source: AC-US56-04, FR-075, FR-090 (shared), US-68 (shared), LD-05 (shared), LLD 5.10 step 2, LLD 5.12
 - [x] T5 Seed mode of `DeliveryHeroApplication`: the `seed` argument starts without the web server, and `StartupCleanup` and `HousekeepingJob` stay out of that context through `@ConditionalOnWebApplication`, in `app.deliveryhero` and `app.deliveryhero.lifecycle`, test first: `SeedImportIT` context check that neither bean exists, source: DEC-136, LLD 5.8 and 5.10 step 1
 - [x] T6 Local end-to-end run of the seed command on the local stack, plus `python3 tools/validate_seed.py seed/delivery-hero-seed.json`, fixing any wiring in `deploy/docker-compose.local.yml`, test first: procedure (run the command twice; the second run updates and duplicates nothing), source: AC-US56-01, AC-US56-03, FR-075, document 18 section 8.2
-- [ ] T7 Game keeps its length: a game created from a 5-minute plan still runs 5 minutes after the plan is changed to 7, in `GameLifecycleIT` (written with S1-04's `GameLifecycleService.create` and snapshot), test first: `GameLifecycleIT` AC-US19-02, source: AC-US19-02, FR-018, FR-072 (shared), document 10 section 8.5 [Blocked: waiting for S1-04 game creation]
-- [ ] T8 Owner: load the task pool on production with the seed command (OA-20), test first: none, source: AC-US56-01, document 16 section 9.5 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -108,3 +105,4 @@ Document 13, section 10, plus: the seed imports DS-01 cleanly and idempotently o
 - 2026-09-26: backend-reviewer item 5. The content entities implement `Persistable`, so saving a new row inserts it without first selecting. `./mvnw -B verify`: 30 unit and 19 integration tests pass.
 - 2026-09-26: pull request #12 opened. The status is In review. T7 and T8 are still blocked, so the subplan stays open after the merge.
 - 2026-09-26: PR #12 merged on 2026-09-25 (8b7e483). The Deploy run fails at the copy step (no server yet, Q-01). The status is In progress again, since T7 (S1-04) and T8 (Q-01) are still open.
+- 2026-09-26: PC-05: T7 (AC-US19-02, written with game creation) moved to S1-04 as T9, which removes the wait loop with S1-04; T8 (the production seed load, OA-20) moved to H-07 (PC-04). Every remaining task is ticked.

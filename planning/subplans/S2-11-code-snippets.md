@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-26 |
 | Priority and points | Should, 2 |
 | Depends on | S1-11 |
@@ -74,4 +74,4 @@ Document 13, section 10, plus: dev-dev-01 renders with its indentation on a 320 
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.

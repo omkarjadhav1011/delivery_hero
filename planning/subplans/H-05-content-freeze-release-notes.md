@@ -6,7 +6,7 @@
 | Phase | H (Thu 15 – Mon 19 Oct) |
 | Stories | none (infrastructure) |
 | Priority and points | Must, 0 |
-| Depends on | T-01, OA-26 |
+| Depends on | OA-26 |
 | Unblocks | FZ-01 |
 | Target dates | Fri 16 – Mon 19 Oct |
 | Branch | chore/release-notes |
@@ -84,4 +84,4 @@ Document 13, section 10, plus: document 17 approved by the owner and merged; OA-
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): no longer waits for T-01, because the content freeze (Fri 16 Oct) now comes before the trial (Mon 19 Oct).

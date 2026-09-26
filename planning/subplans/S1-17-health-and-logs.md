@@ -6,7 +6,7 @@
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-69, US-70 |
 | Priority and points | Must, 3 |
-| Depends on | S0-06, OA-11, OA-22 |
+| Depends on | S0-06 |
 | Unblocks | S1-18 |
 | Target dates | Tue 6 Oct |
 | Branch | feat/us-69-health-and-logs |
@@ -54,9 +54,6 @@
 - [ ] T2 Structured JSON logging: every entry has a timestamp, `gameId`, `playerId` where relevant and `event`, through one event-logging helper that accepts only the fields of LLD 5.14's table, in `app.deliveryhero.common` and the backend logging configuration, test first: `LoggingIT` event fields for `PLAYER_JOINED`, `ANSWER_SCORED` and `ANSWER_REJECTED`, source: FR-092 (shared), DEC-104 (shared), document 08 section 5.14, DI-19
 - [ ] T3 Failed admin login is recorded as `LOGIN_FAILED` with the IP only, and no log line holds the password, a player token or a projector key, in `app.deliveryhero.security`, test first: `LoggingIT` AC-US70-03 (log capture during a failed login and a join), source: AC-US70-03, NFR-14 (shared), DEC-104 (shared), DI-19, document 08 section 5.14
 - [ ] T4 Log-scan fixture for the `golden-path` spec: after the round, collect the backend logs and search them for every player name, answer text, token, projector key and the local admin password; fail on any hit, and check entries show timestamps, game IDs, player IDs and event types, test first: the fixture fails against a planted name in a log line, then `golden-path` AC-US70-01, source: AC-US70-01, FR-092 (shared), E2E-02 (shared), OPS-13 (shared), DI-19
-- [ ] T5 Owner: install `deploy/host/journald-delivery-hero.conf` on the production machine and restart journald (OA-11), test first: none, source: AC-US70-02, DEC-201 (shared), document 16 section 7.4 [Blocked: waiting for Q-01]
-- [ ] T6 Owner: set up the external uptime monitor on `https://<domain>/health` every 5 minutes, expecting 200 and `UP`, emailing the owner after two failed checks (OA-22); OPS-07 tests it in S2-26, test first: none, source: AC-US69-03, OPS-07 (shared), FR-091, DEC-204, document 16 section 11.7 [Blocked: waiting for Q-01]
-- [ ] T7 Owner: run OPS-19 once the journal holds more than 8 days of entries: inspect the log files and confirm nothing is older than 7 days; record it in `planning/check-results.md` (FZ-01 repeats it at E−1), test first: none, source: OPS-19, AC-US70-02, FR-092 (shared), document 15 section 11, document 16 section 11.2 [Blocked: waiting for Q-01]
 
 ## Owner actions
 
@@ -89,4 +86,4 @@ Document 13, section 10, plus: `HealthIT`, `LoggingIT` and the log-scan fixture 
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): T5 to T7 (journald, the uptime monitor, OPS-19) moved to H-08, the production checks after the deploy point (Fri 16 to Sun 18 Oct).

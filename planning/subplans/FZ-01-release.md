@@ -49,7 +49,7 @@ On the deployment freeze day (E−1), run the final regression and the coverage 
 
 ## Tasks
 
-- [ ] T1 Check the release entry criteria: a go decision at CP-T or CP-H, and every change since the trial passed CI and a production smoke test, from `planning/checkpoints.md` and the CI runs, test first: none, source: document 14 section 10, DEC-191 (shared)
+- [ ] T1 Check the release entry criteria: a go decision at CP-T (a no-go moves the event, PC-06), and every change since the trial passed CI and a production smoke test, from `planning/checkpoints.md` and the CI runs, test first: none, source: document 14 section 10, DEC-191 (shared)
 - [ ] T2 Final regression on `main`: the full backend and frontend suites and E2E-01 to E2E-09 against the local stack, test first: `/check e2e`, source: document 14 section 7.14, E2E-01 (shared), E2E-02 (shared), E2E-06 (shared), document 15 section 18
 - [ ] T3 Run the coverage report with `--strict-must` on the final reports and `test-results/manual-results.csv`; any Must criterion not passed stops the release, test first: `python3 tools/ac_coverage.py ... --strict-must`, source: DEC-189 (shared), DEC-191 (shared), document 15 section 8.3
 - [ ] T4 In a fresh clone, run the documented local start command and confirm Nginx, backend and database start, the join page loads and health reports UP, test first: OPS-20 procedure, source: OPS-20 (shared), document 15 section 11
@@ -90,4 +90,4 @@ Document 13, section 10, plus: final regression and `--strict-must` passed; OPS-
 
 ## Progress log
 
-None yet.
+- 2026-09-26: PC-06: T1 no longer accepts a go at CP-H; a no-go at CP-T moves the event (A-01).

@@ -3,12 +3,12 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | P0 (Thu 24 – Tue 29 Sep) |
+| Phase | P0 (Thu 24 Sep – Thu 15 Oct) |
 | Stories | none (owner) |
 | Priority and points | Must, 0 |
 | Depends on | P0-02, S0-01, Q-01, OA-14, OA-15, OA-16, OA-17 |
-| Unblocks | S0-06 |
-| Target dates | Mon 28 Sep |
+| Unblocks | H-07 |
+| Target dates | Wed 14 Oct |
 | Branch | ops/secrets-and-pins |
 | Parallel-safe with | none |
 
@@ -68,7 +68,7 @@ The owner writes the production `.env` with the admin password's bcrypt hash, pi
 
 ## Risks and open questions
 
-- Q-01 / DI-04: no host yet, so every task is blocked; the target stays Mon 28 Sep so the first deploy (S0-06) can land Tue 29 Sep.
+- Q-01 / DI-04: no host yet, so every task is blocked; the target is Wed 14 Oct so the first deploy (H-07) can land Thu 15 Oct (DEC-213).
 - The hash contains `$` signs: single quotes in `.env` (document 16 section 8.2). Getting this wrong shows up as a failed login in S1-03, not a startup error.
 - DEC-104 / DI-19: the password, the hash's source and the private key never appear in the repository, planning files, the conversation or logs. The pre-commit secret hook and gitleaks back this up.
 - A wrong `DEPLOY_KNOWN_HOSTS` makes the first deploy fail at SSH; T5's fingerprint check prevents it.
@@ -85,4 +85,4 @@ Document 13, section 10, plus: OA-14 to OA-17 Done; the four digests merged to `
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): production waits until the host is chosen (Q-01, by Mon 12 Oct); the phase runs to Thu 15 Oct and the first deploy is the deploy point H-07 (Thu 15 to Fri 16 Oct).

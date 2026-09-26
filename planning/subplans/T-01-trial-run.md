@@ -3,24 +3,24 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | T (Wed 14 Oct) |
+| Phase | T (Mon 19 Oct) |
 | Stories | none (checkpoint) |
 | Priority and points | Must, 0 |
-| Depends on | S2-27, S2-26, S2-25, OA-24, Q-01 |
-| Unblocks | H-01, H-02, H-03, H-04, H-05 |
-| Target dates | Wed 14 Oct |
+| Depends on | S2-27, S2-26, S2-25, H-07, H-08, OA-24, Q-01 |
+| Unblocks | H-01, H-02, H-03, H-04, H-05, H-06 |
+| Target dates | Mon 19 Oct |
 | Branch | ops/trial-run |
 | Parallel-safe with | none |
 
 ## Goal
 
-Run the one-hour trial on production with 5–10 colleagues and bots (document 14, Appendix C), record TRIAL-01 to TRIAL-07 and OPS-16 at E−7, and decide go or no-go against the nine criteria in document 14, section 11 (CP-T).
+Run the one-hour trial on production with 5–10 colleagues and bots (document 14, Appendix C), record TRIAL-01 to TRIAL-07 at E−2 (DEC-213; OPS-16 at E−7 moved to S2-26), and decide go or no-go against the nine criteria in document 14, section 11 (CP-T).
 
 ## Sources
 
 - Document 14, section 10 (trial run entry and exit criteria), section 11 (the nine go/no-go criteria, TP-07), section 12 (defect severities, `found-in:trial`), Appendix C (trial run script), Appendix E (test summary report template)
 - Document 15, section 14 (TRIAL-01 to TRIAL-07), section 11 (OPS-13, OPS-16), section 8.3 (coverage report, `--strict-must`), section 17 (recording results)
-- Charter section 16 (go/no-go), section 17 (communication plan: E−10 invitation, E−7 trial), section 14 (R-07, R-08)
+- Charter section 16 (go/no-go), section 17 (communication plan: E−10 invitation, E−7 trial, now E−2 by DEC-213), section 14 (R-07, R-08)
 - DEC-189, DEC-190, DEC-191, DEC-193; TP-05, TP-06, TP-07, TP-09
 - NFR-01, NFR-03, NFR-04, NFR-21, NFR-23, NFR-36, NFR-38; FR-014 to FR-017, FR-059 to FR-066, FR-083, FR-086, FR-087
 - `planning/CONVENTIONS.md`, sections 4.2 (GNG-1, GNG-3), 14 and 15 (CP-T)
@@ -56,7 +56,6 @@ Run the one-hour trial on production with 5–10 colleagues and bots (document 1
 ## Tasks
 
 - [ ] T1 Check the trial run entry criteria (load test passed, production checks done, task review complete, manual accessibility checklist done, no open Sev-1) from `check-results.md`, `status.py` and the GitHub issues, and list any gap for the owner, in `planning/check-results.md`, test first: none, source: document 14 section 10, LT-01 (shared), A11Y-01 (shared), OA-23
-- [ ] T2 Owner: review the Dependabot alerts at E−7 and report any open critical alert, test first: none, source: OPS-16, NFR-21, document 15 section 11
 - [ ] T3 Run the coverage report with `--strict-must` against the latest CI reports and `test-results/manual-results.csv`, and list every Must criterion not passed (go/no-go criterion 4), in `tools/ac_coverage.py` output, test first: `python3 tools/ac_coverage.py ... --strict-must`, source: DEC-189, DEC-191, TP-05, document 15 section 8.3
 - [ ] T4 Owner: 30 minutes before, set up the laptop and projector, check `/health` and the company network's access to the subdomain (hotspot as fallback), and create a test game on the Default 5-minute plan with bots to bring the room to about 40 players, test first: none, source: R-07, NFR-36 (shared), DEC-193, E2E-05 (shared), document 14 Appendix C [Blocked: waiting for Q-01]
 - [ ] T5 Owner: open the lobby, start the stopwatch at "scan now", read the join counter at 30 seconds, then run the practice round, test first: none, source: TRIAL-01, NFR-38, FR-014 (shared) to FR-017, document 14 Appendix C [Blocked: waiting for Q-01]
@@ -97,11 +96,11 @@ Document 13, section 10, plus: every TRIAL check and OPS-16 recorded in `check-r
 
 ## Claude Code playbook
 
-- `/dh` switches to trial mode on Wed 14 Oct; each owner step is presented as a checklist from document 15, section 14, with `section.py`.
+- `/dh` switches to trial mode on Mon 19 Oct (DEC-213); each owner step is presented as a checklist from document 15, section 14, with `section.py`.
 - No code changes in this subplan. Defects go to GitHub issues and then to H-01.
 - Reviewers: `spec-guardian` to confirm the go/no-go evidence against document 14, section 11.
 - Pitfalls: never record player names or answers in `check-results.md`, the journal or the report (DEC-104); skipped tests don't count as passed; the decision is the owner's, not Claude's.
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): the trial run and go/no-go move to Mon 19 Oct (E−2), after the deploy point H-07 and the production checks H-08; T2 (OPS-16 at E−7) moved to S2-26.

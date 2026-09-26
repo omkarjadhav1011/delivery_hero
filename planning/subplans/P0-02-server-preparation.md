@@ -3,12 +3,12 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | P0 (Thu 24 – Tue 29 Sep) |
+| Phase | P0 (Thu 24 Sep – Thu 15 Oct) |
 | Stories | none (owner) |
 | Priority and points | Must, 0 |
 | Depends on | P0-01, Q-01, OA-05, OA-06, OA-07, OA-08, OA-09, OA-10, OA-11, OA-12, OA-13 |
-| Unblocks | P0-03, S0-06 |
-| Target dates | Sat 26 Sep – Mon 28 Sep |
+| Unblocks | P0-03, H-07 |
+| Target dates | Tue 13 – Wed 14 Oct |
 | Branch | ops/server-preparation |
 | Parallel-safe with | none |
 
@@ -102,4 +102,4 @@ Document 13, section 10, plus: OA-05 to OA-13 Done with dated results, `/opt/del
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): production waits until the host is chosen (Q-01, by Mon 12 Oct); the phase runs to Thu 15 Oct and the first deploy is the deploy point H-07 (Thu 15 to Fri 16 Oct).

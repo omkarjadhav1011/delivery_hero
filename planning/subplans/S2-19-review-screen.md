@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Status | Not started |
-| Phase | S2 (Wed 7 – Tue 13 Oct) |
+| Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-47 |
 | Priority and points | Should, 3 |
 | Depends on | S2-03 |
@@ -81,4 +81,4 @@ Document 13, section 10, plus: the review appears only after the winner, voided 
 
 ## Progress log
 
-None yet.
+- 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.
