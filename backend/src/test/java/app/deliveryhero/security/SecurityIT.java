@@ -4,15 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import app.deliveryhero.support.IntegrationTest;
+import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
 import jakarta.servlet.http.Cookie;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -27,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** The filter chain, security headers, CSRF and rate limits (LLD section 5.9, API section 5). */
 @IntegrationTest
-@Import(SecurityIT.AdminProbe.class)
+@Import({SecurityIT.AdminProbe.class, SecurityIT.TestClock.class})
 class SecurityIT {
 
     /** The public local-only password whose hash is in application-test.yml (SG-02). */
@@ -38,6 +43,9 @@ class SecurityIT {
 
     @Autowired
     private AdminProbe probe;
+
+    @Autowired
+    private MutableClock clock;
 
     @BeforeEach
     void resetProbe() {
@@ -214,6 +222,28 @@ class SecurityIT {
         assertThat(join("198.51.100.4")).hasStatus(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    @DisplayName(
+            "AC-US49-02 12-hour session: an action 11 h 59 min after login works, one at 12 h 01 min asks to log in")
+    void sessionEndsTwelveHoursAfterLogin() {
+        Instant loggedInAt = clock.instant();
+        MockHttpSession admin = session(login("192.0.2.20", LOCAL_PASSWORD));
+        assertThat(mvc.get().uri("/api/admin/session").session(admin).exchange())
+                .bodyJson()
+                .extractingPath("$.expiresAt")
+                .isEqualTo(loggedInAt.plus(Duration.ofHours(12)).toString());
+
+        clock.advance(Duration.ofHours(11).plusMinutes(59));
+        assertThat(mvc.get().uri(AdminProbe.PATH).session(admin).exchange()).hasStatusOk();
+
+        // Acting just now didn't extend it: the 12 hours count from login, not from the last action
+        clock.advance(Duration.ofMinutes(2));
+        MvcTestResult refused = mvc.get().uri(AdminProbe.PATH).session(admin).exchange();
+        assertThat(refused).hasStatus(HttpStatus.UNAUTHORIZED);
+        assertThat(refused).bodyJson().extractingPath("$.code").isEqualTo("UNAUTHENTICATED");
+        assertThat(admin.isInvalid()).isTrue();
+    }
+
     /** Logs in as the single-page app does: load the CSRF cookie, then post the form with it (API section 7.3). */
     private MvcTestResult login(String address, String password) {
         Cookie csrf = mvc.get()
@@ -256,6 +286,17 @@ class SecurityIT {
                 .contentType("application/json")
                 .content("{\"name\": \"Priya\"}")
                 .exchange();
+    }
+
+    /** A clock the tests move, shared by the admin session and the rate limits (LLD section 4). */
+    @TestConfiguration(proxyBeanMethods = false)
+    static class TestClock {
+
+        @Bean
+        @Primary
+        MutableClock testClock() {
+            return new MutableClock(Instant.parse("2026-10-21T09:00:00Z"));
+        }
     }
 
     /** A stand-in admin endpoint, until the admin API has its own state-changing requests (US-49 onward). */

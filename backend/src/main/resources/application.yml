@@ -24,7 +24,13 @@ server:
   forward-headers-strategy: native
   servlet:
     session:
+      # A fixed 12 hours from login, which AdminSession enforces; this idle timeout is the backstop (DEC-97)
       timeout: 12h
+      cookie:
+        name: DH_SESSION
+        http-only: true
+        secure: true
+        same-site: strict
 
 management:
   endpoints:
