@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-37, US-38 |
 | Priority and points | Must, 4 |
@@ -50,7 +50,7 @@ Each game's secret projector link, shown only in the admin panel, opens a displa
 
 ## Tasks
 
-- [ ] T1 Projector URL only in the admin panel: the game view's `projectorUrl` is `https://<host>/screen?key=<key>` from `DH_PUBLIC_BASE_URL`, and neither `GET /api/games/{code}`, any player message nor any log line carries the key, in `app.deliveryhero.api.admin` and `app.deliveryhero.api.pub`, test first: `GameLifecycleIT` AC-US37-01 (a new game's 22-character key appears in the admin game view and nowhere in public responses), source: AC-US37-01, FR-052 (shared), BR-17 (shared), DEC-43, DEC-99 (shared), DEC-104 (shared), API 7.7
+- [x] T1 Projector URL only in the admin panel: the game view's `projectorUrl` is `https://<host>/screen?key=<key>` from `DH_PUBLIC_BASE_URL`, and neither `GET /api/games/{code}`, any player message nor any log line carries the key, in `app.deliveryhero.api.admin` and `app.deliveryhero.api.pub`, test first: `GameLifecycleIT` AC-US37-01 (a new game's 22-character key appears in the admin game view and nowhere in public responses), source: AC-US37-01, FR-052 (shared), BR-17 (shared), DEC-43, DEC-99 (shared), DEC-104 (shared), API 7.7
 - [ ] T2 `DestinationPolicy` for `ProjectorPrincipal`: subscribe only to `/topic/games/{gameId}/screen` and `/user/queue/time-sync`, send only to `/app/time-sync`; anything else gets an ERROR frame and changes nothing, in `app.deliveryhero.realtime`, test first: `StompConnectionIT` AC-US37-02 (an answer and a host-style send over the projector connection are refused and the game state is unchanged), source: AC-US37-02, FR-052 (shared), DEC-140, LD-02 (shared), API 8.2, LLD 5.6
 - [ ] T3 Revoked key: when a game closes or is cancelled its key is cleared and the session dropped; a connected projector gets `GAME_ENDED` with `FINISHED` or `CANCELLED`, and a later CONNECT with that key gets the `UNAUTHORIZED` ERROR frame and no game data, in `app.deliveryhero.realtime` and `app.deliveryhero.lifecycle`, test first: `StompConnectionIT` AC-US37-03 (closed and cancelled games, set up through the engine's `Discard` and a cleared key until S2-04 and S2-23 build close and cancel), source: AC-US37-03, FR-052 (shared), API 8.1 and 8.6, LLD 5.8
 - [ ] T4 Wrong key: constant-time comparison with the current game's key; a wrong key gets the ERROR frame and no game data, in `app.deliveryhero.realtime`, test first: `StompConnectionIT` AC-US37-04, source: AC-US37-04, FR-052 (shared), NFR-18 (shared), LLD 5.6
@@ -89,4 +89,5 @@ Document 13, section 10, plus: every US-37 and US-38 criterion passes at its lev
 
 ## Progress log
 
-None yet.
+- 2026-09-26: Session 2026-09-26-2311 started on `feat/us-37-projector-lobby`, from S1-04's branch (PR #29 in review). T8 waits for S1-07. The owner chose that any refused projector connection shows "This game has finished." (DI-76).
+- 2026-09-26: T1 done: `GameLifecycleIT` AC-US37-01 shows the 22-character key only in the admin game view, and never in `GET /api/games/{code}`, the join reply or the log (the URL itself came with S1-04).
