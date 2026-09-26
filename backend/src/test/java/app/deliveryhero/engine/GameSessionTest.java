@@ -2,8 +2,12 @@ package app.deliveryhero.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import app.deliveryhero.broadcast.Broadcaster;
@@ -16,6 +20,7 @@ import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
+import app.deliveryhero.engine.timer.TimerKey;
 import app.deliveryhero.support.ManualTimers;
 import app.deliveryhero.support.TestData;
 import java.security.NoSuchAlgorithmException;
@@ -33,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 /** The S0 game session on its own thread, driven directly (document 15, section 8.1). */
@@ -47,6 +53,7 @@ class GameSessionTest {
     private final CountDownLatch projectorRevoked = new CountDownLatch(1);
     private final SimpMessageSendingOperations messaging = mock(SimpMessageSendingOperations.class);
     private final Broadcaster broadcaster = new Broadcaster(messaging);
+    private final ManualTimers timers = new ManualTimers(CLOCK);
     private GameSession session = newSession(new RecordingTokens());
 
     /** A seeded generator, so a run can be repeated (document 13, section 6). */
@@ -72,7 +79,7 @@ class GameSessionTest {
                 tokens,
                 playerTokens,
                 broadcaster,
-                new ManualTimers(CLOCK),
+                timers,
                 CLOCK,
                 random);
     }
@@ -157,6 +164,33 @@ class GameSessionTest {
         session.enqueue(new GetStatus(status));
         assertThat(status.get(2, TimeUnit.SECONDS).reason()).isEqualTo(ApiErrorCode.JOINING_CLOSED);
         assertThat(registered).isEmpty();
+    }
+
+    @Test
+    @DisplayName("A flush whose send fails still schedules the next one, and its batch isn't sent again")
+    void failedFlushKeepsTheWallGoing() throws Exception {
+        session.start();
+        join("Priya");
+        doThrow(new MessageDeliveryException("broker busy"))
+                .doNothing()
+                .when(messaging)
+                .convertAndSend(anyString(), any(Object.class));
+
+        assertThat(timers.fire(TestData.GAME_ID, TimerKey.FLUSH)).isTrue();
+        awaitQueue();
+
+        assertThat(timers.fire(TestData.GAME_ID, TimerKey.FLUSH))
+                .as("rescheduled")
+                .isTrue();
+        awaitQueue();
+        verify(messaging, times(1)).convertAndSend(anyString(), any(Object.class));
+    }
+
+    /** Waits until every command queued so far has run. */
+    private void awaitQueue() throws Exception {
+        CompletableFuture<GetStatus.Status> status = new CompletableFuture<>();
+        session.enqueue(new GetStatus(status));
+        status.get(2, TimeUnit.SECONDS);
     }
 
     private JoinResult join(String name) throws Exception {

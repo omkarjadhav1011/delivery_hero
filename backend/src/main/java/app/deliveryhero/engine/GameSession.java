@@ -296,8 +296,12 @@ public final class GameSession {
     private void timerFired(TimerKey key) {
         switch (key.type()) {
             case FLUSH -> {
-                flush();
-                scheduleFlush();
+                // A failed send must not stop the wall for the rest of the game
+                try {
+                    flush();
+                } finally {
+                    scheduleFlush();
+                }
             }
         }
     }
@@ -309,8 +313,10 @@ public final class GameSession {
     /** Sends what changed on the wall since the last flush, if anything did (LLD section 5.7). */
     private void flush() {
         if (!pendingWallEvents.isEmpty()) {
-            broadcaster.toScreen(id, WallEventsMessage.of(clock.millis(), pendingWallEvents));
+            // Taken before sending, so a batch that fails is dropped rather than sent again and again
+            WallEventsMessage batch = WallEventsMessage.of(clock.millis(), pendingWallEvents);
             pendingWallEvents.clear();
+            broadcaster.toScreen(id, batch);
         }
     }
 

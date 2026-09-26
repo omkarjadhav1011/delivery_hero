@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-06 |
 | Branch | feat/us-59-create-game |
 | Start commit | ca77202 |
-| Last commit | 963af11 |
+| Last commit | 78d1630 |
 | Step | test-first |
-| Task | T5 |
-| Attempts | 1 |
+| Task | T6 |
+| Attempts | 0 |
 | Started | 2026-09-26T23:11 |
-| Updated | 2026-09-26T23:37 |
-| Next action | ScreenBatchIT lobby case |
+| Updated | 2026-09-26T23:50 |
+| Next action | store.test.ts (screen) Created, Lobby, ended |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (8925e0b)
 - T4 (f3ea74c)
 - T3 (963af11)
+- T5 (78d1630)
 
 ## Pending approvals
 
