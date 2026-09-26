@@ -148,7 +148,7 @@ Section 20 of the conventions:
 | `/health` unreachable, DNS fine | The instance stopped, or Nginx is down | Owner checklist: the Oracle console (start the instance), then `docker compose ps` (document 16, sections 12 and 14) |
 | DNS wrong or missing | The DuckDNS record | Owner checklist: document 16, section 6.4 |
 | Certificate under 14 days | Renewal failing | Owner checklist: `scripts/renew-cert.sh`, `journalctl -t dh-certs` (document 16, section 11.3) |
-| Headers missing | The Nginx snippet | A `fix/` session on `deploy/nginx`, with `ops-reviewer` |
+| Headers missing | The Nginx snippet | A `fix/` session on `deploy/nginx`, with `ops-reviewer` and `security-reviewer` |
 | `/health` slow (over 1 s) | Load or the machine | Note it against NFR-08; check again; raise with the owner |
 
 ## Phase modes
@@ -166,15 +166,17 @@ Section 20 of the conventions:
   3. Record each run's thresholds in `check-results.md`.
   4. On a failure, propose performance fix subplans and a rerun.
 - **trial (Wed 14 Oct):**
-  1. Run the trial script (`S section 14 "Appendix C"`) and TRIAL-01 to TRIAL-07 (`S section 15 14`) as an owner checklist.
-  2. Log each defect with a severity (`S section 14 12`), and propose a fix subplan in H for every Sev-1 and Sev-2.
-  3. Draft the go/no-go with `S status --go-no-go`, record CP-T in `checkpoints.md` once the owner decides, and fill in the test summary report (document 14, Appendix E) as a session plan.
+  1. Before the trial, run `security-reviewer` as a full audit of the repository, and remind the owner of the OWASP ZAP baseline scan (document 14, section 7.8).
+  2. Run the trial script (`S section 14 "Appendix C"`) and TRIAL-01 to TRIAL-07 (`S section 15 14`) as an owner checklist.
+  3. Log each defect with a severity (`S section 14 12`), including every critical or high security finding, and propose a fix subplan in H for every Sev-1 and Sev-2.
+  4. Draft the go/no-go with `S status --go-no-go`, record CP-T in `checkpoints.md` once the owner decides, and fill in the test summary report (document 14, Appendix E) as a session plan.
 - **release (FZ, `/dh release`):**
   1. Only event-stopping fixes.
   2. The final regression (`/check e2e`), and the coverage report with `--strict-must`.
-  3. OPS-16, OPS-19 and OPS-22, and the day-before checklist (`S section 16 11.1`).
-  4. The `v1.0.0` tag per document 13, section 9.6 (`S section 13 9.6`): tag locally, and push the tag only after the owner approves.
-  5. Document 17, if still open, is an "Owner approval needed: changes docs/" task.
+  3. `security-reviewer` as a full audit, and the Dependabot review (NFR-21). An open critical or high finding is a no-go unless the owner accepts it.
+  4. OPS-16, OPS-19 and OPS-22, and the day-before checklist (`S section 16 11.1`).
+  5. The `v1.0.0` tag per document 13, section 9.6 (`S section 13 9.6`): tag locally, and push the tag only after the owner approves.
+  6. Document 17, if still open, is an "Owner approval needed: changes docs/" task.
 - **event (Wed 21 Oct, `/dh event`):** runbook mode.
   1. Present the on-the-day and hour-before checklist (`S section 16 11.1`) with times, and check `S probe all`.
   2. Keep the troubleshooting table (`S section 16 12`), rollback (`13`) and recovery (`14`) ready.

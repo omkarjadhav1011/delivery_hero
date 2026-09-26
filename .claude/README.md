@@ -16,7 +16,7 @@ After an interruption (a closed terminal, `/clear`, compaction or a rate limit),
 | `/story US-01` | Plans the story from the documents and stops for your approval. Then it writes tests first, implements, updates documents, runs `/check` and the reviewers |
 | `/check` | Runs CI's checks for whatever changed; `/check e2e` adds the end-to-end tests |
 | `/e2e` | Runs the Playwright tests on the local stack with the `e2e` profile; accepts a spec file or `--grep` pattern |
-| `/pr` | Checks the branch, drafts the title and body from the template, and asks before pushing. It never merges |
+| `/pr` | Checks the branch, runs `security-reviewer` when code changed, drafts the title and body from the template, and asks before pushing. It never merges |
 | `/decision <text> <source>` | Records a decision in the Charter's log and its source document |
 | `/plan-implementation` | The planning flow `/dh` runs when there's no plan: reads every document and writes the plan, subplans, ledger and tracker in `planning/` |
 | `/next` | One session, which `/dh` follows: claims the next eligible subplan, plans it for your approval, then works task by task with the journal, a commit per task and a 3-attempt budget |
@@ -28,7 +28,7 @@ Claude can run `/check` and `/progress` on its own when useful. The others run o
 
 ## Reviewers (subagents)
 
-All five are read-only. Claude uses them when relevant, or you can ask by name, for example "use backend-reviewer on this change".
+All six are read-only. `security-reviewer` runs automatically after tasks on sensitive paths, before every pull request that changes code, and as a full audit before the trial run and the release (its "When it runs" section). Claude uses the others when relevant, or you can ask by name, for example "use backend-reviewer on this change".
 
 | Subagent | Checks |
 |---|---|
@@ -37,6 +37,7 @@ All five are read-only. Claude uses them when relevant, or you can ask by name, 
 | `backend-reviewer` | Java against LLD section 5 and document 13, section 6 |
 | `frontend-reviewer` | TypeScript and React against LLD section 6, document 13 section 7 and the copy deck |
 | `ops-reviewer` | `deploy/`, workflows and hooks against document 16 and document 13, section 9 |
+| `security-reviewer` | Attacks on the whole system: answer leaks, authentication, CSRF, injection, XSS, rate limits, secrets, headers and game-logic abuse, against SRS section 8.3, LLD section 5.9 and API specification section 5 |
 
 ## Hooks (in `hooks/`)
 
