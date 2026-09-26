@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -48,6 +50,26 @@ public class TaskService {
         this.json = json;
         this.clock = clock;
         this.random = random;
+    }
+
+    /** The library's rows that match the filter, by key, without answers (FR-070). */
+    @Transactional(readOnly = true)
+    public List<TaskSummary> list(TaskFilter filter) {
+        Map<UUID, Long> uses = plans.countUses().stream()
+                .collect(Collectors.toMap(RunPlanRepository.TaskUse::getTaskId, RunPlanRepository.TaskUse::getPlans));
+        return tasks.findAll(filter.specification(), Sort.by("taskKey")).stream()
+                .map(entity -> new TaskSummary(
+                        entity.id(),
+                        entity.taskKey(),
+                        entity.role(),
+                        entity.kind(),
+                        entity.phase(),
+                        entity.taskType(),
+                        entity.prompt(),
+                        definition(entity).effectiveTimeLimitSeconds(),
+                        uses.getOrDefault(entity.id(), 0L).intValue(),
+                        entity.version()))
+                .toList();
     }
 
     @Transactional(readOnly = true)

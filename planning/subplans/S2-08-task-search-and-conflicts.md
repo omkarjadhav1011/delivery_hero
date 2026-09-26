@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S2 (Wed 7 – Tue 13 Oct) |
 | Stories | US-52, US-53 |
 | Priority and points | Must, 4 |
@@ -48,7 +48,7 @@ Admins filter and search the task library, and a save based on an outdated copy 
 
 ## Tasks
 
-- [ ] T1 Add the `role`, `phase`, `kind` and `type` filters and the case-insensitive prompt search `q` to `GET /api/admin/tasks`, returning summaries, in `app.deliveryhero.content`, test first: `TaskApiIT` AC-US52-01, AC-US52-02, AC-US52-03 on the seeded library, source: AC-US52-01, AC-US52-02, AC-US52-03, FR-070, DS-01 (shared), document 11 section 7.4, document 10 section 12
+- [x] T1 Add the `role`, `phase`, `kind` and `type` filters and the case-insensitive prompt search `q` to `GET /api/admin/tasks`, returning summaries, in `app.deliveryhero.content`, test first: `TaskApiIT` AC-US52-01, AC-US52-02, AC-US52-03 on the seeded library, source: AC-US52-01, AC-US52-02, AC-US52-03, FR-070, DS-01 (shared), document 11 section 7.4, document 10 section 12
 - [ ] T2 Build the task library screen with the filters and the search box, in `frontend/app/admin/tasks` and `frontend/src/admin/components`, test first: E2E-04 `content-admin` step 2 filter check (Tester and Tap to order give exactly three tasks) named AC-US52-01, and the step moved from S2-07 T6: open mgr-plan-01 from the library and see Delete refused with "Used by: Default 5-minute plan, Quick 3-minute plan" named AC-US51-05, source: AC-US52-01, AC-US51-05 (shared), FR-070, document 12 section 9 (Task library screen), E2E-04 (shared)
 - [ ] T3 Check `version` on task update and delete, answering 409 `EDIT_CONFLICT` when it doesn't match and keeping the first save, in `app.deliveryhero.content`, test first: `TaskApiIT` AC-US53-01, source: AC-US53-01, FR-073, document 11 sections 6.2 and 7.4
 - [ ] T4 Show "Someone else changed this since you opened it. Reload to see their changes." in the task editor on `EDIT_CONFLICT`, from `src/copy.ts`, in `frontend/src/admin/components`, test first: E2E-04 `content-admin` step 3 (A and B edit mgr-plan-01) named AC-US53-01, source: AC-US53-01, FR-073, E2E-04 (shared), document 12 section 9 (Task editor screen)
@@ -83,4 +83,4 @@ Document 13, section 10, plus: every criterion passes; no save without a matchin
 
 ## Progress log
 
-None yet.
+- 2026-09-26: T1 done. `GET /api/admin/tasks` takes `role`, `phase`, `kind`, `type` and `q`. The filter is a JPA specification, so PostgreSQL filters (document 10, section 12). `q` is a case-insensitive `LIKE` on prompts, with `%`, `_` and `\` escaped so they match themselves. Rows are ordered by key; `usedByCount` comes from one grouped query over plan entries and incidents. `TaskApiIT` AC-US52-01 to AC-US52-03 and two more tests pass (18 of 18). `docs/openapi.json` waits for the owner's approval at the end of the session.

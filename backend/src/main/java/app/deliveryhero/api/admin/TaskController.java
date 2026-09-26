@@ -1,10 +1,18 @@
 package app.deliveryhero.api.admin;
 
+import app.deliveryhero.common.Phase;
+import app.deliveryhero.common.Role;
+import app.deliveryhero.common.TaskKind;
+import app.deliveryhero.common.TaskType;
 import app.deliveryhero.content.PublicTaskView;
 import app.deliveryhero.content.TaskDetail;
+import app.deliveryhero.content.TaskFilter;
 import app.deliveryhero.content.TaskInput;
 import app.deliveryhero.content.TaskService;
+import app.deliveryhero.content.TaskSummary;
+import java.util.List;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +34,17 @@ class TaskController {
 
     TaskController(TaskService tasks) {
         this.tasks = tasks;
+    }
+
+    /** The task library, filtered by each parameter given and searched by {@code q} (FR-070). */
+    @GetMapping
+    List<TaskSummary> list(
+            @RequestParam(required = false) @Nullable Role role,
+            @RequestParam(required = false) @Nullable Phase phase,
+            @RequestParam(required = false) @Nullable TaskKind kind,
+            @RequestParam(required = false) @Nullable TaskType type,
+            @RequestParam(required = false) @Nullable String q) {
+        return tasks.list(new TaskFilter(role, phase, kind, type, q));
     }
 
     @GetMapping("/{id}")

@@ -363,6 +363,85 @@ class TaskApiIT {
                 .hasStatus(HttpStatus.UNAUTHORIZED);
     }
 
+    @Test
+    @DisplayName(
+            "AC-US52-01 filter: role Tester and type Tap to order list exactly tst-dev-03, tst-test-01, tst-rel-03")
+    void filtersByRoleAndType() {
+        MvcTestResult listed = list("role", "TESTER", "type", "ORDER");
+
+        assertThat(listed).hasStatusOk();
+        assertThat(keys(listed)).containsExactlyInAnyOrder("tst-dev-03", "tst-test-01", "tst-rel-03");
+    }
+
+    @Test
+    @DisplayName("AC-US52-02 search: searching prompts for \"standup\" finds mgr-dev-04, whatever the case")
+    void searchesPrompts() {
+        assertThat(keys(list("q", "standup"))).contains("mgr-dev-04");
+        assertThat(keys(list("q", "STANDUP"))).contains("mgr-dev-04");
+        assertThat(keys(list("q", "standup", "role", "TESTER"))).doesNotContain("mgr-dev-04");
+    }
+
+    @Test
+    @DisplayName("AC-US52-03 kind: filtering by kind Incident lists incident-001 and incident-002")
+    void filtersByKind() {
+        assertThat(keys(list("kind", "INCIDENT"))).containsExactlyInAnyOrder("incident-001", "incident-002");
+    }
+
+    @Test
+    @DisplayName("The library lists every task as a summary, by key, with its time limit and how many plans use it")
+    void listsSummaries() {
+        MvcTestResult listed = list();
+
+        assertThat(listed).hasStatusOk();
+        JsonNode summaries = body(listed);
+        assertThat(summaries.size()).isEqualTo(74);
+        List<String> keys = keys(listed);
+        assertThat(keys).isSortedAccordingTo(String::compareTo);
+        JsonNode plan01 = summaries.get(keys.indexOf("mgr-plan-01"));
+        assertThat(plan01.propertyNames())
+                .containsExactlyInAnyOrder(
+                        "id",
+                        "key",
+                        "role",
+                        "kind",
+                        "phase",
+                        "type",
+                        "prompt",
+                        "effectiveTimeLimitSeconds",
+                        "usedByCount",
+                        "version");
+        assertThat(plan01.get("id").asString()).isEqualTo(idOf("mgr-plan-01"));
+        assertThat(plan01.get("usedByCount").asInt()).isEqualTo(2);
+        assertThat(plan01.get("effectiveTimeLimitSeconds").asInt()).isPositive();
+        JsonNode incident = summaries.get(keys.indexOf("incident-001"));
+        assertThat(incident.get("usedByCount").asInt()).isPositive();
+    }
+
+    @Test
+    @DisplayName("A search with LIKE wildcards matches them literally; an unknown filter value is refused")
+    void searchIsLiteralAndFiltersAreChecked() {
+        assertThat(keys(list("q", "100%"))).containsExactly("dev-dev-10");
+        assertThat(keys(list("q", "10%"))).isEmpty();
+        assertThat(keys(list("q", "_"))).isEmpty();
+        assertThat(list("role", "WIZARD")).hasStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+        assertThat(mvc.get().uri("/api/admin/tasks").exchange()).hasStatus(HttpStatus.UNAUTHORIZED);
+    }
+
+    /** The library, with the query parameters given as name and value pairs. */
+    private MvcTestResult list(String... pairs) {
+        var request = mvc.get().uri("/api/admin/tasks").with(ADMIN);
+        for (int i = 0; i < pairs.length; i += 2) {
+            request = request.param(pairs[i], pairs[i + 1]);
+        }
+        return request.exchange();
+    }
+
+    private List<String> keys(MvcTestResult result) {
+        List<String> keys = new java.util.ArrayList<>();
+        body(result).forEach(summary -> keys.add(summary.get("key").asString()));
+        return keys;
+    }
+
     private static Map<String, Object> task(String key, String type, Map<String, Object> content) {
         Map<String, Object> task = new java.util.HashMap<>();
         task.put("key", key);
