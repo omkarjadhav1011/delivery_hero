@@ -19,8 +19,8 @@ springdoc:
 
 dh:
   admin:
-    # bcrypt (cost 12) of the local-only admin password "delivery-hero-local", as in deploy/docker-compose.local.yml
-    password-hash: "${DH_ADMIN_PASSWORD_HASH:$2y$12$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm}"
+    # bcrypt (cost 12) of the local-only admin password "DHAdmin", as in deploy/docker-compose.local.yml
+    password-hash: "${DH_ADMIN_PASSWORD_HASH:$2b$12$EJG9VVIEQaFE9x5R9ogZ8OB.S39vZIHig8jHnKly/aCzlhj69z3IW}"
   public-base-url: ${DH_PUBLIC_BASE_URL:http://localhost:8080}
   dev:
     # A fixed player token and projector key for checking /ws on the local stack, in this profile only (S0-04).

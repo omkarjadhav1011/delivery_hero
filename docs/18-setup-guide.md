@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.2 (approved)
+> Document 18 of 18 · Version 1.3 (approved)
 
 ## Document control
 
@@ -8,7 +8,7 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 18 — Technical Documentation: the README and this Setup Guide |
-| Version | 1.2 |
+| Version | 1.3 |
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 26 September 2026 |
@@ -24,6 +24,7 @@
 | 1.0 | 2026-09-24 | [Owner name] | Approved, with the README. SG-01 to SG-05 recorded as DEC-207 to DEC-211 (Charter v1.14); SG-01 applied to document 13's CI outline (v1.2) |
 | 1.1 | 2026-09-26 | [Owner name] | Section 6: the dev profile's STOMP test token and projector key (EN-04) |
 | 1.2 | 2026-09-26 | [Owner name] | Sections 6, 6.5, 7.2 and 12 and Appendix: the local stack publishes the backend on `127.0.0.1:8081` (`DH_LOCAL_BACKEND_PORT`) for the API documentation |
+| 1.3 | 2026-09-26 | [Owner name] | Sections 6.2 and 6.5 and Appendix B: the local-only admin password is now `DHAdmin`, with its cost-12 hash |
 
 ---
 
@@ -135,7 +136,7 @@ The loader validates the whole file first, then imports everything or nothing. A
 
 ### 6.3 Play a test game
 
-1. Open <http://localhost:8080/admin/>, and sign in with the local-only password `delivery-hero-local`.
+1. Open <http://localhost:8080/admin/>, and sign in with the local-only password `DHAdmin`.
 2. Create a test game with a few bots from the Quick 3-minute plan.
 3. Open the projector link in a second window.
 4. Join with the address shown in the lobby, using Chrome's device toolbar with a phone preset, such as Pixel or iPhone.
@@ -168,7 +169,7 @@ The local credentials are public on purpose (SG-02):
 
 | Account | Value |
 |---|---|
-| Admin password | `delivery-hero-local` |
+| Admin password | `DHAdmin` |
 | Database superuser | `postgres` / `local-superuser` |
 | Application database role | `dh_app` / `local-app` |
 | STOMP test player token (dev profile only, until US-01) | `local-player-token` |
@@ -501,8 +502,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/deliveryhero
       SPRING_DATASOURCE_USERNAME: dh_app
       SPRING_DATASOURCE_PASSWORD: local-app
-      # bcrypt (cost 12) of the local-only admin password "delivery-hero-local"; $$ is a literal $
-      DH_ADMIN_PASSWORD_HASH: "$$2y$$12$$Eo5ChSlpilyNFuM0BzBTLuT9pOLCOz8Ip5APefpdVjfAJpj0PzkCm"
+      # bcrypt (cost 12) of the local-only admin password "DHAdmin"; $$ is a literal $
+      DH_ADMIN_PASSWORD_HASH: "$$2b$$12$$EJG9VVIEQaFE9x5R9ogZ8OB.S39vZIHig8jHnKly/aCzlhj69z3IW"
       DH_PUBLIC_BASE_URL: http://localhost:${DH_LOCAL_PORT:-8080}
     volumes:
       - ../seed:/seed:ro

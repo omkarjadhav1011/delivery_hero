@@ -68,7 +68,7 @@ Admins log in with the shared password (checked against a bcrypt hash), get a 12
 
 - `/check` (backend verify, frontend checks and tests)
 - `/e2e` for the `content-admin` login step
-- Local: log in at <http://localhost:8080/admin/login> with `delivery-hero-local`, then `curl -si -X POST http://localhost:8080/api/admin/login` six times with a wrong password; the sixth gets 429
+- Local: log in at <http://localhost:8080/admin/login> with `DHAdmin`, then `curl -si -X POST http://localhost:8080/api/admin/login` six times with a wrong password; the sixth gets 429
 - MAN-08 on production once Q-01 is answered
 
 ## Risks and open questions

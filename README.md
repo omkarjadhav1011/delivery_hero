@@ -30,7 +30,7 @@ docker compose -f deploy/docker-compose.local.yml run --rm backend seed /seed/de
 
 Then play a test game:
 
-1. Open <http://localhost:8080/admin/> and sign in with the local-only password `delivery-hero-local`.
+1. Open <http://localhost:8080/admin/> and sign in with the local-only password `DHAdmin`.
 2. Create a test game with a few bots from the Quick 3-minute plan, and open its projector link in a second window.
 3. Join with the address shown in the lobby, in another Chrome window. Chrome's device toolbar gives a phone-sized view.
 

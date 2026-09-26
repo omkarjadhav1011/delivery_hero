@@ -58,14 +58,14 @@ describe("LoginScreen", () => {
       .mockResolvedValueOnce(new Response(null, { status: 204 }));
     render(<LoginScreen onLoggedIn={onLoggedIn} />);
 
-    logIn("delivery-hero-local");
+    logIn("DHAdmin");
 
     await waitFor(() => expect(onLoggedIn).toHaveBeenCalledOnce());
     expect(fetchMock.mock.calls.map(([path]) => path)).toEqual([
       "/api/admin/session",
       "/api/admin/login",
     ]);
-    expect(fetchMock.mock.calls[1]![1]?.body).toBe("username=admin&password=delivery-hero-local");
+    expect(fetchMock.mock.calls[1]![1]?.body).toBe("username=admin&password=DHAdmin");
   });
 
   it("A-01 says the password didn't work after a failure, and clears the field", async () => {
@@ -91,7 +91,7 @@ describe("LoginScreen", () => {
       .mockResolvedValueOnce(problem(429, "RATE_LIMITED"));
     render(<LoginScreen onLoggedIn={onLoggedIn} />);
 
-    logIn("delivery-hero-local");
+    logIn("DHAdmin");
 
     expect(await screen.findByText(copy.admin.login.rateLimited)).toBeTruthy();
     expect(onLoggedIn).not.toHaveBeenCalled();

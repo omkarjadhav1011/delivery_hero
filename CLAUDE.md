@@ -65,5 +65,5 @@ Area rules load automatically from `.claude/rules/` when Claude works in `backen
 ## Local environment
 
 - Profiles: `dev` (local), `test`, `e2e` (short timings for end-to-end tests) and `prod`. Setup Guide, section 8.2.
-- The local admin password is `delivery-hero-local`; the local ports listen on `127.0.0.1` only.
+- The local admin password is `DHAdmin`; the local ports listen on `127.0.0.1` only.
 - For live reload, the backend runs on port 8081 and the Next.js dev server on port 3000, behind the dev proxy on port 8080. Setup Guide, section 7.
