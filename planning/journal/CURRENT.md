@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-02 |
 | Branch | chore/s0-02-ci-proofs |
 | Start commit | 0a1aec2 |
-| Last commit | 0a1aec2 |
-| Step | plan-session |
+| Last commit | b687b9d |
+| Step | implement |
 | Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T10:04 |
-| Updated | 2026-09-26T10:04 |
-| Next action | T1 Playwright browser cache in ci.yml |
+| Updated | 2026-09-26T10:06 |
+| Next action | Push for T1 and T2 GitHub proofs (approval) |
 
 ## Completed tasks
 
-- none
+- T4 (b687b9d)
 
 ## Pending approvals
 
