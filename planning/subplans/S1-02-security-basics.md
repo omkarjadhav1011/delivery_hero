@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | EN-06 |
 | Priority and points | Must, 3 |
@@ -97,3 +97,4 @@ Document 13, section 10, plus: `SecurityIT` covers CSRF and both rate limits, `s
 - 2026-09-26: T5, T6 and T8 done. T5 and T6 were already in the scaffold: the Nginx template and `routes.conf` match document 16 B.4 and B.5 exactly, and `csp-hashes.mjs` runs as `postbuild` into both images, so neither needed code. The `security-privacy` spec now checks the four headers on every response while loading the five pages, and on API, join, admin and health responses, and that the page policy's `script-src` is `'self'` plus hashes only. The shared fixtures already fail any test on a CSP violation or an outside request (step 3). Local e2e stack (ports 8090 and 5433, because 8080 and 5432 are taken on this machine): `security-privacy` 11 passed, full suite 33 passed. API responses carry each header twice (backend and Nginx); the stricter backend CSP applies to JSON, and the repeats are harmless. Step 2 stays with T9.
 - 2026-09-26: Reviews. backend-reviewer: answers missing `taskKey` or `answer` are now dropped before the engine, malformed ANSWER_SUBMIT messages are dropped with only an `ANSWER_MALFORMED` debug event (so Spring's default handler can't log the answer or session ID), the `SecurityConfig` Javadoc is current, and the 429 test pins status, code and detail. Not done (consider only): logging one refusal per window, pruning at most once a second, and resetting the shared limiter between ITs. frontend-reviewer: the header checks now require exact values (repeated values split on commas), and `script-src` may end the policy. `networkidle` and the font check in the AC-EN08-02 test stay as they are, because the suite passes. spec-guardian: no document has to change in this PR (no REST contract changed); recorded DI-49 (TC-EN06-03 location), DI-50 (backend API headers) and DI-51 (login CSRF, unknown `/api` paths). DI-18 still covers the answer-reply wording.
 - 2026-09-26: Actuals. 10:33 to about 11:25 (about 50 min), mostly Maven and Playwright runs. Main-session tokens aren't measured (an estimate of about 200k); the three reviewers used about 120k together. Status stays In progress: T1 to T8 are done, and T9 waits for S2-15 and S2-07 (carry AC-EN06-04 over in the CP-S1 notes). It becomes In review when the PR opens.
+- 2026-09-26: PR #18 open (https://github.com/omkarjadhav1011/delivery_hero/pull/18). Status In review; T9 stays blocked.
