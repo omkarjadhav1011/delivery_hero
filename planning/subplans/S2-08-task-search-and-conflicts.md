@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S2 (Wed 7 – Wed 14 Oct) |
 | Stories | US-52, US-53 |
 | Priority and points | Must, 4 |
@@ -97,3 +97,4 @@ Document 13, section 10, plus: every criterion passes; no save without a matchin
 - 2026-09-26: T7 done. Three `TaskApiIT` tests: an outdated delete of mgr-plan-01 (in use) gets 409 `EDIT_CONFLICT`; an outdated save with an empty prompt gets 409 `EDIT_CONFLICT`, while the same body at the current version gets 422 at `prompt`; `DELETE ?version=abc` gets 422 `VALIDATION_FAILED` at `version`. The code already followed section 7.4, so there's no production change. A probe that moved the version check after validation and the in-use check failed both conflict tests. It was reverted.
 - 2026-09-26: Review fixes (backend-reviewer, spec-guardian). The delete test is named AC-US53-01 AC-US51-05. The non-numeric test carries no criterion ID, because no criterion covers it, although the task named all three AC-US53-01. The AC-US53-01 save test now checks the `detail` message. DI-71 records the gaps in documents 05, 03 and 11. `./mvnw -B verify`: 86 integration tests pass. T6 (after S2-09) is still open.
 - 2026-09-26: Actuals. 21:43 to 22:02 (about 20 min). Main-session tokens aren't measured (an estimate of about 60k); backend-reviewer used about 27k and spec-guardian about 29k.
+- 2026-09-26: PR #28 opened for T7 (https://github.com/omkarjadhav1011/delivery_hero/pull/28). The status is In review; T6 stays open until S2-09 merges.
