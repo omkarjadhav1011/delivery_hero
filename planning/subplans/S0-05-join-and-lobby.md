@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S0 (Thu 24 – Tue 29 Sep) |
 | Stories | US-01, US-02, US-04 |
 | Priority and points | Must, 7 |
@@ -114,3 +114,6 @@ None yet.
 - 2026-09-26: T10 done. `join-and-lobby` covers E2E-01 steps 3 to 5. Phone A sees the privacy note, joins as "Priya" and sees "You're in, Priya!" and "Waiting for the host to start…". Phone B types "  Priya   S " and becomes "Priya S". An inactive code shows the inactive-link message. axe runs on the join, lobby and message screens.
 - 2026-09-26: T11 done. `page-weight` adds up `transferSize` from navigation and resource timing for a new phone opening the join URL, and asserts under 1 MB (NFR-05).
 - 2026-09-26: `/e2e` on the local stack with `DH_PROFILE=e2e`, on ports 8090 and 5433 because native services hold 8080 and 5432 (environment.md): all 27 specs pass. The backend log shows 2 STOMP CONNECT and 2 CONNECTED through Nginx, and no player names. `curl` returned the K7PQ2M game, and 404 `GAME_NOT_ACTIVE` for an unknown code (DI-45 on the body's `type` field).
+- 2026-09-26: Reviews. `backend-reviewer`, `frontend-reviewer` and `spec-guardian` found no must-fix defects. Backend fixes: a failed Join or GetStatus completes its reply at once, and a command for a discarded session is dropped (`enqueue` returns false). A Join whose caller stopped waiting creates no player. Player and game IDs come from the injected generator (`common.Ids`). The e2e path's CSRF exemption applies only in the `e2e` profile. `GameStatusResponse.reason` allows only API 7.2's three codes (`NotJoinableReason`). New tests: `GameSessionTest` (3) and `IdsTest`. Frontend fixes: focus moves to the name field after `INVALID_NAME`, `useStomp` gains `onStatusChange` in place of an effect copying the status, an empty `?code=` counts as none, the screen switch is exhaustive with `assertNever`, the P-03 message is the heading, a late join reply after unmount is ignored, and the specs open the documented `/join?code=`. Recorded: Q-09 (no copy for a failed join), Q-10 (contract fixtures), DI-46 (late joiners during practice) and DI-47 (the e2e endpoint). With the owner's approval, `docs/openapi.json` was regenerated and document 15 v1.2 lists the new test files.
+- 2026-09-26: Final checks. `./mvnw -B verify`: 93 unit and 40 integration tests pass, and the coverage gates are met. Frontend format, lint, typecheck, 107 tests (store line coverage 91%) and the build pass. markdownlint is clean. `/e2e` on the rebuilt `e2e` stack: 27 of 27 specs pass. No pull request yet.
+- 2026-09-26: Actuals. 08:09 to 09:46 (about 1 h 40 min). Main-session tokens aren't measured (an estimate of about 400k); the three reviewers used about 200k.

@@ -101,7 +101,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | A-11@02 | ASM | No implementation work |  |  | Planning assumption (Charter section 9, PRD section 4) |
 | AC-EN01-01 | AC-EN | Build | S0-01 T11, S0-01 T9 | Verified in production | TC-EN01-01: Production, OPS-20 |
 | AC-EN01-02 | AC-EN | Build | S0-01 T11, S0-01 T5 | Tested | TC-EN01-02: Integration, `MigrationIT` |
-| AC-EN01-03 | AC-EN | Build | S0-01 T8 | Implemented | TC-EN01-03: Frontend, CI frontend build (static export) |
+| AC-EN01-03 | AC-EN | Build | S0-01 T8 | Tested | TC-EN01-03: Frontend, CI frontend build (static export) |
 | AC-EN02-01 | AC-EN | Build | S0-06 T11, S0-06 T5, S0-06 T6, S0-06 T7 | Planned | TC-EN02-01: Production, OPS-01 |
 | AC-EN02-02 | AC-EN | Build | S0-06 T11, S0-06 T8 | Planned | TC-EN02-02: Production, OPS-02 |
 | AC-EN02-03 | AC-EN | Build | P0-02 T4, S0-06 T11, S0-06 T8 | Planned | TC-EN02-03: Production, OPS-03 |
@@ -126,20 +126,20 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-EN08-03 | AC-EN | Build | S0-03 T8, S2-24 T8 | Tested | TC-EN08-03: End-to-end, `accessibility` |
 | AC-EN09-01 | AC-EN | Build | S2-24 T7, S2-24 T8 | Planned | TC-EN09-01: End-to-end, `accessibility` |
 | AC-EN09-02 | AC-EN | Build | S2-24 T10, S2-24 T11, S2-24 T9, S2-26 T11 | Planned | TC-EN09-02: Manual, A11Y-01 to A11Y-09 |
-| AC-US01-01 | AC-US | Build | S0-05 T10, S0-05 T6 | Planned | TC-US01-01: End-to-end, `join-and-lobby` |
-| AC-US01-02 | AC-US | Build | S0-05 T8, S1-06 T7, S2-26 T3 | Planned | TC-US01-02: Frontend, `QrCode.test.tsx` |
-| AC-US01-03 | AC-US | Build | S0-05 T10, S0-05 T4, S0-05 T6 | Planned | TC-US01-03: Integration, `JoinIT` |
-| AC-US02-01 | AC-US | Build | S0-05 T1, S0-05 T10 | Planned | TC-US02-01: Unit, `NamesTest` |
-| AC-US02-02 | AC-US | Build | S0-05 T1, S0-05 T6 | Planned | TC-US02-02: Unit, `NamesTest` |
-| AC-US02-03 | AC-US | Build | S0-05 T2 | Planned | TC-US02-03: Unit, `NamesTest` |
-| AC-US02-04 | AC-US | Build | S0-05 T2 | Planned | TC-US02-04: Unit, `NamesTest` |
-| AC-US02-05 | AC-US | Build | S0-05 T1 | Planned | TC-US02-05: Unit, `NamesTest` |
+| AC-US01-01 | AC-US | Build | S0-05 T10, S0-05 T6 | Tested | TC-US01-01: End-to-end, `join-and-lobby` |
+| AC-US01-02 | AC-US | Build | S0-05 T8, S1-06 T7, S2-26 T3 | Tested | TC-US01-02: Frontend, `QrCode.test.tsx` |
+| AC-US01-03 | AC-US | Build | S0-05 T10, S0-05 T4, S0-05 T6 | Tested | TC-US01-03: Integration, `JoinIT` |
+| AC-US02-01 | AC-US | Build | S0-05 T1, S0-05 T10 | Tested | TC-US02-01: Unit, `NamesTest` |
+| AC-US02-02 | AC-US | Build | S0-05 T1, S0-05 T6 | Tested | TC-US02-02: Unit, `NamesTest` |
+| AC-US02-03 | AC-US | Build | S0-05 T2 | Tested | TC-US02-03: Unit, `NamesTest` |
+| AC-US02-04 | AC-US | Build | S0-05 T2 | Tested | TC-US02-04: Unit, `NamesTest` |
+| AC-US02-05 | AC-US | Build | S0-05 T1 | Tested | TC-US02-05: Unit, `NamesTest` |
 | AC-US03-01 | AC-US | Build | S1-15 T4, S1-15 T5, S1-15 T6 | Planned | TC-US03-01: Integration, `JoinIT` |
 | AC-US03-02 | AC-US | Build | S1-15 T4, S1-15 T5, S2-16 T4 | Planned | TC-US03-02: Integration, `JoinIT` |
 | AC-US03-03 | AC-US | Build | S1-15 T2, S1-15 T5 | Planned | TC-US03-03: Integration, `JoinIT` |
 | AC-US03-04 | AC-US | Build | S1-15 T3 | Planned | TC-US03-04: Unit, `GameSessionTest` |
-| AC-US04-01 | AC-US | Build | S0-05 T10, S0-05 T5, S0-05 T7 | Planned | TC-US04-01: End-to-end, `join-and-lobby` |
-| AC-US04-02 | AC-US | Build | S0-05 T7, S1-08 T7, S1-08 T9 | Planned | TC-US04-02: End-to-end, `golden-path` |
+| AC-US04-01 | AC-US | Build | S0-05 T10, S0-05 T5, S0-05 T7 | Tested | TC-US04-01: End-to-end, `join-and-lobby` |
+| AC-US04-02 | AC-US | Build | S0-05 T7, S1-08 T7, S1-08 T9 | Tested | TC-US04-02: End-to-end, `golden-path` |
 | AC-US05-01 | AC-US | Build | S1-16 T1 | Planned | TC-US05-01: Frontend, `session.test.ts` |
 | AC-US05-02 | AC-US | Build | S1-16 T2, S1-16 T4, S1-16 T7, S2-26 T8 | Planned | TC-US05-02: End-to-end, `resilience` |
 | AC-US05-03 | AC-US | Build | S1-16 T3, S1-16 T7 | Planned | TC-US05-03: Unit, `GameSessionTest` |
@@ -638,7 +638,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | DEC-193 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
 | DEC-194 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
 | DEC-195 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
-| DEC-196 | DEC | Build | S0-01 T3 | Implemented | Surefire and Failsafe write display names into their reports, so the coverage tool sees criterion IDs (document 15, section 8.3; CONVENTIONS section 8.2) |
+| DEC-196 | DEC | Build | S0-01 T3 | Tested | Surefire and Failsafe write display names into their reports, so the coverage tool sees criterion IDs (document 15, section 8.3; CONVENTIONS section 8.2) |
 | DEC-197 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
 | DEC-198 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
 | DEC-199 | DEC | No implementation work |  |  | Decision; realized through the requirements, criteria and tasks that cite it (DEC log, Charter Appendix A) |
@@ -665,9 +665,9 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | DG-08 | DG | No implementation work |  |  | Deployment decision; realized by the deployment files and document 16 |
 | DG-09 | DG | No implementation work |  |  | Deployment decision; realized by the deployment files and document 16 |
 | DS-01 | DS | Build | S1-01 T3, S2-08 T1, S2-11 T1, S2-25 T4 | In progress |  |
-| DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | Planned |  |
-| DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | Planned |  |
-| DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Planned |  |
+| DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | In progress |  |
+| DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | In progress |  |
+| DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Implemented |  |
 | DS-05 | DS | Build | S1-02 T7, S1-02 T9 | Planned |  |
 | DS-06 | DS | Build | S1-08 T5, S1-13 T6, S1-16 T8 | Planned |  |
 | DS-07 | DS | Build | S2-01 T8, S2-10 T8, S2-10 T9, S2-26 T6 | Planned |  |
@@ -682,7 +682,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | E2E-07 | E2E | Verify | S0-03 T7, S1-02 T5, S1-02 T8, S1-02 T9, S2-09 T6 | Scheduled |  |
 | E2E-08 | E2E | Verify | S0-03 T8, S1-11 T3, S2-11 T3, S2-24 T7, S2-24 T8 | Scheduled |  |
 | E2E-09 | E2E | Verify | S0-05 T11, S2-27 T5 | Scheduled |  |
-| EN-01 | EN | Build | S0-01 T1, S0-01 T4 | Implemented |  |
+| EN-01 | EN | Build | S0-01 T1, S0-01 T4 | Tested |  |
 | EN-02 | EN | Build | S0-06 | Planned |  |
 | EN-03 | EN | Build | S0-06 | Planned |  |
 | EN-04 | EN | Build | S0-04 | Tested |  |
@@ -706,7 +706,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | F-01 | F | Covered by | US-01, US-03 | Planned |  |
 | F-02 | F | Covered by | US-02, US-03 | Planned |  |
 | F-03 | F | Covered by | US-06 | Planned |  |
-| F-04 | F | Covered by | US-04 | Planned |  |
+| F-04 | F | Covered by | US-04 | Tested |  |
 | F-05 | F | Covered by | US-07 | Planned |  |
 | F-06 | F | Covered by | US-05 | Planned |  |
 | F-07 | F | Covered by | US-08 | Planned |  |
@@ -761,16 +761,16 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | F-56 | F | Covered by | US-68 | Implemented |  |
 | F-57 | F | Covered by | US-69, US-70 | Planned |  |
 | F-58 | F | Covered by | US-71 | Planned |  |
-| FR-001 | FR | Covered by | US-01 | Planned |  |
+| FR-001 | FR | Covered by | US-01 | Tested |  |
 | FR-002 | FR | Covered by | US-01, US-03 | Planned |  |
-| FR-003 | FR | Covered by | US-02 | Planned |  |
-| FR-004 | FR | Covered by | US-02 | Planned |  |
+| FR-003 | FR | Covered by | US-02 | Tested |  |
+| FR-004 | FR | Covered by | US-02 | Tested |  |
 | FR-005 | FR | Covered by | US-03 | Planned |  |
 | FR-006 | FR | Covered by | US-02, US-03 | Planned |  |
 | FR-007 | FR | Covered by | US-05 | Planned |  |
 | FR-008 | FR | Covered by | US-05 | Planned |  |
 | FR-009 | FR | Covered by | US-06 | Planned |  |
-| FR-010 | FR | Covered by | US-04 | Planned |  |
+| FR-010 | FR | Covered by | US-04 | Tested |  |
 | FR-011 | FR | Covered by | US-07 | Planned |  |
 | FR-012 | FR | Covered by | US-08 | Planned |  |
 | FR-013 | FR | Covered by | US-09 | Planned |  |
@@ -931,10 +931,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | NFR-38 | NFR | Covered by | TRIAL-01 | Scheduled |  |
 | NFR-39 | NFR | Covered by | A11Y-09 | Scheduled |  |
 | NFR-40 | NFR | Build | S1-13 T1 | Planned | Verified by code review (document 15, section 16), so the scoring configuration file is built directly |
-| NFR-41 | NFR | Build | S0-02 T5 | In progress | The JaCoCo gate in CI (document 15, section 16) |
-| NFR-42 | NFR | Build | S0-01 T5 | Implemented | Flyway only, Hibernate validates at startup (document 15, section 16) |
+| NFR-41 | NFR | Build | S0-02 T5 | Tested | The JaCoCo gate in CI (document 15, section 16) |
+| NFR-42 | NFR | Build | S0-01 T5 | Tested | Flyway only, Hibernate validates at startup (document 15, section 16) |
 | NFR-43 | NFR | Build | S0-02 T1 | In progress | CI configuration review (document 15, section 16) |
-| NFR-44 | NFR | Build | S0-01 T6 | Implemented | The OpenAPI comparison test and the contract fixtures (document 15, section 16) |
+| NFR-44 | NFR | Build | S0-01 T6 | Tested | The OpenAPI comparison test and the contract fixtures (document 15, section 16) |
 | OBJ-1 | OBJ | No implementation work |  |  | Business objective, measured by the success criteria (Charter section 5) |
 | OBJ-2 | OBJ | No implementation work |  |  | Business objective, measured by the success criteria (Charter section 5) |
 | OBJ-3 | OBJ | No implementation work |  |  | Business objective, measured by the success criteria (Charter section 5) |
@@ -1077,7 +1077,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | SG-05 | SG | No implementation work |  |  | Setup decision; realized by the local stack and document 18 |
 | TC-EN01-01 | TC-EN | Covered by | AC-EN01-01 | Verified in production |  |
 | TC-EN01-02 | TC-EN | Covered by | AC-EN01-02 | Tested |  |
-| TC-EN01-03 | TC-EN | Covered by | AC-EN01-03 | Implemented |  |
+| TC-EN01-03 | TC-EN | Covered by | AC-EN01-03 | Tested |  |
 | TC-EN02-01 | TC-EN | Covered by | AC-EN02-01 | Planned |  |
 | TC-EN02-02 | TC-EN | Covered by | AC-EN02-02 | Planned |  |
 | TC-EN02-03 | TC-EN | Covered by | AC-EN02-03 | Planned |  |
@@ -1102,20 +1102,20 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-EN08-03 | TC-EN | Covered by | AC-EN08-03 | Tested |  |
 | TC-EN09-01 | TC-EN | Covered by | AC-EN09-01 | Planned |  |
 | TC-EN09-02 | TC-EN | Covered by | AC-EN09-02 | Planned |  |
-| TC-US01-01 | TC-US | Covered by | AC-US01-01 | Planned |  |
-| TC-US01-02 | TC-US | Covered by | AC-US01-02 | Planned |  |
-| TC-US01-03 | TC-US | Covered by | AC-US01-03 | Planned |  |
-| TC-US02-01 | TC-US | Covered by | AC-US02-01 | Planned |  |
-| TC-US02-02 | TC-US | Covered by | AC-US02-02 | Planned |  |
-| TC-US02-03 | TC-US | Covered by | AC-US02-03 | Planned |  |
-| TC-US02-04 | TC-US | Covered by | AC-US02-04 | Planned |  |
-| TC-US02-05 | TC-US | Covered by | AC-US02-05 | Planned |  |
+| TC-US01-01 | TC-US | Covered by | AC-US01-01 | Tested |  |
+| TC-US01-02 | TC-US | Covered by | AC-US01-02 | Tested |  |
+| TC-US01-03 | TC-US | Covered by | AC-US01-03 | Tested |  |
+| TC-US02-01 | TC-US | Covered by | AC-US02-01 | Tested |  |
+| TC-US02-02 | TC-US | Covered by | AC-US02-02 | Tested |  |
+| TC-US02-03 | TC-US | Covered by | AC-US02-03 | Tested |  |
+| TC-US02-04 | TC-US | Covered by | AC-US02-04 | Tested |  |
+| TC-US02-05 | TC-US | Covered by | AC-US02-05 | Tested |  |
 | TC-US03-01 | TC-US | Covered by | AC-US03-01 | Planned |  |
 | TC-US03-02 | TC-US | Covered by | AC-US03-02 | Planned |  |
 | TC-US03-03 | TC-US | Covered by | AC-US03-03 | Planned |  |
 | TC-US03-04 | TC-US | Covered by | AC-US03-04 | Planned |  |
-| TC-US04-01 | TC-US | Covered by | AC-US04-01 | Planned |  |
-| TC-US04-02 | TC-US | Covered by | AC-US04-02 | Planned |  |
+| TC-US04-01 | TC-US | Covered by | AC-US04-01 | Tested |  |
+| TC-US04-02 | TC-US | Covered by | AC-US04-02 | Tested |  |
 | TC-US05-01 | TC-US | Covered by | AC-US05-01 | Planned |  |
 | TC-US05-02 | TC-US | Covered by | AC-US05-02 | Planned |  |
 | TC-US05-03 | TC-US | Covered by | AC-US05-03 | Planned |  |
@@ -1397,10 +1397,10 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | UC-25 | UC | Covered by | US-18, US-21, US-35, US-36 | Planned |  |
 | UC-26 | UC | Covered by | US-63, US-66 | Planned |  |
 | UC-27 | UC | Covered by | US-67 | Planned |  |
-| US-01 | US | Build | S0-05 | Planned |  |
-| US-02 | US | Build | S0-05 | Planned |  |
+| US-01 | US | Build | S0-05 | Tested |  |
+| US-02 | US | Build | S0-05 | Tested |  |
 | US-03 | US | Build | S1-15 | Planned |  |
-| US-04 | US | Build | S0-05 | Planned |  |
+| US-04 | US | Build | S0-05 | Tested |  |
 | US-05 | US | Build | S1-16 | Planned |  |
 | US-06 | US | Build | S2-22 | Planned |  |
 | US-07 | US | Build | S2-24 | Planned |  |
