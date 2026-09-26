@@ -108,3 +108,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch docs/planning-dec-214-215, commits 438d374 to 66fb804.
 - Completed: none.
 - Summary: S2-08 T7: three TaskApiIT conflict and version tests, reviewed; DI-71 logged
+
+## 2026-09-26-2210 S1-04
+
+- Outcome: done. Started 2026-09-26T22:10, ended 2026-09-26T23:04.
+- Branch feat/us-59-create-game, commits 907f11b to 016ab9d.
+- Completed: T3 (c81df56); T1 (a849528); T2 (e1ebe27); T9 (bc5503c); T10 (b0fa8f3); T4 (98e8ef2); T5 (3591f6a); T8 (0778af3).
+- Summary: S1-04 T1-T5, T8-T10 done, reviewed and checked; T6 and T7 moved to S1-07 (PC-09)

@@ -181,7 +181,7 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | AC-US18-02 | AC-US | Build | S1-10 T2 | Planned | TC-US18-02: Unit, `GameSessionTest` |
 | AC-US18-03 | AC-US | Build | S1-10 T3 | Planned | TC-US18-03: Unit, `GameSessionTest` |
 | AC-US19-01 | AC-US | Build | S1-01 T1 | Tested | TC-US19-01: Unit, `ContentValidatorTest` |
-| AC-US19-02 | AC-US | Build | S1-04 T9 | Planned | TC-US19-02: Integration, `GameLifecycleIT` |
+| AC-US19-02 | AC-US | Build | S1-04 T9 | Tested | TC-US19-02: Integration, `GameLifecycleIT` |
 | AC-US20-01 | AC-US | Build | H-08 T11 | Planned | TC-US20-01: Manual, MAN-03 |
 | AC-US20-02 | AC-US | Build | S1-16 T8, S2-22 T7, S2-22 T8, S2-26 T8 | Planned | TC-US20-02: End-to-end, `resilience` |
 | AC-US21-01 | AC-US | Build | S1-08 T3, S1-08 T8 | Planned | TC-US21-01: Unit, `RoundTimelineTest` |
@@ -310,8 +310,8 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | AC-US52-03 | AC-US | Build | S2-08 T1 | Tested | TC-US52-03: Integration, `TaskApiIT` |
 | AC-US53-01 | AC-US | Build | S2-08 T3, S2-08 T4, S2-08 T7 | Tested | TC-US53-01: Integration, `TaskApiIT` |
 | AC-US53-02 | AC-US | Build | S2-08 T5, S2-08 T6, S2-24 T3 | Tested | TC-US53-02: Integration, `CharacterApiIT`, `RunPlanApiIT` |
-| AC-US54-01 | AC-US | Build | S1-04 T1 | Planned | TC-US54-01: Integration, `GameLifecycleIT` |
-| AC-US54-02 | AC-US | Build | S1-04 T1 | Planned | TC-US54-02: Integration, `GameLifecycleIT` |
+| AC-US54-01 | AC-US | Build | S1-04 T1 | Tested | TC-US54-01: Integration, `GameLifecycleIT` |
+| AC-US54-02 | AC-US | Build | S1-04 T1 | Tested | TC-US54-02: Integration, `GameLifecycleIT` |
 | AC-US55-01 | AC-US | Build | S2-24 T3 | Planned | TC-US55-01: Integration, `CharacterApiIT` |
 | AC-US55-02 | AC-US | Build | S2-24 T2 | Planned | TC-US55-02: Unit, `ContentValidatorTest` |
 | AC-US55-03 | AC-US | Build | S2-24 T4 | Planned | TC-US55-03: Frontend, `CharacterEditor.test.tsx` |
@@ -327,9 +327,9 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | AC-US58-01 | AC-US | Build | S2-23 T1, S2-23 T4 | Planned | TC-US58-01: Unit, `ReadinessCheckerTest` |
 | AC-US58-02 | AC-US | Build | S2-23 T2, S2-23 T3 | Planned | TC-US58-02: Unit, `ReadinessCheckerTest` |
 | AC-US58-03 | AC-US | Build | S2-23 T2, S2-25 T4 | Planned | TC-US58-03: Unit, `ReadinessCheckerTest` |
-| AC-US59-01 | AC-US | Build | S1-04 T2, S1-04 T4, S1-04 T5 | Planned | TC-US59-01: Integration, `GameLifecycleIT` |
-| AC-US59-02 | AC-US | Build | S1-04 T2, S1-04 T5 | Planned | TC-US59-02: Integration, `GameLifecycleIT` |
-| AC-US59-03 | AC-US | Build | S1-04 T2, S1-04 T4, S1-04 T5, S1-07 T8 | Planned | TC-US59-03: Integration, `GameLifecycleIT` |
+| AC-US59-01 | AC-US | Build | S1-04 T2, S1-04 T4, S1-04 T5 | Tested | TC-US59-01: Integration, `GameLifecycleIT` |
+| AC-US59-02 | AC-US | Build | S1-04 T2, S1-04 T5 | Tested | TC-US59-02: Integration, `GameLifecycleIT` |
+| AC-US59-03 | AC-US | Build | S1-04 T2, S1-04 T4, S1-04 T5, S1-07 T8 | Tested | TC-US59-03: Integration, `GameLifecycleIT` |
 | AC-US60-01 | AC-US | Build | S1-07 T1, S1-07 T5 | Planned | TC-US60-01: Integration, `HostActionsIT` |
 | AC-US60-02 | AC-US | Build | S1-07 T2, S1-07 T6, S1-07 T8, S2-04 T3 | Planned | TC-US60-02: End-to-end, `host-controls` |
 | AC-US60-03 | AC-US | Build | S1-07 T2, S1-07 T8 | Planned | TC-US60-03: Integration, `HostActionsIT` |
@@ -702,7 +702,7 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | EP-06 | EP | Covered by | US-33, US-34, US-35, US-36 | Planned |  |
 | EP-07 | EP | Covered by | US-37, US-38, US-39, US-40, US-41, US-42 | Planned |  |
 | EP-08 | EP | Covered by | US-43, US-44, US-45, US-46, US-47, US-48 | Planned |  |
-| EP-09 | EP | Covered by | US-49, US-50, US-51, US-52, US-53, US-54, US-55, US-56 | Planned |  |
+| EP-09 | EP | Covered by | US-49, US-50, US-51, US-52, US-53, US-54, US-55, US-56 | Implemented |  |
 | EP-10 | EP | Covered by | US-57, US-58, US-59, US-60, US-61, US-62, US-63 | Planned |  |
 | EP-11 | EP | Covered by | US-64, US-65, US-66, US-67 | Planned |  |
 | EP-12 | EP | Covered by | US-68, US-69, US-70, US-71 | Planned |  |
@@ -748,12 +748,12 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | F-40 | F | Covered by | US-47 | Planned |  |
 | F-41 | F | Covered by | US-48 | Planned |  |
 | F-42 | F | Covered by | US-49, US-50 | Tested |  |
-| F-43 | F | Covered by | US-51, US-52, US-53, US-54 | Planned |  |
+| F-43 | F | Covered by | US-51, US-52, US-53, US-54 | Tested |  |
 | F-44 | F | Covered by | US-55 | Implemented |  |
 | F-45 | F | Covered by | US-56 | Tested |  |
 | F-46 | F | Covered by | US-57 | Planned |  |
 | F-47 | F | Covered by | US-58 | Planned |  |
-| F-48 | F | Covered by | US-59 | Planned |  |
+| F-48 | F | Covered by | US-59 | Tested |  |
 | F-49 | F | Covered by | US-60 | Planned |  |
 | F-50 | F | Covered by | US-61 | Planned |  |
 | F-51 | F | Covered by | US-62 | Planned |  |
@@ -835,14 +835,14 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | FR-069 | FR | Covered by | US-51 | Tested |  |
 | FR-070 | FR | Covered by | US-52 | Tested |  |
 | FR-071 | FR | Covered by | US-51 | Tested |  |
-| FR-072 | FR | Covered by | US-54 | Planned |  |
+| FR-072 | FR | Covered by | US-54 | Tested |  |
 | FR-073 | FR | Covered by | US-53 | Tested |  |
 | FR-074 | FR | Covered by | US-55 | Implemented |  |
 | FR-075 | FR | Covered by | US-56 | Tested |  |
 | FR-076 | FR | Covered by | US-57 | Planned |  |
-| FR-077 | FR | Covered by | US-59 | Planned |  |
+| FR-077 | FR | Covered by | US-59 | Tested |  |
 | FR-078 | FR | Covered by | US-58 | Planned |  |
-| FR-079 | FR | Covered by | US-59 | Planned |  |
+| FR-079 | FR | Covered by | US-59 | Tested |  |
 | FR-080 | FR | Covered by | US-60 | Planned |  |
 | FR-081 | FR | Covered by | US-60 | Planned |  |
 | FR-082 | FR | Covered by | US-60 | Planned |  |
@@ -1160,7 +1160,7 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | TC-US18-02 | TC-US | Covered by | AC-US18-02 | Planned |  |
 | TC-US18-03 | TC-US | Covered by | AC-US18-03 | Planned |  |
 | TC-US19-01 | TC-US | Covered by | AC-US19-01 | Tested |  |
-| TC-US19-02 | TC-US | Covered by | AC-US19-02 | Planned |  |
+| TC-US19-02 | TC-US | Covered by | AC-US19-02 | Tested |  |
 | TC-US20-01 | TC-US | Covered by | AC-US20-01 | Planned |  |
 | TC-US20-02 | TC-US | Covered by | AC-US20-02 | Planned |  |
 | TC-US21-01 | TC-US | Covered by | AC-US21-01 | Planned |  |
@@ -1289,8 +1289,8 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | TC-US52-03 | TC-US | Covered by | AC-US52-03 | Tested |  |
 | TC-US53-01 | TC-US | Covered by | AC-US53-01 | Tested |  |
 | TC-US53-02 | TC-US | Covered by | AC-US53-02 | Tested |  |
-| TC-US54-01 | TC-US | Covered by | AC-US54-01 | Planned |  |
-| TC-US54-02 | TC-US | Covered by | AC-US54-02 | Planned |  |
+| TC-US54-01 | TC-US | Covered by | AC-US54-01 | Tested |  |
+| TC-US54-02 | TC-US | Covered by | AC-US54-02 | Tested |  |
 | TC-US55-01 | TC-US | Covered by | AC-US55-01 | Planned |  |
 | TC-US55-02 | TC-US | Covered by | AC-US55-02 | Planned |  |
 | TC-US55-03 | TC-US | Covered by | AC-US55-03 | Planned |  |
@@ -1306,9 +1306,9 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | TC-US58-01 | TC-US | Covered by | AC-US58-01 | Planned |  |
 | TC-US58-02 | TC-US | Covered by | AC-US58-02 | Planned |  |
 | TC-US58-03 | TC-US | Covered by | AC-US58-03 | Planned |  |
-| TC-US59-01 | TC-US | Covered by | AC-US59-01 | Planned |  |
-| TC-US59-02 | TC-US | Covered by | AC-US59-02 | Planned |  |
-| TC-US59-03 | TC-US | Covered by | AC-US59-03 | Planned |  |
+| TC-US59-01 | TC-US | Covered by | AC-US59-01 | Tested |  |
+| TC-US59-02 | TC-US | Covered by | AC-US59-02 | Tested |  |
+| TC-US59-03 | TC-US | Covered by | AC-US59-03 | Tested |  |
 | TC-US60-01 | TC-US | Covered by | AC-US60-01 | Planned |  |
 | TC-US60-02 | TC-US | Covered by | AC-US60-02 | Planned |  |
 | TC-US60-03 | TC-US | Covered by | AC-US60-03 | Planned |  |
@@ -1389,7 +1389,7 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | UC-14 | UC | Covered by | US-62 | Planned |  |
 | UC-15 | UC | Covered by | US-63 | Planned |  |
 | UC-16 | UC | Covered by | US-49, US-50 | Tested |  |
-| UC-17 | UC | Covered by | US-51, US-52, US-53, US-54 | Planned |  |
+| UC-17 | UC | Covered by | US-51, US-52, US-53, US-54 | Tested |  |
 | UC-18 | UC | Covered by | US-55 | Implemented |  |
 | UC-19 | UC | Covered by | US-19, US-57, US-58 | Planned |  |
 | UC-20 | UC | Covered by | US-64 | Planned |  |
@@ -1453,12 +1453,12 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | US-51 | US | Build | S2-07 | Tested |  |
 | US-52 | US | Build | S2-08 | Tested |  |
 | US-53 | US | Build | S2-08 | Tested |  |
-| US-54 | US | Build | S1-04 | Planned |  |
+| US-54 | US | Build | S1-04 | Tested |  |
 | US-55 | US | Build | S2-08 T5 | Implemented |  |
 | US-56 | US | Build | S1-01 | Tested |  |
 | US-57 | US | Build | S2-09 | Planned |  |
 | US-58 | US | Build | S2-23 | Planned |  |
-| US-59 | US | Build | H-07 T11, S1-07 T10 | Planned |  |
+| US-59 | US | Build | H-07 T11, S1-07 T10 | Tested |  |
 | US-60 | US | Build | S1-07 | Planned |  |
 | US-61 | US | Build | S2-23 | Planned |  |
 | US-62 | US | Build | S2-23 | Planned |  |
