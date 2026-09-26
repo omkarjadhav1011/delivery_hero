@@ -1061,11 +1061,11 @@ Defined IDs: 1414. Referenced IDs with no definition: 0.
 | SD-24 | SD | 03:754 | 9. Specification decisions proposed in this SRS | 3 in 01, 03 |
 | SD-25 | SD | 03:755 | 9. Specification decisions proposed in this SRS | 5 in 01, 03 |
 | SD-26 | SD | 03:756 | 9. Specification decisions proposed in this SRS | 4 in 01, 03 |
-| SG-01 | SG | 18:426 | 15. Decisions proposed in this document | 6 in 01, 18 |
-| SG-02 | SG | 18:427 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| SG-03 | SG | 18:428 | 15. Decisions proposed in this document | 4 in 01, 18 |
-| SG-04 | SG | 18:429 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| SG-05 | SG | 18:430 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-01 | SG | 18:428 | 15. Decisions proposed in this document | 6 in 01, 18 |
+| SG-02 | SG | 18:429 | 15. Decisions proposed in this document | 6 in 01, 18 |
+| SG-03 | SG | 18:430 | 15. Decisions proposed in this document | 4 in 01, 18 |
+| SG-04 | SG | 18:431 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-05 | SG | 18:432 | 15. Decisions proposed in this document | 5 in 01, 18 |
 | TC-EN01-01 | TC-EN | 15:110 | Enablers | 3 in 15, 18 |
 | TC-EN01-02 | TC-EN | 15:111 | Enablers | 2 in 15, 18 |
 | TC-EN01-03 | TC-EN | 15:112 | Enablers | 2 in 15, 18 |
