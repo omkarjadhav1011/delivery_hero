@@ -8,7 +8,7 @@ import { copy } from "../../src/copy";
 // - the CSP-violation listener fails a test on any content security policy violation (NFR-19).
 
 /** The admin password for specs that sign in: the local-only password unless E2E_ADMIN_PASSWORD is set (SG-05). */
-export const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? "delivery-hero-local";
+export const adminPassword = process.env.E2E_ADMIN_PASSWORD ?? "DHAdmin";
 
 type Fixtures = {
   outsideRequests: string[];

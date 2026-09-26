@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 class SecurityIT {
 
     /** The public local-only password whose hash is in application-test.yml (SG-02). */
-    private static final String LOCAL_PASSWORD = "delivery-hero-local";
+    private static final String LOCAL_PASSWORD = "DHAdmin";
 
     @Autowired
     private MockMvcTester mvc;

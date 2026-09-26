@@ -29,7 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 class AdminSessionIT {
 
     /** The public local-only password whose hash is in application-test.yml (SG-02). */
-    private static final String LOCAL_PASSWORD = "delivery-hero-local";
+    private static final String LOCAL_PASSWORD = "DHAdmin";
 
     private final HttpClient http = HttpClient.newHttpClient();
 
