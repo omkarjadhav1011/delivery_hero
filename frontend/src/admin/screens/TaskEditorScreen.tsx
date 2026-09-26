@@ -46,6 +46,8 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
   const [form, setForm] = useState<TaskForm>(emptyTaskForm);
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [loading, setLoading] = useState(id !== null);
+  // Set when the task named by ?id= couldn't be loaded: the form stays hidden, so Save can't create a new task
+  const [loadFailed, setLoadFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome>(NO_OUTCOME);
   const baseId = useId();
@@ -69,9 +71,9 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
       (error: unknown) => {
         if (!cancelled) {
           setLoading(false);
-          if (error instanceof ApiError && error.code === "NOT_FOUND") {
-            setOutcome({ ...NO_OUTCOME, message: text.notFound });
-          }
+          setLoadFailed(true);
+          const notFound = error instanceof ApiError && error.code === "NOT_FOUND";
+          setOutcome({ ...NO_OUTCOME, message: notFound ? text.notFound : text.failed });
         }
       },
     );
@@ -97,11 +99,14 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
       setForm(taskFormFromDetail(saved));
       setOutcome({ ...NO_OUTCOME, saved: true });
       if (task === null) {
-        router.replace(`/admin/tasks/edit/?id=${saved.id}`);
+        router.replace(`/admin/tasks/edit/?id=${encodeURIComponent(saved.id)}`);
       }
     } catch (error: unknown) {
-      if (error instanceof ApiError) {
+      // Field issues appear beside their fields; anything else gets the general message
+      if (error instanceof ApiError && error.errors.length > 0) {
         setOutcome({ ...NO_OUTCOME, errors: error.errors });
+      } else {
+        setOutcome({ ...NO_OUTCOME, message: text.failed });
       }
     } finally {
       setBusy(false);
@@ -123,6 +128,8 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
           ...NO_OUTCOME,
           message: text.usedBy(error.errors.map((issue) => issue.message)),
         });
+      } else {
+        setOutcome({ ...NO_OUTCOME, message: text.failed });
       }
     } finally {
       setBusy(false);
@@ -203,7 +210,12 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
 
   return (
     <AdminShell title={title}>
-      {loading ? null : (
+      {loadFailed ? (
+        <p role="status" className="font-semibold">
+          {outcome.message}
+        </p>
+      ) : null}
+      {loading || loadFailed ? null : (
         <div className="flex flex-wrap gap-8">
           <form
             className="flex max-w-3xl flex-1 flex-col gap-4"

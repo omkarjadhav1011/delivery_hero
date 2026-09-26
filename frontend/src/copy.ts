@@ -112,9 +112,10 @@ export const copy = {
       warnings: "Warnings",
       noWarnings: "Warnings: none",
       notFound: "This task doesn't exist any more.",
+      failed: "That didn't work. Check your connection and try again.",
       roles: {
         MANAGER: "Manager",
-        BUSINESS_ANALYST: "Business analyst",
+        BUSINESS_ANALYST: "Business Analyst",
         DEVELOPER: "Developer",
         TESTER: "Tester",
       },

@@ -205,4 +205,21 @@ describe("TaskEditorScreen", () => {
       body: { version: 3, key: "mgr-plan-01" },
     });
   });
+
+  it("a task that can't be loaded shows a message and no form, so Save can't create a new task", async () => {
+    serve(fetchMock, jsonResponse(500, {}));
+    render(<TaskEditorScreen id={DETAIL.id} />);
+
+    expect(await screen.findByText(text.failed)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: text.save })).toBeNull();
+  });
+
+  it("a save that fails without field issues says so", async () => {
+    serve(fetchMock, jsonResponse(500, {}));
+    render(<TaskEditorScreen id={null} />);
+
+    fireEvent.click(screen.getByRole("button", { name: text.save }));
+
+    expect(await screen.findByText(text.failed)).toBeTruthy();
+  });
 });
