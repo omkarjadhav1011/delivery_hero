@@ -5,7 +5,8 @@ import java.util.Optional;
 /**
  * The full state a client receives once its subscription is confirmed (DEC-146, LD-08): GAME_STATE for a player,
  * SCREEN_STATE for the projector and LIVE_STATS for admins, each an envelope with {@code type} and {@code serverTime}
- * (API section 8.3). Joining (US-01) and the game engine (EN-05) fill it.
+ * (API section 8.3). A stopgap until the game session sends it on {@link app.deliveryhero.engine.command.ClientSubscribed}
+ * (LLD section 5.4.10, DI-39); it must not read session state from outside the session thread.
  */
 public interface CurrentState {
 

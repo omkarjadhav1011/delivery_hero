@@ -34,9 +34,14 @@ public class TokenService {
         return URL_SAFE.encodeToString(sha256().digest(token.getBytes(StandardCharsets.UTF_8)));
     }
 
-    /** Compares two secrets in time that doesn't depend on where they differ (NFR-18). */
+    /**
+     * Compares two secrets in time that depends neither on where they differ nor on their lengths: their fixed-length
+     * digests are compared (NFR-18).
+     */
     public static boolean equalsConstantTime(String a, String b) {
-        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
+        return MessageDigest.isEqual(
+                sha256().digest(a.getBytes(StandardCharsets.UTF_8)),
+                sha256().digest(b.getBytes(StandardCharsets.UTF_8)));
     }
 
     private static MessageDigest sha256() {

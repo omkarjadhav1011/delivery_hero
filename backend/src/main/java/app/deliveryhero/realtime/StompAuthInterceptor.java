@@ -44,8 +44,11 @@ public class StompAuthInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor == null || accessor.getCommand() == null) {
+            // A heartbeat: STOMP gives it no command
             return message;
         }
+        // Only the frames a client may send are let through; MESSAGE, RECEIPT and the rest are server frames, and a
+        // client sending one could otherwise reach every subscriber of a topic (API section 8.2)
         switch (accessor.getCommand()) {
             case CONNECT, STOMP -> {
                 ClientPrincipal principal = authenticate(accessor).orElseThrow(() -> {
@@ -66,9 +69,15 @@ public class StompAuthInterceptor implements ChannelInterceptor {
                     throw refused("send");
                 }
             }
-            default -> {
-                // UNSUBSCRIBE, DISCONNECT, ACK and NACK carry no destination to check
+            case UNSUBSCRIBE, ACK, NACK -> {
+                if (!(accessor.getUser() instanceof ClientPrincipal)) {
+                    throw refused("frame");
+                }
             }
+            case DISCONNECT -> {
+                // Always allowed: it only ends the connection
+            }
+            default -> throw refused("frame");
         }
         return message;
     }

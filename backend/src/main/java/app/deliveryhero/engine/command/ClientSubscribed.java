@@ -8,4 +8,11 @@ import org.jspecify.annotations.Nullable;
  * for players.
  */
 public record ClientSubscribed(
-        String connectionId, ClientRole role, @Nullable UUID playerId) implements Command {}
+        String connectionId, ClientRole role, @Nullable UUID playerId) implements Command {
+
+    /** Leaves out the connection ID, which never goes into logs (DEC-104). */
+    @Override
+    public String toString() {
+        return "ClientSubscribed[role=" + role + ", playerId=" + playerId + "]";
+    }
+}

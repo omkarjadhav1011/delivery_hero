@@ -13,6 +13,7 @@ import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,13 +75,14 @@ class StompConnectionIT {
     void playerReceivesStateAfterSubscribing() throws Exception {
         String token = registerPlayer(PLAYER);
 
+        Reconnect reconnect;
         try (RawStompClient player = RawStompClient.open(port)) {
             player.connect(Map.of("player-token", token));
             assertConnected(player);
             assertThat(player.nextFrame(QUIET))
                     .as("nothing before the subscription")
                     .isNull();
-            assertThat(nextCommand(Reconnect.class).tokenHash()).isEqualTo(tokens.hash(token));
+            reconnect = nextCommand(Reconnect.class, r -> r.tokenHash().equals(tokens.hash(token)));
 
             player.subscribe("s1", "/user/queue/game");
 
@@ -90,7 +93,8 @@ class StompConnectionIT {
                 assertThat(subscribed.playerId()).isEqualTo(PLAYER);
             });
         }
-        assertThat(nextCommand(Disconnect.class)).isNotNull();
+        String connectionId = reconnect.connectionId();
+        nextCommand(Disconnect.class, d -> d.connectionId().equals(connectionId));
     }
 
     @Test
@@ -136,8 +140,9 @@ class StompConnectionIT {
     }
 
     @Test
-    @DisplayName("AC-EN04-03 heartbeats every 10 seconds keep an idle connection open, and a silent client is closed"
-            + " within 20 seconds")
+    @DisplayName(
+            "AC-EN04-03 heartbeats every 10 seconds in both directions keep an idle connection open for 30 seconds,"
+                    + " and a silent client is closed and reported offline within 20 seconds")
     void heartbeatsKeepIdleConnectionsOpen() throws Exception {
         String idleToken = registerPlayer(PLAYER);
         String silentToken = registerPlayer(UUID.randomUUID());
@@ -147,7 +152,11 @@ class StompConnectionIT {
             silent.connect(Map.of("player-token", silentToken));
             assertConnected(idle);
             assertConnected(silent);
-            long silentSince = System.nanoTime();
+            long connectedAt = System.nanoTime();
+            long silentSince = connectedAt;
+            String silentConnection = nextCommand(
+                            Reconnect.class, r -> r.tokenHash().equals(tokens.hash(silentToken)))
+                    .connectionId();
             ScheduledFuture<?> beating = heartbeats.scheduleAtFixedRate(
                     () -> {
                         try {
@@ -173,8 +182,15 @@ class StompConnectionIT {
             assertThat(silentClosed).isNotEqualTo(CloseStatus.NORMAL);
             assertThat(silence).isLessThanOrEqualTo(Duration.ofSeconds(20));
             assertThat(idle.isOpen()).isTrue();
-            // The broker's first heartbeat comes 10 to 20 seconds after CONNECTED, then one every 10 seconds
-            assertThat(idle.heartbeatsReceived()).isGreaterThanOrEqualTo(1);
+            nextCommand(Disconnect.class, d -> d.connectionId().equals(silentConnection));
+            // The server's heartbeats: the first within about 10 s of CONNECTED, then about every 10 s
+            List<Long> beats = idle.heartbeatTimes();
+            assertThat(beats).hasSizeGreaterThanOrEqualTo(2);
+            long previous = connectedAt;
+            for (long beat : beats) {
+                assertThat(Duration.ofNanos(beat - previous)).isLessThanOrEqualTo(Duration.ofSeconds(12));
+                previous = beat;
+            }
             assertThat(beating.isDone()).as("heartbeats still being sent").isFalse();
         }
     }
@@ -192,12 +208,14 @@ class StompConnectionIT {
     }
 
     @Test
-    @DisplayName("AC-EN04-02 a wrong projector key, or no credentials at all, is refused with UNAUTHORIZED")
+    @DisplayName("AC-EN04-02 a wrong or revoked projector key, or no credentials at all, is refused with UNAUTHORIZED")
     void wrongKeyAndMissingCredentialsAreRefused(CapturedOutput output) throws Exception {
         credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
         String wrongKey = PROJECTOR_KEY.substring(0, PROJECTOR_KEY.length() - 1) + "1";
 
         assertRefused(Map.of("projector-key", wrongKey));
+        credentials.revokeProjector(new ProjectorPrincipal(GAME));
+        assertRefused(Map.of("projector-key", PROJECTOR_KEY));
         assertRefused(Map.of());
         assertThat(output).doesNotContain(PROJECTOR_KEY).doesNotContain(wrongKey);
     }
@@ -238,12 +256,89 @@ class StompConnectionIT {
         assertThatThrownBy(() -> RawStompClient.open(port, foreign)).rootCause().hasMessageContaining("403");
     }
 
+    @Test
+    @DisplayName("AC-EN04-02 a client sending a server MESSAGE frame to the screen topic is refused, with or without"
+            + " CONNECT, and the projector receives nothing")
+    void serverFramesFromClientsAreRefused() throws Exception {
+        String token = registerPlayer(PLAYER);
+        credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
+        String forged = "{\"type\":\"SCREEN_STATE\",\"serverTime\":1}";
+
+        try (RawStompClient projector = RawStompClient.open(port)) {
+            projector.connect(Map.of("projector-key", PROJECTOR_KEY));
+            assertConnected(projector);
+            projector.subscribe("s1", DestinationPolicy.screenTopic(GAME));
+            assertState(projector, "SCREEN_STATE");
+
+            try (RawStompClient player = RawStompClient.open(port)) {
+                player.connect(Map.of("player-token", token));
+                assertConnected(player);
+                player.send("MESSAGE", Map.of("destination", DestinationPolicy.screenTopic(GAME)), forged);
+                assertForbidden(player);
+            }
+            try (RawStompClient stranger = RawStompClient.open(port)) {
+                stranger.send("MESSAGE", Map.of("destination", DestinationPolicy.screenTopic(GAME)), forged);
+                // Spring refuses any frame before CONNECT itself, before the interceptor sees it
+                Frame refusal = stranger.nextFrame(FRAME_TIMEOUT);
+                assertThat(refusal).isNotNull();
+                assertThat(refusal.command()).isEqualTo("ERROR");
+                stranger.closed().get(5, TimeUnit.SECONDS);
+            }
+
+            assertThat(projector.nextFrame(QUIET))
+                    .as("no forged message reaches the projector")
+                    .isNull();
+        }
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 subscribing to time sync is allowed but sends no game state")
+    void timeSyncSubscriptionSendsNoState() throws Exception {
+        String token = registerPlayer(PLAYER);
+
+        try (RawStompClient player = RawStompClient.open(port)) {
+            player.connect(Map.of("player-token", token));
+            assertConnected(player);
+            player.subscribe("t1", "/user/queue/time-sync");
+
+            assertThat(player.nextFrame(QUIET)).isNull();
+            assertThat(GatewayTestConfiguration.SUBMITTED).noneMatch(ClientSubscribed.class::isInstance);
+        }
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 a player's second connection receives its own GAME_STATE, and the first receives none")
+    void stateGoesOnlyToTheSubscribingConnection() throws Exception {
+        String token = registerPlayer(PLAYER);
+
+        try (RawStompClient first = RawStompClient.open(port);
+                RawStompClient second = RawStompClient.open(port)) {
+            first.connect(Map.of("player-token", token));
+            assertConnected(first);
+            first.subscribe("s1", "/user/queue/game");
+            assertState(first, "GAME_STATE");
+
+            second.connect(Map.of("player-token", token));
+            assertConnected(second);
+            second.subscribe("s1", "/user/queue/game");
+
+            assertState(second, "GAME_STATE");
+            assertThat(first.nextFrame(QUIET))
+                    .as("the first connection gets no second copy")
+                    .isNull();
+        }
+    }
+
     /** The next submitted command of this type, skipping others such as late disconnects from earlier tests. */
     private static <T extends Command> T nextCommand(Class<T> type) throws InterruptedException {
+        return nextCommand(type, command -> true);
+    }
+
+    private static <T extends Command> T nextCommand(Class<T> type, Predicate<T> matching) throws InterruptedException {
         long deadline = System.nanoTime() + FRAME_TIMEOUT.toNanos();
         while (System.nanoTime() < deadline) {
             Command command = GatewayTestConfiguration.SUBMITTED.poll(100, TimeUnit.MILLISECONDS);
-            if (type.isInstance(command)) {
+            if (type.isInstance(command) && matching.test(type.cast(command))) {
                 return type.cast(command);
             }
         }
@@ -291,6 +386,7 @@ class StompConnectionIT {
         Frame frame = client.nextFrame(FRAME_TIMEOUT);
         assertThat(frame).isNotNull();
         assertThat(frame.command()).isEqualTo("CONNECTED");
-        assertThat(frame.headers()).containsEntry("heart-beat", "10000,10000");
+        // The server can send every 1 s and wants one every 10 s; with the client's 10,000,10,000 both rates are 10 s
+        assertThat(frame.headers()).containsEntry("heart-beat", "1000,10000");
     }
 }

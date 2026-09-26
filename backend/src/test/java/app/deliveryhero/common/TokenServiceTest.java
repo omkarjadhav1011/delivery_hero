@@ -2,6 +2,7 @@ package app.deliveryhero.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,7 +12,18 @@ import org.junit.jupiter.api.Test;
 /** Player tokens are random and only their hashes are kept (NFR-18, DEC-109). */
 class TokenServiceTest {
 
-    private final TokenService tokens = new TokenService(new SecureRandom());
+    private final TokenService tokens = new TokenService(seeded());
+
+    /** A seeded generator, so a run can be repeated (document 13, section 6). */
+    private static SecureRandom seeded() {
+        try {
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            random.setSeed(42L);
+            return random;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Test
     @DisplayName("A new token is 22 URL-safe characters, and tokens don't repeat")

@@ -16,7 +16,8 @@ public class GatewayDefaults {
 
     @Bean
     CurrentState currentState() {
-        // TODO(US-02): GAME_STATE for players; TODO(US-04): SCREEN_STATE for the projector
+        // TODO(EN-05): delete this port; the game session sends the full state when it handles ClientSubscribed, on its
+        // own thread (LLD 5.4.10, DI-39). Until then US-02 and US-04 may fill it for GAME_STATE and SCREEN_STATE
         return (principal, destination) -> Optional.empty();
     }
 }

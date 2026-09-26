@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,14 +33,17 @@ public class HeartbeatWatchdog implements WebSocketHandlerDecoratorFactory, Smar
     /** A silent connection is closed within this long of the last frame it sent (DEC-122). */
     static final Duration SILENCE_LIMIT = Duration.ofSeconds(20);
 
-    static final Duration CHECK_INTERVAL = Duration.ofSeconds(1);
+    static final Duration CHECK_INTERVAL = Duration.ofMillis(500);
+
+    /** Closing after this much silence, checked twice a second, keeps a margin inside the limit. */
+    static final Duration CUTOFF = SILENCE_LIMIT.minus(CHECK_INTERVAL.multipliedBy(2));
 
     private static final Logger log = LoggerFactory.getLogger(HeartbeatWatchdog.class);
 
     private final Map<String, Watched> sessions = new ConcurrentHashMap<>();
     private final Clock clock;
     private final TaskScheduler scheduler;
-    private volatile boolean running;
+    private volatile @Nullable ScheduledFuture<?> checks;
 
     public HeartbeatWatchdog(Clock clock, @Qualifier("heartbeatScheduler") TaskScheduler heartbeatScheduler) {
         this.clock = clock;
@@ -81,16 +86,18 @@ public class HeartbeatWatchdog implements WebSocketHandlerDecoratorFactory, Smar
         };
     }
 
-    /** Closes every connection silent for longer than the limit minus one check interval. */
+    /**
+     * Closes every connection silent for longer than the cutoff. A connection stays watched until it has closed, so a
+     * close that fails, for example during a write, is tried again on the next check.
+     */
     void closeSilentConnections() {
-        Instant cutoff = clock.instant().minus(SILENCE_LIMIT.minus(CHECK_INTERVAL));
+        Instant cutoff = clock.instant().minus(CUTOFF);
         for (Watched watched : sessions.values()) {
             if (watched.lastReceived.isBefore(cutoff)) {
-                sessions.remove(watched.session.getId());
                 try {
                     watched.session.close(CloseStatus.SESSION_NOT_RELIABLE);
-                } catch (IOException e) {
-                    log.debug("Closing a silent connection failed", e);
+                } catch (IOException | RuntimeException e) {
+                    log.debug("Closing a silent connection failed; trying again at the next check");
                 }
             }
         }
@@ -101,18 +108,23 @@ public class HeartbeatWatchdog implements WebSocketHandlerDecoratorFactory, Smar
     }
 
     @Override
-    public void start() {
-        scheduler.scheduleAtFixedRate(this::closeSilentConnections, CHECK_INTERVAL);
-        running = true;
+    public synchronized void start() {
+        if (checks == null) {
+            checks = scheduler.scheduleAtFixedRate(this::closeSilentConnections, CHECK_INTERVAL);
+        }
     }
 
     @Override
-    public void stop() {
-        running = false;
+    public synchronized void stop() {
+        ScheduledFuture<?> current = checks;
+        if (current != null) {
+            current.cancel(false);
+            checks = null;
+        }
     }
 
     @Override
     public boolean isRunning() {
-        return running;
+        return checks != null;
     }
 }

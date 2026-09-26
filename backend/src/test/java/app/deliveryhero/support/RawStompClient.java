@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,6 +31,7 @@ public final class RawStompClient extends TextWebSocketHandler implements AutoCl
 
     private final BlockingQueue<Frame> frames = new LinkedBlockingQueue<>();
     private final AtomicInteger heartbeatsReceived = new AtomicInteger();
+    private final List<Long> heartbeatTimes = new CopyOnWriteArrayList<>();
     private final CompletableFuture<CloseStatus> closed = new CompletableFuture<>();
     private final WebSocketSession session;
 
@@ -91,6 +93,11 @@ public final class RawStompClient extends TextWebSocketHandler implements AutoCl
         return heartbeatsReceived.get();
     }
 
+    /** When each server heartbeat arrived, as {@link System#nanoTime()} values. */
+    public List<Long> heartbeatTimes() {
+        return List.copyOf(heartbeatTimes);
+    }
+
     public CompletableFuture<CloseStatus> closed() {
         return closed;
     }
@@ -104,6 +111,7 @@ public final class RawStompClient extends TextWebSocketHandler implements AutoCl
         String payload = message.getPayload();
         if (payload.isBlank()) {
             heartbeatsReceived.incrementAndGet();
+            heartbeatTimes.add(System.nanoTime());
             return;
         }
         frames.add(parse(payload));

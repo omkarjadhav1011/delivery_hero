@@ -13,6 +13,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -106,7 +107,12 @@ public class StompEventListener implements ExecutorChannelInterceptor {
                 });
         currentState.forSubscriber(principal, destination).ifPresent(state -> {
             if (principal instanceof PlayerPrincipal) {
-                messaging.convertAndSendToUser(principal.getName(), PLAYER_QUEUE_FOR_USER, state);
+                // Only the connection that subscribed, not an older one of the same player still being closed
+                SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+                headers.setSessionId(connectionId);
+                headers.setLeaveMutable(true);
+                messaging.convertAndSendToUser(
+                        principal.getName(), PLAYER_QUEUE_FOR_USER, state, headers.getMessageHeaders());
             } else {
                 messaging.convertAndSend(destination, state);
             }
