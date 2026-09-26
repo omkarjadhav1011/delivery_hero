@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ds05 } from "../../e2e/fixtures/ds05";
 import { SpeechBubble } from "./SpeechBubble";
 
 describe("SpeechBubble", () => {
@@ -35,5 +36,23 @@ describe("SpeechBubble", () => {
     const image = container.querySelector("img");
     expect(image?.getAttribute("src")).toBe("/characters/dev.png");
     expect(image?.getAttribute("alt")).toBe("");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("AC-EN06-04 markup is inert: DS-05 prompts and lines show as literal text and no script runs", () => {
+    const alert = vi.spyOn(window, "alert").mockImplementation(() => {});
+    const { container, rerender } = render(
+      <SpeechBubble name="Maya" characterRole="Manager" prompt={ds05.characterLine} />,
+    );
+    expect(screen.getByText(ds05.characterLine)).toBeTruthy();
+    expect(container.querySelector("img")).toBeNull();
+
+    rerender(<SpeechBubble name="Maya" characterRole="Manager" prompt={ds05.taskPrompt} />);
+    expect(screen.getByText(ds05.taskPrompt)).toBeTruthy();
+    expect(container.querySelector("script")).toBeNull();
+    expect(alert).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ds05 } from "../../e2e/fixtures/ds05";
 import { CodeBlock } from "./CodeBlock";
 
 const wideLine =
@@ -29,5 +30,18 @@ describe("CodeBlock", () => {
     setWidths(region, 900, 300);
     rerender(<CodeBlock label="Code snippet" code={wideLine} />);
     expect(container.querySelector("[data-edge-fade]")).not.toBeNull();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("AC-EN06-04 markup is inert: DS-05 code shows as literal text and no script runs", () => {
+    const alert = vi.spyOn(window, "alert").mockImplementation(() => {});
+    const { container } = render(<CodeBlock label="Code snippet" code={ds05.taskPrompt} />);
+
+    expect(container.querySelector("code")?.textContent).toBe(ds05.taskPrompt);
+    expect(container.querySelector("script")).toBeNull();
+    expect(alert).not.toHaveBeenCalled();
   });
 });
