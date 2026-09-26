@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-05 |
 | Branch | feat/us-01-join |
 | Start commit | 0d8ef70 |
-| Last commit | 0d8ef70 |
-| Step | test-first |
-| Task | T1 |
+| Last commit | 8a558b9 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T08:09 |
-| Updated | 2026-09-26T08:13 |
-| Next action | NamesTest AC-US02-01, -02, -05 and Test Plan 9.2 rows |
+| Updated | 2026-09-26T08:14 |
+| Next action | T2 NameRegistry.unique, test first |
 
 ## Completed tasks
 
-- none
+- T1 (8a558b9)
 
 ## Pending approvals
 
