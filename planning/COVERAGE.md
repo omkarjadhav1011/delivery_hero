@@ -669,16 +669,16 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | DG-09 | DG | No implementation work |  |  | Deployment decision; realized by the deployment files and document 16 |
 | DS-01 | DS | Build | S1-01 T3, S2-08 T1, S2-11 T1, S2-25 T4 | Tested |  |
 | DS-02 | DS | Build | S0-05 T4, S0-05 T9, S2-12 T2, S2-13 T2 | Tested |  |
-| DS-03 | DS | Build | S0-05 T9, S1-04 T6, S1-06 T8, S1-07 T8, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | Tested |  |
+| DS-03 | DS | Build | S0-05 T9, S1-06 T8, S1-07 T8, S1-07 T9, S1-08 T9, S1-14 T4, S2-09 T5, S2-09 T6, S2-10 T8, S2-11 T3, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7 | Tested |  |
 | DS-04 | DS | Build | S0-05 T1, S0-05 T10, S0-05 T2 | Tested |  |
 | DS-05 | DS | Build | S1-02 T7, S1-02 T9 | In progress |  |
 | DS-06 | DS | Build | S1-08 T5, S1-13 T6, S1-16 T8 | Planned |  |
 | DS-07 | DS | Build | H-08 T19, S2-01 T8, S2-10 T8, S2-10 T9 | Planned |  |
 | DS-08 | DS | Build | S1-01 T2 | Tested |  |
 | DS-09 | DS | Build | S2-27 T11, S2-27 T3 | Planned |  |
-| E2E-01 | E2E | Verify | FZ-01 T2, H-02 T5, H-07 T11, S0-05 T10, S0-05 T9, S1-04 T6, S1-04 T7, S1-06 T8, S1-15 T6, S1-16 T6, S2-09 T6 | Scheduled |  |
+| E2E-01 | E2E | Verify | FZ-01 T2, H-02 T5, H-07 T11, S0-05 T10, S0-05 T9, S1-06 T8, S1-07 T10, S1-07 T9, S1-15 T6, S1-16 T6, S2-09 T6 | Scheduled |  |
 | E2E-02 | E2E | Verify | FZ-01 T2, H-04 T6, S1-08 T9, S1-09 T8, S1-10 T6, S1-12 T7, S1-14 T5, S1-17 T4, S1-18 T2, S2-01 T9, S2-02 T4, S2-03 T9, S2-04 T8, S2-09 T6, S2-14 T6, S2-15 T7, S2-16 T6, S2-17 T10, S2-18 T7, S2-19 T5 | Scheduled |  |
-| E2E-03 | E2E | Verify | S1-04 T6, S1-07 T8, S2-09 T6, S2-23 T9 | Scheduled |  |
+| E2E-03 | E2E | Verify | S1-07 T8, S1-07 T9, S2-09 T6, S2-23 T9 | Scheduled |  |
 | E2E-04 | E2E | Verify | S1-03 T6, S2-07 T6, S2-07 T7, S2-08 T2, S2-08 T4, S2-09 T4, S2-09 T6 | Scheduled |  |
 | E2E-05 | E2E | Verify | S2-01 T8, S2-10 T8, S2-10 T9, S2-20 T5, T-01 T4 | Scheduled |  |
 | E2E-06 | E2E | Verify | FZ-01 T2, S1-16 T7, S1-16 T8, S2-02 T3, S2-22 T8, S2-26 T8 | Scheduled |  |
@@ -1458,7 +1458,7 @@ IDs: 1417. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | US-56 | US | Build | S1-01 | Tested |  |
 | US-57 | US | Build | S2-09 | Planned |  |
 | US-58 | US | Build | S2-23 | Planned |  |
-| US-59 | US | Build | H-07 T11, S1-04 T7 | Planned |  |
+| US-59 | US | Build | H-07 T11, S1-07 T10 | Planned |  |
 | US-60 | US | Build | S1-07 | Planned |  |
 | US-61 | US | Build | S2-23 | Planned |  |
 | US-62 | US | Build | S2-23 | Planned |  |
