@@ -1,8 +1,6 @@
-import { copy } from "@/copy";
-import { AdminShell } from "@/admin/components/AdminShell";
+import { NewGameScreen } from "@/admin/screens/NewGameScreen";
 
-// A-08 New game and A-09 Live control (document 12, section 9)
-// TODO(US-59): build the screen from document 12
+// A-08 New game (document 12, section 9); A-09 Live control joins it with US-60
 export default function GamesPage() {
-  return <AdminShell title={copy.admin.newGame} />;
+  return <NewGameScreen />;
 }

@@ -137,7 +137,7 @@ class JoinIT {
     }
 
     private void openLobby() {
-        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false);
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false, TestData.EMPTY_SNAPSHOT);
     }
 
     private MvcTestResult join(String code, String name) {

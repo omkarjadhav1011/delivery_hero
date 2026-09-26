@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.3 (approved)
+> Document 18 of 18 · Version 1.4 (approved)
 
 ## Document control
 
@@ -8,7 +8,7 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 18 — Technical Documentation: the README and this Setup Guide |
-| Version | 1.3 |
+| Version | 1.4 |
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 26 September 2026 |
@@ -25,6 +25,7 @@
 | 1.1 | 2026-09-26 | [Owner name] | Section 6: the dev profile's STOMP test token and projector key (EN-04) |
 | 1.2 | 2026-09-26 | [Owner name] | Sections 6, 6.5, 7.2 and 12 and Appendix: the local stack publishes the backend on `127.0.0.1:8081` (`DH_LOCAL_BACKEND_PORT`) for the API documentation |
 | 1.3 | 2026-09-26 | [Owner name] | Sections 6.2 and 6.5 and Appendix B: the local-only admin password is now `DHAdmin`, with its cost-12 hash |
+| 1.4 | 2026-09-26 | [Owner name] | Section 6: the dev profile's STOMP test token and projector key removed; a created game's projector key and a joined player's token are used instead (S1-04, PC-03) |
 
 ---
 
@@ -172,8 +173,6 @@ The local credentials are public on purpose (SG-02):
 | Admin password | `DHAdmin` |
 | Database superuser | `postgres` / `local-superuser` |
 | Application database role | `dh_app` / `local-app` |
-| STOMP test player token (dev profile only, until US-01) | `local-player-token` |
-| STOMP test projector key (dev profile only, until US-01) | `local-projector-key` |
 
 Every port listens on `127.0.0.1` only, so nothing is reachable from your network. Never reuse these values elsewhere. Production can't start without its own `.env` file (document 16, section 8).
 

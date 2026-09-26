@@ -4,6 +4,7 @@ import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
+import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.Command;
 import jakarta.annotation.PreDestroy;
 import java.security.SecureRandom;
@@ -44,10 +45,20 @@ public class GameEngine {
         this.random = random;
     }
 
-    /** Starts a session for a game. TODO(US-59): build it from the game row and its snapshot, in CREATED. */
-    public GameSession create(UUID gameId, String code, GameState state, boolean test) {
+    /** Starts a session for a game, which plays from its own snapshot (LLD section 5.8). */
+    public GameSession create(UUID gameId, String code, GameState state, boolean test, GameSnapshot snapshot) {
         GameSession session = new GameSession(
-                gameId, code, state, test, properties.maxPlayers(), tokens, playerTokens, broadcaster, clock, random);
+                gameId,
+                code,
+                state,
+                test,
+                snapshot,
+                properties.maxPlayers(),
+                tokens,
+                playerTokens,
+                broadcaster,
+                clock,
+                random);
         sessions.put(gameId, session);
         return session;
     }

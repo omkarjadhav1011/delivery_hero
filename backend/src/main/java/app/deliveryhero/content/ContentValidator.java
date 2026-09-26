@@ -6,6 +6,7 @@ import app.deliveryhero.common.TaskType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -88,6 +89,50 @@ public class ContentValidator {
             }
         }
         return issues.report();
+    }
+
+    /**
+     * The minimal rules of FR-077 for creating a game: the round is 3 to 10 minutes, no phase is empty, and every
+     * listed task still passes SRS 7.3, so each has a valid correct answer. A task's issues name its place in the plan
+     * and its key. The rest of BR-13 is the readiness check (US-58).
+     */
+    public ValidationReport validateForGame(RunPlanContents plan) {
+        Issues issues = new Issues();
+        if (plan.roundLengthMinutes() < 3 || plan.roundLengthMinutes() > 10) {
+            issues.error("roundLengthMinutes", "OUT_OF_RANGE", "The round length must be 3 to 10 whole minutes.");
+        }
+        for (Phase phase : Phase.values()) {
+            if (plan.phases().getOrDefault(phase, List.of()).isEmpty()) {
+                issues.error("phases." + phase, "EMPTY_PHASE", "The " + label(phase) + " phase has no tasks.");
+            }
+        }
+        for (int i = 0; i < plan.practice().size(); i++) {
+            listedTask("practice[" + i + "]", plan.practice().get(i), issues);
+        }
+        TaskDefinition incident = plan.incident();
+        if (incident != null) {
+            listedTask("incident", incident, issues);
+        }
+        for (Phase phase : Phase.values()) {
+            List<TaskDefinition> tasks = plan.phases().getOrDefault(phase, List.of());
+            for (int i = 0; i < tasks.size(); i++) {
+                listedTask("phases." + phase + "[" + i + "]", tasks.get(i), issues);
+            }
+        }
+        return new ValidationReport(issues.errors, List.of());
+    }
+
+    private static void listedTask(String place, TaskDefinition task, Issues issues) {
+        Issues own = new Issues();
+        checkTask(task, own);
+        for (Issue issue : own.errors) {
+            issues.error(place + "." + issue.path(), issue.code(), task.key() + ": " + issue.message());
+        }
+    }
+
+    private static String label(Phase phase) {
+        String name = phase.name();
+        return name.charAt(0) + name.substring(1).toLowerCase(Locale.ROOT);
     }
 
     private static void checkTask(TaskDefinition task, Issues issues) {

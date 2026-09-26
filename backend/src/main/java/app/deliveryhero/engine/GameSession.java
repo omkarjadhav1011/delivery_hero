@@ -7,6 +7,7 @@ import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.Names;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
@@ -47,6 +48,7 @@ public final class GameSession {
     private final UUID id;
     private final String code;
     private final boolean test;
+    private final GameSnapshot snapshot;
     private final int maxPlayers;
     private final TokenService tokens;
     private final PlayerTokens playerTokens;
@@ -66,6 +68,7 @@ public final class GameSession {
             String code,
             GameState state,
             boolean test,
+            GameSnapshot snapshot,
             int maxPlayers,
             TokenService tokens,
             PlayerTokens playerTokens,
@@ -76,6 +79,7 @@ public final class GameSession {
         this.code = code;
         this.state = state;
         this.test = test;
+        this.snapshot = snapshot;
         this.maxPlayers = maxPlayers;
         this.tokens = tokens;
         this.playerTokens = playerTokens;
@@ -91,6 +95,11 @@ public final class GameSession {
 
     public String code() {
         return code;
+    }
+
+    /** The game's own copy of its plan, tasks and characters (FR-072); correct answers never leave the backend. */
+    public GameSnapshot snapshot() {
+        return snapshot;
     }
 
     /**

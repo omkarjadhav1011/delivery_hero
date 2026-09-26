@@ -9,6 +9,9 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 5
+      data-source-properties:
+        # A refused insert's error never quotes the row, which can hold the projector key and answers (DEC-104)
+        logServerErrorDetail: false
   jpa:
     open-in-view: false
     hibernate:

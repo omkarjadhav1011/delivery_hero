@@ -55,6 +55,7 @@ class GameSessionTest {
                 TestData.GAME_CODE,
                 GameState.LOBBY,
                 false,
+                TestData.EMPTY_SNAPSHOT,
                 100,
                 tokens,
                 playerTokens,

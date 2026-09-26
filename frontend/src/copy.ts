@@ -75,6 +75,26 @@ export const copy = {
     // A-04 and A-08 headings
     editTask: "Edit task",
     newGame: "New game",
+    newGameScreen: {
+      // A-08. Only the Another-game line is in LLD 5.12; the labels follow the wireframe and the rest the deck's
+      // style, listed for the owner's review before the content freeze (DI-21)
+      runPlan: "Run plan",
+      ready: "Ready",
+      errors: (count: number) => (count === 1 ? "1 error" : `${count} errors`),
+      create: "Create game",
+      creating: "Creating…",
+      noPlans: "No run plans yet.",
+      planErrors: "This plan can't start a game:",
+      planGone: "This run plan doesn't exist any more.",
+      anotherGameOpen: "Another game is still open. Close or cancel it first.",
+      failed: "That didn't work. Check your connection and try again.",
+      game: (code: string, plan: string) => `Game ${code} · ${plan}`,
+      code: "Game code",
+      joinLink: "Join link",
+      projector: "Projector",
+      openProjector: "Open projector",
+      qrLabel: (code: string) => `QR code to join game ${code}`,
+    },
     taskLibrary: {
       // A-03. The column and filter labels follow the wireframe; "All", the search label, the plan counts and the
       // empty and failed lines are worded in the deck's style, for the owner's review (DI-21, DI-63)

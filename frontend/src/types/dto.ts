@@ -148,3 +148,37 @@ export type PublicTaskView = {
   tokens: string[] | null;
   monospace: boolean | null;
 };
+
+/** A row of `GET /api/admin/run-plans` (document 11, section 7.6). */
+export type RunPlanSummary = {
+  id: string;
+  key: string;
+  name: string;
+  roundLengthMinutes: number;
+  scoredTaskCount: number;
+  /** Errors that refuse a game from this plan (FR-077). */
+  errorCount: number;
+  warningCount: number;
+  version: number;
+};
+
+/** The body of `POST /api/admin/games` (document 11, section 7.7). */
+export type CreateGameRequest = {
+  runPlanId: string;
+};
+
+/** The game view the game endpoints return (document 11, section 7.7). */
+export type GameView = {
+  id: string;
+  code: string;
+  state: GameState;
+  test: boolean;
+  runPlanName: string;
+  roundLengthMinutes: number;
+  joinUrl: string;
+  /** Carries the projector key: show it only in the admin panel (FR-052). */
+  projectorUrl: string;
+  createdAt: string;
+  liveDetailsAvailable: boolean;
+  allowedActions: string[];
+};

@@ -75,6 +75,8 @@ None.
 
 ## Risks and open questions
 
+- From S1-04's backend review: a game in CREATED keeps its row across a restart, but its session and projector key lived only in memory, so after a restart `GET /api/admin/games/current` shows it with a key that no longer connects and every new game gets 409 until it's cancelled. `StartupCleanup` (US-67, AC-US67-03) must restore CREATED games' sessions and keys from the row, which needs a reader for the stored snapshot that picks each task's content record from its `type` (`TaskContent` has no type information in the JSON).
+- From S1-04's security review: the state recorder clears `projector_key` only in the table, while STOMP CONNECT checks `CredentialRegistry` in memory, so closing or cancelling must also call `credentials.revokeProjector(...)` (or `clear()`) and `engine.discard`, with a test that CONNECT with the old key fails afterwards (NFR-18).
 - DI-14: cancel is allowed in every state before Results (DEC-87). Cancel itself is US-62 in S2-23; this subplan builds only close, which requires Results.
 - Q-06 / DI-15: auto-close of a game left in Ended belongs to US-66 (S2-24); not built here.
 - Ordering: T8 waits on S2-03's reveal (the close step follows Results). The top-10 rows come from `persistResults` in S2-03; tests insert them directly.
@@ -94,3 +96,4 @@ Document 13, section 10, plus: every criterion passes; after close only the game
 ## Progress log
 
 - 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.
+- 2026-09-26: risk added from S1-04's security review: revoke the projector key in memory on close and cancel.

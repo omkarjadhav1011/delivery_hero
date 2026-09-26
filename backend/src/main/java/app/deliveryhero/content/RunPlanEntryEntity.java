@@ -51,6 +51,18 @@ public class RunPlanEntryEntity implements Persistable<RunPlanEntryEntity.Id> {
         this.isNew = true;
     }
 
+    public UUID taskId() {
+        return id.taskId();
+    }
+
+    public RunPlanList listName() {
+        return listName;
+    }
+
+    public int sortOrder() {
+        return sortOrder;
+    }
+
     @Override
     public Id getId() {
         return id;
