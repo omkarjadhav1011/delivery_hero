@@ -4,7 +4,7 @@ import java.text.Normalizer;
 import java.util.regex.Pattern;
 
 /** Player names: normalization and the character rules of BR-16 (FR-003, DEC-120; LLD section 5.4.10). */
-public final class Names {
+public   final class Names{
 
     /** The longest name, in characters (code points), after normalization (BR-16). */
     public static final int MAX_LENGTH = 20;
