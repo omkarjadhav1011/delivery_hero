@@ -1,5 +1,6 @@
 package app.deliveryhero.api.admin;
 
+import app.deliveryhero.content.PublicTaskView;
 import app.deliveryhero.content.TaskDetail;
 import app.deliveryhero.content.TaskInput;
 import app.deliveryhero.content.TaskService;
@@ -47,5 +48,10 @@ class TaskController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id, @RequestParam int version) {
         tasks.delete(id, version);
+    }
+
+    @PostMapping("/public-view")
+    PublicTaskView publicView(@RequestBody TaskInput input) {
+        return tasks.publicView(input);
     }
 }

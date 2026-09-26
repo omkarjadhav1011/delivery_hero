@@ -220,6 +220,46 @@ class TaskApiIT {
     }
 
     @Test
+    @DisplayName("AC-US51-03 preview: the public view is what phones get, defaults and tokens resolved, no answers")
+    void publicViewIsWhatPhonesGet() {
+        Map<String, Object> words = task(
+                "it-words-02",
+                "PROBLEM_WORDS",
+                Map.of("markedText", "Warn when the balance is {{low}} for {{several}} days", "monospace", true));
+        Map<String, Object> choice = task(
+                "it-mc-03",
+                "MULTIPLE_CHOICE",
+                Map.of(
+                        "options",
+                        List.of(
+                                Map.of("text", "Roll back", "correct", false),
+                                Map.of("text", "Ship it", "correct", true))));
+
+        MvcTestResult wordsView = post("/api/admin/tasks/public-view", words);
+        MvcTestResult choiceView = post("/api/admin/tasks/public-view", choice);
+
+        assertThat(wordsView).hasStatusOk();
+        assertThat(wordsView).bodyJson().isStrictlyEqualTo("""
+                {"key": "it-words-02", "type": "PROBLEM_WORDS", "role": "TESTER", "characterName": "Tess",
+                 "prompt": "A login button two pixels off blocks the release.", "code": null, "timeLimitMs": 20000,
+                 "options": null, "items": null,
+                 "tokens": ["Warn", "when", "the", "balance", "is", "low", "for", "several", "days"],
+                 "monospace": true}
+                """);
+        assertThat(choiceView).bodyJson().isStrictlyEqualTo("""
+                {"key": "it-mc-03", "type": "MULTIPLE_CHOICE", "role": "TESTER", "characterName": "Tess",
+                 "prompt": "A login button two pixels off blocks the release.", "code": null, "timeLimitMs": 15000,
+                 "options": ["Roll back", "Ship it"], "items": null, "tokens": null, "monospace": null}
+                """);
+        assertThat(jdbc.sql("SELECT count(*) FROM tasks WHERE task_key LIKE 'it-%'")
+                        .query(Long.class)
+                        .single())
+                .isZero();
+        assertThat(post("/api/admin/tasks/public-view", task("it-yn-04", "YES_NO", Map.of())))
+                .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT);
+    }
+
+    @Test
     @DisplayName("An unknown task ID answers 404 NOT_FOUND; without a session, 401")
     void unknownTaskAndNoSession() {
         String unknown = "/api/admin/tasks/00000000-0000-4000-8000-000000000000";

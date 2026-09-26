@@ -26,6 +26,7 @@ public class TaskService {
 
     private final TaskRepository tasks;
     private final RunPlanRepository plans;
+    private final CharacterRepository characters;
     private final ContentValidator validator;
     private final JsonMapper json;
     private final Clock clock;
@@ -34,12 +35,14 @@ public class TaskService {
     TaskService(
             TaskRepository tasks,
             RunPlanRepository plans,
+            CharacterRepository characters,
             ContentValidator validator,
             JsonMapper json,
             Clock clock,
             SecureRandom random) {
         this.tasks = tasks;
         this.plans = plans;
+        this.characters = characters;
         this.validator = validator;
         this.json = json;
         this.clock = clock;
@@ -73,6 +76,18 @@ public class TaskService {
         // TODO(US-53): refuse with EDIT_CONFLICT when input.version() isn't entity.version() (S2-08)
         entity.apply(task, codeJson(task), json.writeValueAsString(task.content()), now());
         return detail(tasks.saveAndFlush(entity), report.warnings());
+    }
+
+    /** What phones would get for the input, from the same mapping they use; nothing is saved (AP-05). */
+    @Transactional(readOnly = true)
+    public PublicTaskView publicView(TaskInput input) {
+        TaskDefinition task = definition(input, input.key(), false);
+        checked(task);
+        String characterName = characters
+                .findById(task.role())
+                .map(CharacterEntity::displayName)
+                .orElseThrow(() -> new DeliveryHeroException(ApiErrorCode.NOT_FOUND));
+        return PublicTaskView.of(task, characterName);
     }
 
     /** Deletes a task no run plan uses; otherwise TASK_IN_USE names each plan (FR-071). */
