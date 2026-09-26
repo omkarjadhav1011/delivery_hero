@@ -64,6 +64,15 @@ class RealtimeControllerTest {
     }
 
     @Test
+    @DisplayName("An answer missing its task or payload is dropped before the engine")
+    void incompleteAnswerIsDropped() {
+        controller.answer(GAME, new AnswerSubmit(null, new ChoiceAnswer(2)), PRIYA);
+        controller.answer(GAME, new AnswerSubmit("ba-plan-01", null), PRIYA);
+
+        assertThat(queued).isEmpty();
+    }
+
+    @Test
     @DisplayName("Answers pass again once the second has passed")
     void limitResetsAfterASecond() {
         for (int attempt = 0; attempt < 6; attempt++) {

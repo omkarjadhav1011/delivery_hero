@@ -5,12 +5,21 @@ import { expect, test } from "./fixtures";
 // test on a CSP violation (LLD section 6.6) or a request to another site. Step 3 is the same-origin check below.
 // TODO(US-10): step 2, DS-05 on a phone through practice, on the projector and in the admin panel (S1-02 T9)
 
-// The four headers of AC-EN06-01 (NFR-19, NFR-20)
+// The four headers of AC-EN06-01 (NFR-19, NFR-20). API responses repeat nosniff and no-referrer (backend and Nginx),
+// which Playwright joins with ", ", so every value must be exact: "no-referrer-when-downgrade" would be weaker.
 function expectSecurityHeaders(response: Response | APIResponse, what: string): void {
   const headers = response.headers();
-  expect(headers["content-security-policy"], `CSP on ${what}`).toContain("frame-ancestors 'none'");
-  expect(headers["x-content-type-options"], `nosniff on ${what}`).toContain("nosniff");
-  expect(headers["referrer-policy"], `referrer policy on ${what}`).toContain("no-referrer");
+  const values = (name: string) => (headers[name] ?? "").split(",").map((value) => value.trim());
+  expect(headers["content-security-policy"], `CSP on ${what}`).toBeDefined();
+  expect(headers["content-security-policy"], `frame-ancestors on ${what}`).toContain(
+    "frame-ancestors 'none'",
+  );
+  expect(new Set(values("x-content-type-options")), `nosniff on ${what}`).toEqual(
+    new Set(["nosniff"]),
+  );
+  expect(new Set(values("referrer-policy")), `referrer policy on ${what}`).toEqual(
+    new Set(["no-referrer"]),
+  );
 }
 
 // The home, join, projector and admin pages (AC-EN08-02, TC-EN08-02)
@@ -29,7 +38,10 @@ for (const path of pages) {
     expect(document).not.toBeNull();
     // The page's policy allows its own scripts only: no 'unsafe-inline' (DEC-135)
     const policy = document?.headers()["content-security-policy"] ?? "";
-    expect(policy).toMatch(/script-src 'self'( 'sha256-[A-Za-z0-9+/=]+')*;/);
+    expect(policy).toMatch(/script-src 'self'( 'sha256-[A-Za-z0-9+/=]+')*(;|$)/);
+    expect(
+      policy.split(";").find((directive) => directive.trim().startsWith("script-src")),
+    ).not.toContain("unsafe-inline");
     for (const response of responses) {
       expectSecurityHeaders(response, response.url());
     }

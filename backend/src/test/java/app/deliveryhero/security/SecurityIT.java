@@ -147,7 +147,9 @@ class SecurityIT {
 
         MvcTestResult refused = join("203.0.113.7");
         assertThat(refused).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
-        assertThat(refused).bodyJson().extractingPath("$.code").isEqualTo("RATE_LIMITED");
+        assertThat(refused).bodyJson().isLenientlyEqualTo("""
+                {"status": 429, "code": "RATE_LIMITED", "detail": "Too many tries. Please wait a moment and try again."}
+                """);
         assertThat(join("198.51.100.4")).hasStatus(HttpStatus.NOT_FOUND);
     }
 

@@ -30,8 +30,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
- * Admin access and request rules (LLD section 5.9). Login, sessions, CSRF and rate limits arrive with US-49 and US-50;
- * until then only health, the deploy lock and joining are open.
+ * Admin access and request rules (LLD section 5.9): the routes, the security headers, cookie-to-header CSRF and the join
+ * rate limit. Login and the admin session arrive with US-49, and the login attempt limit with US-50.
  */
 @Configuration
 public class SecurityConfig {
