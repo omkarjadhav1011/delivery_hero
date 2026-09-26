@@ -1064,11 +1064,11 @@ Defined IDs: 1417. Referenced IDs with no definition: 0.
 | SD-24 | SD | 03:754 | 9. Specification decisions proposed in this SRS | 3 in 01, 03 |
 | SD-25 | SD | 03:755 | 9. Specification decisions proposed in this SRS | 5 in 01, 03 |
 | SD-26 | SD | 03:756 | 9. Specification decisions proposed in this SRS | 4 in 01, 03 |
-| SG-01 | SG | 18:429 | 15. Decisions proposed in this document | 6 in 01, 18 |
-| SG-02 | SG | 18:430 | 15. Decisions proposed in this document | 6 in 01, 18 |
-| SG-03 | SG | 18:431 | 15. Decisions proposed in this document | 4 in 01, 18 |
-| SG-04 | SG | 18:432 | 15. Decisions proposed in this document | 5 in 01, 18 |
-| SG-05 | SG | 18:433 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-01 | SG | 18:428 | 15. Decisions proposed in this document | 6 in 01, 18 |
+| SG-02 | SG | 18:429 | 15. Decisions proposed in this document | 6 in 01, 18 |
+| SG-03 | SG | 18:430 | 15. Decisions proposed in this document | 4 in 01, 18 |
+| SG-04 | SG | 18:431 | 15. Decisions proposed in this document | 5 in 01, 18 |
+| SG-05 | SG | 18:432 | 15. Decisions proposed in this document | 5 in 01, 18 |
 | TC-EN01-01 | TC-EN | 15:110 | Enablers | 3 in 15, 18 |
 | TC-EN01-02 | TC-EN | 15:111 | Enablers | 2 in 15, 18 |
 | TC-EN01-03 | TC-EN | 15:112 | Enablers | 2 in 15, 18 |
@@ -1391,7 +1391,7 @@ Defined IDs: 1417. Referenced IDs with no definition: 0.
 | UC-25 | UC | 06:99 | 6. Use case overview | 10 in 06, 07 |
 | UC-26 | UC | 06:100 | 6. Use case overview | 7 in 06 |
 | UC-27 | UC | 06:101 | 6. Use case overview | 6 in 06, 07 |
-| US-01 | US | 04:106 | 6.2 EP-01 Joining and lobby | 15 in 04, 05, 06, 15, 18 |
+| US-01 | US | 04:106 | 6.2 EP-01 Joining and lobby | 13 in 04, 05, 06, 15 |
 | US-02 | US | 04:107 | 6.2 EP-01 Joining and lobby | 13 in 04, 05, 06, 15 |
 | US-03 | US | 04:108 | 6.2 EP-01 Joining and lobby | 12 in 04, 05, 06 |
 | US-04 | US | 04:109 | 6.2 EP-01 Joining and lobby | 11 in 04, 05, 06, 15 |
