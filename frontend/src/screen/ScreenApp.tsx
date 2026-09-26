@@ -8,6 +8,7 @@ import { ProjectorShell } from "@/screen/ProjectorShell";
 import { screenTopic, useScreenStore } from "@/screen/store";
 import { EndedView } from "@/screen/views/EndedView";
 import { GettingReadyView } from "@/screen/views/GettingReadyView";
+import { LobbyView } from "@/screen/views/LobbyView";
 import { assertNever } from "@/types/assertNever";
 import { isScreenMessage } from "@/types/messages";
 
@@ -19,6 +20,9 @@ export function ScreenApp() {
   const key = useSearchParams().get("key") || null;
   const view = useScreenStore((state) => state.view);
   const endedMessage = useScreenStore((state) => state.endedMessage);
+  const joinUrl = useScreenStore((state) => state.joinUrl);
+  const players = useScreenStore((state) => state.players);
+  const playerCount = useScreenStore((state) => state.playerCount);
   const topic = useScreenStore(screenTopic);
   const connected = useScreenStore((state) => state.connected);
   const receive = useScreenStore((state) => state.receive);
@@ -48,8 +52,7 @@ export function ScreenApp() {
     case "gettingReady":
       return <GettingReadyView />;
     case "lobby":
-      // TODO(S1-06 T7): LobbyView
-      return <ProjectorShell title={copy.screen.scanToJoin} />;
+      return <LobbyView joinUrl={joinUrl ?? ""} players={players} playerCount={playerCount} />;
     case "round":
       // TODO(US-39 and later): the practice, countdown, wall, reveal and winner views (S-03 to S-11)
       return <ProjectorShell title={copy.brand} />;
