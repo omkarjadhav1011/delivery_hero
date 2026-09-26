@@ -64,3 +64,64 @@ export type AdminSessionResponse = {
   /** When the session ends, 12 hours after login (DEC-97), or null without one. */
   expiresAt: string | null;
 };
+
+export type Role = "MANAGER" | "BUSINESS_ANALYST" | "DEVELOPER" | "TESTER";
+export type TaskKind = "SCORED" | "PRACTICE" | "INCIDENT";
+export type Phase = "PLANNING" | "DEVELOPMENT" | "TESTING" | "RELEASE";
+export type TaskType = "MULTIPLE_CHOICE" | "YES_NO" | "ORDER" | "PROBLEM_WORDS";
+
+/** A task's optional code snippet (document 10, section 8.2). */
+export type CodeSnippet = {
+  language: string;
+  text: string;
+};
+
+/** Task content by type, correct answers included: admins only (document 10, section 8.3). */
+export type MultipleChoiceContent = { options: { text: string; correct: boolean }[] };
+export type YesNoContent = { answerYes: boolean };
+export type OrderContent = { items: { text: string; correctPosition: number }[] };
+export type ProblemWordsContent = { markedText: string; monospace: boolean };
+export type TaskContent = MultipleChoiceContent | YesNoContent | OrderContent | ProblemWordsContent;
+
+/** The task input for create, update and public view (document 11, section 7.4). */
+export type TaskInput = {
+  key: string;
+  role: Role;
+  kind: TaskKind;
+  phase: Phase | null;
+  type: TaskType;
+  prompt: string;
+  code: CodeSnippet | null;
+  /** 5–60; null uses the type's default (DEC-74). */
+  timeLimitSeconds: number | null;
+  content: TaskContent;
+  explanation: string | null;
+  /** Required on update: the version last read. */
+  version?: number;
+};
+
+/** `GET`, `POST` and `PUT /api/admin/tasks…` (document 11, section 7.4). */
+export type TaskDetail = Omit<TaskInput, "version"> & {
+  id: string;
+  effectiveTimeLimitSeconds: number;
+  version: number;
+  usedBy: { id: string; name: string }[];
+  createdAt: string;
+  updatedAt: string;
+  warnings: ValidationIssue[];
+};
+
+/** The only task shape phones get, and the editor's preview (document 11, section 9.1). */
+export type PublicTaskView = {
+  key: string;
+  type: TaskType;
+  role: Role;
+  characterName: string;
+  prompt: string;
+  code: CodeSnippet | null;
+  timeLimitMs: number;
+  options: string[] | null;
+  items: string[] | null;
+  tokens: string[] | null;
+  monospace: boolean | null;
+};

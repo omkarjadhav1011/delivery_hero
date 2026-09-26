@@ -17,8 +17,13 @@ public enum ApiErrorCode {
             "Names can use letters, numbers, spaces, hyphens, apostrophes and full stops, up to 20 characters."),
     RATE_LIMITED(429, "Rate limited", "Too many tries. Please wait a moment and try again."),
     /** No valid admin session, or a failed login; the login screen words its own message (document 12, A-01). */
-    UNAUTHENTICATED(401, "Unauthenticated", null);
-    // TODO(US-51): the other admin codes of API section 6.2 arrive with the endpoints that return them
+    UNAUTHENTICATED(401, "Unauthenticated", null),
+    /** Content breaks SRS 7.3; {@code errors} lists each issue, shown next to its field. */
+    VALIDATION_FAILED(422, "Validation failed", null),
+    /** Deleting a task a run plan uses; the detail names the plans and {@code errors} lists them (FR-071). */
+    TASK_IN_USE(409, "Task in use", "This task is used by: …"),
+    NOT_FOUND(404, "Not found", null);
+    // TODO(US-53): EDIT_CONFLICT and the host codes of API section 6.2 arrive with the endpoints that return them
 
     private final int status;
     private final String title;

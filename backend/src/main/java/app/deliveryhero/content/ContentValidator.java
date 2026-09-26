@@ -35,9 +35,14 @@ public class ContentValidator {
         return issues.report();
     }
 
+    /** The task rules for an admin save; a missing explanation is only a warning here (SRS 7.3). */
     public ValidationReport validateTask(TaskDefinition task) {
         Issues issues = new Issues();
         checkTask(task, issues);
+        if (task.kind() != TaskKind.PRACTICE && isBlank(task.explanation())) {
+            issues.warning(
+                    "explanation", "MISSING_EXPLANATION", "Scored and incident tasks should have an explanation.");
+        }
         return issues.report();
     }
 
@@ -96,7 +101,7 @@ public class ContentValidator {
             issues.error("type", "INCIDENT_NOT_MULTIPLE_CHOICE", "Incident tasks must be multiple choice.");
         }
         if (issues.length("prompt", task.prompt(), 1, 200) && words(task.prompt()) > PROMPT_WORDS_WARNING) {
-            issues.warning("prompt", "PROMPT_OVER_25_WORDS", "The prompt has more than 25 words.");
+            issues.warning("prompt", "PROMPT_OVER_25_WORDS", "Prompts should be 25 words or fewer.");
         }
         CodeSnippet code = task.code();
         if (code != null) {
@@ -133,23 +138,23 @@ public class ContentValidator {
     private static void checkMultipleChoice(MultipleChoiceContent content, Issues issues) {
         List<MultipleChoiceContent.Option> options = content.options();
         if (options.size() < 2 || options.size() > 4) {
-            issues.error("options", "OUT_OF_RANGE", "Multiple choice needs 2 to 4 options.");
+            issues.error("content.options", "OUT_OF_RANGE", "Multiple choice needs 2 to 4 options.");
         }
         for (int i = 0; i < options.size(); i++) {
-            issues.length("options[" + i + "].text", options.get(i).text(), 1, 80);
+            issues.length("content.options[" + i + "].text", options.get(i).text(), 1, 80);
         }
         if (options.stream().filter(MultipleChoiceContent.Option::correct).count() != 1) {
-            issues.error("options", "EXACTLY_ONE_CORRECT", "Multiple choice needs exactly one correct option.");
+            issues.error("content.options", "EXACTLY_ONE_CORRECT", "Choose exactly one correct option.");
         }
     }
 
     private static void checkOrder(OrderContent content, Issues issues) {
         List<OrderContent.Item> items = content.items();
         for (int i = 0; i < items.size(); i++) {
-            issues.length("items[" + i + "].text", items.get(i).text(), 1, 60);
+            issues.length("content.items[" + i + "].text", items.get(i).text(), 1, 60);
         }
         if (items.size() < 3 || items.size() > 5) {
-            issues.error("items", "OUT_OF_RANGE", "Tap to order needs 3 to 5 items.");
+            issues.error("content.items", "OUT_OF_RANGE", "Tap to order needs 3 to 5 items.");
             return;
         }
         List<Integer> positions =
@@ -158,25 +163,27 @@ public class ContentValidator {
                 java.util.stream.IntStream.rangeClosed(1, items.size()).boxed().toList();
         if (!positions.stream().sorted().toList().equals(expected)) {
             issues.error(
-                    "items",
+                    "content.items",
                     "POSITIONS_INVALID",
                     "Each item needs a different correct position from 1 to " + items.size() + ".");
         } else if (positions.equals(expected)) {
-            issues.error("items", "ORDER_SAME_AS_CORRECT", "The display order must differ from the correct order.");
+            issues.error(
+                    "content.items", "ORDER_SAME_AS_CORRECT", "The display order must differ from the correct order.");
         }
     }
 
     private static void checkProblemWords(ProblemWordsContent content, Issues issues) {
-        if (!issues.length("text", content.markedText(), 1, 200)) {
+        if (!issues.length("content.markedText", content.markedText(), 1, 200)) {
             return;
         }
         List<String> marked = List.of(content.markedText().trim().split("\\s+")).stream()
                 .filter(token -> token.contains("{{") || token.contains("}}"))
                 .toList();
         if (marked.stream().anyMatch(token -> !MARKED_WORD.matcher(token).matches())) {
-            issues.error("text", "MARKER_NOT_WHOLE_WORD", "Each {{marker}} must wrap exactly one whole word.");
+            issues.error(
+                    "content.markedText", "MARKER_NOT_WHOLE_WORD", "Each {{marker}} must wrap exactly one whole word.");
         } else if (marked.isEmpty() || marked.size() > 4) {
-            issues.error("text", "MARKED_WORDS_COUNT", "Mark 1 to 4 problem words.");
+            issues.error("content.markedText", "MARKED_WORDS_COUNT", "Mark 1 to 4 problem words.");
         }
     }
 

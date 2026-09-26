@@ -55,13 +55,13 @@ class ContentValidatorTest {
     @DisplayName("Multiple choice needs exactly one correct option")
     void multipleChoiceNeedsOneCorrectOption() {
         assertThat(paths(validator.validateTask(multipleChoice(options(-1))).errors()))
-                .containsExactly("options");
+                .containsExactly("content.options");
         assertThat(paths(validator
                         .validateTask(multipleChoice(List.of(
                                 new MultipleChoiceContent.Option("A", true),
                                 new MultipleChoiceContent.Option("B", true))))
                         .errors()))
-                .containsExactly("options");
+                .containsExactly("content.options");
     }
 
     @Test
@@ -70,13 +70,13 @@ class ContentValidatorTest {
         assertThat(paths(validator
                         .validateTask(multipleChoice(List.of(new MultipleChoiceContent.Option("A", true))))
                         .errors()))
-                .containsExactly("options");
+                .containsExactly("content.options");
         assertThat(paths(validator
                         .validateTask(multipleChoice(List.of(
                                 new MultipleChoiceContent.Option("A", true),
                                 new MultipleChoiceContent.Option("x".repeat(81), false))))
                         .errors()))
-                .containsExactly("options[1].text");
+                .containsExactly("content.options[1].text");
     }
 
     @Test
@@ -192,10 +192,10 @@ class ContentValidatorTest {
     @DisplayName("Tap to order has 3-5 items of 1-60 characters, positions 1..n, and a display order that differs")
     void order() {
         assertThat(validator.validateTask(order(2, 1, 3)).errors()).isEmpty();
-        assertThat(paths(validator.validateTask(order(1, 2)).errors())).containsExactly("items");
-        assertThat(paths(validator.validateTask(order(1, 1, 3)).errors())).containsExactly("items");
-        assertThat(paths(validator.validateTask(order(1, 2, 3)).errors())).containsExactly("items");
-        assertThat(paths(validator.validateTask(order(2, 1, 4)).errors())).containsExactly("items");
+        assertThat(paths(validator.validateTask(order(1, 2)).errors())).containsExactly("content.items");
+        assertThat(paths(validator.validateTask(order(1, 1, 3)).errors())).containsExactly("content.items");
+        assertThat(paths(validator.validateTask(order(1, 2, 3)).errors())).containsExactly("content.items");
+        assertThat(paths(validator.validateTask(order(2, 1, 4)).errors())).containsExactly("content.items");
     }
 
     @Test
@@ -206,17 +206,17 @@ class ContentValidatorTest {
                         .errors())
                 .isEmpty();
         assertThat(paths(validator.validateTask(words("No markers here")).errors()))
-                .containsExactly("text");
+                .containsExactly("content.markedText");
         assertThat(paths(validator
                         .validateTask(words("{{a}} {{b}} {{c}} {{d}} {{e}}"))
                         .errors()))
-                .containsExactly("text");
+                .containsExactly("content.markedText");
         assertThat(paths(validator
                         .validateTask(words("Two {{whole words}} here"))
                         .errors()))
-                .containsExactly("text");
+                .containsExactly("content.markedText");
         assertThat(paths(validator.validateTask(words("Half{{word}} here")).errors()))
-                .containsExactly("text");
+                .containsExactly("content.markedText");
     }
 
     @Test
@@ -282,6 +282,79 @@ class ContentValidatorTest {
         assertThat(validator.validateTask(withPrompt("word ".repeat(26).trim())).warnings())
                 .extracting(Issue::code)
                 .containsExactly("PROMPT_OVER_25_WORDS");
+    }
+
+    @Test
+    @DisplayName("AC-US51-02 validation: two correct options, the correct order shown, or 5 marked words are refused")
+    void editorSavesNameTheProblem() {
+        TaskDefinition twoCorrect = multipleChoice(
+                List.of(new MultipleChoiceContent.Option("A", true), new MultipleChoiceContent.Option("B", true)));
+
+        assertThat(validator.validateTask(twoCorrect).errors())
+                .containsExactly(
+                        new Issue("content.options", "EXACTLY_ONE_CORRECT", "Choose exactly one correct option."));
+        assertThat(validator.validateTask(order(1, 2, 3)).errors())
+                .containsExactly(new Issue(
+                        "content.items",
+                        "ORDER_SAME_AS_CORRECT",
+                        "The display order must differ from the correct order."));
+        assertThat(validator
+                        .validateTask(words("{{a}} {{b}} {{c}} {{d}} {{e}}"))
+                        .errors())
+                .containsExactly(new Issue("content.markedText", "MARKED_WORDS_COUNT", "Mark 1 to 4 problem words."));
+    }
+
+    @Test
+    @DisplayName("A scored or incident task without an explanation saves with a MISSING_EXPLANATION warning")
+    void missingExplanationWarns() {
+        ValidationReport report = validator.validateTask(withExplanation(" "));
+
+        assertThat(report.errors()).isEmpty();
+        assertThat(report.warnings()).extracting(Issue::code).containsExactly("MISSING_EXPLANATION");
+        assertThat(validator.validateSeedTask(withExplanation(" ")).warnings()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("AC-US51-06 default time limit: a yes/no task without one gets 8 seconds")
+    void yesNoDefaultsToEightSeconds() {
+        TaskDefinition yesNo = task("tst-test-02", TaskKind.SCORED, Phase.TESTING, new YesNoContent(false));
+
+        assertThat(validator.validateTask(yesNo).errors()).isEmpty();
+        assertThat(yesNo.effectiveTimeLimitSeconds()).isEqualTo(8);
+    }
+
+    @Test
+    @DisplayName("Default time limits follow DEC-74, and a set limit wins")
+    void defaultTimeLimits() {
+        TaskDefinition incident = new TaskDefinition(
+                "incident-9",
+                Role.DEVELOPER,
+                TaskKind.INCIDENT,
+                null,
+                TaskType.MULTIPLE_CHOICE,
+                "Down!",
+                null,
+                null,
+                mc(),
+                "Why");
+
+        assertThat(task("t", TaskKind.SCORED, Phase.PLANNING, mc()).effectiveTimeLimitSeconds())
+                .isEqualTo(15);
+        assertThat(order(2, 1, 3).effectiveTimeLimitSeconds()).isEqualTo(25);
+        assertThat(words("A {{b}} c").effectiveTimeLimitSeconds()).isEqualTo(20);
+        assertThat(incident.effectiveTimeLimitSeconds()).isEqualTo(20);
+        assertThat(withTimeLimit(42).effectiveTimeLimitSeconds()).isEqualTo(42);
+    }
+
+    @Test
+    @DisplayName("AC-US51-07 long prompt warning: a 30-word prompt saves, with a warning to keep to 25 words")
+    void thirtyWordPromptWarns() {
+        ValidationReport report =
+                validator.validateTask(withPrompt("word ".repeat(30).trim()));
+
+        assertThat(report.errors()).isEmpty();
+        assertThat(report.warnings())
+                .containsExactly(new Issue("prompt", "PROMPT_OVER_25_WORDS", "Prompts should be 25 words or fewer."));
     }
 
     private static RunPlanDefinition plan(int minutes) {

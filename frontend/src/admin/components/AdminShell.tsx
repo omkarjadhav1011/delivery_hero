@@ -89,8 +89,14 @@ export function AdminShell({ title, navigation = true, children }: AdminShellPro
           <ArcadeButton
             variant="secondary"
             className="ml-auto"
-            // Only once the session has really ended; a 401 goes to login through the handler above
-            onClick={() => void adminLogout().then(() => router.replace("/admin/login/"))}
+            // Only once the session has really ended; a 401 goes to login through the handler above, and any other
+            // failure leaves the admin where they are, still logged in
+            onClick={() =>
+              void adminLogout().then(
+                () => router.replace("/admin/login/"),
+                () => undefined,
+              )
+            }
           >
             {copy.admin.logout}
           </ArcadeButton>

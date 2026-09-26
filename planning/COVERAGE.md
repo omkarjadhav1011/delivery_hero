@@ -298,13 +298,13 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-US50-01 | AC-US | Build | S1-03 T3 | Tested | TC-US50-01: Integration, `SecurityIT` |
 | AC-US50-02 | AC-US | Build | S1-03 T3 | Tested | TC-US50-02: Integration, `SecurityIT` |
 | AC-US50-03 | AC-US | Build | S1-03 T3 | Tested | TC-US50-03: Integration, `SecurityIT` |
-| AC-US51-01 | AC-US | Build | S2-07 T3, S2-07 T6 | Planned | TC-US51-01: Integration, `TaskApiIT` |
-| AC-US51-02 | AC-US | Build | S2-07 T1, S2-07 T6 | Planned | TC-US51-02: Unit, `ContentValidatorTest` |
-| AC-US51-03 | AC-US | Build | S2-07 T5, S2-07 T7 | Planned | TC-US51-03: End-to-end, `content-admin` |
-| AC-US51-04 | AC-US | Build | S2-07 T4 | Planned | TC-US51-04: Integration, `TaskApiIT` |
-| AC-US51-05 | AC-US | Build | S2-07 T4, S2-07 T6 | Planned | TC-US51-05: Integration, `TaskApiIT` |
-| AC-US51-06 | AC-US | Build | S2-07 T2 | Planned | TC-US51-06: Unit, `ContentValidatorTest` |
-| AC-US51-07 | AC-US | Build | S2-07 T2 | Planned | TC-US51-07: Unit, `ContentValidatorTest` |
+| AC-US51-01 | AC-US | Build | S2-07 T3, S2-07 T6 | Tested | TC-US51-01: Integration, `TaskApiIT` |
+| AC-US51-02 | AC-US | Build | S2-07 T1, S2-07 T6 | Tested | TC-US51-02: Unit, `ContentValidatorTest` |
+| AC-US51-03 | AC-US | Build | S2-07 T5, S2-07 T7 | Tested | TC-US51-03: End-to-end, `content-admin` |
+| AC-US51-04 | AC-US | Build | S2-07 T4 | Tested | TC-US51-04: Integration, `TaskApiIT` |
+| AC-US51-05 | AC-US | Build | S2-07 T4, S2-07 T6, S2-08 T2 | Tested | TC-US51-05: Integration, `TaskApiIT` |
+| AC-US51-06 | AC-US | Build | S2-07 T2 | Tested | TC-US51-06: Unit, `ContentValidatorTest` |
+| AC-US51-07 | AC-US | Build | S2-07 T2 | Tested | TC-US51-07: Unit, `ContentValidatorTest` |
 | AC-US52-01 | AC-US | Build | S2-08 T1, S2-08 T2 | Planned | TC-US52-01: Integration, `TaskApiIT` |
 | AC-US52-02 | AC-US | Build | S2-08 T1 | Planned | TC-US52-02: Integration, `TaskApiIT` |
 | AC-US52-03 | AC-US | Build | S2-08 T1 | Planned | TC-US52-03: Integration, `TaskApiIT` |
@@ -829,9 +829,9 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | FR-066 | FR | Covered by | US-48 | Planned |  |
 | FR-067 | FR | Covered by | US-49 | Tested |  |
 | FR-068 | FR | Covered by | US-50 | Tested |  |
-| FR-069 | FR | Covered by | US-51 | Planned |  |
+| FR-069 | FR | Covered by | US-51 | Tested |  |
 | FR-070 | FR | Covered by | US-52 | Planned |  |
-| FR-071 | FR | Covered by | US-51 | Planned |  |
+| FR-071 | FR | Covered by | US-51 | Tested |  |
 | FR-072 | FR | Covered by | US-54 | Planned |  |
 | FR-073 | FR | Covered by | US-53 | Planned |  |
 | FR-074 | FR | Covered by | US-55 | Planned |  |
@@ -1274,13 +1274,13 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | TC-US50-01 | TC-US | Covered by | AC-US50-01 | Tested |  |
 | TC-US50-02 | TC-US | Covered by | AC-US50-02 | Tested |  |
 | TC-US50-03 | TC-US | Covered by | AC-US50-03 | Tested |  |
-| TC-US51-01 | TC-US | Covered by | AC-US51-01 | Planned |  |
-| TC-US51-02 | TC-US | Covered by | AC-US51-02 | Planned |  |
-| TC-US51-03 | TC-US | Covered by | AC-US51-03 | Planned |  |
-| TC-US51-04 | TC-US | Covered by | AC-US51-04 | Planned |  |
-| TC-US51-05 | TC-US | Covered by | AC-US51-05 | Planned |  |
-| TC-US51-06 | TC-US | Covered by | AC-US51-06 | Planned |  |
-| TC-US51-07 | TC-US | Covered by | AC-US51-07 | Planned |  |
+| TC-US51-01 | TC-US | Covered by | AC-US51-01 | Tested |  |
+| TC-US51-02 | TC-US | Covered by | AC-US51-02 | Tested |  |
+| TC-US51-03 | TC-US | Covered by | AC-US51-03 | Tested |  |
+| TC-US51-04 | TC-US | Covered by | AC-US51-04 | Tested |  |
+| TC-US51-05 | TC-US | Covered by | AC-US51-05 | Tested |  |
+| TC-US51-06 | TC-US | Covered by | AC-US51-06 | Tested |  |
+| TC-US51-07 | TC-US | Covered by | AC-US51-07 | Tested |  |
 | TC-US52-01 | TC-US | Covered by | AC-US52-01 | Planned |  |
 | TC-US52-02 | TC-US | Covered by | AC-US52-02 | Planned |  |
 | TC-US52-03 | TC-US | Covered by | AC-US52-03 | Planned |  |
@@ -1447,7 +1447,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | US-48 | US | Build | H-04 | Planned |  |
 | US-49 | US | Build | S1-03 | Tested |  |
 | US-50 | US | Build | S1-03 | Tested |  |
-| US-51 | US | Build | S2-07 | Planned |  |
+| US-51 | US | Build | S2-07 | Tested |  |
 | US-52 | US | Build | S2-08 | Planned |  |
 | US-53 | US | Build | S2-08 | Planned |  |
 | US-54 | US | Build | S1-04 | Planned |  |

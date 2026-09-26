@@ -27,6 +27,150 @@
         "tags" : [ "admin-session-controller" ]
       }
     },
+    "/api/admin/tasks" : {
+      "post" : {
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      }
+    },
+    "/api/admin/tasks/public-view" : {
+      "post" : {
+        "operationId" : "publicView",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PublicTaskView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      }
+    },
+    "/api/admin/tasks/{id}" : {
+      "delete" : {
+        "operationId" : "delete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "in" : "query",
+          "name" : "version",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      },
+      "get" : {
+        "operationId" : "get",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      },
+      "put" : {
+        "operationId" : "update",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaskInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      }
+    },
     "/api/games/{code}" : {
       "get" : {
         "operationId" : "status",
@@ -122,6 +266,17 @@
           }
         }
       },
+      "CodeSnippet" : {
+        "type" : "object",
+        "properties" : {
+          "language" : {
+            "type" : "string"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        }
+      },
       "DeployLockResponse" : {
         "type" : "object",
         "properties" : {
@@ -159,6 +314,32 @@
           }
         }
       },
+      "Issue" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Item" : {
+        "type" : "object",
+        "properties" : {
+          "correctPosition" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        }
+      },
       "JoinRequest" : {
         "type" : "object",
         "properties" : {
@@ -185,6 +366,262 @@
             "type" : "string"
           }
         }
+      },
+      "MultipleChoiceContent" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskContent"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "options" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/Option"
+              }
+            }
+          }
+        } ]
+      },
+      "Option" : {
+        "type" : "object",
+        "properties" : {
+          "correct" : {
+            "type" : "boolean"
+          },
+          "text" : {
+            "type" : "string"
+          }
+        }
+      },
+      "OrderContent" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskContent"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/Item"
+              }
+            }
+          }
+        } ]
+      },
+      "PlanReference" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ProblemWordsContent" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskContent"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "markedText" : {
+              "type" : "string"
+            },
+            "monospace" : {
+              "type" : "boolean"
+            }
+          }
+        } ]
+      },
+      "PublicTaskView" : {
+        "type" : "object",
+        "properties" : {
+          "characterName" : {
+            "type" : "string"
+          },
+          "code" : {
+            "$ref" : "#/components/schemas/CodeSnippet"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "monospace" : {
+            "type" : "boolean"
+          },
+          "options" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "prompt" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          },
+          "timeLimitMs" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tokens" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          }
+        }
+      },
+      "TaskContent" : { },
+      "TaskDetail" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "$ref" : "#/components/schemas/CodeSnippet"
+          },
+          "content" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/MultipleChoiceContent"
+            }, {
+              "$ref" : "#/components/schemas/OrderContent"
+            }, {
+              "$ref" : "#/components/schemas/ProblemWordsContent"
+            }, {
+              "$ref" : "#/components/schemas/YesNoContent"
+            } ]
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "effectiveTimeLimitSeconds" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "SCORED", "PRACTICE", "INCIDENT" ]
+          },
+          "phase" : {
+            "type" : "string",
+            "enum" : [ "PLANNING", "DEVELOPMENT", "TESTING", "RELEASE" ]
+          },
+          "prompt" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          },
+          "timeLimitSeconds" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "usedBy" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PlanReference"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "warnings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Issue"
+            }
+          }
+        }
+      },
+      "TaskInput" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "$ref" : "#/components/schemas/CodeSnippet"
+          },
+          "content" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "SCORED", "PRACTICE", "INCIDENT" ]
+          },
+          "phase" : {
+            "type" : "string",
+            "enum" : [ "PLANNING", "DEVELOPMENT", "TESTING", "RELEASE" ]
+          },
+          "prompt" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          },
+          "timeLimitSeconds" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "YesNoContent" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/TaskContent"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "answerYes" : {
+              "type" : "boolean"
+            }
+          }
+        } ]
       }
     }
   }

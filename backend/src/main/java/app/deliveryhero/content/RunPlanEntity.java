@@ -76,6 +76,10 @@ public class RunPlanEntity implements Persistable<UUID> {
         return planKey;
     }
 
+    public String name() {
+        return name;
+    }
+
     public int roundLengthMinutes() {
         return roundLengthMinutes;
     }
