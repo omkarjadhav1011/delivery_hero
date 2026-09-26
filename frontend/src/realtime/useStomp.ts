@@ -15,6 +15,8 @@ export interface UseStompOptions {
   destinations: readonly string[];
   onMessage: (destination: string, message: unknown) => void;
   onRefused?: () => void;
+  /** Every status change, for a store that keeps the status (LLD section 6.3). */
+  onStatusChange?: (status: ConnectionStatus) => void;
   /** Tests pass a stand-in for the library's client. */
   createClient?: StompConnectionOptions["createClient"];
 }
@@ -34,6 +36,7 @@ export function useStomp({
   destinations,
   onMessage,
   onRefused,
+  onStatusChange,
   createClient,
 }: UseStompOptions): ConnectionStatus {
   // The status belongs to the connection for one set of credentials; a new one starts at "connecting"
@@ -42,9 +45,9 @@ export function useStomp({
     status: "connecting",
   });
   // The latest callbacks and credentials, read by the connection without rebuilding it on every render
-  const latest = useRef({ credentials, onMessage, onRefused, createClient });
+  const latest = useRef({ credentials, onMessage, onRefused, onStatusChange, createClient });
   useEffect(() => {
-    latest.current = { credentials, onMessage, onRefused, createClient };
+    latest.current = { credentials, onMessage, onRefused, onStatusChange, createClient };
   });
 
   const key = credentialsKey(credentials);
@@ -57,7 +60,10 @@ export function useStomp({
     const connection = createStompConnection({
       credentials: current,
       timer: browserTimer,
-      onStatusChange: (status) => setState({ key, status }),
+      onStatusChange: (status) => {
+        setState({ key, status });
+        latest.current.onStatusChange?.(status);
+      },
       onRefused: () => latest.current.onRefused?.(),
       createClient: latest.current.createClient,
     });

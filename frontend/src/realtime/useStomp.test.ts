@@ -47,6 +47,24 @@ describe("useStomp", () => {
     });
   });
 
+  it("passes every status change to onStatusChange", () => {
+    const fake = fakeClient();
+    const onStatusChange = vi.fn();
+    renderHook(() =>
+      useStomp({
+        credentials: { playerToken: "tok-1" },
+        destinations: ["/user/queue/game"],
+        onMessage: vi.fn(),
+        onStatusChange,
+        createClient: () => fake.client,
+      }),
+    );
+
+    act(() => fake.config()?.onConnect());
+
+    expect(onStatusChange).toHaveBeenLastCalledWith("online");
+  });
+
   it("doesn't connect without credentials", () => {
     const createClient = vi.fn();
     renderHook(() =>

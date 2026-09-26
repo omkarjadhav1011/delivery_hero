@@ -1,10 +1,12 @@
 package app.deliveryhero.security;
 
 import app.deliveryhero.config.AdminProperties;
+import app.deliveryhero.lifecycle.E2eGameController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +20,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 /**
  * Admin access and request rules (LLD section 5.9). Login, sessions, CSRF and rate limits arrive with US-49 and US-50;
- * until then only health and the deploy lock are open.
+ * until then only health, the deploy lock and joining are open.
  */
 @Configuration
 public class SecurityConfig {
@@ -43,7 +45,9 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnWebApplication
     SecurityFilterChain securityFilterChain(
-            HttpSecurity http, @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled) {
+            HttpSecurity http,
+            @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled,
+            Environment environment) {
         http.authorizeHttpRequests(requests -> {
             requests.requestMatchers(HttpMethod.GET, "/actuator/health", "/api/ops/deploy-lock")
                     .permitAll();
@@ -56,10 +60,24 @@ public class SecurityConfig {
                 requests.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**")
                         .permitAll();
             }
-            // TODO(US-01): open /api/games/** for joining, rate-limited per IP address
+            // Joining is open (LLD section 5.9). TODO(EN-06): rate-limit joins per IP address
+            requests.requestMatchers(HttpMethod.GET, "/api/games/*").permitAll();
+            requests.requestMatchers(HttpMethod.POST, "/api/games/*/players").permitAll();
+            if (environment.matchesProfiles("e2e")) {
+                // The end-to-end specs' game, until the admin panel creates games (S1-04 T6)
+                requests.requestMatchers(HttpMethod.POST, E2eGameController.PATH)
+                        .permitAll();
+            }
             // TODO(US-49): form login at /api/admin/login, the DH_SESSION cookie and cookie-to-header CSRF
             requests.requestMatchers("/api/**").authenticated();
             requests.anyRequest().denyAll();
+        });
+        // CSRF protects the admin session only; public joins carry no cookie to abuse (LLD section 5.9)
+        http.csrf(csrf -> {
+            csrf.ignoringRequestMatchers("/api/games/**");
+            if (environment.matchesProfiles("e2e")) {
+                csrf.ignoringRequestMatchers(E2eGameController.PATH);
+            }
         });
         http.exceptionHandling(
                 exceptions -> exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));

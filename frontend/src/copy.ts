@@ -12,6 +12,34 @@ export const copy = {
   join: {
     // P-02
     title: "What should we call you?",
+    hint: "Up to 20 characters",
+    submit: "Join",
+    privacy: "Your name and answers are deleted after the event.",
+    invalidName:
+      "Names can use letters, numbers, spaces, hyphens, apostrophes and full stops, up to 20 characters.",
+  },
+  joinMessages: {
+    // P-03, by the refusal code of document 11, section 6.2
+    GAME_NOT_ACTIVE: "This game link isn't active. Ask the host for the current link.",
+    LOBBY_NOT_OPEN: "The lobby isn't open yet. Hang tight!",
+    JOINING_CLOSED: "Joining has closed for this round. Enjoy the show on the big screen!",
+    GAME_FULL: "This game is full.",
+    RATE_LIMITED: "Too many tries. Please wait a moment and try again.",
+  },
+  lobby: {
+    // P-04
+    welcome: (name: string) => `You're in, ${name}!`,
+    waiting: "Waiting for the host to start…",
+    tip: "Tip: keep this screen open",
+  },
+  practice: {
+    // P-05
+    title: "PRACTICE · not scored",
+  },
+  countdown: {
+    // P-06
+    title: "Get ready!",
+    tagline: "Answer fast, answer right.",
   },
   reconnect: {
     // P-19, the ReconnectBanner; the second line replaces the first after 5 seconds

@@ -9,6 +9,68 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/games/{code}" : {
+      "get" : {
+        "operationId" : "status",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GameStatusResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "public-game-controller" ]
+      }
+    },
+    "/api/games/{code}/players" : {
+      "post" : {
+        "operationId" : "join",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JoinRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JoinResponse"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "tags" : [ "public-game-controller" ]
+      }
+    },
     "/api/ops/deploy-lock" : {
       "get" : {
         "operationId" : "deployLock",
@@ -37,6 +99,59 @@
             "type" : "boolean"
           },
           "state" : {
+            "type" : "string"
+          }
+        }
+      },
+      "GameStatusResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "gameId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "joinable" : {
+            "type" : "boolean"
+          },
+          "reason" : {
+            "type" : "string",
+            "enum" : [ "LOBBY_NOT_OPEN", "JOINING_CLOSED", "GAME_FULL" ]
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "CREATED", "LOBBY", "PRACTICE", "COUNTDOWN", "LIVE", "FROZEN", "ENDED", "REVEAL", "RESULTS", "CLOSED", "CANCELLED" ]
+          },
+          "test" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "JoinRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "JoinResponse" : {
+        "type" : "object",
+        "properties" : {
+          "gameId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "token" : {
             "type" : "string"
           }
         }
