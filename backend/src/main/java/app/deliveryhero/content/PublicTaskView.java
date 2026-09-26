@@ -56,7 +56,7 @@ public record PublicTaskView(
 
     /** The text split at whitespace with the {@code {{ }}} markers removed; which tokens were marked stays private. */
     private static List<String> tokens(String markedText) {
-        String trimmed = markedText.strip();
+        String trimmed = markedText.trim();
         if (trimmed.isEmpty()) {
             return List.of();
         }

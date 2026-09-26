@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -166,7 +167,7 @@ class TaskApiIT {
                 body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange());
         assertThat(before.get("usedBy").findValuesAsString("name")).contains("Default 5-minute plan");
 
-        Map<String, Object> change = json.convertValue(before, Map.class);
+        Map<String, Object> change = asInput(before);
         change.put("prompt", "A new prompt?");
         MvcTestResult updated = put("/api/admin/tasks/" + id, change);
 
@@ -260,6 +261,98 @@ class TaskApiIT {
     }
 
     @Test
+    @DisplayName("No seed task's public view carries answer data (NFR-12, DEC-130)")
+    void noSeedTaskLeaksAnswers() {
+        List<String> ids = jdbc.sql("SELECT id FROM tasks").query(String.class).list();
+        assertThat(ids).hasSize(74);
+
+        for (String id : ids) {
+            Map<String, Object> input = asInput(
+                    body(mvc.get().uri("/api/admin/tasks/{id}", id).with(ADMIN).exchange()));
+            MvcTestResult view = post("/api/admin/tasks/public-view", input);
+
+            assertThat(view).hasStatusOk();
+            JsonNode body = body(view);
+            // Only the fields of API section 9.1, with plain strings: no flags, positions or markers
+            assertThat(body.propertyNames())
+                    .containsExactlyInAnyOrder(
+                            "key",
+                            "type",
+                            "role",
+                            "characterName",
+                            "prompt",
+                            "code",
+                            "timeLimitMs",
+                            "options",
+                            "items",
+                            "tokens",
+                            "monospace");
+            for (String list : List.of("options", "items", "tokens")) {
+                body.get(list).forEach(entry -> assertThat(entry.isString()).isTrue());
+            }
+            assertThat(body.get("tokens").toString()).doesNotContain("{{");
+        }
+    }
+
+    @Test
+    @DisplayName("Bad requests get the admin API's codes: REQUIRED version, NOT_FOUND IDs, VALIDATION_FAILED bodies")
+    void badRequestsHaveCodes() {
+        String id = idOf("mgr-plan-01");
+        Map<String, Object> noVersion = task("mgr-plan-01", "YES_NO", Map.of("answerYes", true));
+        Map<String, Object> badType = task("it-x-01", "FOO", Map.of("answerYes", true));
+        Map<String, Object> extraField = task("it-yn-05", "YES_NO", Map.of("answerYes", true, "correct", true));
+
+        assertThat(put("/api/admin/tasks/" + id, noVersion)).bodyJson().isLenientlyEqualTo("""
+                {"status": 422, "code": "VALIDATION_FAILED", "errors": [{"path": "version", "code": "REQUIRED"}]}
+                """);
+        assertThat(put("/api/admin/tasks/00000000-0000-4000-8000-000000000000", noVersion))
+                .hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(mvc.delete()
+                        .uri("/api/admin/tasks/00000000-0000-4000-8000-000000000000?version=0")
+                        .with(ADMIN)
+                        .with(csrf())
+                        .exchange())
+                .hasStatus(HttpStatus.NOT_FOUND);
+        assertThat(mvc.get().uri("/api/admin/tasks/not-a-uuid").with(ADMIN).exchange())
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        {"status": 404, "code": "NOT_FOUND"}
+                        """);
+        assertThat(mvc.delete()
+                        .uri("/api/admin/tasks/{id}", id)
+                        .with(ADMIN)
+                        .with(csrf())
+                        .exchange())
+                .bodyJson()
+                .isLenientlyEqualTo("""
+                        {"status": 422, "errors": [{"path": "version", "code": "REQUIRED"}]}
+                        """);
+        assertThat(post("/api/admin/tasks", badType)).bodyJson().isLenientlyEqualTo("""
+                {"status": 422, "code": "VALIDATION_FAILED", "errors": [{"path": "body"}]}
+                """);
+        assertThat(post("/api/admin/tasks", extraField)).bodyJson().isLenientlyEqualTo("""
+                {"status": 422, "errors": [{"path": "content", "code": "REQUIRED"}]}
+                """);
+    }
+
+    @Test
+    @DisplayName("Changes without the CSRF token are refused")
+    void changesNeedCsrf() {
+        assertThat(mvc.post()
+                        .uri("/api/admin/tasks")
+                        .with(ADMIN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json.writeValueAsString(task("it-yn-06", "YES_NO", Map.of("answerYes", true))))
+                        .exchange())
+                .hasStatus(HttpStatus.FORBIDDEN);
+        assertThat(mvc.delete()
+                        .uri("/api/admin/tasks/{id}?version=0", idOf("mgr-plan-01"))
+                        .with(ADMIN)
+                        .exchange())
+                .hasStatus(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("An unknown task ID answers 404 NOT_FOUND; without a session, 401")
     void unknownTaskAndNoSession() {
         String unknown = "/api/admin/tasks/00000000-0000-4000-8000-000000000000";
@@ -310,6 +403,10 @@ class TaskApiIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(body))
                 .exchange();
+    }
+
+    private Map<String, Object> asInput(JsonNode detail) {
+        return json.convertValue(detail, new TypeReference<Map<String, Object>>() {});
     }
 
     private JsonNode body(MvcTestResult result) {

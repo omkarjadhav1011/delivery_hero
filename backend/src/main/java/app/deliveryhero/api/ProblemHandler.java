@@ -13,6 +13,11 @@ public class ProblemHandler {
 
     @ExceptionHandler(DeliveryHeroException.class)
     ResponseEntity<ProblemDetail> refused(DeliveryHeroException refusal) {
+        return response(refusal);
+    }
+
+    /** The response for a refusal, also used by the admin API's request errors ({@code AdminRequestProblems}). */
+    public static ResponseEntity<ProblemDetail> response(DeliveryHeroException refusal) {
         ProblemDetail problem = ProblemFactory.of(refusal.code());
         String detail = refusal.detail();
         if (detail != null) {

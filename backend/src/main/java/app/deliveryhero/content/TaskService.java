@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -64,7 +65,11 @@ public class TaskService {
         Instant now = now();
         TaskEntity entity = new TaskEntity(Ids.newUuid(random), task.key(), now);
         entity.apply(task, codeJson(task), json.writeValueAsString(task.content()), now);
-        return detail(tasks.saveAndFlush(entity), report.warnings());
+        try {
+            return detail(tasks.saveAndFlush(entity), report.warnings());
+        } catch (DataIntegrityViolationException sameKeyMeanwhile) {
+            throw invalid(List.of(new Issue("key", "DUPLICATE_KEY", "The key " + task.key() + " is already used.")));
+        }
     }
 
     /** The key can't change after creation, so the stored one is kept whatever the input says (API section 7.4). */
@@ -86,7 +91,7 @@ public class TaskService {
         String characterName = characters
                 .findById(task.role())
                 .map(CharacterEntity::displayName)
-                .orElseThrow(() -> new DeliveryHeroException(ApiErrorCode.NOT_FOUND));
+                .orElseThrow(() -> invalid(List.of(new Issue("role", "REQUIRED", "No character has this role yet."))));
         return PublicTaskView.of(task, characterName);
     }
 
@@ -105,7 +110,12 @@ public class TaskService {
                             .map(name -> new Issue("usedBy", "TASK_IN_USE", name))
                             .toList());
         }
-        tasks.delete(entity);
+        try {
+            tasks.delete(entity);
+            tasks.flush();
+        } catch (DataIntegrityViolationException usedMeanwhile) {
+            throw new DeliveryHeroException(ApiErrorCode.TASK_IN_USE);
+        }
     }
 
     /** The time as PostgreSQL stores it, so a saved detail equals the one read back. */
@@ -170,6 +180,7 @@ public class TaskService {
         }
         try {
             TaskContent parsed = json.readerFor(format(type))
+                    .with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                     .with(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
                     .with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
                     .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
