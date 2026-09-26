@@ -1,6 +1,6 @@
 # Delivery Hero — Project Charter
 
-> Document 01 of 18 · Version 1.15 (approved)
+> Document 01 of 18 · Version 1.16 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 01 — Project Charter |
-| Version | 1.15 |
+| Version | 1.16 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] — sponsor, host and developer |
-| Date | 23 September 2026 |
+| Date | 26 September 2026 |
 | Related documents | All other project documents cite this charter and its decision log (Appendix A) |
 
 ### Revision history
@@ -35,6 +35,7 @@
 | 1.13 | 2026-09-23 | [Owner name] | Added DEC-195 to DEC-197 from the approved Test Cases; DEC-186 marked as revised by DEC-197 |
 | 1.14 | 2026-09-24 | [Owner name] | Added DEC-198 to DEC-206 from the approved Deployment Guide and DEC-207 to DEC-211 from the approved Technical Documentation; marked OI-07 as settled (DEC-200) |
 | 1.15 | 2026-09-24 | [Owner name] | Added DEC-212: documents carry no drafting credit. Revised DEC-71 and the wording of DEC-40, section 8, section 11.3 and R-10 to match |
+| 1.16 | 2026-09-26 | [Owner name] | Added DEC-213: local-only development until production. The host is chosen by 12 Oct and production is ready by 16 Oct; the trial run and go/no-go move to Mon 19 Oct. Section 12 milestones and Gantt, and R-09, revised to match |
 
 ---
 
@@ -206,7 +207,7 @@ flowchart LR
 | [Owner name] | Sponsor, approver, host, admin and sole developer | Approves documents and scope; builds, tests and deploys; runs the live event |
 | Admins (a few colleagues) | Content reviewers and backup hosts | Review the drafted tasks; can edit characters and run plans; can host a game |
 | Players (about 40 colleagues) | End users | Join on their phones and play |
-| Trial run group (5–10 colleagues) | Testers | Play the trial run a week before the event and report problems |
+| Trial run group (5–10 colleagues) | Testers | Play the trial run two days before the event (DEC-213) and report problems |
 | Future teams | Future end users | Play in later events |
 
 ## 9. Assumptions
@@ -283,16 +284,18 @@ Dates follow the planning baseline in A-01. If the event date changes, every dat
 | Milestone | Date | Relative to E |
 |---|---|---|
 | Discovery complete | Wed 23 Sep 2026 | E−28 |
-| Infrastructure ready: Oracle machine, subdomain, HTTPS and a deployed walking skeleton | Tue 29 Sep | E−22 |
+| Walking skeleton on the local stack (DEC-213) | Tue 29 Sep | E−22 |
 | Requirements documents approved (documents 1–6) | Tue 29 Sep | E−22 |
 | Task pool seed file delivered for review (after SRS approval) | Wed 30 Sep | E−21 |
 | Design documents approved (documents 7–12) | Tue 6 Oct | E−15 |
 | Task review complete | Wed 7 Oct | E−14 |
 | Feature complete for all Must requirements | Mon 12 Oct | E−9 |
 | Load test with 100 simulated players passed | Tue 13 Oct | E−8 |
-| Trial run on production, and go/no-go decision | Wed 14 Oct | E−7 |
+| Production host chosen (Q-01, DEC-213) | Mon 12 Oct | E−9 |
 | Engineering and test documents approved (documents 13–16) | Wed 14 Oct | E−7 |
 | Content freeze | Fri 16 Oct | E−5 |
+| Production ready: host, subdomain, HTTPS, a deployed release and OPS-01 to OPS-05 passed (DEC-213) | Fri 16 Oct | E−5 |
+| Trial run on production, and go/no-go decision (DEC-213) | Mon 19 Oct | E−2 |
 | Release notes and technical documentation (documents 17–18) | Mon 19 Oct | E−2 |
 | Deployment freeze and pre-event checks | Tue 20 Oct | E−1 |
 | Live event | Wed 21 Oct | E |
@@ -315,13 +318,14 @@ gantt
     Admin task review                     :trv, 2026-10-01, 2026-10-07
     Content freeze                        :milestone, cf, 2026-10-16, 0d
     section Build
-    Infrastructure and walking skeleton   :inf, 2026-09-24, 2026-09-29
+    Local walking skeleton                :inf, 2026-09-24, 2026-09-29
     Core game loop                        :core, 2026-09-30, 2026-10-07
     Admin panel, projector and reveal     :adm, 2026-10-05, 2026-10-12
     Load test with 100 players            :lt, 2026-10-12, 2026-10-13
     section Launch
-    Trial run and go or no-go             :milestone, trial, 2026-10-14, 0d
-    Fixes and hardening                   :fix, 2026-10-15, 2026-10-19
+    Production setup                      :prod, 2026-10-12, 2026-10-16
+    Trial run and go or no-go             :milestone, trial, 2026-10-19, 0d
+    Fixes and hardening                   :fix, 2026-10-15, 2026-10-20
     Deployment freeze                     :milestone, dfz, 2026-10-20, 0d
     Live event                            :milestone, live, 2026-10-21, 0d
     Close event and send survey           :post, 2026-10-22, 1d
@@ -354,7 +358,7 @@ gantt
 | R-06 | iPhone players land in Safari after scanning the QR code, but only Chrome is supported | High | Medium | Instructions before the event; a note in the lobby; a Safari notice with a copy-link button | Host |
 | R-07 | The company network blocks the free subdomain on the host's laptop | Medium | High | Test during the trial run; fall back to a phone hotspot for the laptop | Host |
 | R-08 | Weak mobile signal in the room with every phone connected | Medium | High | Test during the trial run with all phones; small messages; reconnection within 5 seconds; choose a room with good signal | Host |
-| R-09 | No staging environment: the trial run is the first full test on production | Medium | Medium | Local Docker Compose mirrors production; automated merge checks; the trial run at E−7 is treated as the final test | Project owner |
+| R-09 | No staging environment, and production arrives late (DEC-213): the first deploy is at E−5 and the trial run at E−2, with one day for fixes before the deployment freeze | High | High | Local Docker Compose mirrors production, and every test runs there; automated merge checks; the host is chosen by E−9 and production is up with OPS-01 to OPS-05 by E−5; the trial run at E−2 is the final test | Project owner |
 | R-10 | Tasks with debatable answers cause arguments or feel unfair | Medium | Medium | Admins review every task; readiness check; void-question control during the game | Admins |
 | R-11 | The pixel-art pack's license doesn't permit this use | Low | Medium | Choose a pack with a permissive license, such as CC0, and record any required credit in the README | Project owner |
 
@@ -375,7 +379,7 @@ gantt
 
 **Scope control.** If the schedule slips, Could requirements are cut first, then Should requirements. Must requirements are the minimum needed for the event.
 
-**Go/no-go.** At the trial run (E−7), the owner decides whether the event goes ahead. A "go" requires no open game-stopping bugs, a passed 100-player load test, and a task pool that has been reviewed and loaded.
+**Go/no-go.** At the trial run (E−2, DEC-213), the owner decides whether the event goes ahead. A "go" requires no open game-stopping bugs, a passed 100-player load test, and a task pool that has been reviewed and loaded.
 
 ## 17. Communication plan
 
@@ -383,7 +387,7 @@ gantt
 |---|---|---|---|
 | After SRS approval | Task pool seed file for review | Admins | Shared file or pull request |
 | E−10 | Invitation to the trial run | 5–10 colleagues and the admins | Team chat or email |
-| E−7 | Trial run and go/no-go decision | Trial group and admins | In person |
+| E−2 | Trial run and go/no-go decision (DEC-213) | Trial group and admins | In person |
 | E−2 | Player instructions: bring your phone, install Chrome, turn on mobile data | All players | Team chat or email |
 | E | Live event | Players | In person |
 | E+1 | Fun survey form | All players | Team chat or email |
@@ -638,3 +642,4 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-210 | Engineering | Four profiles: `dev` (with public local defaults in `application-dev.yml`), `test`, `e2e` and `prod`. The local stack forces port 8080 with `SERVER_PORT` (Setup Guide SG-04) |
 | DEC-211 | Testing | Test tooling conventions: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to the local stack; the OpenAPI test writes the generated document to `backend/target/openapi.json` when it differs (Setup Guide SG-05) |
 | DEC-212 | Documentation | Documents carry no drafting credit. Document control, revision history, stakeholder and role tables name only people. Revises DEC-71 |
+| DEC-213 | Planning | Until production exists, the application is built and tested only on the local stack; the S0 walking skeleton is shown there. The Deploy workflow stays disabled until the first deploy. The owner picks the production host (Q-01) by Mon 12 Oct. Production is up, with OPS-01 to OPS-05 passed, by Fri 16 Oct. The trial run and go/no-go move to Mon 19 Oct (E−2), on production. Owner decision, 26 Sep 2026. Revises the "Infrastructure ready" and "Trial run" milestones (section 12) and R-09 |
