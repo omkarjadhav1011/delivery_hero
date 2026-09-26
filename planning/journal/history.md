@@ -43,3 +43,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/en-04-realtime-channel, commits 0f9b14a to 2e6bb54.
 - Completed: T1 (1a2e4a2); T2 (b09a19a); T3 (fffe7ab); T4 (453a985); T5 (336af45); T6 (a7cadd2); T7 (f60cdcd); T8 (a9fad35).
 - Summary: S0-04 T1-T8 done and reviewed: STOMP /ws with auth, destination rules, watchdog, state after subscription; frontend reconnect schedule and client. Backend 64+30 tests, frontend 78 tests green. PR not yet opened.
+
+## 2026-09-26-0809 S0-05
+
+- Outcome: done. Started 2026-09-26T08:09, ended 2026-09-26T09:47.
+- Branch feat/us-01-join, commits 0d8ef70 to a4d2665.
+- Completed: T1 (8a558b9); T2 (4192874); T4 (103d148); T5 (386714e); T6 (6a1408c); T7 (e6ea123); T8 (13521dd); T11 (aeeb2af).
+- Summary: S0-05 T1-T11 done, reviews applied, all checks and 27 e2e specs green; PR not opened yet
