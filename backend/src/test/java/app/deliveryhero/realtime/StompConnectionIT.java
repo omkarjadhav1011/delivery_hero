@@ -4,14 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Disconnect;
 import app.deliveryhero.engine.command.Reconnect;
+import app.deliveryhero.lifecycle.GameDetails;
+import app.deliveryhero.lifecycle.GameLifecycleService;
+import app.deliveryhero.seed.SeedCommand;
 import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +39,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -60,6 +66,18 @@ class StompConnectionIT {
 
     @Autowired
     private TokenService tokens;
+
+    @Autowired
+    private GameLifecycleService lifecycle;
+
+    @Autowired
+    private GameEngine engine;
+
+    @Autowired
+    private SeedCommand seed;
+
+    @Autowired
+    private JdbcClient jdbc;
 
     private final ScheduledExecutorService heartbeats = Executors.newSingleThreadScheduledExecutor();
 
@@ -114,6 +132,30 @@ class StompConnectionIT {
             assertState(projector, "SCREEN_STATE");
             assertThat(nextCommand(ClientSubscribed.class))
                     .satisfies(subscribed -> assertThat(subscribed.role()).isEqualTo(ClientRole.PROJECTOR));
+        }
+    }
+
+    @Test
+    @DisplayName("AC-EN04-01 a created game's own projector key connects, with no fixed dev credentials (PC-03)")
+    void createdGamesProjectorKeyConnects() throws Exception {
+        jdbc.sql("DELETE FROM games").update();
+        assertThat(seed.run(
+                        List.of(Path.of("..", "seed", "delivery-hero-seed.json").toString())))
+                .isEqualTo(SeedCommand.IMPORTED);
+        UUID plan = jdbc.sql("SELECT id FROM run_plans WHERE plan_key = 'quick-3min'")
+                .query(UUID.class)
+                .single();
+        GameDetails game = lifecycle.create(plan, true, 0);
+        try (RawStompClient projector = RawStompClient.open(port)) {
+            projector.connect(Map.of("projector-key", game.projectorKey()));
+            assertConnected(projector);
+
+            projector.subscribe("s1", DestinationPolicy.screenTopic(game.id()));
+
+            assertState(projector, "SCREEN_STATE");
+        } finally {
+            engine.discard(game.id());
+            jdbc.sql("DELETE FROM games").update();
         }
     }
 

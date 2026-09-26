@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-04 |
 | Branch | feat/us-59-create-game |
 | Start commit | 907f11b |
-| Last commit | 98e8ef2 |
+| Last commit | 3591f6a |
 | Step | test-first |
-| Task | T5 |
+| Task | T8 |
 | Attempts | 0 |
 | Started | 2026-09-26T22:10 |
-| Updated | 2026-09-26T22:36 |
-| Next action | NewGame.test.tsx |
+| Updated | 2026-09-26T22:42 |
+| Next action | StompConnectionIT on real credentials |
 
 ## Completed tasks
 
@@ -25,6 +25,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T9 (bc5503c)
 - T10 (b0fa8f3)
 - T4 (98e8ef2)
+- T5 (3591f6a)
 
 ## Pending approvals
 
