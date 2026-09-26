@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-02 |
 | Branch | chore/s0-02-ci-proofs |
 | Start commit | 2075aca |
-| Last commit | ec1e586 |
-| Step | test-first |
-| Task | T7 |
+| Last commit | 7c8d706 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T10:33 |
 | Updated | 2026-09-26T10:57 |
-| Next action | commit |
+| Next action | T8 security-privacy steps 1 and 3 |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (6e6ab66)
 - T3 (cb15962)
 - T4 (ec1e586)
+- T7 (7c8d706)
 
 ## Pending approvals
 

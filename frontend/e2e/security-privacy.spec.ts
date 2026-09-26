@@ -1,11 +1,40 @@
+import type { APIResponse, Response } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
-// E2E-07 security-privacy (document 15, section 9). This file holds the EN-08 steps; S1-02 adds the rest.
+// E2E-07 security-privacy (document 15, section 9). Step 1 checks the headers, and the shared fixtures fail every
+// test on a CSP violation (LLD section 6.6) or a request to another site. Step 3 is the same-origin check below.
+// TODO(US-10): step 2, DS-05 on a phone through practice, on the projector and in the admin panel (S1-02 T9)
+
+// The four headers of AC-EN06-01 (NFR-19, NFR-20)
+function expectSecurityHeaders(response: Response | APIResponse, what: string): void {
+  const headers = response.headers();
+  expect(headers["content-security-policy"], `CSP on ${what}`).toContain("frame-ancestors 'none'");
+  expect(headers["x-content-type-options"], `nosniff on ${what}`).toContain("nosniff");
+  expect(headers["referrer-policy"], `referrer policy on ${what}`).toContain("no-referrer");
+}
 
 // The home, join, projector and admin pages (AC-EN08-02, TC-EN08-02)
 const pages = ["/", "/join/?code=TEST", "/screen/?key=TEST", "/admin/login/", "/admin/"];
 
 for (const path of pages) {
+  test(`AC-EN06-01 every response loading ${path} carries the security headers`, async ({
+    page,
+  }) => {
+    const responses: Response[] = [];
+    page.on("response", (response) => responses.push(response));
+
+    const document = await page.goto(path);
+    await page.waitForLoadState("networkidle");
+
+    expect(document).not.toBeNull();
+    // The page's policy allows its own scripts only: no 'unsafe-inline' (DEC-135)
+    const policy = document?.headers()["content-security-policy"] ?? "";
+    expect(policy).toMatch(/script-src 'self'( 'sha256-[A-Za-z0-9+/=]+')*;/);
+    for (const response of responses) {
+      expectSecurityHeaders(response, response.url());
+    }
+  });
+
   test(`AC-EN08-02 every font, image and script on ${path} comes from the game's own address`, async ({
     page,
     baseURL,
@@ -31,3 +60,13 @@ for (const path of pages) {
     }
   });
 }
+
+test("AC-EN06-01 API and health responses carry the security headers", async ({ request }) => {
+  expectSecurityHeaders(await request.get("/api/games/XXXXXX"), "a game status");
+  expectSecurityHeaders(
+    await request.post("/api/games/XXXXXX/players", { data: { name: "Priya" } }),
+    "a join",
+  );
+  expectSecurityHeaders(await request.get("/api/admin/session"), "an admin request");
+  expectSecurityHeaders(await request.get("/health"), "health");
+});
