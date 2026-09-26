@@ -56,18 +56,18 @@ In words:
 
 | Phase | Dates | What `/dh` does | Exit gate |
 |---|---|---|---|
-| P0 Owner setup | From Thu 24 Sep, due before the Sprint 0 deploy (Tue 29 Sep) | Owner-checklist mode for document 16, sections 5 to 9: Oracle account, Pay As You Go and the budget, instance and firewall, DuckDNS, server preparation, backups, `.env`, the admin password hash, image pinning, GitHub secrets. One step at a time; checks DNS, `/health` and the certificate from here; records results in `owner-actions.md` | Every Sprint 0 owner action Done |
-| S0 Walking skeleton | Thu 24 – Tue 29 Sep | `/scaffold-en01`, then the S0 subplans (EN-02, EN-03, EN-04, EN-08, US-01, US-02, US-04), the first deploy, the certificate, loading the seed, OPS-01 to OPS-05 | The walking skeleton demonstrated; CP-S0 capacity check evaluated with numbers |
+| P0 Owner setup | From Thu 24 Sep, due before the first deploy (Thu 15 Oct, DEC-213) | Owner-checklist mode for document 16, sections 5 to 9: Oracle account, Pay As You Go and the budget, instance and firewall, DuckDNS, server preparation, backups, `.env`, the admin password hash, image pinning, GitHub secrets. One step at a time; checks DNS, `/health` and the certificate from here; records results in `owner-actions.md` | Every owner action the first deploy needs Done by Thu 15 Oct |
+| S0 Walking skeleton | Thu 24 – Tue 29 Sep | `/scaffold-en01`, then the S0 subplans (EN-04, EN-08, US-01, US-02, US-04) on the local stack; the Deploy workflow disabled; EN-02, EN-03, the first deploy, the certificate, the seed and OPS-01 to OPS-05 at H-07 (DEC-213) | The walking skeleton demonstrated on the local stack; CP-S0 capacity check evaluated with numbers |
 | S1 Build | Wed 30 Sep – Tue 6 Oct | The story loop (section 3) | CP-S1: every S1 Must story Done |
-| S2 Build | Wed 7 – Tue 13 Oct (the load test on its last day) | The story loop; task review by Wed 7 Oct; restore rehearsal and Must feature complete by Mon 12 Oct; A11Y and MAN checks | The sprint's Must points Done; the load test's entry criteria met |
-| Load test | Tue 13 Oct | LT-01 from the temporary second Arm instance (owner-assisted); OPS-14, OPS-15 | Two 100-player runs meet every threshold; memory returns to baseline (document 14, section 10) |
-| T Trial run | Wed 14 Oct | The trial script and TRIAL-01 to TRIAL-07 as an owner checklist; defects triaged by severity into fix subplans | A go/no-go draft (CP-T) |
-| H Hardening | Thu 15 – Mon 19 Oct | Defect fixes only; content freeze from Fri 16 Oct; MAN and A11Y checks; document 17 with owner approval; the go/no-go re-check on Mon 19 Oct after a no-go | Every go/no-go criterion met, or the owner's explicit decision |
+| S2 Build | Wed 7 – Wed 14 Oct (the load test on Tue 13 Oct) | The story loop; task review by Wed 7 Oct; Must feature complete by Mon 12 Oct; the restore rehearsal in H-08 (DEC-213); A11Y and MAN checks | The sprint's Must points Done; the load test's entry criteria met |
+| Load test | Tue 13 Oct | LT-01 on the local stack (owner-assisted); OPS-14, OPS-15 and one 100-player repeat on production in H-08 (DEC-213) | Two 100-player runs meet every threshold; memory returns to baseline (document 14, section 10) |
+| T Trial run | Mon 19 Oct (E−2, DEC-213) | The trial script and TRIAL-01 to TRIAL-07 as an owner checklist; defects triaged by severity into fix subplans | A go/no-go draft (CP-T); a no-go moves the event (A-01) |
+| H Hardening | Thu 15 – Mon 19 Oct | The deploy point H-07 (Thu 15 – Fri 16 Oct) and the production checks H-08 (Fri 16 – Sun 18 Oct) before the trial; then defect fixes only; content freeze from Fri 16 Oct; document 17 with owner approval | Every go/no-go criterion met, or the owner's explicit decision |
 | FZ Deployment freeze | Tue 20 Oct | Only event-stopping fixes through a pull request with green CI; final regression; `v1.0.0` tag (push only with approval); the day-before checklist (document 16, section 11.1) | The checklist complete |
 | E Event | Wed 21 Oct | Runbook mode: on-the-day checklist, timings, troubleshooting and recovery (document 16, sections 11 to 14). No code changes | The game completed |
 | AE After the event | From Thu 22 Oct | Close the game, OPS-13, backup check, survey, `retrospective.md`, the ledger's final statuses, `after-v1.md` | The plan archived |
 
-Freezes: content from Fri 16 Oct (task edits only fix errors); deployment from Tue 20 Oct (merges only for event-stopping problems). Checkpoints: CP-S0 (Tue 29 Sep), CP-S1 (Tue 6 Oct), CP-T (Wed 14 Oct), CP-H (Mon 19 Oct, only after a no-go). Try any date: `DH_TODAY=2026-10-20 node planning/scripts/run.mjs phase`.
+Freezes: content from Fri 16 Oct (task edits only fix errors); deployment from Tue 20 Oct (merges only for event-stopping problems). Checkpoints: CP-S0 (Tue 29 Sep), CP-S1 (Tue 6 Oct), CP-T (Mon 19 Oct; a no-go moves the event, DEC-213). Try any date: `DH_TODAY=2026-10-20 node planning/scripts/run.mjs phase`.
 
 ## 3. The story loop
 
@@ -85,7 +85,7 @@ Freezes: content from Fri 16 Oct (task edits only fix errors); deployment from T
    - the subplan and ledger statuses, and `status.py`;
    - the journal history, and a commit;
    - an offer to run `/pr`, which asks before pushing.
-5. **Verify the deploy.** You merge. Then `/dh` reads the deploy run (0 deployed, 1 rolled back, 75 blocked by a game in progress), checks `/health` on your domain, and marks the work Verified in production.
+5. **Verify the deploy.** You merge. Then `/dh` reads the deploy run (0 deployed, 1 rolled back, 75 blocked by a game in progress), checks `/health` on your domain, and marks the work Verified in production. Until the first deploy (DEC-213), `/dh` verifies on the local stack instead, and H-07 verifies production once.
 
 ## 4. Approval points
 

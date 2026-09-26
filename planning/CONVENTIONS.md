@@ -84,7 +84,7 @@ Two families share the `A-nn` shape. In document 12, `A-01` is an admin screen. 
 | `Q-nn` | Open question | `open-questions.md` |
 | `DI-nn` | Doc issue | `doc-issues.md` |
 | `PC-nn` | Plan change | `plan-changes.md` |
-| `CP-S0`, `CP-S1`, `CP-T`, `CP-H` | Checkpoints (section 15) | `checkpoints.md` |
+| `CP-S0`, `CP-S1`, `CP-T` | Checkpoints (section 15; no `CP-H` since PC-06) | `checkpoints.md` |
 | `GNG-1`, `GNG-3` | Go/no-go items only the owner can judge (open Sev-1 or Sev-2 defects; task pool reviewed and loaded) | `check-results.md` |
 | `PLAN` | The planning flow's claim | the journal |
 
@@ -92,12 +92,12 @@ Phases and their windows (`phase.py` is the one model; `WORKFLOW.md` shows the f
 
 | Phase | Name | Dates |
 |---|---|---|
-| P0 | Owner setup | Thu 24 to Tue 29 Sep (due before the Sprint 0 deploy); owner actions continue later |
+| P0 | Owner setup | Thu 24 Sep to Thu 15 Oct (due before the first deploy, DEC-213); owner actions continue later |
 | S0 | Walking skeleton | Thu 24 to Tue 29 Sep |
 | S1 | Build: core game loop | Wed 30 Sep to Tue 6 Oct |
-| S2 | Build: projector, reveal, admin and operations | Wed 7 to Tue 13 Oct; Tue 13 Oct is the load test day (`LT` in `phase.py`) |
-| T | Trial run | Wed 14 Oct |
-| H | Hardening | Thu 15 to Mon 19 Oct; content freeze from Fri 16 Oct |
+| S2 | Build: projector, reveal, admin and operations | Wed 7 to Wed 14 Oct; Tue 13 Oct is the load test day on the local stack (`LT` in `phase.py`; DEC-213) |
+| T | Trial run | Mon 19 Oct (E−2, DEC-213) |
+| H | Hardening | Thu 15 to Mon 19 Oct: the deploy point H-07 and the production checks H-08 before the trial, trial fixes after it; content freeze from Fri 16 Oct |
 | FZ | Deployment freeze | Tue 20 Oct |
 | E | Event day | Wed 21 Oct |
 | AE | After the event | from Thu 22 Oct |
@@ -127,7 +127,7 @@ Subplans in T, H, FZ, E and AE start only once their phase has; S phases may run
 ```
 
 - **Status:** Not started, In progress, In review (pull request open), Done, Blocked (reason in the progress log) or Cut (only with an approved Cut in the ledger).
-- **Done** means every task is ticked, the work is merged to `main`, and the subplan's criteria pass. Nothing else counts as Done.
+- **Done** means every task is ticked, the work is merged to `main`, and the subplan's criteria pass. Nothing else counts as Done. Until the first production deploy, the deploy check is on the local stack and production verification waits for H-07 (section 20, DEC-213).
 - **Points** are informational: `status.py` computes points from document 04 for the stories listed.
 - **Target dates** fall inside the phase's window.
 
@@ -196,7 +196,7 @@ Build statuses:
 - **In progress:** the subplan is In progress or In review, or some citing tasks are ticked.
 - **Implemented:** every citing task is ticked.
 - **Tested:** the criteria pass in the test reports, or the subplan is Done.
-- **Verified in production:** the subplan is Done and its deploy is verified (section 20). A criterion whose test level in document 15 is Production needs a Pass for the criterion, its test case or its procedure (for example OPS-01).
+- **Verified in production:** the subplan is Done and its deploy is verified on production (section 20): a Pass row under its ID with the environment "production", or, for a subplan Done before the first deploy, H-07's production Pass (DEC-213). A local-stack row never counts. A criterion whose test level in document 15 is Production needs a Pass for the criterion, its test case or its procedure (for example OPS-01).
 
 ### 8.2 Family defaults
 
@@ -317,7 +317,7 @@ Cuts follow the cut order in document 04, section 8, and are only recommendation
 
 - **CP-S0** (Tue 29 Sep), the capacity check in document 04, section 8: S0 points done ÷ S0 working days × working days left before the trial run, compared with the open Must points.
 - **CP-S1** (Tue 6 Oct): any S1 Must story unfinished triggers the cut order.
-- **CP-T** (Wed 14 Oct): go/no-go. **CP-H** (Mon 19 Oct): the re-check after a no-go.
+- **CP-T** (Mon 19 Oct, DEC-213): go/no-go. A no-go moves the event date (A-01); there is no re-check (owner answer 2026-09-26, PC-06).
 - A checkpoint's evaluation and the owner's decision go into `checkpoints.md`. Until they do, `/dh` stops at state 6.
 - **Content freeze** from Fri 16 Oct: task content edits only fix errors. **Deployment freeze** from Tue 20 Oct: merges only for problems that would stop the event. **Event day** (Wed 21 Oct): no merges; the deploy lock must be verified.
 
@@ -332,7 +332,7 @@ Always stop for the owner's approval before:
 - discarding work;
 - `git push` (including tag pushes such as `v1.0.0`), `gh pr create`, and anything destructive.
 
-Merging is always the owner's, because a merge deploys to production.
+Merging is always the owner's, because a merge deploys to production (from H-07; until then the Deploy workflow is disabled, DEC-213).
 
 ## 17. Token rules
 
@@ -364,12 +364,14 @@ Merging is always the owner's, because a merge deploys to production.
 
 After the owner merges a subplan's pull request:
 
+**Until the first production deploy (DEC-213)** the Deploy workflow is disabled (OA-28). After a merge, verify on the local stack instead: `/check` and `/e2e` on the merged `main`, then a progress-log line "verified on the local stack at <sha>", and set the subplan to Done. Don't record it under the subplan ID in `check-results.md`. Production verification for every subplan Done before then happens once, at the deploy point H-07. From H-07 on, the steps below apply.
+
 1. `probe.py deploy --sha <merge commit>` reads the Deploy run on `main`:
    - exit 0: deployed;
    - exit 1: failed and rolled back, so the previous release is running;
    - exit 75: stopped because a game is in progress, with nothing restarted (re-run the job after Results or Closed);
    - failed before deploying: the build or tests failed;
-   - no run: a merge touching only `docs/`, `planning/` or `.claude/` doesn't deploy.
+   - no run: a merge touching only `docs/`, `planning/` or `.claude/` doesn't deploy, and none runs while the workflow is disabled (DEC-213).
 
    Without the GitHub CLI, ask the owner for the run's result.
 2. `probe.py all --record` checks `/health`, the redirect, the headers and the certificate on the domain in `environment.md`.

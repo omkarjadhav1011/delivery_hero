@@ -154,15 +154,21 @@ def build_ledger(root: Path) -> Dict:
         primary = sorted({u[0] for u in uses if not u[2]})
         return subplans, primary
 
+    def prod_pass(rid: str) -> bool:
+        """A Pass recorded on production; a local-stack row never counts as a production verification (DEC-213)."""
+        row = results.get(rid, {})
+        return row.get("Result", "").lower().startswith("pass") and "production" in row.get("Environment", "").lower()
+
     def verified_in_production(i: str, fam: str, sps) -> bool:
         """Production-level criteria need a Pass for the criterion, its test case or its procedure; everything else
-        needs its subplan Done and that subplan's deploy verified (a Pass row under the subplan ID)."""
+        needs its subplan Done and that subplan's deploy verified: a production Pass row under the subplan ID, or, for
+        subplans Done before the first deploy, the deploy point H-07's production Pass (DEC-213)."""
         if fam.startswith("AC"):
             tc = tcs.get("TC" + i[2:], {})
             if tc.get("level") == "Production":
                 keys = [i, "TC" + i[2:]] + _docs.ids_in(tc.get("location", ""), r"(?:OPS|MAN|A11Y|LT|TRIAL)-\d{2}")
                 return any(results.get(k, {}).get("Result", "").lower().startswith("pass") for k in keys)
-        return any(sp.status == "Done" and results.get(sp.id, {}).get("Result", "").lower().startswith("pass") for sp in sps)
+        return any(sp.status == "Done" and (prod_pass(sp.id) or prod_pass("H-07")) for sp in sps)
 
     def build_status(i: str, fam: str) -> str:
         uses = cites.get(i, [])

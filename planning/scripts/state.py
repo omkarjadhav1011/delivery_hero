@@ -72,7 +72,7 @@ def preflight(root: Path, which: Callable[[str], Optional[str]] = shutil.which, 
     if branch == "HEAD":
         stop.append("HEAD is detached: switch to a branch before working.")
     elif branch == "main":
-        facts.append("On main: work happens on a branch, because every merge to main deploys to production.")
+        facts.append("On main: work happens on a branch, because every merge to main deploys to production once the Deploy workflow is re-enabled (DEC-213).")
     code, out = git(root, "diff", "--name-only", "--diff-filter=U")
     if code == 0 and out.strip():
         stop.append("Unresolved merge conflicts in: " + ", ".join(out.split()[:6]))

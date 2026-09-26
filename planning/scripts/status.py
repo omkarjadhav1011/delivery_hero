@@ -31,7 +31,7 @@ from _common import (EVENT, PHASE_ORDER, TRIAL_RUN, configure_stdout, current_ph
                      freeze_state, load_subplans, md_table, parse_dates, phases, planning_dir, read_text, register,
                      repo_root, sections, today, weekdays_between, write_text)
 
-from phase import RECHECK, S0_END, S1_END, calendar_phase  # noqa: E402  (one phase model: phase.py)
+from phase import LOAD_TEST, S0_END, S1_END, calendar_phase  # noqa: E402  (one phase model: phase.py)
 GNG_EVIDENCE = [["GNG-1"], ["LT-01"], ["GNG-3"], ["MUST"], ["TRIAL-02"], ["TRIAL-01"], ["OPS-11", "OPS-08"], ["OPS-16"],
                 ["E2E-08"] + [f"A11Y-{i:02d}" for i in range(1, 10)]]
 
@@ -74,14 +74,10 @@ def checkpoints(root: Path, day: date, stories, state) -> List[Dict]:
                        if s1_open else "On track: every S1 Must story is Done.")}
     cpt = {"id": "CP-T", "date": TRIAL_RUN, "name": "Trial run go/no-go (Charter section 16, document 14 section 11)",
            "numbers": "see the go/no-go view", "verdict": "The owner decides go or no-go from the evidence."}
-    cph = {"id": "CP-H", "date": RECHECK, "name": "Go/no-go re-check after a no-go (document 14, section 11)",
-           "numbers": "applies only if CP-T was no-go", "verdict": "A shorter trial re-checks the same criteria."}
     out = []
-    for cp in (cp0, cp1, cpt, cph):
+    for cp in (cp0, cp1, cpt):  # no CP-H: a no-go at the trial moves the event (DEC-213)
         cp["applies"] = day >= cp["date"]
         cp["recorded"] = cp["id"] in recorded
-        if cp["id"] == "CP-H":
-            cp["applies"] = cp["applies"] and "no-go" in recorded.get("CP-T", {}).get("Result", "").lower()
         out.append(cp)
     return out
 
@@ -108,13 +104,24 @@ def check_window(root: Path, when: str) -> Optional[Tuple[date, date]]:
     return min(s for s, _ in spans), max(e for _, e in spans)
 
 
+# Production checks whose document 15 window comes before production exists (DEC-213): due at the deploy
+# point H-07 or in the production checks H-08 instead
+_H07 = ("at the deploy point H-07 (DEC-213)", (date(2026, 10, 15), date(2026, 10, 16)))
+_H08 = ("in the production checks H-08 (DEC-213)", (date(2026, 10, 16), date(2026, 10, 18)))
+DEFERRED_CHECKS = {**{c: _H07 for c in ("OPS-01", "OPS-02", "OPS-03", "OPS-04", "OPS-05", "OPS-17", "OPS-18")},
+                   **{c: _H08 for c in ("OPS-06", "OPS-07", "OPS-08", "OPS-09", "OPS-10", "OPS-11", "OPS-12", "OPS-14",
+                                        "OPS-15")}}
+
+
 def testing_due(root: Path, day: date) -> List[Dict]:
     results = _docs.check_results(root)
     out = []
     for cid, c in _docs.checks(root).items():
         when = c["when"] or ("S2, and again before the trial" if cid.startswith(("MAN", "A11Y")) else
-                             "Wed 14 Oct" if cid.startswith("TRIAL") else "")
+                             fmt_day(TRIAL_RUN) if cid.startswith("TRIAL") else "")
         win = check_window(root, when)
+        if cid in DEFERRED_CHECKS:  # production waits for the deploy point (DEC-213)
+            when, win = DEFERRED_CHECKS[cid]
         if not win:
             continue
         res = results.get(cid, {})
@@ -122,8 +129,9 @@ def testing_due(root: Path, day: date) -> List[Dict]:
         if win[0] <= day and not passed:
             out.append({"id": cid, "name": c["name"], "when": when, "state": f"overdue since {fmt_day(win[1])}" if day > win[1] else f"due by {fmt_day(win[1])}",
                         "last": f"{res.get('Result')} {res.get('Date')}" if res else "no result"})
-    if day >= TRIAL_RUN - timedelta(days=1) and not results.get("LT-01", {}).get("Result", "").lower().startswith("pass"):
-        out.append({"id": "LT-01", "name": "100-player load test", "when": "Tue 13 Oct", "state": "due by Tue 13 Oct" if day <= TRIAL_RUN - timedelta(days=1) else "overdue since Tue 13 Oct",
+    if day >= LOAD_TEST and not results.get("LT-01", {}).get("Result", "").lower().startswith("pass"):
+        lt = fmt_day(LOAD_TEST)
+        out.append({"id": "LT-01", "name": "100-player load test (local stack; DEC-213)", "when": lt, "state": f"due by {lt}" if day <= LOAD_TEST else f"overdue since {lt}",
                     "last": results.get("LT-01", {}).get("Result", "no result")})
     return out
 

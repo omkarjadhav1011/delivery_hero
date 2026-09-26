@@ -43,9 +43,10 @@ class TestPhases(RepoTest):
         ("2026-09-30", "S1", "build"),
         ("2026-10-07", "S2", "build"),
         ("2026-10-13", "LT", "test"),
-        ("2026-10-14", "T", "trial"),
+        ("2026-10-14", "S2", "build"),  # S2 runs to Wed 14 Oct (DEC-213)
         ("2026-10-15", "H", "build"),
         ("2026-10-16", "H", "build"),
+        ("2026-10-19", "T", "trial"),  # the trial run at E-2 (DEC-213)
         ("2026-10-20", "FZ", "release"),
         ("2026-10-21", "E", "event"),
         ("2026-10-22", "AE", "retro"),
@@ -76,8 +77,8 @@ class TestPhases(RepoTest):
     def test_checkpoints_and_milestones(self):
         i = phase.info(self.root, date(2026, 10, 7))
         due = {cp["id"]: cp["due"] for cp in i["checkpoints"]}
-        self.assertEqual(due, {"CP-S0": True, "CP-S1": True, "CP-T": False, "CP-H": False})
-        self.assertTrue(any(m["days"] == 7 for m in i["milestones"]))  # the fixture's trial run milestone
+        self.assertEqual(due, {"CP-S0": True, "CP-S1": True, "CP-T": False})
+        self.assertTrue(any(m["days"] == 12 for m in i["milestones"]))  # the fixture's trial run milestone
 
     def test_master_plan_can_move_the_dates(self):
         self.repo.write("planning/00-master-plan.md", "# Plan\n\n## Phases\n\n| Phase | Name | Start | End |\n|---|---|---|---|\n"
@@ -92,14 +93,14 @@ class TestDateBoundSubplans(RepoTest):
                                                         tasks=["- [ ] T1 a, in b, test first: TRIAL-01, source: AC-US02-01 (shared)"]))
 
     def test_trial_event_and_after(self):
-        self.add("T-01", "trial", "Wed 14 Oct")
+        self.add("T-01", "trial", "Mon 19 Oct")
         self.add("E-01", "event", "Wed 21 Oct")
         self.add("AE-01", "retro", "Thu 22 Oct")
         early = nxt.analyse(self.root, date(2026, 10, 13))
         why = {i["id"]: i["why"] for i in early["blocked"]}
         self.assertIn("phase T starts", why["T-01"])
         self.assertIn("phase E starts", why["E-01"])
-        on = nxt.analyse(self.root, date(2026, 10, 14))
+        on = nxt.analyse(self.root, date(2026, 10, 19))
         self.assertIn("T-01", [i["id"] for i in on["eligible"]])
         event = nxt.analyse(self.root, date(2026, 10, 21))
         self.assertEqual([i["id"] for i in event["eligible"]], ["E-01"])
