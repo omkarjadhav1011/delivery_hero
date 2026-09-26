@@ -138,6 +138,31 @@ class SecurityIT {
                 .hasStatus(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    @DisplayName("AC-EN06-03 rate limits: the 121st join in a minute from one IP gets 429, another IP still joins")
+    void joinsAreLimitedPerIpAddress() {
+        for (int attempt = 0; attempt < 120; attempt++) {
+            assertThat(join("203.0.113.7")).hasStatus(HttpStatus.NOT_FOUND);
+        }
+
+        MvcTestResult refused = join("203.0.113.7");
+        assertThat(refused).hasStatus(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(refused).bodyJson().extractingPath("$.code").isEqualTo("RATE_LIMITED");
+        assertThat(join("198.51.100.4")).hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    private MvcTestResult join(String address) {
+        return mvc.post()
+                .uri("/api/games/{code}/players", TestData.UNKNOWN_CODE)
+                .with(request -> {
+                    request.setRemoteAddr(address);
+                    return request;
+                })
+                .contentType("application/json")
+                .content("{\"name\": \"Priya\"}")
+                .exchange();
+    }
+
     /** A stand-in admin endpoint, until the admin API has its own state-changing requests (US-49 onward). */
     @TestConfiguration(proxyBeanMethods = false)
     @RestController

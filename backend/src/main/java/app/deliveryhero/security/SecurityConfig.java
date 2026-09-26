@@ -3,6 +3,7 @@ package app.deliveryhero.security;
 import app.deliveryhero.config.AdminProperties;
 import app.deliveryhero.lifecycle.E2eGameController;
 import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
@@ -25,6 +27,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * Admin access and request rules (LLD section 5.9). Login, sessions, CSRF and rate limits arrive with US-49 and US-50;
@@ -61,7 +64,9 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled,
-            Environment environment) {
+            Environment environment,
+            RateLimiter rateLimiter,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver problems) {
         http.authorizeHttpRequests(requests -> {
             // Health for Nginx's /health; the deploy lock, which Nginx never forwards (LLD section 5.9, DEC-137)
             requests.requestMatchers("/actuator/health", "/api/ops/**").permitAll();
@@ -73,7 +78,7 @@ public class SecurityConfig {
                 // API documentation exists only in the dev and test profiles; Nginx never exposes it
                 requests.requestMatchers(HttpMethod.GET, API_DOCS).permitAll();
             }
-            // Joining is open (LLD section 5.9). TODO(EN-06): rate-limit joins per IP address
+            // Joining is open, limited per IP address by RateLimitFilter (LLD section 5.9)
             requests.requestMatchers("/api/games/**").permitAll();
             if (environment.matchesProfiles("e2e")) {
                 // The end-to-end specs' game, until the admin panel creates games (S1-04 T6)
@@ -99,6 +104,7 @@ public class SecurityConfig {
                 .addHeaderWriter(new DelegatingRequestMatcherHeaderWriter(
                         new NegatedRequestMatcher(apiDocs()),
                         new StaticHeadersWriter("Content-Security-Policy", API_CONTENT_SECURITY_POLICY))));
+        http.addFilterBefore(new RateLimitFilter(rateLimiter, problems), CsrfFilter.class);
         http.exceptionHandling(
                 exceptions -> exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
         return http.build();
