@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-/** The run plan summaries the New game screen picks from (API section 7.6, PC-09) against DS-01. */
+/** The run plan endpoints (API section 7.6) against DS-01: the list comes first (PC-09), the rest with S2-09. */
 @IntegrationTest
-class RunPlanListIT {
+class RunPlanApiIT {
 
     private static final Path DS_01 = Path.of("..", "seed", "delivery-hero-seed.json");
     private static final RequestPostProcessor ADMIN = user("admin").roles("ADMIN");

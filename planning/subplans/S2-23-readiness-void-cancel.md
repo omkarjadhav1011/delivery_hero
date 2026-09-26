@@ -80,6 +80,7 @@ None.
 
 ## Risks and open questions
 
+- From S1-04's security review: the state recorder clears `projector_key` only in the table, while STOMP CONNECT checks `CredentialRegistry` in memory, so closing or cancelling must also call `credentials.revokeProjector(...)` (or `clear()`) and `engine.discard`, with a test that CONNECT with the old key fails afterwards (NFR-18).
 - Should stories: position 11 of 12 in document 04, section 8's cut order, so these are the second row cut, after row 12.
 - Q-07 / DI-16: "round seconds ÷ 6" asks for 100 scored tasks in a 10-minute round, more than the 74-task pool. T3 waits for the answer; until then T1, T2 and T4 to T9 go ahead. If Q-07 is still open on Tue 13 Oct, build BR-13 as written (DEC-82) and say so in the pull request.
 - DI-14: the PRD diagram allows cancel only from Created to Frozen; DEC-87 allows it at any point before Results, and the decision log wins. T7 follows DEC-87.
@@ -98,3 +99,4 @@ Document 13, section 10, plus: a plan with readiness errors can't start a game, 
 ## Progress log
 
 - 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.
+- 2026-09-26: risk added from S1-04's security review: revoke the projector key in memory on close and cancel.

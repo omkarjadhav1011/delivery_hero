@@ -72,6 +72,7 @@ None.
 
 ## Risks and open questions
 
+- From S1-04's frontend review: `e2e/new-game.spec.ts` checks A-08's form with axe but creates no game (DEC-101), so `host-controls` runs `expectNoAxeViolations` while the created game's code, QR code and links are shown.
 - DI-14: the PRD diagram limits cancel; the decision log wins, so `CANCEL` is in every state before Results (DEC-87 (shared)).
 - Several actions in `allowedActions` belong to later stories: practice (S2-15), void and cancel (S2-23), reveal (S2-03), close (S2-04), rename and remove (H-02, Could). The list follows SRS 3.1 now; if a story is cut, removing its action changes SRS 3.1 and needs the owner's approval (changes docs/).
 - AC-US60-05's per-task answer counts stay at 0 in `host-controls` until phones can answer (S1-12, S1-13); `AdminBatchTest` covers non-zero counts now. Note in the progress log to extend step 5 once scoring lands.

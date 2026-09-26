@@ -21,6 +21,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,6 +44,9 @@ public class GameLifecycleService {
     private static final String CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     private static final int CODE_LENGTH = 6;
+
+    /** The partial unique index that allows one open game (document 10, section 11). */
+    private static final String ONE_OPEN_GAME_INDEX = "games_one_open";
 
     private final GameRepository games;
     private final RunPlanService plans;
@@ -112,23 +116,26 @@ public class GameLifecycleService {
                 now);
         try {
             games.saveAndFlush(game);
-        } catch (DataIntegrityViolationException raced) {
-            // Another admin's game was created in the meantime; the partial unique index refused this one
-            throw new DeliveryHeroException(ApiErrorCode.ANOTHER_GAME_OPEN);
+        } catch (DataIntegrityViolationException refused) {
+            if (isOneOpenGameIndex(refused)) {
+                // Another admin's game was created in the meantime; the partial unique index refused this one
+                throw new DeliveryHeroException(ApiErrorCode.ANOTHER_GAME_OPEN);
+            }
+            throw refused;
         }
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 engine.create(game.id(), game.code(), GameState.CREATED, test, snapshot);
                 credentials.registerProjector(new ProjectorPrincipal(game.id()), projectorKey);
+                log.atInfo()
+                        .addKeyValue("event", "GAME_CREATED")
+                        .addKeyValue("gameId", game.id())
+                        .addKeyValue("state", GameState.CREATED)
+                        .addKeyValue("test", test)
+                        .log("Game created");
             }
         });
-        log.atInfo()
-                .addKeyValue("event", "GAME_CREATED")
-                .addKeyValue("gameId", game.id())
-                .addKeyValue("state", GameState.CREATED)
-                .addKeyValue("test", test)
-                .log("Game created");
         return details(game);
     }
 
@@ -155,6 +162,15 @@ public class GameLifecycleService {
                 projectorKey,
                 game.createdAt(),
                 !lostOnRestart);
+    }
+
+    private static boolean isOneOpenGameIndex(DataIntegrityViolationException refused) {
+        for (Throwable cause = refused; cause != null; cause = cause.getCause()) {
+            if (cause instanceof ConstraintViolationException violation) {
+                return ONE_OPEN_GAME_INDEX.equals(violation.getConstraintName());
+            }
+        }
+        return false;
     }
 
     /** A join code from the BR-17 alphabet that no stored game has used. */

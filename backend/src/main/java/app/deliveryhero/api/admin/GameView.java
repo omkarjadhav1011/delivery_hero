@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * The game view the game endpoints return (API section 7.7). It never carries the snapshot (DEC-130).
  *
- * @param projectorUrl the projector link with its key, for the admin panel only (DEC-109)
+ * @param projectorUrl the projector link with its key, shown only in the admin panel (FR-052)
  * @param liveDetailsAvailable false for a game left in Results by a restart (DEC-142)
  * @param allowedActions exactly the host actions valid in the current state (FR-080)
  */

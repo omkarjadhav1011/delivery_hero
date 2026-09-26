@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.3 (approved)
+> Document 18 of 18 · Version 1.4 (approved)
 
 ## Document control
 

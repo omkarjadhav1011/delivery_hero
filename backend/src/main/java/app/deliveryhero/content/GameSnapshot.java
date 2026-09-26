@@ -4,6 +4,8 @@ import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.Role;
 import app.deliveryhero.common.TaskKind;
 import app.deliveryhero.common.TaskType;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -30,9 +32,16 @@ public record GameSnapshot(
     public static final int FORMAT_VERSION = 1;
 
     public GameSnapshot {
-        characters = Map.copyOf(characters);
+        characters = inOrder(characters, Role.class);
         practice = List.copyOf(practice);
-        phases = Map.copyOf(phases);
+        phases = inOrder(phases, Phase.class);
+    }
+
+    /** An unmodifiable copy in the enum's order, so phases iterate in play order (SRS 3.2). */
+    private static <K extends Enum<K>, V> Map<K, V> inOrder(Map<K, V> map, Class<K> keys) {
+        EnumMap<K, V> ordered = new EnumMap<>(keys);
+        ordered.putAll(map);
+        return Collections.unmodifiableMap(ordered);
     }
 
     /** A character's name and reaction lines. */

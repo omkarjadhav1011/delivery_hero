@@ -65,6 +65,7 @@ None. Q-02 (owner decision) blocks T5 only.
 
 ## Risks and open questions
 
+- From S1-04's backend review: `GameStateRecorder` (lifecycle) has no caller yet, and `engine` can't depend on `lifecycle` (it would be a cycle), so T7 needs a port interface in `engine` that `lifecycle` implements. `STATE_CHANGED` should also carry `test` (LLD 5.14), which the recorder doesn't know today. `GameSnapshot` keeps its phases in `Phase` order.
 - DI-06 / Q-02: with a 3-minute round the incident may start at 2:20 and run past the 2:30 freeze. T5 is blocked until the owner decides (cap the latest start, or allow the overlap and reword SRS 3.2 with a DEC). T1 to T4, T6 and T7 don't depend on it. US-33 (S2-17) builds the incident itself.
 - DI-13: `RoundTimeline` in LLD 5.4.7 hard-codes L − 30; built from `dh.game.freeze` so the e2e profile's 10 s (DEC-197) works. The LLD text is fixed at its next revision.
 - DI-14: the PRD diagram limits cancel; DEC-87 wins, so cancel is allowed in every state before Results (SRS 3.1 also lists Ended and Reveal).

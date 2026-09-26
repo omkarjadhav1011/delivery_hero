@@ -18,9 +18,15 @@ import app.deliveryhero.realtime.ProjectorPrincipal;
 import app.deliveryhero.seed.SeedCommand;
 import app.deliveryhero.support.IntegrationTest;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -248,6 +254,45 @@ class GameLifecycleIT {
         lifecycle.create(planId("quick-3min"), true, 0);
         assertAnotherGameOpen();
         assertThat(gameCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName(
+            "AC-US59-03 one at a time: two admins creating at once get one game, one session and one projector key")
+    void concurrentCreation() throws Exception {
+        UUID plan = planId("default-5min");
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService admins = Executors.newFixedThreadPool(2);
+        try {
+            List<Future<Object>> results = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                results.add(admins.submit(() -> {
+                    start.await();
+                    try {
+                        return lifecycle.create(plan, false, 0);
+                    } catch (DeliveryHeroException refused) {
+                        return refused.code();
+                    }
+                }));
+            }
+            start.countDown();
+            List<Object> outcomes = new ArrayList<>();
+            for (Future<Object> result : results) {
+                outcomes.add(result.get(30, TimeUnit.SECONDS));
+            }
+
+            assertThat(outcomes).filteredOn(GameDetails.class::isInstance).hasSize(1);
+            assertThat(outcomes).containsOnlyOnce(ApiErrorCode.ANOTHER_GAME_OPEN);
+            GameDetails game = (GameDetails) outcomes.stream()
+                    .filter(GameDetails.class::isInstance)
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(gameCount()).isEqualTo(1);
+            assertThat(engine.find(game.id())).isPresent();
+            assertThat(credentials.projectorByKey(game.projectorKey())).isPresent();
+        } finally {
+            admins.shutdownNow();
+        }
     }
 
     @Test

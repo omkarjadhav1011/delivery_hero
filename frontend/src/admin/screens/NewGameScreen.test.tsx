@@ -164,6 +164,28 @@ describe("NewGameScreen", () => {
     expect(screen.getByText(text.planErrors)).toBeTruthy();
   });
 
+  it("changing the plan clears an earlier refusal", async () => {
+    serve([DEFAULT_PLAN, { ...BROKEN_PLAN, errorCount: 0 }], {
+      current: noGame,
+      create: () =>
+        jsonResponse(404, {
+          type: "about:blank",
+          title: "Not found",
+          status: 404,
+          code: "NOT_FOUND",
+          errors: [],
+        }),
+    });
+    render(<NewGameScreen />);
+    await screen.findByText(text.ready);
+
+    fireEvent.click(screen.getByRole("button", { name: text.create }));
+    expect(await screen.findByText(text.planGone)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText(text.runPlan), { target: { value: BROKEN_PLAN.id } });
+    expect(screen.queryByText(text.planGone)).toBeNull();
+  });
+
   it("AC-US59-03 one at a time: a refused creation says so and shows the open game", async () => {
     let open = false;
     serve([DEFAULT_PLAN], {

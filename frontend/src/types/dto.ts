@@ -176,7 +176,7 @@ export type GameView = {
   runPlanName: string;
   roundLengthMinutes: number;
   joinUrl: string;
-  /** Carries the projector key: show it only in the admin panel (DEC-109). */
+  /** Carries the projector key: show it only in the admin panel (FR-052). */
   projectorUrl: string;
   createdAt: string;
   liveDetailsAvailable: boolean;

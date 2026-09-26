@@ -9,7 +9,8 @@ import { fieldClass } from "@/admin/components/FieldErrors";
 import { OpenGame } from "@/admin/components/OpenGame";
 import { PlanStatus } from "@/admin/components/PlanStatus";
 import { ArcadeButton } from "@/ui/ArcadeButton";
-import type { GameView, RunPlanSummary } from "@/types/dto";
+import { PixelIcon } from "@/ui/PixelIcon";
+import type { GameView, RunPlanSummary, ValidationIssue } from "@/types/dto";
 
 const text = copy.admin.newGameScreen;
 
@@ -18,7 +19,7 @@ type Loaded =
   | { status: "failed" }
   | { status: "ready"; plans: readonly RunPlanSummary[]; game: GameView | null };
 
-type Refusal = { message: string; reasons: readonly string[] } | null;
+type Refusal = { message: string; reasons: readonly ValidationIssue[] } | null;
 
 // A-08 New game (document 12, section 9; FR-079): pick a run plan and create the game, then show its code, join
 // link, QR code and projector link. While a game is open it's shown instead of the form (DEC-101); the live
@@ -85,9 +86,23 @@ export function NewGameScreen() {
         setRefusal({ message: text.failed, reasons: [] });
       }
     } else if (error instanceof ApiError && error.code === "VALIDATION_FAILED") {
-      setRefusal({ message: text.planErrors, reasons: error.errors.map((issue) => issue.message) });
+      setRefusal({ message: text.planErrors, reasons: error.errors });
+      await reloadPlans();
+    } else if (error instanceof ApiError && error.code === "NOT_FOUND") {
+      setRefusal({ message: text.planGone, reasons: [] });
+      await reloadPlans();
     } else {
       setRefusal({ message: text.failed, reasons: [] });
+    }
+  }
+
+  // The plan changed or went since the list loaded, so its counts are stale
+  async function reloadPlans() {
+    try {
+      const fresh = await listRunPlans();
+      setLoaded((current) => (current.status === "ready" ? { ...current, plans: fresh } : current));
+    } catch {
+      // The refusal already on screen says enough; the old list stays
     }
   }
 
@@ -98,11 +113,15 @@ export function NewGameScreen() {
         <div role="status" className="font-semibold">
           {refusal === null ? null : (
             <>
-              <p className={refusal.reasons.length > 0 ? "text-danger" : ""}>{refusal.message}</p>
+              {/* Colour marks only the icon, as in PlanStatus (document 12, section 5.2) */}
+              <p className="flex items-center gap-2">
+                <PixelIcon name="cross" decorative className="size-6 text-danger" />
+                {refusal.message}
+              </p>
               {refusal.reasons.length > 0 ? (
-                <ul className="list-disc pl-6 text-danger">
-                  {refusal.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
+                <ul className="list-disc pl-6">
+                  {refusal.reasons.map((issue, index) => (
+                    <li key={`${issue.path}-${issue.code}-${index}`}>{issue.message}</li>
                   ))}
                 </ul>
               ) : null}
@@ -119,7 +138,11 @@ export function NewGameScreen() {
                 <select
                   id={planId}
                   value={plan?.id ?? ""}
-                  onChange={(event) => setChosen(event.target.value)}
+                  onChange={(event) => {
+                    // A refusal belongs to the plan it was for
+                    setChosen(event.target.value);
+                    setRefusal(null);
+                  }}
                   className={fieldClass}
                   disabled={plans.length === 0}
                 >
@@ -141,7 +164,7 @@ export function NewGameScreen() {
                   }
                 }}
               >
-                {text.create}
+                {creating ? text.creating : text.create}
               </ArcadeButton>
             </div>
           </div>

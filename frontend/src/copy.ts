@@ -85,6 +85,7 @@ export const copy = {
       creating: "Creating…",
       noPlans: "No run plans yet.",
       planErrors: "This plan can't start a game:",
+      planGone: "This run plan doesn't exist any more.",
       anotherGameOpen: "Another game is still open. Close or cancel it first.",
       failed: "That didn't work. Check your connection and try again.",
       game: (code: string, plan: string) => `Game ${code} · ${plan}`,
