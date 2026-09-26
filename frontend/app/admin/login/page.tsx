@@ -1,8 +1,10 @@
-import { copy } from "@/copy";
-import { AdminShell } from "@/admin/components/AdminShell";
+"use client";
 
-// A-01 Login (document 12, section 9)
-// TODO(US-49): build the screen from document 12
+import { useRouter } from "next/navigation";
+import { LoginScreen } from "@/admin/screens/LoginScreen";
+
+// A-01 Login (document 12, section 9): after login, the admin panel opens at A-02 Home
 export default function AdminLoginPage() {
-  return <AdminShell title={copy.admin.login.heading} navigation={false} />;
+  const router = useRouter();
+  return <LoginScreen onLoggedIn={() => router.replace("/admin/")} />;
 }

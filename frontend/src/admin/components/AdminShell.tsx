@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
+import { adminLogout } from "@/api/endpoints";
+import { setUnauthenticatedHandler } from "@/api/http";
 import { copy } from "@/copy";
+import { ArcadeButton } from "@/ui/ArcadeButton";
 
 type AdminShellProps = {
   title: string;
@@ -32,6 +35,17 @@ function isCurrent(pathname: string, href: string): boolean {
 // Built for a laptop at 1280 px or more and fully usable with a keyboard (NFR-32).
 export function AdminShell({ title, navigation = true, children }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Any admin call that finds the session ended sends the admin to login (FR-067); not on the login page itself
+  useEffect(() => {
+    if (!navigation) {
+      return undefined;
+    }
+    setUnauthenticatedHandler(() => router.replace("/admin/login/"));
+    return () => setUnauthenticatedHandler(null);
+  }, [navigation, router]);
+
   return (
     <div className="flex min-h-dvh flex-col">
       {navigation && (
@@ -57,7 +71,14 @@ export function AdminShell({ title, navigation = true, children }: AdminShellPro
               })}
             </ul>
           </nav>
-          {/* TODO(US-49): Log out, with the admin session */}
+          <ArcadeButton
+            variant="secondary"
+            className="ml-auto"
+            // Whether or not the server still had a session, the admin ends up at login
+            onClick={() => void adminLogout().finally(() => router.replace("/admin/login/"))}
+          >
+            {copy.admin.logout}
+          </ArcadeButton>
         </header>
       )}
       <main className="flex flex-1 flex-col gap-6 p-6">

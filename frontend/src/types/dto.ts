@@ -57,3 +57,10 @@ export type JoinResponse = {
   name: string;
   token: string;
 };
+
+/** `GET /api/admin/session` (document 11, section 7.3). */
+export type AdminSessionResponse = {
+  authenticated: boolean;
+  /** When the session ends, 12 hours after login (DEC-97), or null without one. */
+  expiresAt: string | null;
+};
