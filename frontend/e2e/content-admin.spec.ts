@@ -136,3 +136,37 @@ test("AC-US51-02 E2E-04 step 2: invalid saves are refused, each message naming t
   await expect(page.getByText(text.saved, { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(/\/admin\/tasks\/edit\/$/);
 });
+
+// Step 2, the library (S2-08 T2). It reads the seeded library (DS-01), which the e2e stack loads.
+
+test("AC-US52-01 E2E-04 step 2: filtering the library by Tester and Tap to order gives exactly the three expected tasks", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+  await page.goto("/admin/tasks/");
+  await expect(page.getByRole("link", { name: "mgr-plan-01", exact: true })).toBeVisible();
+  await expectNoAxeViolations(page);
+
+  await page.getByLabel(text.role).selectOption("TESTER");
+  await page.getByLabel(text.type).selectOption("ORDER");
+
+  const keys = page.getByRole("rowheader");
+  await expect(keys).toHaveText(["tst-dev-03", "tst-rel-03", "tst-test-01"]);
+  await expect(page.getByRole("row", { name: /tst-test-01/ })).toContainText(text.types.ORDER);
+});
+
+test("AC-US51-05 E2E-04 step 2: mgr-plan-01, opened from the library, can't be deleted and names both plans", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+  await page.goto("/admin/tasks/");
+  await page.getByRole("link", { name: "mgr-plan-01", exact: true }).click();
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: `${copy.admin.editTask} mgr-plan-01` }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: text.delete })).toBeDisabled();
+  await expect(
+    page.getByText(text.usedBy(["Default 5-minute plan", "Quick 3-minute plan"]), { exact: true }),
+  ).toBeVisible();
+});
