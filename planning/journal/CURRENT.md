@@ -9,19 +9,20 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S2-08 |
 | Branch | main |
 | Start commit | 1758347 |
-| Last commit | 89fa9af |
-| Step | test-first |
-| Task | T4 |
-| Attempts | 0 |
+| Last commit | bb387d1 |
+| Step | implement |
+| Task |  |
+| Attempts | 1 |
 | Started | 2026-09-26T19:16 |
-| Updated | 2026-09-26T19:39 |
-| Next action | TaskEditorScreen EDIT_CONFLICT unit test, then E2E-04 step 3 |
+| Updated | 2026-09-26T19:50 |
+| Next action | Reviewers on the branch diff |
 
 ## Completed tasks
 
 - T1 (1870ebc)
 - T3 (749f191)
 - T5 (89fa9af)
+- T4 (bb387d1)
 
 ## Pending approvals
 
@@ -29,7 +30,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 ## Failing tests
 
-- TaskLibraryScreen opens a task: Link href without trailing slash in vitest
+- ConcurrentEditTest.characterUpdateRace: assertion at line 91
 
 ## Notes
 

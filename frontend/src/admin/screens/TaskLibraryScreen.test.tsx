@@ -106,7 +106,29 @@ describe("TaskLibraryScreen", () => {
     await waitFor(() => expect(listed).toContain("/api/admin/tasks?role=TESTER&type=ORDER"));
   });
 
-  it("AC-US52-02 searches prompts with the search box, and says when nothing matches", async () => {
+  it('AC-US52-02 searching prompts for "standup" asks the server and shows mgr-dev-04', async () => {
+    serve((url) => jsonResponse(200, url.includes("q=standup") ? [STANDUP] : [INCIDENT]));
+    render(<TaskLibraryScreen />);
+    await screen.findByRole("row", { name: /incident-001/ });
+
+    fireEvent.change(screen.getByLabelText(text.search), { target: { value: "standup" } });
+
+    expect(await screen.findByRole("row", { name: /mgr-dev-04/ })).toBeTruthy();
+    expect(screen.queryByRole("row", { name: /incident-001/ })).toBeNull();
+    expect(listed).toContain("/api/admin/tasks?q=standup");
+  });
+
+  it("AC-US52-03 filters by kind on the server", async () => {
+    serve(() => jsonResponse(200, [INCIDENT]));
+    render(<TaskLibraryScreen />);
+    await screen.findByRole("row", { name: /incident-001/ });
+
+    fireEvent.change(screen.getByLabelText(editor.kind), { target: { value: "INCIDENT" } });
+
+    await waitFor(() => expect(listed).toContain("/api/admin/tasks?kind=INCIDENT"));
+  });
+
+  it("says when no task matches the search", async () => {
     serve((url) => jsonResponse(200, url.includes("q=") ? [] : [STANDUP]));
     render(<TaskLibraryScreen />);
     await screen.findByRole("row", { name: /mgr-dev-04/ });

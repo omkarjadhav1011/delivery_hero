@@ -21,6 +21,11 @@ public record TaskDefinition(
 
     /** The set limit, or the default for the task (DEC-74): incident tasks 20 seconds, whatever their type. */
     public int effectiveTimeLimitSeconds() {
+        return effectiveTimeLimitSeconds(timeLimitSeconds, kind, type);
+    }
+
+    /** The same rule from the three fields it needs, so the library doesn't read each task's JSON. */
+    static int effectiveTimeLimitSeconds(@Nullable Integer timeLimitSeconds, TaskKind kind, TaskType type) {
         if (timeLimitSeconds != null) {
             return timeLimitSeconds;
         }

@@ -9,6 +9,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.core.JacksonException;
@@ -58,7 +58,9 @@ public class TaskService {
     public List<TaskSummary> list(TaskFilter filter) {
         Map<UUID, Long> uses = plans.countUses().stream()
                 .collect(Collectors.toMap(RunPlanRepository.TaskUse::getTaskId, RunPlanRepository.TaskUse::getPlans));
-        return tasks.findAll(filter.specification(), Sort.by("taskKey")).stream()
+        // Sorted here, so the order doesn't depend on the database's collation
+        return tasks.findAll(filter.specification()).stream()
+                .sorted(Comparator.comparing(TaskEntity::taskKey))
                 .map(entity -> new TaskSummary(
                         entity.id(),
                         entity.taskKey(),
@@ -67,7 +69,8 @@ public class TaskService {
                         entity.phase(),
                         entity.taskType(),
                         entity.prompt(),
-                        definition(entity).effectiveTimeLimitSeconds(),
+                        TaskDefinition.effectiveTimeLimitSeconds(
+                                entity.timeLimitSeconds(), entity.kind(), entity.taskType()),
                         uses.getOrDefault(entity.id(), 0L).intValue(),
                         entity.version()))
                 .toList();

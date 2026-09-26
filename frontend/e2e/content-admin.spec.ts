@@ -1,5 +1,6 @@
 import { copy } from "../src/copy";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { expect, expectNoAxeViolations, loginAsAdmin, test } from "./fixtures";
 
@@ -150,6 +151,7 @@ test("AC-US52-01 E2E-04 step 2: filtering the library by Tester and Tap to order
   await page.getByLabel(text.role).selectOption("TESTER");
   await page.getByLabel(text.type).selectOption("ORDER");
 
+  // The server lists the library by key (DI-64)
   const keys = page.getByRole("rowheader");
   await expect(keys).toHaveText(["tst-dev-03", "tst-rel-03", "tst-test-01"]);
   await expect(page.getByRole("row", { name: /tst-test-01/ })).toContainText(text.types.ORDER);
@@ -171,24 +173,33 @@ test("AC-US51-05 E2E-04 step 2: mgr-plan-01, opened from the library, can't be d
   ).toBeVisible();
 });
 
-// Step 3, edit conflict (S2-08 T4). A's change is put back at the end, so the spec can run again.
+// Step 3, edit conflict (S2-08 T4). The seed file's prompt is put back whatever happens, so a failed run doesn't
+// leave mgr-plan-01 changed for the next one.
+const seedPrompt = (
+  JSON.parse(readFileSync("../seed/delivery-hero-seed.json", "utf8")) as {
+    tasks: { key: string; prompt: string }[];
+  }
+).tasks.find((task) => task.key === "mgr-plan-01")?.prompt;
+
 test("AC-US53-01 E2E-04 step 3: admins A and B open mgr-plan-01, A saves, then B's save is refused and A's change stays", async ({
   browser,
 }) => {
+  expect(seedPrompt).toBeDefined();
   const contextA = await browser.newContext();
   const contextB = await browser.newContext();
   const pageA = await contextA.newPage();
   const pageB = await contextB.newPage();
+  let changed = false;
   try {
     for (const page of [pageA, pageB]) {
       await loginAsAdmin(page);
       await page.goto("/admin/tasks/");
       await page.getByRole("link", { name: "mgr-plan-01", exact: true }).click();
-      await expect(page.getByLabel(text.prompt)).not.toHaveValue("");
+      await expect(page.getByLabel(text.prompt)).toHaveValue(seedPrompt ?? "");
     }
-    const original = await pageA.getByLabel(text.prompt).inputValue();
 
     await pageA.getByLabel(text.prompt).fill(`A's change ${run}`);
+    changed = true;
     await pageA.getByRole("button", { name: text.save }).click();
     await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
 
@@ -199,11 +210,13 @@ test("AC-US53-01 E2E-04 step 3: admins A and B open mgr-plan-01, A saves, then B
 
     await pageB.reload();
     await expect(pageB.getByLabel(text.prompt)).toHaveValue(`A's change ${run}`);
-
-    await pageA.getByLabel(text.prompt).fill(original);
-    await pageA.getByRole("button", { name: text.save }).click();
-    await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
   } finally {
+    if (changed) {
+      await pageA.reload();
+      await pageA.getByLabel(text.prompt).fill(seedPrompt ?? "");
+      await pageA.getByRole("button", { name: text.save }).click();
+      await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
+    }
     await contextA.close();
     await contextB.close();
   }

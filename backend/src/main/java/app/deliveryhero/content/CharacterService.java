@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -82,7 +83,8 @@ public class CharacterService {
 
     /** The lines, or null with a REQUIRED issue when the list or one of its lines is missing. */
     private static @Nullable List<String> lines(List<Issue> missing, String path, @Nullable List<String> lines) {
-        if (lines == null || lines.contains(null)) {
+        // Not contains(null), which immutable lists refuse with a NullPointerException
+        if (lines == null || lines.stream().anyMatch(Objects::isNull)) {
             missing.add(new Issue(path, "REQUIRED", "This field is required."));
             return null;
         }

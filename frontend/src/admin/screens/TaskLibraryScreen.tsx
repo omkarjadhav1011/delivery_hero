@@ -155,7 +155,11 @@ export function TaskLibraryScreen() {
               // Each task is its own body: the row of fields, then the prompt under it (document 12, A-03)
               <tbody key={task.id}>
                 <tr>
-                  <th scope="row" className={`${cell} border-b-0 font-mono`}>
+                  <th
+                    scope="row"
+                    id={`${baseId}-${task.id}`}
+                    className={`${cell} border-b-0 font-mono`}
+                  >
                     <Link
                       href={`/admin/tasks/edit/?id=${encodeURIComponent(task.id)}`}
                       className="text-primary underline"
@@ -174,7 +178,11 @@ export function TaskLibraryScreen() {
                   </td>
                 </tr>
                 <tr>
-                  <td colSpan={6} className={`${cell} text-text-muted`}>
+                  <td
+                    colSpan={6}
+                    headers={`${baseId}-${task.id}`}
+                    className={`${cell} text-text-muted`}
+                  >
                     {task.prompt}
                   </td>
                 </tr>

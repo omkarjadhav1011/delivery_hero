@@ -77,7 +77,7 @@ export const copy = {
     newGame: "New game",
     taskLibrary: {
       // A-03. The column and filter labels follow the wireframe; "All", the search label, the plan counts and the
-      // empty and failed lines are worded in the deck's style, for the owner's review (DI-21)
+      // empty and failed lines are worded in the deck's style, for the owner's review (DI-21, DI-63)
       all: "All",
       search: "Search",
       key: "Key",
@@ -91,7 +91,7 @@ export const copy = {
     },
     taskEditor: {
       // A-04. Only the edit-conflict line is in the copy deck; the rest follows the wireframe's labels and the
-      // deck's style, listed for the owner's review before the content freeze (DI-21)
+      // deck's style, listed for the owner's review before the content freeze (DI-21, DI-62)
       newTask: "New task",
       key: "Key",
       role: "Role",
