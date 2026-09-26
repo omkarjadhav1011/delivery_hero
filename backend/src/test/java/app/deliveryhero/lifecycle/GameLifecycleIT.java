@@ -205,6 +205,27 @@ class GameLifecycleIT {
     }
 
     @Test
+    @DisplayName(
+            "AC-US19-02 game keeps its length: a game from a 5-minute plan still runs 5 minutes after the plan is 7")
+    void gameKeepsItsLength() {
+        GameDetails game = lifecycle.create(planId("default-5min"), false, 0);
+
+        // The run plan editor arrives with US-57 (S2-09), so the plan is changed in the table
+        jdbc.sql("UPDATE run_plans SET round_length_minutes = 7, version = version + 1 WHERE plan_key = ?")
+                .param("default-5min")
+                .update();
+
+        assertThat(sessionSnapshot(game).roundLengthSeconds()).isEqualTo(300);
+        assertThat(lifecycle.current())
+                .hasValueSatisfying(
+                        open -> assertThat(open.roundLengthMinutes()).isEqualTo(5));
+        cancel(game);
+        assertThat(sessionSnapshot(lifecycle.create(planId("default-5min"), false, 0))
+                        .roundLengthSeconds())
+                .isEqualTo(420);
+    }
+
+    @Test
     @DisplayName("State changes reach the game row by compare-and-set, and cancelling clears the projector key")
     void recordsStateChanges() {
         GameDetails game = lifecycle.create(planId("default-5min"), false, 0);
