@@ -302,7 +302,7 @@ IDs: 1414. Subplans: 65. Gaps: 0. Citation and plan problems: 0.
 | AC-US51-02 | AC-US | Build | S2-07 T1, S2-07 T6 | Tested | TC-US51-02: Unit, `ContentValidatorTest` |
 | AC-US51-03 | AC-US | Build | S2-07 T5, S2-07 T7 | Tested | TC-US51-03: End-to-end, `content-admin` |
 | AC-US51-04 | AC-US | Build | S2-07 T4 | Tested | TC-US51-04: Integration, `TaskApiIT` |
-| AC-US51-05 | AC-US | Build | S2-07 T4, S2-07 T6 | Tested | TC-US51-05: Integration, `TaskApiIT` |
+| AC-US51-05 | AC-US | Build | S2-07 T4, S2-07 T6, S2-08 T2 | Tested | TC-US51-05: Integration, `TaskApiIT` |
 | AC-US51-06 | AC-US | Build | S2-07 T2 | Tested | TC-US51-06: Unit, `ContentValidatorTest` |
 | AC-US51-07 | AC-US | Build | S2-07 T2 | Tested | TC-US51-07: Unit, `ContentValidatorTest` |
 | AC-US52-01 | AC-US | Build | S2-08 T1, S2-08 T2 | Planned | TC-US52-01: Integration, `TaskApiIT` |

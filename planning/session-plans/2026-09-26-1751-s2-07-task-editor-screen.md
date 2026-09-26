@@ -16,8 +16,11 @@
 
 ## Choice
 
-- Proposed: T6 on the same branch. It covers `src/api/endpoints.ts` task calls, a pure form model (`src/admin/taskForm.ts`: form ↔ task input, issues by path), `TaskEditorScreen`, and one fields component per type. Tests come first: the form model and screen unit tests, then E2E-04 step 2 (one valid task of each type, the three invalid saves, an axe check). Checks: frontend checks, `/e2e content-admin`, then `frontend-reviewer`, `security-reviewer` and `spec-guardian`.
+- Approved 2026-09-26 17:53: T6 on the same branch. It covers `src/api/endpoints.ts` task calls, a pure form model (`src/admin/taskForm.ts`: form ↔ task input, issues by path), `TaskEditorScreen`, and one fields component per type. Tests come first: the form model and screen unit tests, then E2E-04 step 2 (one valid task of each type, the three invalid saves, an axe check). Checks: frontend checks, `/e2e content-admin`, then `frontend-reviewer`, `security-reviewer` and `spec-guardian`.
 
 ## Result
 
-Filled in at the end.
+- Commits: 36ebb51 (screen, form model, API calls), 751e786 (AdminShell logout fix), f934c11 (E2E-04 step 2), 41d167f (review fixes), all pushed to PR #24.
+- Checks: frontend format, lint, typecheck, 133 unit tests and build pass. The whole end-to-end suite passed 37/37; after the review fixes `content-admin` and `accessibility` passed 8/8. The local stack ran on ports 55432 and 18080, because Windows services (PostgreSQL 18, Tomcat 11) hold 5432 and 8080.
+- Found: PR #24's CI was red. The title scope `us-51` breaks the Conventional Commits check, and the `AdminShell` logout rejection had been failing `npm test` on main since S1-03. Both are fixed.
+- Not done: T7 (blocked). The delete-in-use end-to-end step moved to S2-08 T2. New doc issues: DI-61 and DI-62.
