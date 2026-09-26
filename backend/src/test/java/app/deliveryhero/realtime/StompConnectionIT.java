@@ -3,6 +3,7 @@ package app.deliveryhero.realtime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.engine.command.ClientRole;
@@ -10,6 +11,7 @@ import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Disconnect;
 import app.deliveryhero.engine.command.Reconnect;
+import app.deliveryhero.engine.command.SubmitAnswer;
 import app.deliveryhero.lifecycle.GameDetails;
 import app.deliveryhero.lifecycle.GameLifecycleService;
 import app.deliveryhero.seed.SeedCommand;
@@ -138,14 +140,7 @@ class StompConnectionIT {
     @Test
     @DisplayName("AC-EN04-01 a created game's own projector key connects, with no fixed dev credentials (PC-03)")
     void createdGamesProjectorKeyConnects() throws Exception {
-        jdbc.sql("DELETE FROM games").update();
-        assertThat(seed.run(
-                        List.of(Path.of("..", "seed", "delivery-hero-seed.json").toString())))
-                .isEqualTo(SeedCommand.IMPORTED);
-        UUID plan = jdbc.sql("SELECT id FROM run_plans WHERE plan_key = 'quick-3min'")
-                .query(UUID.class)
-                .single();
-        GameDetails game = lifecycle.create(plan, true, 0);
+        GameDetails game = createGame();
         try (RawStompClient projector = RawStompClient.open(port)) {
             projector.connect(Map.of("projector-key", game.projectorKey()));
             assertConnected(projector);
@@ -178,6 +173,42 @@ class StompConnectionIT {
             assertState(admin, "LIVE_STATS");
             assertThat(nextCommand(ClientSubscribed.class))
                     .satisfies(subscribed -> assertThat(subscribed.role()).isEqualTo(ClientRole.ADMIN));
+        }
+    }
+
+    @Test
+    @DisplayName("AC-US37-02 display only: an answer, a host-style send and an admin subscription over the projector"
+            + " connection are refused, and the game is unchanged")
+    void projectorConnectionIsDisplayOnly() throws Exception {
+        GameDetails game = createGame();
+        List<String> refusedSends = List.of(
+                DestinationPolicy.answerDestination(game.id()),
+                "/app/games/" + game.id() + "/host",
+                "/app/games/" + game.id() + "/open-lobby");
+        try {
+            for (String destination : refusedSends) {
+                try (RawStompClient projector = connectedProjector(game.projectorKey())) {
+                    projector.sendTo(destination, "{\"type\":\"ANSWER_SUBMIT\",\"answer\":\"A\"}");
+                    assertForbidden(projector);
+                }
+            }
+            try (RawStompClient projector = connectedProjector(game.projectorKey())) {
+                projector.subscribe("s1", DestinationPolicy.adminTopic(game.id()));
+                assertForbidden(projector);
+            }
+
+            assertThat(GatewayTestConfiguration.SUBMITTED).noneMatch(SubmitAnswer.class::isInstance);
+            assertThat(lifecycle.current())
+                    .hasValueSatisfying(current -> assertThat(current.state()).isEqualTo(GameState.CREATED));
+            // Its one permitted send, a time-sync request, isn't refused (LD-02, DEC-140)
+            try (RawStompClient projector = connectedProjector(game.projectorKey())) {
+                projector.sendTo("/app/time-sync", "{\"clientSentAt\":1}");
+                assertThat(projector.nextFrame(QUIET)).as("no ERROR frame").isNull();
+                assertThat(projector.isOpen()).isTrue();
+            }
+        } finally {
+            engine.discard(game.id());
+            jdbc.sql("DELETE FROM games").update();
         }
     }
 
@@ -422,6 +453,25 @@ class StompConnectionIT {
             client.closed().get(5, TimeUnit.SECONDS);
             assertThat(client.nextFrame(QUIET)).as("no frame after the refusal").isNull();
         }
+    }
+
+    /** A game in Created from the seed's Quick 3-minute plan (DI-24), with its own projector key. */
+    private GameDetails createGame() {
+        jdbc.sql("DELETE FROM games").update();
+        assertThat(seed.run(
+                        List.of(Path.of("..", "seed", "delivery-hero-seed.json").toString())))
+                .isEqualTo(SeedCommand.IMPORTED);
+        UUID plan = jdbc.sql("SELECT id FROM run_plans WHERE plan_key = 'quick-3min'")
+                .query(UUID.class)
+                .single();
+        return lifecycle.create(plan, true, 0);
+    }
+
+    private RawStompClient connectedProjector(String projectorKey) throws Exception {
+        RawStompClient projector = RawStompClient.open(port);
+        projector.connect(Map.of("projector-key", projectorKey));
+        assertConnected(projector);
+        return projector;
     }
 
     private static void assertConnected(RawStompClient client) throws InterruptedException {
