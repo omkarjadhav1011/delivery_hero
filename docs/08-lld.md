@@ -1,6 +1,6 @@
 # Delivery Hero — Low-Level Design (LLD)
 
-> Document 08 of 18 · Version 1.3 (approved)
+> Document 08 of 18 · Version 1.4 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 08 — Low-Level Design (LLD) |
-| Version | 1.3 |
+| Version | 1.4 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
-| Date | 23 September 2026 |
+| Date | 26 September 2026 |
 | Depends on | 01 — Charter v1.5 (DEC-01 to DEC-138) · 03 — SRS v1.1 · 07 — HLD v1.1 |
 | Feeds into | 09 — Architecture · 10 — Database Design · 11 — API Specification · 13 — Coding Standards · 15 — Test Cases |
 
@@ -24,6 +24,7 @@
 | 1.1 | 2026-09-23 | [Owner name] | Renamed `ProblemWordsContent.code` to `monospace` (DEC-157) |
 | 1.2 | 2026-09-23 | [Owner name] | Frontend structure: added `src/copy.ts` (DEC-179) |
 | 1.3 | 2026-09-24 | [Owner name] | Correction found while writing document 18: the seed command's process never runs `StartupCleanup` or `HousekeepingJob`, which could otherwise cancel a game in progress (sections 5.8, 5.10) |
+| 1.4 | 2026-09-26 | [Owner name] | Realtime gateway as built for EN-04: `/ws` allows only the origin of `dh.public-base-url`; the broker advertises `heart-beat: 2000,10000`; a gateway watchdog closes silent connections; `ClientSubscribed` follows the broker's registration of the subscription; any frame a client may not send is refused; `ClientRole` defined (sections 5.4.3, 5.6 and 5.13) |
 
 ---
 
@@ -226,7 +227,8 @@ public sealed interface Command permits Join, Reconnect, Disconnect, ClientSubsc
 public record Join(String rawName, CompletableFuture<JoinResult> reply) implements Command {}
 public record Reconnect(String tokenHash, String connectionId) implements Command {}
 public record Disconnect(String connectionId) implements Command {}
-public record ClientSubscribed(String connectionId, ClientRole role, UUID playerId) implements Command {}
+public record ClientSubscribed(String connectionId, ClientRole role, @Nullable UUID playerId) implements Command {}  // playerId only for PLAYER
+public enum ClientRole { PLAYER, PROJECTOR, ADMIN }
 public record SubmitAnswer(UUID playerId, String taskKey, AnswerPayload answer, Instant receivedAt) implements Command {}
 public record TimerFired(TimerKey key) implements Command {}
 public record BotAnswer(UUID botId, String taskKey, AnswerPayload answer) implements Command {}
@@ -441,8 +443,8 @@ Ranks use competition numbering: players equal on all four keys share a rank, an
 
 **WebSocketConfig**
 
-- STOMP endpoint `/ws` with allowed origins limited to the site's own origin; no SockJS (DEC-127).
-- Simple broker for `/topic` and `/queue`, heartbeats of 10,000 ms in both directions, driven by a `ThreadPoolTaskScheduler`.
+- STOMP endpoint `/ws`; only the origin of `dh.public-base-url` (scheme, host and port) may connect, because Spring's same-origin check fails behind Nginx, whose forwarded `Host` carries no port. No SockJS (DEC-127).
+- Simple broker for `/topic` and `/queue`, driven by a `ThreadPoolTaskScheduler`. It expects client heartbeats every 10,000 ms and advertises `heart-beat: 2000,10000`: the broker checks every 2 seconds, so with clients' `10000,10000` it sends at least every 10 seconds (SRS section 6.3). An idle connection, after 10 seconds without a message, gets one heartbeat every 2 seconds.
 - Application prefix `/app`, user prefix `/user`, and an inbound message size limit of 8 KB.
 
 **StompAuthInterceptor** (on the client inbound channel, DEC-133):
@@ -452,16 +454,19 @@ Ranks use competition numbering: players equal on all four keys share a rank, an
 | CONNECT with `player-token` | Hash it and look it up in the current game's `tokenIndex` | `PlayerPrincipal(gameId, playerId)`, name `p:<playerId>` |
 | CONNECT with `projector-key` | Compare with the current game's key in constant time | `ProjectorPrincipal(gameId)` |
 | CONNECT on an authenticated admin session | Spring Security authentication from the handshake | `AdminPrincipal` |
-| CONNECT otherwise | None | Refused with an ERROR frame |
-| SUBSCRIBE | `DestinationPolicy.maySubscribe(principal, destination)` per HLD section 11 | Refused if not allowed |
-| SEND | `DestinationPolicy.maySend(principal, destination)`; projectors may send only to `/app/time-sync` (LD-02) | Refused if not allowed |
+| CONNECT otherwise | None | Refused with an ERROR frame, `message: UNAUTHORIZED` |
+| SUBSCRIBE | `DestinationPolicy.maySubscribe(principal, destination)` per HLD section 11 | If not allowed, refused with an ERROR frame, `message: FORBIDDEN` |
+| SEND | `DestinationPolicy.maySend(principal, destination)`; projectors may send only to `/app/time-sync` (LD-02) | If not allowed, refused with an ERROR frame, `message: FORBIDDEN` |
+| Any other frame a client may not send (MESSAGE and the other server frames) | None | Refused with an ERROR frame, `message: FORBIDDEN` |
+
+After any ERROR frame the connection closes.
 
 **RealtimeController**
 
 - `@MessageMapping("/games/{gameId}/answer")` stamps `receivedAt` from the clock first, applies the per-player answer rate limit, then enqueues `SubmitAnswer`.
 - `@MessageMapping("/time-sync")` with `@SendToUser("/queue/time-sync")` replies with `{clientSentAt, serverTime}`, without touching the engine.
 
-**StompEventListener** turns `SessionConnectedEvent`, `SessionSubscribeEvent` and `SessionDisconnectEvent` into `Reconnect`, `ClientSubscribed` and `Disconnect` commands. A connection that stops sending heartbeats is closed by the broker within 20 seconds, which produces the disconnect event (DEC-122).
+**StompEventListener** turns `SessionConnectedEvent` into `Reconnect` and `SessionDisconnectEvent` into `Disconnect`. It sends `ClientSubscribed` once the broker has registered the subscription (an `ExecutorChannelInterceptor` after the handler), so nothing arrives before the client is listening (LD-08). A connection silent for 19 seconds is closed by the gateway's `HeartbeatWatchdog`, which produces the disconnect event (DEC-122); the broker's own check would wait 30 seconds.
 
 ### 5.7 Broadcaster
 
@@ -566,6 +571,7 @@ Every REST error is a Problem Details body (LD-06):
 | `dh.broadcast.batch-interval` | 500ms | DEC-128 |
 | `dh.rate.login-failures`, `dh.rate.join-per-minute`, `dh.rate.answers-per-second` | 5, 120, 5 | DEC-108 |
 | `dh.admin.password-hash` | From `DH_ADMIN_PASSWORD_HASH` | DEC-98 |
+| `dh.public-base-url` | From `DH_PUBLIC_BASE_URL` | The site's address; its origin alone may open `/ws` (section 5.6) |
 | `spring.datasource.*` | From environment variables | Database connection |
 | `server.servlet.session.timeout` | 12h | DEC-97 |
 | `logging.structured.format.console` | `ecs` | NFR-11 |

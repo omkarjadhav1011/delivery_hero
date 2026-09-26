@@ -1,6 +1,6 @@
 # Delivery Hero — Setup Guide
 
-> Document 18 of 18 · Version 1.0 (approved)
+> Document 18 of 18 · Version 1.1 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 18 — Technical Documentation: the README and this Setup Guide |
-| Version | 1.0 |
+| Version | 1.1 |
 | Status | Approved on 24 September 2026 |
 | Owner and approver | [Owner name] |
-| Date | 24 September 2026 |
+| Date | 26 September 2026 |
 | Drafting note | Written before the code scaffold exists. The local stack's Nginx and Compose files were tested as described in section 13; every command is checked against the scaffold in Sprint 0 (OPS-20) and again before release |
 | Depends on | 04 — User Stories (EN-01) · 08 — LLD v1.3 · 09 — Software Architecture v1.2 · 11 — API Specification · 13 — Coding Standards and Git Strategy v1.2 · 14 — Test Plan v1.1 · 15 — Test Cases v1.1 · 16 — Deployment Guide v1.0 |
 | Feeds into | Onboarding · checks OPS-20 and OPS-22 |
@@ -22,6 +22,7 @@
 |---|---|---|---|
 | 0.1 | 2026-09-24 | [Owner name] | First draft |
 | 1.0 | 2026-09-24 | [Owner name] | Approved, with the README. SG-01 to SG-05 recorded as DEC-207 to DEC-211 (Charter v1.14); SG-01 applied to document 13's CI outline (v1.2) |
+| 1.1 | 2026-09-26 | [Owner name] | Section 6: the dev profile's STOMP test token and projector key (EN-04) |
 
 ---
 
@@ -168,6 +169,8 @@ The local credentials are public on purpose (SG-02):
 | Admin password | `delivery-hero-local` |
 | Database superuser | `postgres` / `local-superuser` |
 | Application database role | `dh_app` / `local-app` |
+| STOMP test player token (dev profile only, until US-01) | `local-player-token` |
+| STOMP test projector key (dev profile only, until US-01) | `local-projector-key` |
 
 Every port listens on `127.0.0.1` only, so nothing is reachable from your network. Never reuse these values elsewhere. Production can't start without its own `.env` file (document 16, section 8).
 
