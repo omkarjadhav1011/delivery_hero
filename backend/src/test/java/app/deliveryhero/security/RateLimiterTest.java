@@ -61,12 +61,12 @@ class RateLimiterTest {
     @DisplayName("AC-US50-01 blocked: the 5th failed login in 15 minutes blocks the key for 15 minutes")
     void fifthFailureBlocks() {
         for (int failure = 0; failure < 4; failure++) {
-            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+            fail("login:203.0.113.7");
             clock.advance(Duration.ofMinutes(3));
         }
         assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
 
-        limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+        fail("login:203.0.113.7");
 
         assertThat(limiter.blockedFor("login:203.0.113.7")).isEqualTo(Duration.ofMinutes(15));
     }
@@ -75,7 +75,7 @@ class RateLimiterTest {
     @DisplayName("AC-US50-02 unblocked: the block ends 15 minutes after it started")
     void blockEnds() {
         for (int failure = 0; failure < 5; failure++) {
-            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+            fail("login:203.0.113.7");
         }
         clock.advance(Duration.ofMinutes(14).plusSeconds(59));
         assertThat(limiter.blockedFor("login:203.0.113.7")).isEqualTo(Duration.ofSeconds(1));
@@ -89,10 +89,43 @@ class RateLimiterTest {
     @DisplayName("Failures more than 15 minutes apart never add up to a block")
     void oldFailuresExpire() {
         for (int failure = 0; failure < 5; failure++) {
-            limiter.recordFailure("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+            fail("login:203.0.113.7");
             clock.advance(Duration.ofMinutes(16));
         }
 
         assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
+    }
+
+    @Test
+    @DisplayName("AC-US50-01 blocked: attempts in flight count, so a burst of parallel guesses stops at the limit")
+    void parallelAttemptsAreCapped() {
+        for (int attempt = 0; attempt < 5; attempt++) {
+            assertThat(limiter.reserveAttempt("login:203.0.113.7", RateLimiter.LOGIN))
+                    .isNull();
+        }
+
+        assertThat(limiter.reserveAttempt("login:203.0.113.7", RateLimiter.LOGIN))
+                .isEqualTo(Duration.ofMinutes(15));
+    }
+
+    @Test
+    @DisplayName("A successful login gives its reservation back, so 4 failures and a success don't block")
+    void successGivesTheReservationBack() {
+        for (int failure = 0; failure < 4; failure++) {
+            fail("login:203.0.113.7");
+        }
+        assertThat(limiter.reserveAttempt("login:203.0.113.7", RateLimiter.LOGIN))
+                .isNull();
+
+        limiter.settleAttempt("login:203.0.113.7", RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK, false);
+
+        assertThat(limiter.blockedFor("login:203.0.113.7")).isNull();
+        assertThat(limiter.reserveAttempt("login:203.0.113.7", RateLimiter.LOGIN))
+                .isNull();
+    }
+
+    private void fail(String key) {
+        assertThat(limiter.reserveAttempt(key, RateLimiter.LOGIN)).isNull();
+        limiter.settleAttempt(key, RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK, true);
     }
 }

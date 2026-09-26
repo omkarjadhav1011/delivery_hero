@@ -24,6 +24,8 @@ export function LoginScreen({ onLoggedIn }: LoginScreenProps) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Cleared first, so a repeated failure is announced again rather than left unchanged
+    setFailure(null);
     setSubmitting(true);
     try {
       // The session check sets the XSRF-TOKEN cookie that the login form must send back (document 11, 5.2)
@@ -73,11 +75,10 @@ export function LoginScreen({ onLoggedIn }: LoginScreenProps) {
             {copy.admin.login.submit}
           </ArcadeButton>
         </div>
-        {failure !== null && (
-          <p id={messageId} className="text-danger">
-            {copy.admin.login[failure]}
-          </p>
-        )}
+        {/* Always on the page, so screen readers announce the message when it appears (NFR-31) */}
+        <p id={messageId} role="status" className="text-danger">
+          {failure === null ? null : copy.admin.login[failure]}
+        </p>
       </form>
     </AdminShell>
   );

@@ -22,18 +22,11 @@ class LoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailu
     private static final Logger log = LoggerFactory.getLogger(LoginHandlers.class);
 
     private final AdminSession session;
-    private final RateLimiter limiter;
     private final HandlerExceptionResolver problems;
 
-    LoginHandlers(AdminSession session, RateLimiter limiter, HandlerExceptionResolver problems) {
+    LoginHandlers(AdminSession session, HandlerExceptionResolver problems) {
         this.session = session;
-        this.limiter = limiter;
         this.problems = problems;
-    }
-
-    /** The login attempt limit's key: one per client address (API section 5.3). */
-    static String loginKey(HttpServletRequest request) {
-        return "login:" + request.getRemoteAddr();
     }
 
     @Override
@@ -51,7 +44,7 @@ class LoginHandlers implements AuthenticationSuccessHandler, AuthenticationFailu
     @Override
     public void onAuthenticationFailure(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
-        limiter.recordFailure(loginKey(request), RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK);
+        // RateLimitFilter counts the failure toward the login attempt limit (US-50)
         log.atWarn()
                 .addKeyValue("event", "LOGIN_FAILED")
                 .addKeyValue("ip", request.getRemoteAddr())

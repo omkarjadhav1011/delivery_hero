@@ -47,16 +47,37 @@ class RateLimitFilter extends OncePerRequestFilter {
             return;
         }
         if (LOGIN.matches(request)) {
-            // Even the right password is refused while the address is blocked (AC-US50-01)
-            Duration blocked = limiter.blockedFor(LoginHandlers.loginKey(request));
-            if (blocked != null) {
-                long seconds = blocked.toSeconds() + (blocked.toNanosPart() > 0 ? 1 : 0);
-                response.setHeader(HttpHeaders.RETRY_AFTER, Long.toString(seconds));
-                refuse(request, response, "login");
-                return;
-            }
+            login(request, response, chain);
+            return;
         }
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Even the right password is refused while the address is blocked (AC-US50-01). Each attempt is reserved before
+     * the password check and settled by its outcome, so parallel guesses can't all slip under the limit.
+     */
+    private void login(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
+        String key = "login:" + request.getRemoteAddr();
+        Duration retryAfter = limiter.blockedFor(key);
+        if (retryAfter == null) {
+            retryAfter = limiter.reserveAttempt(key, RateLimiter.LOGIN);
+        }
+        if (retryAfter != null) {
+            long seconds = retryAfter.toSeconds() + (retryAfter.toNanosPart() > 0 ? 1 : 0);
+            response.setHeader(HttpHeaders.RETRY_AFTER, Long.toString(seconds));
+            refuse(request, response, "login");
+            return;
+        }
+        boolean failed = false;
+        try {
+            chain.doFilter(request, response);
+            // A wrong password is the only 401 from login; a CSRF refusal (403) isn't a guess at the password
+            failed = response.getStatus() == HttpServletResponse.SC_UNAUTHORIZED;
+        } finally {
+            limiter.settleAttempt(key, RateLimiter.LOGIN, RateLimiter.LOGIN_BLOCK, failed);
+        }
     }
 
     private void refuse(HttpServletRequest request, HttpServletResponse response, String limit) {

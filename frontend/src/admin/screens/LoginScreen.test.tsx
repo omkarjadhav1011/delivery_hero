@@ -76,12 +76,16 @@ describe("LoginScreen", () => {
 
     logIn("wrong");
 
-    expect(await screen.findByText(copy.admin.login.failed)).toBeTruthy();
+    const message = await screen.findByText(copy.admin.login.failed);
+    expect(message.getAttribute("role")).toBe("status");
+    expect(screen.getByLabelText(copy.admin.login.password).getAttribute("aria-describedby")).toBe(
+      message.id,
+    );
     expect(screen.getByLabelText<HTMLInputElement>(copy.admin.login.password).value).toBe("");
     expect(onLoggedIn).not.toHaveBeenCalled();
   });
 
-  it("AC-US50-01 shows the rate-limit message while the address is blocked", async () => {
+  it("A-01 shows the rate-limit message when the server refuses with 429", async () => {
     fetchMock
       .mockResolvedValueOnce(jsonResponse(200, LOGGED_OUT))
       .mockResolvedValueOnce(problem(429, "RATE_LIMITED"));

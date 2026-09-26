@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class RateLimiter {
     /** Answers per player (API section 5.3). */
     public static final Limit ANSWER = new Limit(5, Duration.ofSeconds(1));
 
-    /** Failed logins per IP address before a block; the count setting is {@code dh.rate.login-failures} (API 5.3). */
+    /** Failed logins per IP address in 15 minutes before a block (API section 5.3; a constant for now, DI-53). */
     public static final Limit LOGIN = new Limit(5, Duration.ofMinutes(15));
 
     /** How long an address stays blocked after too many failed logins (API section 5.3). */
@@ -64,20 +65,44 @@ public class RateLimiter {
         return allowed.get();
     }
 
-    /** Counts one failure for the key; the one that reaches the limit blocks the key for {@code block}. */
-    public void recordFailure(String key, Limit limit, Duration block) {
+    /**
+     * Reserves one login attempt for the key before the password is checked, so parallel guesses can't all pass the
+     * limit while bcrypt runs. Returns null when reserved, or how long until the window ends when the attempts in
+     * flight and the failures so far already reach the limit.
+     */
+    public @Nullable Duration reserveAttempt(String key, Limit limit) {
         Instant now = clock.instant();
         prune(now);
-        Window failures = windows.compute(key, (unused, window) -> {
+        AtomicReference<@Nullable Duration> refused = new AtomicReference<>();
+        windows.compute(key, (unused, window) -> {
             if (window == null || !now.isBefore(window.endsAt())) {
                 return new Window(now.plus(limit.window()), 1);
             }
+            if (window.count() >= limit.max()) {
+                refused.set(Duration.between(now, window.endsAt()));
+                return window;
+            }
             return new Window(window.endsAt(), window.count() + 1);
         });
-        if (failures.count() >= limit.max()) {
-            blocks.put(key, now.plus(block));
-            windows.remove(key);
+        return refused.get();
+    }
+
+    /**
+     * Settles a reserved attempt: a failure stays counted, and the one that reaches the limit blocks the key for
+     * {@code block}; anything else gives the reservation back.
+     */
+    public void settleAttempt(String key, Limit limit, Duration block, boolean failed) {
+        Instant now = clock.instant();
+        if (failed) {
+            Window window = windows.get(key);
+            if (window != null && now.isBefore(window.endsAt()) && window.count() >= limit.max()) {
+                blocks.put(key, now.plus(block));
+                windows.remove(key);
+            }
+            return;
         }
+        windows.computeIfPresent(
+                key, (unused, window) -> window.count() <= 1 ? null : new Window(window.endsAt(), window.count() - 1));
     }
 
     /** How much longer the key is blocked, or null when it isn't. */

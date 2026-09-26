@@ -56,6 +56,13 @@ class AdminSessionIT {
 
         // Login rotates the CSRF token, so the session check hands out the new one
         String csrf = cookie(get("/api/admin/session", session), "XSRF-TOKEN").orElseThrow();
+        // Without the token, logout is refused and the session lives on (API 5.2, DI-18)
+        HttpResponse<String> forged = send(HttpRequest.newBuilder(uri("/api/admin/logout"))
+                .header("Cookie", session)
+                .POST(HttpRequest.BodyPublishers.noBody()));
+        assertThat(forged.statusCode()).isEqualTo(403);
+        assertThat(get("/api/admin/session", session).body()).contains("\"authenticated\":true");
+
         HttpResponse<String> logout = send(HttpRequest.newBuilder(uri("/api/admin/logout"))
                 .header("Cookie", session + "; " + csrf)
                 .header("X-XSRF-TOKEN", value(csrf))

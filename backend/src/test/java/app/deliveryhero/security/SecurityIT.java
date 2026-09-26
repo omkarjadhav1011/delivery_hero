@@ -299,6 +299,23 @@ class SecurityIT {
                 .doesNotContain(LOCAL_PASSWORD, "a-wrong-guess", admin.passwordHash());
     }
 
+    @Test
+    @DisplayName("Login without the CSRF token is refused with 403 and counts nothing toward the limit (API 5.2)")
+    void loginNeedsTheCsrfToken() {
+        for (int attempt = 0; attempt < 6; attempt++) {
+            assertThat(mvc.post()
+                            .uri("/api/admin/login")
+                            .with(from("192.0.2.50"))
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .param("username", "admin")
+                            .param("password", LOCAL_PASSWORD)
+                            .exchange())
+                    .hasStatus(HttpStatus.FORBIDDEN);
+        }
+
+        assertThat(login("192.0.2.50", LOCAL_PASSWORD)).hasStatus(HttpStatus.NO_CONTENT);
+    }
+
     private void failLogins(String address, int failures) {
         for (int failure = 0; failure < failures; failure++) {
             assertThat(login(address, "not-the-password")).hasStatus(HttpStatus.UNAUTHORIZED);

@@ -53,7 +53,8 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Cost 12 like the configured hash (DEC-98), so a check that finds no user takes as long as a real one
+        return new BCryptPasswordEncoder(12);
     }
 
     /** One {@code admin} user whose password is the configured bcrypt hash, so Spring never generates a password. */
@@ -74,7 +75,7 @@ public class SecurityConfig {
             RateLimiter rateLimiter,
             AdminSession adminSession,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver problems) {
-        LoginHandlers login = new LoginHandlers(adminSession, rateLimiter, problems);
+        LoginHandlers login = new LoginHandlers(adminSession, problems);
         http.authorizeHttpRequests(requests -> {
             // Health for Nginx's /health; the deploy lock, which Nginx never forwards (LLD section 5.9, DEC-137)
             requests.requestMatchers("/actuator/health", "/api/ops/**").permitAll();
