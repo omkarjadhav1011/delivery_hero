@@ -170,3 +170,41 @@ test("AC-US51-05 E2E-04 step 2: mgr-plan-01, opened from the library, can't be d
     page.getByText(text.usedBy(["Default 5-minute plan", "Quick 3-minute plan"]), { exact: true }),
   ).toBeVisible();
 });
+
+// Step 3, edit conflict (S2-08 T4). A's change is put back at the end, so the spec can run again.
+test("AC-US53-01 E2E-04 step 3: admins A and B open mgr-plan-01, A saves, then B's save is refused and A's change stays", async ({
+  browser,
+}) => {
+  const contextA = await browser.newContext();
+  const contextB = await browser.newContext();
+  const pageA = await contextA.newPage();
+  const pageB = await contextB.newPage();
+  try {
+    for (const page of [pageA, pageB]) {
+      await loginAsAdmin(page);
+      await page.goto("/admin/tasks/");
+      await page.getByRole("link", { name: "mgr-plan-01", exact: true }).click();
+      await expect(page.getByLabel(text.prompt)).not.toHaveValue("");
+    }
+    const original = await pageA.getByLabel(text.prompt).inputValue();
+
+    await pageA.getByLabel(text.prompt).fill(`A's change ${run}`);
+    await pageA.getByRole("button", { name: text.save }).click();
+    await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
+
+    await pageB.getByLabel(text.prompt).fill(`B's change ${run}`);
+    await pageB.getByRole("button", { name: text.save }).click();
+    await expect(pageB.getByText(text.editConflict, { exact: true })).toBeVisible();
+    await expectNoAxeViolations(pageB);
+
+    await pageB.reload();
+    await expect(pageB.getByLabel(text.prompt)).toHaveValue(`A's change ${run}`);
+
+    await pageA.getByLabel(text.prompt).fill(original);
+    await pageA.getByRole("button", { name: text.save }).click();
+    await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
+  } finally {
+    await contextA.close();
+    await contextB.close();
+  }
+});

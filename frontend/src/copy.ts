@@ -125,6 +125,8 @@ export const copy = {
       usedBy: (names: readonly string[]) => `Used by: ${names.join(", ")}`,
       warnings: "Warnings",
       noWarnings: "Warnings: none",
+      // The copy deck's A-04 line (FR-073)
+      editConflict: "Someone else changed this since you opened it. Reload to see their changes.",
       notFound: "This task doesn't exist any more.",
       failed: "That didn't work. Check your connection and try again.",
       roles: {
