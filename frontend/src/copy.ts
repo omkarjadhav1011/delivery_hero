@@ -49,6 +49,15 @@ export const copy = {
   screen: {
     // S-01
     gettingReady: "Getting ready…",
+    // S-02
+    scanToJoin: "Scan to join",
+    joined: (count: number) => `Joined: ${count}`,
+    openInChrome: "Open this link in Chrome",
+    // The QR code's accessible name; not in the copy deck (DI-21)
+    qrLabel: "QR code of the join link",
+    // The projector's end screens, worded as P-20 and SRS section 3.1
+    finished: "This game has finished.",
+    hostEnded: "The host ended this game.",
   },
   admin: {
     // A-02 header and navigation

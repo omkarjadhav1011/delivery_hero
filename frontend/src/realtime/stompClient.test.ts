@@ -40,9 +40,9 @@ class FakeClient implements StompLike {
     };
   }
 
-  /** The server accepted CONNECT. */
-  open() {
-    this.config?.onConnect();
+  /** The server accepted CONNECT, with these CONNECTED headers. */
+  open(headers: Record<string, string> = {}) {
+    this.config?.onConnect(headers);
   }
 
   /** The server sent an ERROR frame. */
@@ -140,6 +140,23 @@ describe("createStompConnection", () => {
 
     expect(projector.connectHeaders).toEqual({ "projector-key": "key-9" });
     expect(admin.connectHeaders).toEqual({});
+  });
+
+  it("passes the CONNECTED frame's headers to onConnected on every connect", () => {
+    const client = new FakeClient();
+    const onConnected = vi.fn();
+    createStompConnection({
+      credentials: { projectorKey: "key-9" },
+      timer,
+      onStatusChange: () => {},
+      onConnected,
+      createClient: () => client,
+      network: new FakeNetwork(),
+    }).start();
+
+    client.open({ "user-name": "projector:g-1", version: "1.2" });
+
+    expect(onConnected).toHaveBeenCalledWith({ "user-name": "projector:g-1", version: "1.2" });
   });
 
   it("re-subscribes after a reconnect and reports each status change", async () => {
