@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S0-05 |
 | Branch | feat/us-01-join |
 | Start commit | 0d8ef70 |
-| Last commit | 386714e |
+| Last commit | 6a1408c |
 | Step | test-first |
-| Task | T6 |
+| Task | T7 |
 | Attempts | 0 |
 | Started | 2026-09-26T08:09 |
-| Updated | 2026-09-26T08:37 |
-| Next action | JoinScreen.test.tsx AC-US01-01 and AC-US01-03 |
+| Updated | 2026-09-26T09:09 |
+| Next action | store.test.ts AC-US04-02 and Lobby.test.tsx AC-US04-01 |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (4192874)
 - T4 (103d148)
 - T5 (386714e)
+- T6 (6a1408c)
 
 ## Pending approvals
 

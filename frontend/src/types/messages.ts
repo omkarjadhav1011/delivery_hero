@@ -31,3 +31,15 @@ export type GameStateMessage = Envelope & {
 
 /** Every message on `/user/queue/game` so far. */
 export type PlayerMessage = GameStateMessage;
+
+const PLAYER_MESSAGE_TYPES: ReadonlySet<string> = new Set<PlayerMessage["type"]>(["GAME_STATE"]);
+
+/** Narrows a parsed frame to a known player message; clients ignore types they don't know (AP-04). */
+export function isPlayerMessage(value: unknown): value is PlayerMessage {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { type?: unknown }).type === "string" &&
+    PLAYER_MESSAGE_TYPES.has((value as { type: string }).type)
+  );
+}
