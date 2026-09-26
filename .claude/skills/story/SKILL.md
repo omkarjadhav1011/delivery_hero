@@ -13,5 +13,5 @@ disable-model-invocation: true
 5. **Implement** the smallest change that makes them pass, following the path-scoped rules in `.claude/rules/`.
 6. **Documents.** Update the documents the plan named, including `src/copy.ts` from the copy deck and a new decision through `/decision` if one was made.
 7. **Check.** Run `/check` and fix everything it reports.
-8. **Review.** Use `backend-reviewer`, `frontend-reviewer` or `ops-reviewer` for the areas you changed, and fix what they find.
+8. **Review.** Use `backend-reviewer`, `frontend-reviewer` or `ops-reviewer` for the areas you changed, and `security-reviewer` whenever its "When it runs" section applies. Fix what they find; a critical or high security finding blocks the story until it's fixed or I accept it.
 9. **Finish.** Commit with a Conventional Commit message, summarize what changed and how each criterion is covered, and suggest `/pr`.

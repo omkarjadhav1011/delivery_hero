@@ -32,12 +32,13 @@ Current state:
    2. Write the failing tests first, named with criterion IDs (`/story`'s conventions). Then the smallest implementation.
    3. After each failed run: `S journal attempt --test <name> --error "<first error line>"`. Exit 4 means 3 attempts failed. Stop, mark the task `[Blocked: <evidence>]`, propose options and ask.
    4. When it passes: `S journal fail-clear`, and run `/check` for the changed area (read `.claude/skills/check/SKILL.md`). Without Docker, run the unit tests and record the integration tests as pending.
+      - If the task touched a sensitive path (`security-reviewer`, "When it runs"), run `security-reviewer` on the task's diff and fix critical and high findings before ticking it.
    5. Tick the task (`- [x]`) and add a dated progress-log line.
    6. Commit the code, tests and subplan together: `wip(<ID>): T<n> <what>`.
    7. `S journal done T<n> --next "<next task or step>"`.
 6. **Before the wrap-up:**
    - `/e2e` if the subplan's Verification or the testing schedule requires it (read `.claude/skills/e2e/SKILL.md`);
-   - then the matching reviewers (`backend-reviewer`, `frontend-reviewer`, `ops-reviewer`). Fix what they find.
+   - then the matching reviewers (`backend-reviewer`, `frontend-reviewer`, `ops-reviewer`), and `security-reviewer` on the whole branch diff whenever its "When it runs" section applies, even if the subplan's Reviewers line doesn't name it. Fix what they find.
    - Don't edit `docs/` unless I approve that specific change. Record needed document changes in `planning/doc-issues.md`, and new unknowns in `planning/open-questions.md`.
 7. **Finish the session:**
    - Set the status field: In progress, In review (a pull request is open), Done (every task ticked, merged, criteria passing) or Blocked (with the reason in the log).
