@@ -279,8 +279,9 @@ public class SeedImporter {
             report.warnings().forEach(issue -> warnings.add(line(where, issue)));
         }
 
+        /** The seed file keeps a task's content fields on the task itself, so the API's {@code content.} goes. */
         private static String line(String where, Issue issue) {
-            return where + ": " + issue.path() + ": " + issue.message();
+            return where + ": " + issue.path().replaceFirst("^content\\.", "") + ": " + issue.message();
         }
 
         private static String label(@Nullable String key, String fallback) {

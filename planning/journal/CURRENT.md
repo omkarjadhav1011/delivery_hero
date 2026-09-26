@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
-| Task |  |
-| Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| State | active |
+| Session | 2026-09-26-1342 |
+| Subplan | S2-07 |
+| Branch | chore/local-admin-password |
+| Start commit | ae162de |
+| Last commit | ae162de |
+| Step | test-first |
+| Task | T1 |
+| Attempts | 1 |
+| Started | 2026-09-26T13:42 |
+| Updated | 2026-09-26T13:52 |
+| Next action | ContentValidatorTest AC-US51-02 |
 
 ## Completed tasks
 
