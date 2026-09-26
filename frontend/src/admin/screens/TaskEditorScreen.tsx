@@ -102,8 +102,11 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
         router.replace(`/admin/tasks/edit/?id=${encodeURIComponent(saved.id)}`);
       }
     } catch (error: unknown) {
-      // Field issues appear beside their fields; anything else gets the general message
-      if (error instanceof ApiError && error.errors.length > 0) {
+      // Field issues appear beside their fields; a conflict keeps the edits on screen (FR-073); anything else gets
+      // the general message
+      if (error instanceof ApiError && error.code === "EDIT_CONFLICT") {
+        setOutcome({ ...NO_OUTCOME, message: text.editConflict });
+      } else if (error instanceof ApiError && error.errors.length > 0) {
         setOutcome({ ...NO_OUTCOME, errors: error.errors });
       } else {
         setOutcome({ ...NO_OUTCOME, message: text.failed });
@@ -128,6 +131,8 @@ export function TaskEditorScreen({ id }: TaskEditorScreenProps) {
           ...NO_OUTCOME,
           message: text.usedBy(error.errors.map((issue) => issue.message)),
         });
+      } else if (error instanceof ApiError && error.code === "EDIT_CONFLICT") {
+        setOutcome({ ...NO_OUTCOME, message: text.editConflict });
       } else {
         setOutcome({ ...NO_OUTCOME, message: text.failed });
       }

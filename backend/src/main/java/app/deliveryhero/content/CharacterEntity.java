@@ -82,6 +82,24 @@ public class CharacterEntity implements Persistable<Role> {
         return displayName;
     }
 
+    public String introLine() {
+        return introLine;
+    }
+
+    /** The JSON array of the three correct-answer lines. */
+    public String correctLines() {
+        return correctLines;
+    }
+
+    /** The JSON array of the three wrong-answer lines. */
+    public String wrongLines() {
+        return wrongLines;
+    }
+
+    public int version() {
+        return version;
+    }
+
     @Override
     public Role getId() {
         return role;

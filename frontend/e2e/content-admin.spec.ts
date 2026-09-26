@@ -1,5 +1,6 @@
 import { copy } from "../src/copy";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { expect, expectNoAxeViolations, loginAsAdmin, test } from "./fixtures";
 
@@ -135,4 +136,88 @@ test("AC-US51-02 E2E-04 step 2: invalid saves are refused, each message naming t
   await expect(page.getByText("Must be 1 to 200 characters.", { exact: true })).toBeVisible();
   await expect(page.getByText(text.saved, { exact: true })).toHaveCount(0);
   await expect(page).toHaveURL(/\/admin\/tasks\/edit\/$/);
+});
+
+// Step 2, the library (S2-08 T2). It reads the seeded library (DS-01), which the e2e stack loads.
+
+test("AC-US52-01 E2E-04 step 2: filtering the library by Tester and Tap to order gives exactly the three expected tasks", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+  await page.goto("/admin/tasks/");
+  await expect(page.getByRole("link", { name: "mgr-plan-01", exact: true })).toBeVisible();
+  await expectNoAxeViolations(page);
+
+  await page.getByLabel(text.role).selectOption("TESTER");
+  await page.getByLabel(text.type).selectOption("ORDER");
+
+  // The server lists the library by key (DI-64)
+  const keys = page.getByRole("rowheader");
+  await expect(keys).toHaveText(["tst-dev-03", "tst-rel-03", "tst-test-01"]);
+  await expect(page.getByRole("row", { name: /tst-test-01/ })).toContainText(text.types.ORDER);
+});
+
+test("AC-US51-05 E2E-04 step 2: mgr-plan-01, opened from the library, can't be deleted and names both plans", async ({
+  page,
+}) => {
+  await loginAsAdmin(page);
+  await page.goto("/admin/tasks/");
+  await page.getByRole("link", { name: "mgr-plan-01", exact: true }).click();
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: `${copy.admin.editTask} mgr-plan-01` }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: text.delete })).toBeDisabled();
+  await expect(
+    page.getByText(text.usedBy(["Default 5-minute plan", "Quick 3-minute plan"]), { exact: true }),
+  ).toBeVisible();
+});
+
+// Step 3, edit conflict (S2-08 T4). The seed file's prompt is put back whatever happens, so a failed run doesn't
+// leave mgr-plan-01 changed for the next one.
+const seedPrompt = (
+  JSON.parse(readFileSync("../seed/delivery-hero-seed.json", "utf8")) as {
+    tasks: { key: string; prompt: string }[];
+  }
+).tasks.find((task) => task.key === "mgr-plan-01")?.prompt;
+
+test("AC-US53-01 E2E-04 step 3: admins A and B open mgr-plan-01, A saves, then B's save is refused and A's change stays", async ({
+  browser,
+}) => {
+  expect(seedPrompt).toBeDefined();
+  const contextA = await browser.newContext();
+  const contextB = await browser.newContext();
+  const pageA = await contextA.newPage();
+  const pageB = await contextB.newPage();
+  let changed = false;
+  try {
+    for (const page of [pageA, pageB]) {
+      await loginAsAdmin(page);
+      await page.goto("/admin/tasks/");
+      await page.getByRole("link", { name: "mgr-plan-01", exact: true }).click();
+      await expect(page.getByLabel(text.prompt)).toHaveValue(seedPrompt ?? "");
+    }
+
+    await pageA.getByLabel(text.prompt).fill(`A's change ${run}`);
+    changed = true;
+    await pageA.getByRole("button", { name: text.save }).click();
+    await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
+
+    await pageB.getByLabel(text.prompt).fill(`B's change ${run}`);
+    await pageB.getByRole("button", { name: text.save }).click();
+    await expect(pageB.getByText(text.editConflict, { exact: true })).toBeVisible();
+    await expectNoAxeViolations(pageB);
+
+    await pageB.reload();
+    await expect(pageB.getByLabel(text.prompt)).toHaveValue(`A's change ${run}`);
+  } finally {
+    if (changed) {
+      await pageA.reload();
+      await pageA.getByLabel(text.prompt).fill(seedPrompt ?? "");
+      await pageA.getByRole("button", { name: text.save }).click();
+      await expect(pageA.getByText(text.saved, { exact: true })).toBeVisible();
+    }
+    await contextA.close();
+    await contextB.close();
+  }
 });

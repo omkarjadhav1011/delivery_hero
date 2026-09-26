@@ -20,10 +20,12 @@ public enum ApiErrorCode {
     UNAUTHENTICATED(401, "Unauthenticated", null),
     /** Content breaks SRS 7.3; {@code errors} lists each issue, shown next to its field. */
     VALIDATION_FAILED(422, "Validation failed", null),
+    /** The {@code version} sent doesn't match: someone else changed the item since it was read (FR-073). */
+    EDIT_CONFLICT(409, "Edit conflict", "Someone else changed this since you opened it. Reload to see their changes."),
     /** Deleting a task a run plan uses; the detail names the plans and {@code errors} lists them (FR-071). */
     TASK_IN_USE(409, "Task in use", "This task is used by: …"),
     NOT_FOUND(404, "Not found", null);
-    // TODO(US-53): EDIT_CONFLICT and the host codes of API section 6.2 arrive with the endpoints that return them
+    // The host codes of API section 6.2 arrive with the endpoints that return them
 
     private final int status;
     private final String title;

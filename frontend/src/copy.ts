@@ -75,9 +75,23 @@ export const copy = {
     // A-04 and A-08 headings
     editTask: "Edit task",
     newGame: "New game",
+    taskLibrary: {
+      // A-03. The column and filter labels follow the wireframe; "All", the search label, the plan counts and the
+      // empty and failed lines are worded in the deck's style, for the owner's review (DI-21, DI-63)
+      all: "All",
+      search: "Search",
+      key: "Key",
+      usedIn: "Used in",
+      time: "Time",
+      noPhase: "–",
+      plans: (count: number) => (count === 1 ? "1 plan" : `${count} plans`),
+      seconds: (seconds: number) => `${seconds} s`,
+      none: "No tasks match.",
+      failed: "The tasks didn't load. Check your connection and try again.",
+    },
     taskEditor: {
       // A-04. Only the edit-conflict line is in the copy deck; the rest follows the wireframe's labels and the
-      // deck's style, listed for the owner's review before the content freeze (DI-21)
+      // deck's style, listed for the owner's review before the content freeze (DI-21, DI-62)
       newTask: "New task",
       key: "Key",
       role: "Role",
@@ -111,6 +125,8 @@ export const copy = {
       usedBy: (names: readonly string[]) => `Used by: ${names.join(", ")}`,
       warnings: "Warnings",
       noWarnings: "Warnings: none",
+      // The copy deck's A-04 line (FR-073)
+      editConflict: "Someone else changed this since you opened it. Reload to see their changes.",
       notFound: "This task doesn't exist any more.",
       failed: "That didn't work. Check your connection and try again.",
       roles: {

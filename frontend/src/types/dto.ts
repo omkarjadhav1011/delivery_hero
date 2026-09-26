@@ -111,6 +111,29 @@ export type TaskDetail = Omit<TaskInput, "version"> & {
   warnings: ValidationIssue[];
 };
 
+/** A row of `GET /api/admin/tasks`, without answers (document 11, section 7.4). */
+export type TaskSummary = {
+  id: string;
+  key: string;
+  role: Role;
+  kind: TaskKind;
+  phase: Phase | null;
+  type: TaskType;
+  prompt: string;
+  effectiveTimeLimitSeconds: number;
+  usedByCount: number;
+  version: number;
+};
+
+/** The task library's query parameters; each one left out matches every task, `q` searches prompts. */
+export type TaskFilter = {
+  role?: Role;
+  phase?: Phase;
+  kind?: TaskKind;
+  type?: TaskType;
+  q?: string;
+};
+
 /** The only task shape phones get, and the editor's preview (document 11, section 9.1). */
 export type PublicTaskView = {
   key: string;

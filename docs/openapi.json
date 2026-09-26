@@ -9,6 +9,43 @@
     "description" : "Generated server url"
   } ],
   "paths" : {
+    "/api/admin/characters/{role}" : {
+      "put" : {
+        "operationId" : "update_1",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "role",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CharacterInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CharacterView"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "character-controller" ]
+      }
+    },
     "/api/admin/session" : {
       "get" : {
         "operationId" : "session",
@@ -28,6 +65,65 @@
       }
     },
     "/api/admin/tasks" : {
+      "get" : {
+        "operationId" : "list",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "role",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "phase",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PLANNING", "DEVELOPMENT", "TESTING", "RELEASE" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "kind",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "SCORED", "PRACTICE", "INCIDENT" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "q",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TaskSummary"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "task-controller" ]
+      },
       "post" : {
         "operationId" : "create",
         "requestBody" : {
@@ -263,6 +359,64 @@
           "expiresAt" : {
             "type" : "string",
             "format" : "date-time"
+          }
+        }
+      },
+      "CharacterInput" : {
+        "type" : "object",
+        "properties" : {
+          "correctLines" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "introLine" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "wrongLines" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "CharacterView" : {
+        "type" : "object",
+        "properties" : {
+          "correctLines" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "introLine" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "wrongLines" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
@@ -604,6 +758,49 @@
           "type" : {
             "type" : "string",
             "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "TaskSummary" : {
+        "type" : "object",
+        "properties" : {
+          "effectiveTimeLimitSeconds" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string",
+            "enum" : [ "SCORED", "PRACTICE", "INCIDENT" ]
+          },
+          "phase" : {
+            "type" : "string",
+            "enum" : [ "PLANNING", "DEVELOPMENT", "TESTING", "RELEASE" ]
+          },
+          "prompt" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "MANAGER", "BUSINESS_ANALYST", "DEVELOPER", "TESTER" ]
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "MULTIPLE_CHOICE", "YES_NO", "ORDER", "PROBLEM_WORDS" ]
+          },
+          "usedByCount" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "version" : {
             "type" : "integer",

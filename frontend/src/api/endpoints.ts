@@ -4,7 +4,9 @@ import type {
   JoinRequest,
   JoinResponse,
   TaskDetail,
+  TaskFilter,
   TaskInput,
+  TaskSummary,
 } from "@/types/dto";
 import { ADMIN_LOGIN_PATH, http } from "./http";
 
@@ -40,6 +42,18 @@ export function adminLogin(password: string): Promise<void> {
 /** Ends the admin session (document 11, section 7.3); like every state-changing admin request it sends CSRF. */
 export function adminLogout(): Promise<void> {
   return http<void>("/api/admin/logout", { method: "POST" });
+}
+
+/** The task library, filtered on the server; blank filters and a blank search are left out (FR-070). */
+export function listTasks(filter: TaskFilter): Promise<TaskSummary[]> {
+  const query = new URLSearchParams();
+  for (const [name, value] of Object.entries(filter)) {
+    if (typeof value === "string" && value.trim() !== "") {
+      query.set(name, value.trim());
+    }
+  }
+  const search = query.toString();
+  return http<TaskSummary[]>(search === "" ? "/api/admin/tasks" : `/api/admin/tasks?${search}`);
 }
 
 /** A task with its correct answers and the run plans that use it: admins only (document 11, section 7.4). */

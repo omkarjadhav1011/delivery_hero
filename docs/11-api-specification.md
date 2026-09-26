@@ -1,6 +1,6 @@
 # Delivery Hero — API Specification
 
-> Document 11 of 18 · Version 1.1 (approved)
+> Document 11 of 18 · Version 1.2 (approved)
 
 ## Document control
 
@@ -8,7 +8,7 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 11 — API Specification |
-| Version | 1.1 |
+| Version | 1.2 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
 | Date | 26 September 2026 |
@@ -22,6 +22,7 @@
 | 0.1 | 2026-09-23 | [Owner name] | First draft |
 | 1.0 | 2026-09-23 | [Owner name] | Approved. AP-01 to AP-07 recorded as DEC-159 to DEC-165 (Charter v1.9); ANSWER_REJECTED added to the SRS message catalog (v1.3) |
 | 1.1 | 2026-09-26 | [Owner name] | Section 8: the server's heart-beat value, the `FORBIDDEN` refusal code, and that every ERROR frame closes the connection (EN-04) |
+| 1.2 | 2026-09-26 | [Owner name] | Section 7.4: the task library is ordered by key; the 422 responses of the library and of delete; the version is checked before validation and use (US-52, US-53) |
 
 ---
 
@@ -305,12 +306,14 @@ The phone stores `token` in local storage under `dh.token.K7PQ2M` (FR-007) and c
 
 | Endpoint | Details | Errors |
 |---|---|---|
-| `GET /api/admin/tasks` | Query parameters `role`, `phase`, `kind`, `type` (each optional) and `q` (case-insensitive search in prompts). Returns summaries: `id`, `key`, `role`, `kind`, `phase`, `type`, `prompt`, `effectiveTimeLimitSeconds`, `usedByCount`, `version` | 401 |
+| `GET /api/admin/tasks` | Query parameters `role`, `phase`, `kind`, `type` (each optional) and `q` (case-insensitive search in prompts). Returns summaries: `id`, `key`, `role`, `kind`, `phase`, `type`, `prompt`, `effectiveTimeLimitSeconds`, `usedByCount`, `version`, ordered by key | 401, 422 `VALIDATION_FAILED` (an unknown filter value) |
 | `GET /api/admin/tasks/{id}` | Task detail, including correct answers (admins only) | 401, 404 |
 | `POST /api/admin/tasks` | Task input; returns 201 with the detail | 401, 422 `VALIDATION_FAILED` |
 | `PUT /api/admin/tasks/{id}` | Task input with `version`; returns 200 with the detail | 401, 404, 409 `EDIT_CONFLICT`, 422 |
-| `DELETE /api/admin/tasks/{id}?version=3` | Returns 204 | 401, 404, 409 `TASK_IN_USE` or `EDIT_CONFLICT` |
+| `DELETE /api/admin/tasks/{id}?version=3` | Returns 204 | 401, 404, 409 `TASK_IN_USE` or `EDIT_CONFLICT`, 422 `VALIDATION_FAILED` (a missing or non-numeric `version`) |
 | `POST /api/admin/tasks/public-view` | Task input (without `version`); returns the public view (section 9.1) the phones would get, with the default time limit and tokens resolved; nothing is saved | 401, 422 |
+
+On a save or a delete, the `version` is checked first (FR-073). An outdated copy gets 409 `EDIT_CONFLICT`, even when its content would also fail validation or the task is in use.
 
 ### 7.5 Characters
 

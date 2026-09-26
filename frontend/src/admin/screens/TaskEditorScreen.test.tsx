@@ -206,6 +206,39 @@ describe("TaskEditorScreen", () => {
     });
   });
 
+  it("AC-US53-01 a save refused with EDIT_CONFLICT shows the conflict message and keeps the admin's edits", async () => {
+    const conflict = {
+      title: "Edit conflict",
+      status: 409,
+      code: "EDIT_CONFLICT",
+      detail: "Someone else changed this since you opened it. Reload to see their changes.",
+      errors: [],
+    };
+    serve(
+      fetchMock,
+      // Unused, so Delete is enabled and its conflict can be checked too
+      jsonResponse(200, { ...DETAIL, usedBy: [] }),
+      jsonResponse(409, conflict),
+      jsonResponse(409, conflict),
+    );
+    render(<TaskEditorScreen id={DETAIL.id} />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText<HTMLTextAreaElement>(text.prompt).value).toBe("Ship on Friday?"),
+    );
+    fireEvent.change(screen.getByLabelText(text.prompt), { target: { value: "B's prompt?" } });
+    fireEvent.click(screen.getByRole("button", { name: text.save }));
+
+    expect(await screen.findByText(text.editConflict)).toBeTruthy();
+    expect(screen.getByLabelText<HTMLTextAreaElement>(text.prompt).value).toBe("B's prompt?");
+    expect(screen.queryByText(text.saved)).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: text.delete }));
+    await waitFor(() => expect(requests(fetchMock)).toHaveLength(3));
+    expect(await screen.findByText(text.editConflict)).toBeTruthy();
+    expect(replace).not.toHaveBeenCalled();
+  });
+
   it("a task that can't be loaded shows a message and no form, so Save can't create a new task", async () => {
     serve(fetchMock, jsonResponse(500, {}));
     render(<TaskEditorScreen id={DETAIL.id} />);
