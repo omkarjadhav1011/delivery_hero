@@ -1,6 +1,6 @@
 # Delivery Hero — Project Charter
 
-> Document 01 of 18 · Version 1.16 (approved)
+> Document 01 of 18 · Version 1.17 (approved)
 
 ## Document control
 
@@ -8,7 +8,7 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 01 — Project Charter |
-| Version | 1.16 |
+| Version | 1.17 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] — sponsor, host and developer |
 | Date | 26 September 2026 |
@@ -36,6 +36,7 @@
 | 1.14 | 2026-09-24 | [Owner name] | Added DEC-198 to DEC-206 from the approved Deployment Guide and DEC-207 to DEC-211 from the approved Technical Documentation; marked OI-07 as settled (DEC-200) |
 | 1.15 | 2026-09-24 | [Owner name] | Added DEC-212: documents carry no drafting credit. Revised DEC-71 and the wording of DEC-40, section 8, section 11.3 and R-10 to match |
 | 1.16 | 2026-09-26 | [Owner name] | Added DEC-213: local-only development until production. The host is chosen by 12 Oct and production is ready by 16 Oct; the trial run and go/no-go move to Mon 19 Oct. Section 12 milestones and Gantt, and R-09, revised to match |
+| 1.17 | 2026-09-26 | [Owner name] | Added DEC-214 (load test on the local stack, repeated on production) and DEC-215 (a no-go at the trial moves the event) |
 
 ---
 
@@ -643,3 +644,5 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-211 | Testing | Test tooling conventions: Playwright reads `E2E_BASE_URL` and `E2E_ADMIN_PASSWORD`, defaulting to the local stack; the OpenAPI test writes the generated document to `backend/target/openapi.json` when it differs (Setup Guide SG-05) |
 | DEC-212 | Documentation | Documents carry no drafting credit. Document control, revision history, stakeholder and role tables name only people. Revises DEC-71 |
 | DEC-213 | Planning | Until production exists, the application is built and tested only on the local stack; the S0 walking skeleton is shown there. The Deploy workflow stays disabled until the first deploy. The owner picks the production host (Q-01) by Mon 12 Oct. Production is up, with OPS-01 to OPS-05 passed, by Fri 16 Oct. The trial run and go/no-go move to Mon 19 Oct (E−2), on production. Owner decision, 26 Sep 2026. Revises the "Infrastructure ready" and "Trial run" milestones (section 12) and R-09 |
+| DEC-214 | Testing | The 100-player load test (LT-01) runs on the local stack by Tue 13 Oct. One repeat run on production follows at H-08, 16–18 Oct. Owner decision, 26 Sep 2026 (DEC-213) |
+| DEC-215 | Planning | A no-go at the trial run on Mon 19 Oct moves the event (A-01). There's no re-check on Tue 20 Oct. Owner decision, 26 Sep 2026 (DEC-213) |
