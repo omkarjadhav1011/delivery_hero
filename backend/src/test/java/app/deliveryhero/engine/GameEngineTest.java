@@ -8,6 +8,7 @@ import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.BroadcastProperties;
+import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.lifecycle.GameStateRecorder;
 import app.deliveryhero.support.ManualScheduler;
@@ -39,6 +40,7 @@ class GameEngineTest {
             TestData.GAME_PROPERTIES,
             new BroadcastProperties(Duration.ofMillis(500)),
             new Broadcaster(mock(SimpMessageSendingOperations.class)),
+            new SiteProperties("http://localhost:8080"),
             scheduler,
             mock(GameStateRecorder.class),
             clock,
@@ -127,5 +129,8 @@ class GameEngineTest {
 
         @Override
         public void revoke(String tokenHash) {}
+
+        @Override
+        public void revokeProjector(UUID gameId) {}
     }
 }

@@ -27,7 +27,8 @@ export interface StompConfig {
   heartbeatOutgoing: number;
   connectionTimeout: number;
   reconnectDelay: number;
-  onConnect: () => void;
+  /** With the CONNECTED frame's headers; a projector learns its game from `user-name` there (DI-82). */
+  onConnect: (headers: Record<string, string>) => void;
   onWebSocketClose: () => void;
   onStompError: (message: string | undefined) => void;
 }
@@ -53,6 +54,8 @@ export interface StompConnectionOptions {
   onStatusChange: (status: ConnectionStatus) => void;
   /** The server refused the credentials or a destination; no more attempts are made. */
   onRefused?: () => void;
+  /** Every accepted CONNECT, with the CONNECTED frame's headers. */
+  onConnected?: (headers: Record<string, string>) => void;
   createClient?: () => StompLike;
   network?: NetworkEvents;
 }
@@ -94,7 +97,7 @@ export function stompJsClient(url: string): StompLike {
         reconnectDelay: config.reconnectDelay,
         // A lost heartbeat drops the socket at once; a dead link would otherwise delay the close event
         discardWebsocketOnCommFailure: true,
-        onConnect: () => config.onConnect(),
+        onConnect: (frame) => config.onConnect(frame.headers),
         onWebSocketClose: () => config.onWebSocketClose(),
         onStompError: (frame) => config.onStompError(frame.headers.message),
       }),
@@ -106,7 +109,7 @@ export function stompJsClient(url: string): StompLike {
 }
 
 export function createStompConnection(options: StompConnectionOptions): StompConnection {
-  const { credentials, timer, onStatusChange, onRefused } = options;
+  const { credentials, timer, onStatusChange, onRefused, onConnected } = options;
   const client = (options.createClient ?? (() => stompJsClient(brokerUrl(window.location))))();
   const network = options.network ?? window;
   const handlers = new Map<string, Set<(message: unknown) => void>>();
@@ -156,12 +159,13 @@ export function createStompConnection(options: StompConnectionOptions): StompCon
     heartbeatOutgoing: HEARTBEAT_MS,
     connectionTimeout: CONNECTION_TIMEOUT_MS,
     reconnectDelay: 0,
-    onConnect: () => {
+    onConnect: (headers) => {
       online = true;
       // A new connection has no subscriptions: restore every one (LLD section 6.2)
       active.clear();
       handlers.forEach((_, destination) => listen(destination));
       schedule.connected();
+      onConnected?.(headers);
     },
     onWebSocketClose: () => {
       active.clear();

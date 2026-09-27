@@ -30,7 +30,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -43,6 +46,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /** Creating a game from a run plan, and the snapshot it keeps (LLD section 5.8) against the seeded library (DS-01). */
 @IntegrationTest
+@ExtendWith(OutputCaptureExtension.class)
 class GameLifecycleIT {
 
     private static final Path DS_01 = Path.of("..", "seed", "delivery-hero-seed.json");
@@ -146,6 +150,32 @@ class GameLifecycleIT {
                 mvc.get().uri("/api/admin/games/current").with(ADMIN).exchange();
         assertThat(current).hasStatusOk();
         assertThat(body(current)).isEqualTo(view);
+    }
+
+    @Test
+    @DisplayName("AC-US37-01 only in the admin panel: the 22-character key is in the admin game view, never in a public"
+            + " response or a log line")
+    void projectorKeyOnlyInTheAdminPanel(CapturedOutput output) throws Exception {
+        JsonNode view = body(post("/api/admin/games", Map.of("runPlanId", planId("default-5min"))));
+        String code = view.get("code").asString();
+        String key =
+                jdbc.sql("SELECT projector_key FROM games").query(String.class).single();
+
+        assertThat(key).matches("[A-Za-z0-9_-]{22}");
+        assertThat(view.get("projectorUrl").asString()).endsWith("/screen?key=" + key);
+
+        MvcTestResult status = mvc.get().uri("/api/games/{code}", code).exchange();
+        MvcTestResult join = mvc.post()
+                .uri("/api/games/{code}/players", code)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("name", "Priya")))
+                .exchange();
+
+        assertThat(status).hasStatusOk();
+        assertThat(status.getResponse().getContentAsString()).doesNotContain(key);
+        assertThat(join.getResponse().getContentAsString()).doesNotContain(key);
+        assertThat(output.getAll()).doesNotContain(key);
     }
 
     @Test

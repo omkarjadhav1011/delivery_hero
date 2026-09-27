@@ -7,6 +7,7 @@ import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.BroadcastProperties;
 import app.deliveryhero.config.GameProperties;
 import app.deliveryhero.config.RandomConfig;
+import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.Command;
@@ -51,6 +52,7 @@ public class GameEngine {
             GameProperties properties,
             BroadcastProperties broadcast,
             Broadcaster broadcaster,
+            SiteProperties site,
             ScheduledExecutorService gameTimerExecutor,
             GameStateRecorder recorder,
             Clock clock,
@@ -64,6 +66,7 @@ public class GameEngine {
                 tokens,
                 playerTokens,
                 broadcaster,
+                site,
                 timers,
                 recorder,
                 clock,

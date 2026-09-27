@@ -36,7 +36,7 @@ describe("useStomp", () => {
     expect(result.current).toBe("connecting");
     expect(fake.config()?.connectHeaders).toEqual({ "player-token": "tok-1" });
 
-    act(() => fake.config()?.onConnect());
+    act(() => fake.config()?.onConnect({}));
     fake.bodies.get("/user/queue/game")?.('{"type":"GAME_STATE","serverTime":5}');
 
     expect(result.current).toBe("online");
@@ -60,7 +60,7 @@ describe("useStomp", () => {
       }),
     );
 
-    act(() => fake.config()?.onConnect());
+    act(() => fake.config()?.onConnect({}));
 
     expect(onStatusChange).toHaveBeenLastCalledWith("online");
   });
@@ -84,7 +84,7 @@ describe("useStomp", () => {
         createClient: () => fake.client,
       }),
     );
-    act(() => fake.config()?.onConnect());
+    act(() => fake.config()?.onConnect({}));
 
     unmount();
 
@@ -107,7 +107,7 @@ describe("useStomp", () => {
         }),
       { initialProps: { onMessage: first } },
     );
-    act(() => fake.config()?.onConnect());
+    act(() => fake.config()?.onConnect({}));
 
     rerender({ onMessage: second });
     fake.bodies.get("/user/queue/game")?.('{"type":"GAME_STATE","serverTime":6}');
@@ -115,6 +115,31 @@ describe("useStomp", () => {
     expect(createClient).toHaveBeenCalledOnce();
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledWith("/user/queue/game", { type: "GAME_STATE", serverTime: 6 });
+  });
+
+  it("passes the CONNECTED headers to onConnected, and subscribes a later destination on the same connection", () => {
+    const fake = fakeClient();
+    const createClient = vi.fn(() => fake.client);
+    const onConnected = vi.fn();
+    const { rerender } = renderHook(
+      ({ destinations }) =>
+        useStomp({
+          credentials: { projectorKey: "key-1" },
+          destinations,
+          onMessage: () => {},
+          onConnected,
+          createClient,
+        }),
+      { initialProps: { destinations: [] as string[] } },
+    );
+
+    act(() => fake.config()?.onConnect({ "user-name": "projector:g-1" }));
+    rerender({ destinations: ["/topic/games/g-1/screen"] });
+
+    expect(onConnected).toHaveBeenCalledWith({ "user-name": "projector:g-1" });
+    expect(fake.subscribed).toEqual(["/topic/games/g-1/screen"]);
+    expect(createClient).toHaveBeenCalledOnce();
+    expect(fake.deactivate).not.toHaveBeenCalled();
   });
 
   it("reports connecting again for new credentials, not the old connection's status", () => {
@@ -131,7 +156,7 @@ describe("useStomp", () => {
         }),
       { initialProps: { token: "tok-1" } },
     );
-    act(() => fakes[0]?.config()?.onConnect());
+    act(() => fakes[0]?.config()?.onConnect({}));
     expect(result.current).toBe("online");
 
     rerender({ token: "tok-2" });

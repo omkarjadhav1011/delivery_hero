@@ -101,9 +101,10 @@ public class StompEventListener implements ExecutorChannelInterceptor {
         commands.submit(
                 switch (principal) {
                     case PlayerPrincipal player ->
-                        new ClientSubscribed(connectionId, ClientRole.PLAYER, player.playerId());
-                    case ProjectorPrincipal projector -> new ClientSubscribed(connectionId, ClientRole.PROJECTOR, null);
-                    case AdminPrincipal admin -> new ClientSubscribed(connectionId, ClientRole.ADMIN, null);
+                        new ClientSubscribed(connectionId, ClientRole.PLAYER, player.playerId(), null);
+                    case ProjectorPrincipal projector ->
+                        new ClientSubscribed(connectionId, ClientRole.PROJECTOR, null, projector.gameId());
+                    case AdminPrincipal admin -> new ClientSubscribed(connectionId, ClientRole.ADMIN, null, null);
                 });
         currentState.forSubscriber(principal, destination).ifPresent(state -> {
             if (principal instanceof PlayerPrincipal) {

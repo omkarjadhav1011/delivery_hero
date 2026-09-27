@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 class GameController {
 
     private final GameLifecycleService lifecycle;
-    private final String baseUrl;
+    private final SiteProperties site;
 
     GameController(GameLifecycleService lifecycle, SiteProperties site) {
         this.lifecycle = lifecycle;
-        this.baseUrl = site.publicBaseUrl().replaceAll("/+$", "");
+        this.site = site;
     }
 
     /** The body of {@code POST /api/admin/games}. */
@@ -64,8 +64,8 @@ class GameController {
                 game.test(),
                 game.runPlanName(),
                 game.roundLengthMinutes(),
-                baseUrl + "/join?code=" + game.code(),
-                baseUrl + "/screen?key=" + game.projectorKey(),
+                site.joinUrl(game.code()),
+                site.projectorUrl(game.projectorKey()),
                 game.createdAt(),
                 game.liveDetailsAvailable(),
                 allowedActions(game.state()));

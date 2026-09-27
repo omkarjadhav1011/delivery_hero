@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | EN-05 |
 | Priority and points | Must, 5 |
@@ -94,3 +94,4 @@ Document 13, section 10, plus: every state and host action pair of SRS 3.1 is co
 - 2026-09-27: Reviews (backend-reviewer, security-reviewer): no critical or high findings. Fixed: GAME_ENDED now carries `serverTime` (API 8.3); sends go player by player, so one failed send never stops the round or a discard; `StartRound` schedules its timers before announcing COUNTDOWN; `Discard` applies in any state that hasn't ended and the engine always drops the session afterwards, so a cancel racing Results can't leave a session behind (DI-77 updated; the cancel-before-Results rule belongs to the lifecycle, US-62); a session created in LOBBY to RESULTS starts FLUSH; timers are cancelled on the session thread when it closes; cancelled timers leave the executor's queue at once; `batch-interval`, `countdown`, `practice` and `freeze` must be positive; `SubmitAnswer.toString` hides the answer. Not fixed here (S1-04 code, outside this subplan): `GameStateRecorder` writes compare-and-set against the expected state, so one failed write leaves the row behind for the rest of the game and the database's in-progress check (seed loader) can read false; added as S1-07 T11 (PC-10). `./mvnw -B verify`: 401 unit and 104 integration tests pass, coverage met.
 - 2026-09-27: Actuals: one session, 11:42 to 12:30 (about 50 minutes including the Q-02 decision), about 220k tokens in the main conversation plus about 170k in the two reviewers.
 - 2026-09-27: PR #30 opened; In review.
+- 2026-09-27: PR #30 merged; Done. No deploy to verify while the Deploy workflow is disabled (OA-28, DEC-213).

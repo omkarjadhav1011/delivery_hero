@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.ChoiceAnswer;
+import app.deliveryhero.common.WordsAnswer;
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +25,19 @@ class CommandLoggingTest {
 
         assertThat(new Reconnect(TOKEN_HASH, CONNECTION).toString()).isEqualTo("Reconnect[]");
         assertThat(new Disconnect(CONNECTION).toString()).isEqualTo("Disconnect[]");
-        assertThat(new ClientSubscribed(CONNECTION, ClientRole.PLAYER, player).toString())
-                .isEqualTo("ClientSubscribed[role=PLAYER, playerId=" + player + "]")
+        assertThat(new ClientSubscribed(CONNECTION, ClientRole.PLAYER, player, null).toString())
+                .isEqualTo("ClientSubscribed[role=PLAYER, playerId=" + player + ", gameId=null]")
                 .doesNotContain(CONNECTION);
+    }
+
+    @Test
+    @DisplayName("SubmitAnswer prints neither the answer nor its arrival time")
+    void submitAnswerHidesTheAnswer() {
+        UUID player = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
+
+        assertThat(new SubmitAnswer(player, "T-01", new WordsAnswer(Set.of(4217)), Instant.EPOCH).toString())
+                .isEqualTo("SubmitAnswer[playerId=" + player + ", taskKey=T-01]")
+                .doesNotContain("4217");
     }
 
     @Test

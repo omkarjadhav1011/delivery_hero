@@ -3,6 +3,11 @@ package app.deliveryhero.engine;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.ScreenStateMessage;
+import app.deliveryhero.broadcast.ScreenStateMessage.PlayerStatus;
+import app.deliveryhero.broadcast.ScreenStateMessage.ScreenPlayer;
+import app.deliveryhero.broadcast.WallEventsMessage;
+import app.deliveryhero.broadcast.WallEventsMessage.WallEvent;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
@@ -42,10 +47,13 @@ import app.deliveryhero.lifecycle.GameStateRecorder;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.SequencedMap;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -74,6 +82,7 @@ public final class GameSession {
     private final String code;
     private final boolean test;
     private final GameSnapshot snapshot;
+    private final String joinUrl;
     private final GameProperties properties;
     private final Duration batchInterval;
     private final TokenService tokens;
@@ -89,9 +98,11 @@ public final class GameSession {
     // Session state: read and written only on the session thread
     private GameState state;
     private @Nullable RoundTimeline timeline;
-    private final Map<UUID, PlayerState> players = new LinkedHashMap<>();
+    private final SequencedMap<UUID, PlayerState> players = new LinkedHashMap<>();
     private final Map<String, UUID> tokenIndex = new HashMap<>();
     private final NameRegistry names = new NameRegistry();
+    /** Wall events since the last flush, sent together as one WALL_EVENTS (LLD section 5.7, DEC-128). */
+    private final List<WallEvent> pendingWallEvents = new ArrayList<>();
 
     GameSession(UUID id, String code, GameState state, boolean test, GameSnapshot snapshot, SessionServices services) {
         this.id = id;
@@ -99,6 +110,7 @@ public final class GameSession {
         this.state = state;
         this.test = test;
         this.snapshot = snapshot;
+        this.joinUrl = services.site().joinUrl(code);
         this.properties = services.properties();
         this.batchInterval = services.batchInterval();
         this.tokens = services.tokens();
@@ -170,7 +182,7 @@ public final class GameSession {
         }
         thread.execute(() -> {
             timers.cancelAll(id);
-            players.values().forEach(player -> playerTokens.revoke(player.tokenHash()));
+            revokeCredentials();
         });
         thread.shutdown();
     }
@@ -302,8 +314,12 @@ public final class GameSession {
             }
             case FLUSH -> {
                 if (batching(state)) {
-                    // TODO(US-38): the projector's batches; TODO(US-60): the admin's live stats (LLD 5.7)
-                    timers.schedule(id, key, clock.instant().plus(batchInterval));
+                    // TODO(US-60): the admin's live stats (LLD 5.7). A failed send must not stop the wall for good.
+                    try {
+                        flush();
+                    } finally {
+                        timers.schedule(id, key, clock.instant().plus(batchInterval));
+                    }
                 }
             }
             case PRACTICE_END, TASK_DEADLINE, LOCKOUT_END, INCIDENT_DEADLINE -> {
@@ -313,14 +329,18 @@ public final class GameSession {
     }
 
     /**
-     * Ends the game after the lifecycle has recorded it closed or cancelled (LLD section 5.8): the timers stop, and
-     * every phone hears GAME_ENDED. The engine then drops the session.
+     * Ends the game after the lifecycle has recorded it closed or cancelled (LLD section 5.8): the timers stop, the
+     * tokens and projector key stop working, then every phone and the projector hear GAME_ENDED. The credentials go
+     * first, so no new connection slips in after it. The engine then drops the session.
      */
     private ActionResult discard(EndReason reason) {
         timers.cancelAll(id);
         state = reason == EndReason.CANCELLED ? GameState.CANCELLED : GameState.CLOSED;
-        toEveryPlayer(player -> GameEndedMessage.of(clock.millis(), reason));
-        // TODO(US-38): GAME_ENDED to the projector; TODO(US-60): to the admin panels
+        revokeCredentials();
+        GameEndedMessage ended = GameEndedMessage.of(clock.millis(), reason);
+        toEveryPlayer(player -> ended);
+        toScreen(ended);
+        // TODO(US-60): GAME_ENDED to the admin panels
         log.atInfo()
                 .addKeyValue("event", "GAME_DISCARDED")
                 .addKeyValue("gameId", id)
@@ -339,6 +359,40 @@ public final class GameSession {
         recorder.record(id, previous, next);
         long now = clock.millis();
         toEveryPlayer(player -> GameStateMessage.initial(now, id, state, player.id(), player.name()));
+        toScreen(screenState());
+    }
+
+    /** Sends the projector a message; a failed send is logged and skipped, as for a phone. */
+    private void toScreen(Object message) {
+        try {
+            broadcaster.toScreen(id, message);
+        } catch (RuntimeException e) {
+            log.atWarn().addKeyValue("event", "SEND_FAILED").setCause(e).log("Message to the projector not sent");
+        }
+    }
+
+    private void revokeCredentials() {
+        players.values().forEach(player -> playerTokens.revoke(player.tokenHash()));
+        playerTokens.revokeProjector(id);
+    }
+
+    /** Sends what changed on the wall since the last flush, if anything did (LLD section 5.7). */
+    private void flush() {
+        if (!pendingWallEvents.isEmpty()) {
+            // Taken before sending, so a batch that fails is dropped rather than sent again and again
+            WallEventsMessage batch = WallEventsMessage.of(clock.millis(), pendingWallEvents);
+            pendingWallEvents.clear();
+            toScreen(batch);
+        }
+    }
+
+    /** The projector's full state: the joined players newest first (FR-053). */
+    private ScreenStateMessage screenState() {
+        List<ScreenPlayer> newestFirst = players.sequencedValues().reversed().stream()
+                .map(player -> new ScreenPlayer(
+                        player.id(), Names.initials(player.name()), player.name(), PlayerStatus.ONLINE))
+                .toList();
+        return ScreenStateMessage.withoutRound(clock.millis(), id, state, test, joinUrl, newestFirst);
     }
 
     /**
@@ -388,6 +442,7 @@ public final class GameSession {
         players.put(playerId, new PlayerState(playerId, name, tokenHash));
         tokenIndex.put(tokenHash, playerId);
         playerTokens.register(tokenHash, id, playerId);
+        pendingWallEvents.add(WallEvent.joined(playerId, Names.initials(name), name));
         log.atInfo()
                 .addKeyValue("event", "PLAYER_JOINED")
                 .addKeyValue("playerId", playerId)
@@ -400,7 +455,13 @@ public final class GameSession {
      * player of another game is ignored. TODO(US-16): send it again on every state change; S0 has none.
      */
     private void subscribed(ClientSubscribed subscribed) {
-        // TODO(S1-06): the projector's SCREEN_STATE; TODO(S1-07): the admin's LIVE_STATS
+        if (subscribed.role() == ClientRole.PROJECTOR) {
+            if (id.equals(subscribed.gameId())) {
+                toScreen(screenState());
+            }
+            return;
+        }
+        // TODO(S1-07): the admin's LIVE_STATS
         if (subscribed.role() != ClientRole.PLAYER || subscribed.playerId() == null) {
             return;
         }

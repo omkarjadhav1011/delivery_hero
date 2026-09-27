@@ -4,26 +4,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.ScreenStateMessage;
+import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Role;
 import app.deliveryhero.common.TaskKind;
 import app.deliveryhero.common.TaskType;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.content.MultipleChoiceContent;
 import app.deliveryhero.engine.command.ActionResult;
+import app.deliveryhero.engine.command.ClientRole;
+import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.EndPractice;
 import app.deliveryhero.engine.command.GetStatus;
@@ -87,6 +97,10 @@ class GameSessionTest {
     private final GameStateRecorder recorder = mock(GameStateRecorder.class);
     private final SimpMessageSendingOperations messaging = mock(SimpMessageSendingOperations.class);
     private final List<String> registered = new ArrayList<>();
+    private final List<UUID> revokedProjectors = new ArrayList<>();
+    /** Credential revocations and GAME_ENDED sends, in the order they happened. */
+    private final List<String> endSteps = new ArrayList<>();
+
     private final SecureRandom random = seeded();
     private final TokenService tokens = new TokenService(seeded());
     private final Broadcaster broadcaster = new Broadcaster(messaging);
@@ -118,6 +132,7 @@ class GameSessionTest {
                 tokens,
                 playerTokens,
                 broadcaster,
+                new SiteProperties("http://localhost:8080"),
                 timers,
                 recorder,
                 clock,
@@ -184,6 +199,9 @@ class GameSessionTest {
 
             @Override
             public void revoke(String tokenHash) {}
+
+            @Override
+            public void revokeProjector(UUID gameId) {}
         });
         CompletableFuture<JoinResult> reply = new CompletableFuture<>();
         session.enqueue(new Join("Priya", reply));
@@ -466,6 +484,116 @@ class GameSessionTest {
         assertThat(after(Duration.ofSeconds(5))).isEqualTo(GameState.LIVE);
     }
 
+    @Test
+    @DisplayName("AC-US37-03 revoked: Discard ends every token and the projector key, then sends GAME_ENDED with the"
+            + " reason to the screen")
+    void discardRevokesTheProjector() throws Exception {
+        join("Priya");
+        GameEndedMessage ended = GameEndedMessage.of(clock.millis(), EndReason.FINISHED);
+        doAnswer(call -> endSteps.add("GAME_ENDED to the phone"))
+                .when(messaging)
+                .convertAndSendToUser(anyString(), anyString(), eq(ended));
+        doAnswer(call -> endSteps.add("GAME_ENDED to the screen"))
+                .when(messaging)
+                .convertAndSend(SCREEN, (Object) ended);
+
+        assertThat(host(reply -> new Discard(EndReason.FINISHED, reply)))
+                .isEqualTo(ActionResult.changed(GameState.CLOSED));
+
+        assertThat(registered).isEmpty();
+        assertThat(revokedProjectors).containsExactly(TestData.GAME_ID);
+        assertThat(endSteps)
+                .containsExactly(
+                        "revoke token", "revoke projector", "GAME_ENDED to the phone", "GAME_ENDED to the screen");
+    }
+
+    @Test
+    @DisplayName("The screen's SCREEN_STATE says frozen once the round freezes")
+    void frozenScreenState() throws Exception {
+        startRound(roundOf(300, null));
+
+        after(Duration.ofSeconds(275));
+
+        verify(messaging)
+                .convertAndSend(
+                        eq(SCREEN),
+                        argThat((Object message) -> message instanceof ScreenStateMessage screen
+                                && screen.state() == GameState.FROZEN
+                                && screen.frozen()));
+    }
+
+    @Test
+    @DisplayName("A message that can't be sent to the projector doesn't stop the game")
+    void failedScreenSendDoesNotStopTheGame() throws Exception {
+        doThrow(new MessageDeliveryException("broker down"))
+                .when(messaging)
+                .convertAndSend(eq(SCREEN), any(Object.class));
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        assertThat(host(OpenLobby::new)).isEqualTo(ActionResult.changed(GameState.LOBBY));
+
+        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        assertThat(status().state()).isEqualTo(GameState.LOBBY);
+    }
+
+    @Test
+    @DisplayName("AC-US37-03 revoked: a join that reaches the queue after Discard is refused and gets no token")
+    void joinAfterDiscardIsRefused() throws Exception {
+        session.enqueue(new Discard(EndReason.CANCELLED, new CompletableFuture<>()));
+
+        assertThat(join("Priya")).isEqualTo(new JoinResult.Refused(ApiErrorCode.JOINING_CLOSED));
+        assertThat(status().reason()).isEqualTo(ApiErrorCode.JOINING_CLOSED);
+        assertThat(registered).isEmpty();
+    }
+
+    @Test
+    @DisplayName("A projector's subscription gets SCREEN_STATE from its own game only")
+    void projectorOfAnotherGameIsIgnored() throws Exception {
+        session.enqueue(new ClientSubscribed(
+                "c1", ClientRole.PROJECTOR, null, UUID.fromString("00000000-0000-0000-0000-0000000000c9")));
+        status();
+        verify(messaging, never()).convertAndSend(anyString(), any(Object.class));
+
+        session.enqueue(new ClientSubscribed("c2", ClientRole.PROJECTOR, null, TestData.GAME_ID));
+        status();
+        verify(messaging).convertAndSend(eq(SCREEN), any(ScreenStateMessage.class));
+    }
+
+    @Test
+    @DisplayName("Opening the lobby sends the projector its SCREEN_STATE again, now in LOBBY (DEC-146)")
+    void openLobbySendsTheScreenState() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        host(OpenLobby::new);
+
+        verify(messaging)
+                .convertAndSend(
+                        eq(SCREEN),
+                        argThat((Object message) ->
+                                message instanceof ScreenStateMessage screen && screen.state() == GameState.LOBBY));
+    }
+
+    @Test
+    @DisplayName("A flush whose send fails still schedules the next one, and its batch isn't sent again")
+    void failedFlushKeepsTheWallGoing() throws Exception {
+        session.startBatches();
+        join("Priya");
+        doThrow(new MessageDeliveryException("broker busy"))
+                .doNothing()
+                .when(messaging)
+                .convertAndSend(anyString(), any(Object.class));
+
+        after(BATCH_INTERVAL);
+        assertThat(scheduler.pending()).as("rescheduled").isEqualTo(1);
+        after(BATCH_INTERVAL);
+
+        verify(messaging, times(1)).convertAndSend(anyString(), any(Object.class));
+    }
+
+    private static final String SCREEN = "/topic/games/" + TestData.GAME_ID + "/screen";
+
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {
         return Objects.requireNonNull(HOST_ACTIONS.get(action), action).apply(reply);
     }
@@ -492,6 +620,13 @@ class GameSessionTest {
         @Override
         public void revoke(String tokenHash) {
             registered.remove(tokenHash);
+            endSteps.add("revoke token");
+        }
+
+        @Override
+        public void revokeProjector(UUID gameId) {
+            revokedProjectors.add(gameId);
+            endSteps.add("revoke projector");
         }
     }
 }
