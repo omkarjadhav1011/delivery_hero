@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-06 |
 | Branch | feat/us-59-create-game |
 | Start commit | ca77202 |
-| Last commit | 43f2727 |
-| Step | test-first |
-| Task | T7 |
+| Last commit | c531326 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T23:11 |
-| Updated | 2026-09-26T23:56 |
-| Next action | LobbyView.test.tsx AC-US38-02 |
+| Updated | 2026-09-27T10:53 |
+| Next action | Reviewers, then wrap-up |
 
 ## Completed tasks
 
@@ -25,6 +25,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T3 (963af11)
 - T5 (78d1630)
 - T6 (43f2727)
+- T7 (c531326)
 
 ## Pending approvals
 
@@ -36,4 +37,4 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 ## Notes
 
-- none
+- Branch is feat/us-37-projector-lobby (stacked on feat/us-59-create-game at ca77202); the journal's Branch field is stale, owner approved continuing here 2026-09-27
