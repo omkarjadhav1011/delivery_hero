@@ -6,6 +6,7 @@ import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.GameEngine;
+import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.timer.TimerKey;
@@ -110,6 +111,7 @@ class ScreenBatchIT {
             assertWallEvent(batch.get("events").get(1), priya, "PS", "Priya S");
             assertThat(batch.toString()).doesNotContain("points").doesNotContain("total");
 
+            awaitQueue();
             assertThat(timers.fire(GAME, TimerKey.FLUSH))
                     .as("the flush comes round again")
                     .isTrue();
@@ -152,6 +154,13 @@ class ScreenBatchIT {
         assertThat(frame).isNotNull();
         assertThat(frame.command()).isEqualTo("MESSAGE");
         return json.readTree(frame.body());
+    }
+
+    /** Waits until every command queued so far has run, so the flush that just sent has re-armed its timer. */
+    private void awaitQueue() throws Exception {
+        CompletableFuture<GetStatus.Status> status = new CompletableFuture<>();
+        engine.submit(GAME, new GetStatus(status));
+        status.get(5, TimeUnit.SECONDS);
     }
 
     private UUID join(String name) throws Exception {

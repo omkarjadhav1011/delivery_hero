@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +18,8 @@ import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.engine.command.ClientRole;
+import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
@@ -68,10 +72,14 @@ class GameSessionTest {
     }
 
     private GameSession newSession(PlayerTokens playerTokens) {
+        return newSession(playerTokens, GameState.LOBBY);
+    }
+
+    private GameSession newSession(PlayerTokens playerTokens, GameState state) {
         return new GameSession(
                 TestData.GAME_ID,
                 TestData.GAME_CODE,
-                GameState.LOBBY,
+                state,
                 false,
                 TestData.EMPTY_SNAPSHOT,
                 "http://localhost:8080/join?code=" + TestData.GAME_CODE,
@@ -139,8 +147,8 @@ class GameSessionTest {
     }
 
     @Test
-    @DisplayName("AC-US37-03 revoked: Discard sends GAME_ENDED with the reason to the screen, then ends every token and"
-            + " the projector key, and the session takes no more commands")
+    @DisplayName("AC-US37-03 revoked: Discard ends every token and the projector key, sends GAME_ENDED with the reason"
+            + " to the screen, and the session takes no more commands")
     void discardEndsTheGame() throws Exception {
         join("Priya");
 
@@ -164,6 +172,43 @@ class GameSessionTest {
         session.enqueue(new GetStatus(status));
         assertThat(status.get(2, TimeUnit.SECONDS).reason()).isEqualTo(ApiErrorCode.JOINING_CLOSED);
         assertThat(registered).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Discard stops the wall's flush timer")
+    void discardStopsTheFlush() throws Exception {
+        session.start();
+        awaitQueue();
+
+        session.discard(EndReason.CANCELLED);
+
+        assertThat(projectorRevoked.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(timers.fire(TestData.GAME_ID, TimerKey.FLUSH)).isFalse();
+    }
+
+    @Test
+    @DisplayName("A game still in Created doesn't start the wall's flush timer")
+    void createdGameHasNoFlush() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        session.start();
+        awaitQueue();
+
+        assertThat(timers.fire(TestData.GAME_ID, TimerKey.FLUSH)).isFalse();
+    }
+
+    @Test
+    @DisplayName("A projector's subscription gets SCREEN_STATE from its own game only")
+    void projectorOfAnotherGameIsIgnored() throws Exception {
+        session.enqueue(new ClientSubscribed(
+                "c1", ClientRole.PROJECTOR, null, UUID.fromString("00000000-0000-0000-0000-0000000000c9")));
+        awaitQueue();
+        verify(messaging, never()).convertAndSend(anyString(), any(Object.class));
+
+        session.enqueue(new ClientSubscribed("c2", ClientRole.PROJECTOR, null, TestData.GAME_ID));
+        awaitQueue();
+        verify(messaging).convertAndSend(eq("/topic/games/" + TestData.GAME_ID + "/screen"), any(Object.class));
     }
 
     @Test

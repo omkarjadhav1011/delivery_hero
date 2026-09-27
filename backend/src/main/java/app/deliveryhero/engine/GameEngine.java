@@ -70,8 +70,9 @@ public class GameEngine {
                 timers,
                 clock,
                 random);
-        sessions.put(gameId, session);
+        // Started before it's published, so its first task runs ahead of any command
         session.start();
+        sessions.put(gameId, session);
         return session;
     }
 
@@ -99,8 +100,8 @@ public class GameEngine {
     }
 
     /**
-     * Drops a session after a close or cancel (LLD section 5.8): the projector gets GAME_ENDED with the reason, then
-     * the tokens and projector key stop working and the thread ends.
+     * Drops a session after a close or cancel (LLD section 5.8): the tokens and projector key stop working, the
+     * projector gets GAME_ENDED with the reason, and the thread ends.
      */
     public void discard(UUID gameId, EndReason reason) {
         GameSession session = sessions.remove(gameId);

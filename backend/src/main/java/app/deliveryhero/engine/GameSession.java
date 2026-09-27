@@ -177,12 +177,14 @@ public final class GameSession {
 
     /**
      * Starts the screen batches if the game is already in the lobby, as the end-to-end games are; otherwise OpenLobby
-     * starts them (S1-07). Called once, before any command.
+     * starts them (S1-07). Called once, before any command; it runs on the session thread, which alone reads the state.
      */
     void start() {
-        if (state == GameState.LOBBY) {
-            scheduleFlush();
-        }
+        thread.execute(() -> {
+            if (state == GameState.LOBBY) {
+                scheduleFlush();
+            }
+        });
     }
 
     /** Ends the session without a word to its clients, when the application stops. */
@@ -265,7 +267,9 @@ public final class GameSession {
     private void subscribed(ClientSubscribed subscribed) {
         if (subscribed.role() == ClientRole.PROJECTOR) {
             // TODO(S1-07): send it again on OpenLobby, and on every later state change
-            broadcaster.toScreen(id, screenState());
+            if (id.equals(subscribed.gameId())) {
+                broadcaster.toScreen(id, screenState());
+            }
             return;
         }
         // TODO(S1-07): the admin's LIVE_STATS
@@ -280,12 +284,15 @@ public final class GameSession {
         broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
     }
 
-    /** The projector hears why the game ended; TODO(US-62): phones get GAME_ENDED too. */
+    /**
+     * The credentials stop working first, so no new connection slips in after GAME_ENDED; the connected projector still
+     * hears why the game ended. TODO(US-62): phones get GAME_ENDED too.
+     */
     private void ended(EndReason reason) {
         ended = true;
         timers.cancelAll(id);
-        broadcaster.toScreen(id, GameEndedMessage.of(clock.millis(), reason));
         revokeCredentials();
+        broadcaster.toScreen(id, GameEndedMessage.of(clock.millis(), reason));
     }
 
     private void revokeCredentials() {
