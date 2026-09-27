@@ -115,3 +115,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-59-create-game, commits 907f11b to 016ab9d.
 - Completed: T3 (c81df56); T1 (a849528); T2 (e1ebe27); T9 (bc5503c); T10 (b0fa8f3); T4 (98e8ef2); T5 (3591f6a); T8 (0778af3).
 - Summary: S1-04 T1-T5, T8-T10 done, reviewed and checked; T6 and T7 moved to S1-07 (PC-09)
+
+## 2026-09-27-1142 S1-05
+
+- Outcome: done. Started 2026-09-27T11:42, ended 2026-09-27T12:29.
+- Branch feat/en-05-state-machine, commits e3b17ed to e31627c.
+- Completed: T1 (6333af4); T2 (4e789fc); T3 (2faf10e); T4 (e84aa56); T5 (9949168); T6 (7b09d02); T7 (7b09d02).
+- Summary: S1-05 T1-T7 done and reviewed on feat/en-05-state-machine; DEC-216 recorded; PR not yet opened
