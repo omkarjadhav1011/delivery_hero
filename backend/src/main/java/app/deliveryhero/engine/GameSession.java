@@ -382,7 +382,7 @@ public final class GameSession {
             // Taken before sending, so a batch that fails is dropped rather than sent again and again
             WallEventsMessage batch = WallEventsMessage.of(clock.millis(), pendingWallEvents);
             pendingWallEvents.clear();
-            broadcaster.toScreen(id, batch);
+            toScreen(batch);
         }
     }
 
@@ -392,7 +392,7 @@ public final class GameSession {
                 .map(player -> new ScreenPlayer(
                         player.id(), Names.initials(player.name()), player.name(), PlayerStatus.ONLINE))
                 .toList();
-        return ScreenStateMessage.beforeTheRound(clock.millis(), id, state, test, joinUrl, newestFirst);
+        return ScreenStateMessage.withoutRound(clock.millis(), id, state, test, joinUrl, newestFirst);
     }
 
     /**

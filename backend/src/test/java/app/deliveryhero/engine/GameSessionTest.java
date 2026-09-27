@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -97,6 +98,9 @@ class GameSessionTest {
     private final SimpMessageSendingOperations messaging = mock(SimpMessageSendingOperations.class);
     private final List<String> registered = new ArrayList<>();
     private final List<UUID> revokedProjectors = new ArrayList<>();
+    /** Credential revocations and GAME_ENDED sends, in the order they happened. */
+    private final List<String> endSteps = new ArrayList<>();
+
     private final SecureRandom random = seeded();
     private final TokenService tokens = new TokenService(seeded());
     private final Broadcaster broadcaster = new Broadcaster(messaging);
@@ -485,13 +489,52 @@ class GameSessionTest {
             + " reason to the screen")
     void discardRevokesTheProjector() throws Exception {
         join("Priya");
+        GameEndedMessage ended = GameEndedMessage.of(clock.millis(), EndReason.FINISHED);
+        doAnswer(call -> endSteps.add("GAME_ENDED to the phone"))
+                .when(messaging)
+                .convertAndSendToUser(anyString(), anyString(), eq(ended));
+        doAnswer(call -> endSteps.add("GAME_ENDED to the screen"))
+                .when(messaging)
+                .convertAndSend(SCREEN, (Object) ended);
 
         assertThat(host(reply -> new Discard(EndReason.FINISHED, reply)))
                 .isEqualTo(ActionResult.changed(GameState.CLOSED));
 
         assertThat(registered).isEmpty();
         assertThat(revokedProjectors).containsExactly(TestData.GAME_ID);
-        verify(messaging).convertAndSend(SCREEN, (Object) GameEndedMessage.of(clock.millis(), EndReason.FINISHED));
+        assertThat(endSteps)
+                .containsExactly(
+                        "revoke token", "revoke projector", "GAME_ENDED to the phone", "GAME_ENDED to the screen");
+    }
+
+    @Test
+    @DisplayName("The screen's SCREEN_STATE says frozen once the round freezes")
+    void frozenScreenState() throws Exception {
+        startRound(roundOf(300, null));
+
+        after(Duration.ofSeconds(275));
+
+        verify(messaging)
+                .convertAndSend(
+                        eq(SCREEN),
+                        argThat((Object message) -> message instanceof ScreenStateMessage screen
+                                && screen.state() == GameState.FROZEN
+                                && screen.frozen()));
+    }
+
+    @Test
+    @DisplayName("A message that can't be sent to the projector doesn't stop the game")
+    void failedScreenSendDoesNotStopTheGame() throws Exception {
+        doThrow(new MessageDeliveryException("broker down"))
+                .when(messaging)
+                .convertAndSend(eq(SCREEN), any(Object.class));
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        assertThat(host(OpenLobby::new)).isEqualTo(ActionResult.changed(GameState.LOBBY));
+
+        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        assertThat(status().state()).isEqualTo(GameState.LOBBY);
     }
 
     @Test
@@ -577,11 +620,13 @@ class GameSessionTest {
         @Override
         public void revoke(String tokenHash) {
             registered.remove(tokenHash);
+            endSteps.add("revoke token");
         }
 
         @Override
         public void revokeProjector(UUID gameId) {
             revokedProjectors.add(gameId);
+            endSteps.add("revoke projector");
         }
     }
 }

@@ -9,17 +9,17 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-06 |
 | Branch | feat/us-37-projector-lobby |
 | Start commit | b778eab |
-| Last commit | b778eab |
-| Step | test-first |
-| Task | T-merge |
+| Last commit | 4639496 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-27T12:42 |
-| Updated | 2026-09-27T12:43 |
-| Next action | Merge origin/main and resolve conflicts |
+| Updated | 2026-09-27T12:55 |
+| Next action | Reviews on the merged diff |
 
 ## Completed tasks
 
-- none
+- T-merge (4639496)
 
 ## Pending approvals
 

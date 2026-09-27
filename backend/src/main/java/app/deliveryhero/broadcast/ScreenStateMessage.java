@@ -49,8 +49,11 @@ public record ScreenStateMessage(
         OFFLINE
     }
 
-    /** Created and Lobby: who has joined, and nothing of the round yet. */
-    public static ScreenStateMessage beforeTheRound(
+    /**
+     * Who has joined, and whether the game is frozen. TODO(US-21): the round and its phase bar; TODO(US-36): the top
+     * 10; TODO(US-39): the feed; TODO(US-10): practice; TODO(US-33): the incident; TODO(US-43): the reveal.
+     */
+    public static ScreenStateMessage withoutRound(
             long serverTime, UUID gameId, GameState state, boolean test, String joinUrl, List<ScreenPlayer> players) {
         return new ScreenStateMessage(
                 "SCREEN_STATE",
@@ -64,7 +67,7 @@ public record ScreenStateMessage(
                 null,
                 null,
                 List.of(),
-                false,
+                state == GameState.FROZEN,
                 List.of(),
                 null,
                 null);
