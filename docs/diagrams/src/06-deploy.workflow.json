@@ -1,0 +1,284 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Production Deploy Flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "ship",
+        "label": "Build and ship",
+        "focus": [
+          "merge",
+          "build",
+          "ship"
+        ],
+        "note": "Every merge to main builds and copies a release to the VM."
+      },
+      {
+        "id": "lock",
+        "label": "Deploy lock",
+        "focus": [
+          "lock1",
+          "backup",
+          "lock2",
+          "locked"
+        ],
+        "note": "The lock is checked twice; a game in progress stops the deploy with nothing changed."
+      },
+      {
+        "id": "health",
+        "label": "Health and rollback",
+        "focus": [
+          "start",
+          "rollback"
+        ],
+        "note": "The new release must pass /health within a minute or it rolls back."
+      }
+    ],
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Owner"
+        },
+        "backend": {
+          "label": "Build / run"
+        },
+        "cloud": {
+          "label": "Transfer"
+        },
+        "security": {
+          "label": "Lock check / stop"
+        },
+        "database": {
+          "label": "Backup"
+        },
+        "messagebus": {
+          "label": "Recovery"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "dev",
+      "label": "Owner"
+    },
+    {
+      "id": "ci",
+      "label": "GitHub Actions"
+    },
+    {
+      "id": "vm",
+      "label": "VM: deploy.sh"
+    },
+    {
+      "id": "exceptions",
+      "label": "Stop + rollback",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "ph-build",
+      "label": "Build + ship",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "ph-guard",
+      "label": "Guard the game",
+      "fromCol": 2,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "ph-verify",
+      "label": "Verify",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "merge",
+    "build",
+    "ship",
+    "lock1",
+    "backup",
+    "lock2",
+    "start"
+  ],
+  "nodes": [
+    {
+      "id": "merge",
+      "lane": "dev",
+      "col": 0,
+      "type": "frontend",
+      "label": "Merge to main",
+      "sublabel": "squash PR",
+      "width": 140
+    },
+    {
+      "id": "build",
+      "lane": "ci",
+      "col": 1,
+      "type": "backend",
+      "label": "Build",
+      "sublabel": "backend + frontend",
+      "width": 140
+    },
+    {
+      "id": "ship",
+      "lane": "ci",
+      "col": 2,
+      "type": "cloud",
+      "label": "rsync over SSH",
+      "sublabel": "staging folder",
+      "width": 140
+    },
+    {
+      "id": "lock1",
+      "lane": "vm",
+      "col": 2,
+      "type": "security",
+      "label": "Check lock",
+      "sublabel": "/api/ops/deploy-lock",
+      "tag": "stub until S2-05",
+      "width": 150
+    },
+    {
+      "id": "backup",
+      "lane": "vm",
+      "col": 3,
+      "type": "database",
+      "label": "Backup + build",
+      "sublabel": "keep previous release",
+      "width": 150
+    },
+    {
+      "id": "lock2",
+      "lane": "vm",
+      "col": 4,
+      "type": "security",
+      "label": "Check lock again",
+      "sublabel": "game started?",
+      "width": 150
+    },
+    {
+      "id": "start",
+      "lane": "vm",
+      "col": 5,
+      "type": "backend",
+      "label": "Start + verify",
+      "sublabel": "/health within 1 min",
+      "width": 150
+    },
+    {
+      "id": "locked",
+      "lane": "exceptions",
+      "col": 3,
+      "type": "security",
+      "label": "Exit 75",
+      "sublabel": "nothing changed",
+      "tag": "rerun after Results",
+      "width": 150
+    },
+    {
+      "id": "rollback",
+      "lane": "exceptions",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Roll back",
+      "sublabel": "previous release",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-merge",
+      "from": "merge",
+      "to": "build",
+      "label": "push",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-build",
+      "from": "build",
+      "to": "ship"
+    },
+    {
+      "id": "e-ship",
+      "from": "ship",
+      "to": "lock1",
+      "label": "deploy.sh",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-lock1",
+      "from": "lock1",
+      "to": "backup",
+      "label": "unlocked"
+    },
+    {
+      "id": "e-backup",
+      "from": "backup",
+      "to": "lock2"
+    },
+    {
+      "id": "e-lock2",
+      "from": "lock2",
+      "to": "start",
+      "label": "unlocked"
+    },
+    {
+      "id": "e-locked1",
+      "from": "lock1",
+      "to": "locked",
+      "label": "game on",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "e-locked2",
+      "from": "lock2",
+      "to": "locked",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "e-rollback",
+      "from": "start",
+      "to": "rollback",
+      "label": "unhealthy",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Never restart a game",
+      "items": [
+        "LOBBY to REVEAL counts as in progress",
+        "Exit 75 leaves the running release untouched"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Freezes",
+      "items": [
+        "Content freeze: Friday 16 October",
+        "Deployment freeze: Tuesday 20 October"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Status",
+      "items": [
+        "Workflow in progress (S0-02)",
+        "Lock endpoint is a stub until S2-05"
+      ]
+    }
+  ]
+}

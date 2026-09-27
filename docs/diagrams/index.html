@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delivery Hero Diagrams</title>
+<style>
+:root { --bg:#f6f7f9; --card:#fff; --ink:#15181d; --muted:#5b6470; --line:#dde1e6; --accent:#0e8fa8; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0d1117; --card:#161b22; --ink:#e6edf3; --muted:#8b949e; --line:#30363d; --accent:#39c5dd; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+main { max-width:880px; margin:0 auto; padding:40px 16px; }
+h1 { margin:0 0 4px; font-size:26px; }
+p.lead { margin:0 0 28px; color:var(--muted); }
+ol { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+a { display:block; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:10px; color:inherit; text-decoration:none; }
+a:hover { border-color:var(--accent); }
+b { display:block; font-size:16px; }
+span { color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Delivery Hero diagrams</h1>
+<p class="lead">Drawn from the code on commit e3b17ed and the approved documents. Each diagram marks which parts are built and which are planned.</p>
+<ol>
+<li><a href="01-system.html"><b>1. System architecture</b><span>Clients, nginx, STOMP and REST, the game engine actor, Postgres, backups and deploys</span></a></li>
+<li><a href="02-game-states.html"><b>2. Game state machine</b><span>CREATED → LOBBY → COUNTDOWN → LIVE → FROZEN → ENDED → REVEAL → RESULTS → CLOSED, plus practice and cancel</span></a></li>
+<li><a href="03-admin-create-game.html"><b>3. Admin login and create game</b><span>CSRF cookie, form login, run plans, one-transaction game creation</span></a></li>
+<li><a href="04-player-join.html"><b>4. Player join and lobby</b><span>Code check, join, token, STOMP connect and subscribe, GAME_STATE, projector lobby</span></a></li>
+<li><a href="05-answer-scoring.html"><b>5. Answer and scoring</b><span>Intake checks (built) and scoring and feedback (planned)</span></a></li>
+<li><a href="06-deploy.html"><b>6. Production deploy</b><span>Merge, build, rsync, double deploy-lock check, health check, rollback</span></a></li>
+<li><a href="07-seed.html"><b>7. Task pool seed</b><span>validate_seed.py, in-progress refusal, validation, one-transaction upsert</span></a></li>
+</ol>
+</main>
+</body>
+</html>

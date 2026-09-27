@@ -8,15 +8,29 @@ import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.Names;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.content.GameSnapshot;
+import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.Disconnect;
+import app.deliveryhero.engine.command.EndPractice;
 import app.deliveryhero.engine.command.GetStatus;
+import app.deliveryhero.engine.command.HostCommand;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
+import app.deliveryhero.engine.command.NextStep;
+import app.deliveryhero.engine.command.OpenLobby;
+import app.deliveryhero.engine.command.PreviousStep;
 import app.deliveryhero.engine.command.Reconnect;
+import app.deliveryhero.engine.command.RemovePlayer;
+import app.deliveryhero.engine.command.RenamePlayer;
+import app.deliveryhero.engine.command.StartPractice;
+import app.deliveryhero.engine.command.StartReveal;
+import app.deliveryhero.engine.command.StartRound;
 import app.deliveryhero.engine.command.SubmitAnswer;
+import app.deliveryhero.engine.command.TimerFired;
+import app.deliveryhero.engine.command.VoidTask;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.EnumSet;
@@ -129,6 +143,8 @@ public final class GameSession {
                 case Disconnect disconnect -> {}
                 case ClientSubscribed subscribed -> {}
                 case SubmitAnswer answer -> {}
+                case TimerFired fired -> {}
+                case HostCommand host -> host.reply().completeExceptionally(e);
             }
         } finally {
             MDC.remove("gameId");
@@ -164,7 +180,41 @@ public final class GameSession {
                 // TODO(US-27): check and score in LIVE and FROZEN, and reply ANSWER_REJECTED otherwise (LLD 5.4.4).
                 // No state accepts answers yet, so there is nothing to score.
             }
+            case TimerFired fired -> {
+                // TODO(EN-05): the round's timers (S1-05 T6)
+            }
+            case HostCommand host -> host.reply().complete(host(host));
         }
+    }
+
+    /**
+     * Applies a host action the current state allows (SRS section 3.1); any other leaves the game unchanged, so the
+     * admin panel refreshes instead of failing (FR-081).
+     */
+    private ActionResult host(HostCommand command) {
+        if (!HostRules.allows(state, command)) {
+            return ActionResult.unchanged(state);
+        }
+        return switch (command) {
+            // TODO(EN-05): open the lobby (S1-05 T7)
+            case OpenLobby open -> ActionResult.unchanged(state);
+            // TODO(EN-05): the countdown and the round's timers (S1-05 T6)
+            case StartRound start -> ActionResult.unchanged(state);
+            // TODO(EN-05): cancel the timers, send GAME_ENDED and drop the session (S1-05 T7)
+            case Discard discard -> ActionResult.unchanged(state);
+            // TODO(US-11): practice starts and ends (LLD 5.4.6)
+            case StartPractice start -> ActionResult.unchanged(state);
+            case EndPractice end -> ActionResult.unchanged(state);
+            // TODO(US-61): void the task for everyone (LLD 5.4.8)
+            case VoidTask voiding -> ActionResult.unchanged(state);
+            // TODO(US-43): the reveal steps (LLD 5.4.9)
+            case StartReveal start -> ActionResult.unchanged(state);
+            case NextStep next -> ActionResult.unchanged(state);
+            case PreviousStep previous -> ActionResult.unchanged(state);
+            // TODO(US-09): rename with BR-16, or remove and end the token
+            case RenamePlayer rename -> ActionResult.unchanged(state);
+            case RemovePlayer remove -> ActionResult.unchanged(state);
+        };
     }
 
     private JoinResult join(String rawName) {
