@@ -114,3 +114,4 @@ Document 13, section 10, plus: every US-37 and US-38 criterion passes at its lev
   - Not fixed: `SCREEN_STATE` stays relative when `dh.public-base-url` is blank (a `prod` startup check, outside S1-06); open sockets outlive revocation (S2-04, S2-23); the key stays in the projector's address bar (runbook: fullscreen); `StompErrorHandler` falls back to Spring's message for unexpected errors (S0-04 code); an initial from a name that starts with an apostrophe or full stop (DI-80).
 - 2026-09-27: Session ended with T1 to T7 done on top of `main`; T8 still waits for S1-07's `OPEN_LOBBY` endpoint. Actuals: about 60 minutes, about 330k tokens in the main conversation plus about 120k in the two reviewers.
 - 2026-09-27: PR #31 opened for T1 to T7; the status stays In progress until T8 lands.
+- 2026-09-27: The owner chose an open question over a plan change for the subscription cap: Q-11 (no document defines one; NFR-17 doesn't cover it).
