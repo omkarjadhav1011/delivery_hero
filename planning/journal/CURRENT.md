@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-05 |
 | Branch | feat/en-05-state-machine |
 | Start commit | e3b17ed |
-| Last commit | e84aa56 |
+| Last commit | 9949168 |
 | Step | test-first |
-| Task | T5 |
+| Task | T6 |
 | Attempts | 0 |
 | Started | 2026-09-27T11:42 |
-| Updated | 2026-09-27T12:02 |
-| Next action | RoundTimelineTest AC-EN05-03 incident range rows |
+| Updated | 2026-09-27T12:04 |
+| Next action | GameSessionTest AC-EN05-02 Frozen at 4:30, Ended at 5:00 |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T2 (4e789fc)
 - T3 (2faf10e)
 - T4 (e84aa56)
+- T5 (9949168)
 
 ## Pending approvals
 

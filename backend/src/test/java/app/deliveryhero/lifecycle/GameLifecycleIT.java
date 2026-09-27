@@ -78,7 +78,7 @@ class GameLifecycleIT {
     @BeforeEach
     void seededLibrary() {
         recorder.awaitWrites();
-        jdbc.sql("SELECT id FROM games").query(UUID.class).list().forEach(engine::discard);
+        jdbc.sql("SELECT id FROM games").query(UUID.class).list().forEach(engine::drop);
         credentials.clear();
         jdbc.sql("DELETE FROM games").update();
         jdbc.sql("DELETE FROM run_plan_entries").update();
@@ -424,7 +424,7 @@ class GameLifecycleIT {
     private void cancel(GameDetails game) {
         recorder.record(game.id(), game.state(), GameState.CANCELLED);
         recorder.awaitWrites();
-        engine.discard(game.id());
+        engine.drop(game.id());
     }
 
     private GameSnapshot sessionSnapshot(GameDetails game) {

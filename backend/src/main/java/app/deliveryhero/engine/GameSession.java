@@ -1,12 +1,16 @@
 package app.deliveryhero.engine;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.Names;
+import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.config.GameProperties;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.ClientRole;
@@ -31,8 +35,13 @@ import app.deliveryhero.engine.command.StartRound;
 import app.deliveryhero.engine.command.SubmitAnswer;
 import app.deliveryhero.engine.command.TimerFired;
 import app.deliveryhero.engine.command.VoidTask;
+import app.deliveryhero.engine.timer.TimerKey;
+import app.deliveryhero.engine.timer.TimerScheduler;
+import app.deliveryhero.engine.timer.TimerType;
+import app.deliveryhero.lifecycle.GameStateRecorder;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,6 +51,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.random.RandomGenerator;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +59,7 @@ import org.slf4j.MDC;
 
 /**
  * One live game in memory, changed only by commands on its own single thread (LLD sections 5.4.1 and 5.4.2,
- * DEC-125). This is the S0 shell, with joining and the player's state; the round, tasks and timers come with S1-05.
+ * DEC-125). It runs the game's states and timed moments (SRS sections 3.1 and 3.2); tasks, scoring and the reveal come with their stories.
  */
 public final class GameSession {
 
@@ -63,43 +73,41 @@ public final class GameSession {
     private final String code;
     private final boolean test;
     private final GameSnapshot snapshot;
-    private final int maxPlayers;
+    private final GameProperties properties;
+    private final Duration batchInterval;
     private final TokenService tokens;
     private final PlayerTokens playerTokens;
     private final Broadcaster broadcaster;
+    private final TimerScheduler timers;
+    private final GameStateRecorder recorder;
     private final Clock clock;
     private final SecureRandom random;
+    private final RandomGenerator gameRandom;
     private final ExecutorService thread;
 
     // Session state: read and written only on the session thread
     private GameState state;
+    private @Nullable RoundTimeline timeline;
     private final Map<UUID, PlayerState> players = new LinkedHashMap<>();
     private final Map<String, UUID> tokenIndex = new HashMap<>();
     private final NameRegistry names = new NameRegistry();
 
-    GameSession(
-            UUID id,
-            String code,
-            GameState state,
-            boolean test,
-            GameSnapshot snapshot,
-            int maxPlayers,
-            TokenService tokens,
-            PlayerTokens playerTokens,
-            Broadcaster broadcaster,
-            Clock clock,
-            SecureRandom random) {
+    GameSession(UUID id, String code, GameState state, boolean test, GameSnapshot snapshot, SessionServices services) {
         this.id = id;
         this.code = code;
         this.state = state;
         this.test = test;
         this.snapshot = snapshot;
-        this.maxPlayers = maxPlayers;
-        this.tokens = tokens;
-        this.playerTokens = playerTokens;
-        this.broadcaster = broadcaster;
-        this.clock = clock;
-        this.random = random;
+        this.properties = services.properties();
+        this.batchInterval = services.batchInterval();
+        this.tokens = services.tokens();
+        this.playerTokens = services.playerTokens();
+        this.broadcaster = services.broadcaster();
+        this.timers = services.timers();
+        this.recorder = services.recorder();
+        this.clock = services.clock();
+        this.random = services.random();
+        this.gameRandom = services.gameRandom();
         this.thread = Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, "game-" + id));
     }
 
@@ -180,9 +188,7 @@ public final class GameSession {
                 // TODO(US-27): check and score in LIVE and FROZEN, and reply ANSWER_REJECTED otherwise (LLD 5.4.4).
                 // No state accepts answers yet, so there is nothing to score.
             }
-            case TimerFired fired -> {
-                // TODO(EN-05): the round's timers (S1-05 T6)
-            }
+            case TimerFired fired -> timerFired(fired.key());
             case HostCommand host -> host.reply().complete(host(host));
         }
     }
@@ -196,12 +202,9 @@ public final class GameSession {
             return ActionResult.unchanged(state);
         }
         return switch (command) {
-            // TODO(EN-05): open the lobby (S1-05 T7)
-            case OpenLobby open -> ActionResult.unchanged(state);
-            // TODO(EN-05): the countdown and the round's timers (S1-05 T6)
-            case StartRound start -> ActionResult.unchanged(state);
-            // TODO(EN-05): cancel the timers, send GAME_ENDED and drop the session (S1-05 T7)
-            case Discard discard -> ActionResult.unchanged(state);
+            case OpenLobby open -> openLobby();
+            case StartRound start -> startRound();
+            case Discard discard -> discard(discard.reason());
             // TODO(US-11): practice starts and ends (LLD 5.4.6)
             case StartPractice start -> ActionResult.unchanged(state);
             case EndPractice end -> ActionResult.unchanged(state);
@@ -215,6 +218,122 @@ public final class GameSession {
             case RenamePlayer rename -> ActionResult.unchanged(state);
             case RemovePlayer remove -> ActionResult.unchanged(state);
         };
+    }
+
+    /** CREATED to LOBBY; the projector and admin batches start (LLD sections 5.4.3 and 5.7). */
+    private ActionResult openLobby() {
+        changeState(GameState.LOBBY);
+        timers.schedule(id, TimerKey.of(TimerType.FLUSH), clock.instant().plus(batchInterval));
+        return ActionResult.changed(state);
+    }
+
+    /**
+     * LOBBY to COUNTDOWN, with a player to play (LLD section 5.4.3). The round starts after the countdown, and every
+     * timed moment of SRS section 3.2 is scheduled now (LLD section 5.4.7). The incident moment stays in the timeline
+     * and its timer: no message carries it (FR-043).
+     */
+    private ActionResult startRound() {
+        if (players.isEmpty()) {
+            return ActionResult.unchanged(state);
+        }
+        GameSnapshot.@Nullable Task incident = snapshot.incident();
+        RoundTimeline round = RoundTimeline.of(
+                clock.instant().plus(properties.countdown()),
+                snapshot.roundLengthSeconds(),
+                (int) properties.freeze().toSeconds(),
+                incident == null ? null : wholeSeconds(incident.timeLimitMs()),
+                gameRandom);
+        timeline = round;
+        changeState(GameState.COUNTDOWN);
+        timers.schedule(id, TimerKey.of(TimerType.ROUND_START), round.start());
+        timers.schedule(id, TimerKey.phase(Phase.DEVELOPMENT.ordinal()), round.at(round.planningEnd()));
+        timers.schedule(id, TimerKey.phase(Phase.TESTING.ordinal()), round.at(round.developmentEnd()));
+        timers.schedule(id, TimerKey.phase(Phase.RELEASE.ordinal()), round.at(round.testingEnd()));
+        Integer incidentAt = round.incidentAtSec();
+        if (incidentAt != null) {
+            timers.schedule(id, TimerKey.of(TimerType.INCIDENT_START), round.at(incidentAt));
+        }
+        timers.schedule(id, TimerKey.of(TimerType.FREEZE), round.at(round.freezeAtSec()));
+        timers.schedule(id, TimerKey.of(TimerType.ROUND_END), round.end());
+        return ActionResult.changed(state);
+    }
+
+    private static int wholeSeconds(int millis) {
+        return (millis + 999) / 1000;
+    }
+
+    /**
+     * A timer of this session fired (LLD section 5.4.2). One that no longer applies, because the state has moved on
+     * since it was set, changes nothing.
+     */
+    private void timerFired(TimerKey key) {
+        switch (key.type()) {
+            case ROUND_START -> {
+                if (state == GameState.COUNTDOWN) {
+                    // TODO(US-16): issue the first task to every connected player
+                    changeState(GameState.LIVE);
+                }
+            }
+            case PHASE_CHANGE -> {
+                // TODO(US-21): the projector's phase bar follows the clock
+            }
+            case INCIDENT_START -> {
+                // TODO(US-33): the incident starts on every phone (LLD 5.4.5)
+            }
+            case FREEZE -> {
+                if (state == GameState.LIVE) {
+                    // TODO(US-36): the top 10 freezes
+                    changeState(GameState.FROZEN);
+                }
+            }
+            case ROUND_END -> {
+                if (state == GameState.LIVE || state == GameState.FROZEN) {
+                    // TODO(US-18): open tasks become timeouts
+                    changeState(GameState.ENDED);
+                }
+            }
+            case FLUSH -> {
+                if (GameState.IN_PROGRESS.contains(state) || state == GameState.RESULTS) {
+                    // TODO(US-38): the projector's batches; TODO(US-60): the admin's live stats (LLD 5.7)
+                    timers.schedule(id, key, clock.instant().plus(batchInterval));
+                }
+            }
+            case PRACTICE_END, TASK_DEADLINE, LOCKOUT_END, INCIDENT_DEADLINE -> {
+                // TODO(US-10): practice; TODO(US-16): task deadlines; TODO(US-28): lockouts; TODO(US-33): incident
+            }
+        }
+    }
+
+    /**
+     * Ends the game after the lifecycle has recorded it closed or cancelled (LLD section 5.8): the timers stop, and
+     * every phone hears GAME_ENDED. The engine then drops the session.
+     */
+    private ActionResult discard(EndReason reason) {
+        timers.cancelAll(id);
+        state = reason == EndReason.CANCELLED ? GameState.CANCELLED : GameState.CLOSED;
+        GameEndedMessage ended = GameEndedMessage.of(reason);
+        players.values().forEach(player -> broadcaster.toPlayer(id, player.id(), ended));
+        // TODO(US-38): GAME_ENDED to the projector; TODO(US-60): to the admin panels
+        log.atInfo()
+                .addKeyValue("event", "GAME_DISCARDED")
+                .addKeyValue("gameId", id)
+                .addKeyValue("reason", reason)
+                .log("Game session ended");
+        return ActionResult.changed(state);
+    }
+
+    /**
+     * Moves to {@code next}: the game row records it (LD-05), and every player gets their full state again (API section
+     * 8.5, DEC-146).
+     */
+    private void changeState(GameState next) {
+        GameState previous = state;
+        state = next;
+        recorder.record(id, previous, next);
+        long now = clock.millis();
+        players.values()
+                .forEach(player -> broadcaster.toPlayer(
+                        id, player.id(), GameStateMessage.initial(now, id, state, player.id(), player.name())));
     }
 
     private JoinResult join(String rawName) {
@@ -269,7 +388,7 @@ public final class GameSession {
         if (!JOINABLE.contains(state)) {
             return ApiErrorCode.JOINING_CLOSED;
         }
-        if (players.size() >= maxPlayers) {
+        if (players.size() >= properties.maxPlayers()) {
             return ApiErrorCode.GAME_FULL;
         }
         return null;

@@ -2,12 +2,25 @@ package app.deliveryhero.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.broadcast.GameEndedMessage;
+import app.deliveryhero.broadcast.GameStateMessage;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Role;
+import app.deliveryhero.common.TaskKind;
+import app.deliveryhero.common.TaskType;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.content.GameSnapshot;
+import app.deliveryhero.content.MultipleChoiceContent;
 import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.EndPractice;
@@ -23,13 +36,19 @@ import app.deliveryhero.engine.command.RenamePlayer;
 import app.deliveryhero.engine.command.StartPractice;
 import app.deliveryhero.engine.command.StartReveal;
 import app.deliveryhero.engine.command.StartRound;
+import app.deliveryhero.engine.command.TimerFired;
 import app.deliveryhero.engine.command.VoidTask;
+import app.deliveryhero.engine.timer.TimerKey;
+import app.deliveryhero.engine.timer.TimerScheduler;
+import app.deliveryhero.engine.timer.TimerType;
+import app.deliveryhero.lifecycle.GameStateRecorder;
+import app.deliveryhero.support.ManualScheduler;
+import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,23 +62,30 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
-/** The S0 game session on its own thread, driven directly (document 15, section 8.1). */
+/** The game session on its own thread, driven directly with a test clock and scheduler (document 15, section 8.1). */
 class GameSessionTest {
 
-    private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-21T10:00:00Z"), ZoneOffset.UTC);
-
+    private final MutableClock clock = new MutableClock(Instant.parse("2026-10-21T10:00:00Z"));
+    private final ManualScheduler scheduler = new ManualScheduler(clock);
+    private final TimerScheduler timers =
+            new TimerScheduler(scheduler, clock, (gameId, key) -> this.session.enqueue(new TimerFired(key)));
+    private final GameStateRecorder recorder = mock(GameStateRecorder.class);
+    private final SimpMessageSendingOperations messaging = mock(SimpMessageSendingOperations.class);
     private final List<String> registered = new ArrayList<>();
     private final SecureRandom random = seeded();
     private final TokenService tokens = new TokenService(seeded());
-    private final Broadcaster broadcaster = new Broadcaster(mock(SimpMessageSendingOperations.class));
+    private final Broadcaster broadcaster = new Broadcaster(messaging);
     private GameSession session = newSession(new RecordingTokens());
 
     /** A seeded generator, so a run can be repeated (document 13, section 6). */
@@ -78,19 +104,25 @@ class GameSessionTest {
     }
 
     private GameSession newSession(PlayerTokens playerTokens, GameState state) {
-        return new GameSession(
-                TestData.GAME_ID,
-                TestData.GAME_CODE,
-                state,
-                false,
-                TestData.EMPTY_SNAPSHOT,
-                100,
+        return newSession(playerTokens, state, TestData.EMPTY_SNAPSHOT);
+    }
+
+    private GameSession newSession(PlayerTokens playerTokens, GameState state, GameSnapshot snapshot) {
+        SessionServices services = new SessionServices(
+                TestData.GAME_PROPERTIES,
+                BATCH_INTERVAL,
                 tokens,
                 playerTokens,
                 broadcaster,
-                CLOCK,
-                random);
+                timers,
+                recorder,
+                clock,
+                random,
+                RoundTimelineTest.Extreme.HIGHEST);
+        return new GameSession(TestData.GAME_ID, TestData.GAME_CODE, state, false, snapshot, services);
     }
+
+    private static final Duration BATCH_INTERVAL = Duration.ofMillis(500);
 
     @AfterEach
     void close() {
@@ -232,6 +264,164 @@ class GameSessionTest {
 
         assertThat(reply.get(2, TimeUnit.SECONDS)).isEqualTo(ActionResult.unchanged(state));
         assertThat(status().state()).isEqualTo(state);
+    }
+
+    /** The default 20-second incident (DEC-74). */
+    private static final GameSnapshot.Task INCIDENT = new GameSnapshot.Task(
+            "INC-01",
+            Role.DEVELOPER,
+            TaskKind.INCIDENT,
+            TaskType.MULTIPLE_CHOICE,
+            "Production is down",
+            null,
+            20_000,
+            new MultipleChoiceContent(List.of(
+                    new MultipleChoiceContent.Option("Roll back", true),
+                    new MultipleChoiceContent.Option("Wait", false))),
+            null);
+
+    private static GameSnapshot roundOf(int seconds, GameSnapshot.@Nullable Task incident) {
+        return new GameSnapshot(
+                GameSnapshot.FORMAT_VERSION, "Default", seconds, Map.of(), List.of(), incident, Map.of());
+    }
+
+    /** A lobby with one player, whose round the host has just started. */
+    private ActionResult startRound(GameSnapshot snapshot) throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.LOBBY, snapshot);
+        join("Priya");
+        return host(StartRound::new);
+    }
+
+    private ActionResult host(Function<CompletableFuture<ActionResult>, HostCommand> command) throws Exception {
+        CompletableFuture<ActionResult> reply = new CompletableFuture<>();
+        session.enqueue(command.apply(reply));
+        return reply.get(2, TimeUnit.SECONDS);
+    }
+
+    /** Moves the clock, fires the timers now due, and reports the state once the session has handled them. */
+    private GameState after(Duration duration) throws Exception {
+        scheduler.advance(duration);
+        return status().state();
+    }
+
+    /** Everything sent to phones so far, in order. */
+    private List<Object> sentToPhones() {
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, atLeast(0)).convertAndSendToUser(anyString(), anyString(), sent.capture());
+        return sent.getAllValues();
+    }
+
+    @Test
+    @DisplayName("AC-EN05-02 a 5-minute round moves to Frozen at 4:30 and to Ended at 5:00")
+    void fiveMinuteRoundFreezesAndEnds() throws Exception {
+        assertThat(startRound(roundOf(300, INCIDENT))).isEqualTo(ActionResult.changed(GameState.COUNTDOWN));
+
+        assertThat(after(Duration.ofSeconds(5))).isEqualTo(GameState.LIVE);
+        assertThat(after(Duration.ofSeconds(269))).isEqualTo(GameState.LIVE);
+        assertThat(after(Duration.ofSeconds(1))).isEqualTo(GameState.FROZEN);
+        assertThat(after(Duration.ofSeconds(29))).isEqualTo(GameState.FROZEN);
+        assertThat(after(Duration.ofSeconds(1))).isEqualTo(GameState.ENDED);
+    }
+
+    @Test
+    @DisplayName("The round goes live when the 5-second countdown ends, not before (FR-019)")
+    void countdownThenLive() throws Exception {
+        startRound(roundOf(180, null));
+
+        assertThat(after(Duration.ofMillis(4_999))).isEqualTo(GameState.COUNTDOWN);
+        assertThat(after(Duration.ofMillis(1))).isEqualTo(GameState.LIVE);
+    }
+
+    @Test
+    @DisplayName("Starting the round schedules its start, three phase changes, the incident, the freeze and the end")
+    void startRoundSchedulesEveryMoment() throws Exception {
+        startRound(roundOf(300, INCIDENT));
+        assertThat(scheduler.pending()).isEqualTo(7);
+
+        timers.cancelAll(TestData.GAME_ID);
+        startRound(roundOf(300, null));
+        assertThat(scheduler.pending()).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("Starting the round needs a player in the lobby (LLD section 5.4.3)")
+    void startRoundNeedsAPlayer() throws Exception {
+        assertThat(host(StartRound::new)).isEqualTo(ActionResult.unchanged(GameState.LOBBY));
+        assertThat(scheduler.pending()).isZero();
+        verifyNoInteractions(recorder);
+    }
+
+    @Test
+    @DisplayName("A timer that no longer applies to the state changes nothing")
+    void staleTimerChangesNothing() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.ENDED);
+
+        session.enqueue(new TimerFired(TimerKey.of(TimerType.ROUND_START)));
+        session.enqueue(new TimerFired(TimerKey.of(TimerType.FREEZE)));
+
+        assertThat(status().state()).isEqualTo(GameState.ENDED);
+        verifyNoInteractions(recorder);
+    }
+
+    @Test
+    @DisplayName("The incident moment is in no message to a phone (FR-043)")
+    void incidentMomentInNoMessage() throws Exception {
+        startRound(roundOf(300, INCIDENT));
+        after(Duration.ofSeconds(305));
+
+        assertThat(sentToPhones())
+                .isNotEmpty()
+                .allSatisfy(message -> assertThat(message).isInstanceOfSatisfying(GameStateMessage.class, state -> {
+                    assertThat(state.round()).isNull();
+                    assertThat(state.incident()).isNull();
+                }));
+    }
+
+    @Test
+    @DisplayName("Opening the lobby moves CREATED to LOBBY, records it and starts the 500 ms batches (FLUSH)")
+    void openLobby() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        assertThat(host(OpenLobby::new)).isEqualTo(ActionResult.changed(GameState.LOBBY));
+
+        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        assertThat(scheduler.pending()).isEqualTo(1);
+        assertThat(after(Duration.ofMillis(500))).isEqualTo(GameState.LOBBY);
+        assertThat(scheduler.pending()).as("FLUSH sets itself again").isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Every state change of the round is recorded in order and sent to each player as GAME_STATE")
+    void stateChangesRecordedAndBroadcast() throws Exception {
+        startRound(roundOf(300, null));
+        after(Duration.ofSeconds(305));
+
+        InOrder inOrder = inOrder(recorder);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LOBBY, GameState.COUNTDOWN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.COUNTDOWN, GameState.LIVE);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LIVE, GameState.FROZEN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.FROZEN, GameState.ENDED);
+        assertThat(sentToPhones())
+                .extracting(message -> ((GameStateMessage) message).state())
+                .containsExactly(GameState.COUNTDOWN, GameState.LIVE, GameState.FROZEN, GameState.ENDED);
+    }
+
+    @Test
+    @DisplayName("Discarding cancels every timer and sends GAME_ENDED to each player")
+    void discardEndsTheGame() throws Exception {
+        startRound(roundOf(300, INCIDENT));
+
+        assertThat(host(reply -> new Discard(EndReason.CANCELLED, reply)))
+                .isEqualTo(ActionResult.changed(GameState.CANCELLED));
+
+        assertThat(scheduler.pending()).isZero();
+        assertThat(sentToPhones()).last().isEqualTo(GameEndedMessage.of(EndReason.CANCELLED));
+        clearInvocations(recorder);
+        assertThat(after(Duration.ofSeconds(305))).isEqualTo(GameState.CANCELLED);
+        verifyNoInteractions(recorder);
     }
 
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {

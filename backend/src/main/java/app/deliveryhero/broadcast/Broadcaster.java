@@ -24,6 +24,11 @@ public class Broadcaster {
         this.messaging = messaging;
     }
 
+    /** Sends a message to every connection of a player. */
+    public void toPlayer(UUID gameId, UUID playerId, Object message) {
+        messaging.convertAndSendToUser(new PlayerPrincipal(gameId, playerId).getName(), PLAYER_QUEUE_FOR_USER, message);
+    }
+
     /**
      * Sends a message to one connection of a player: the one that just subscribed, not an older one still being closed
      * (LD-08).

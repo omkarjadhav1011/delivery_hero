@@ -4,16 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import app.deliveryhero.broadcast.Broadcaster;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
-import app.deliveryhero.config.GameProperties;
+import app.deliveryhero.config.BroadcastProperties;
+import app.deliveryhero.engine.command.ActionResult;
+import app.deliveryhero.lifecycle.GameStateRecorder;
+import app.deliveryhero.support.ManualScheduler;
+import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
 import java.security.SecureRandom;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
+import java.util.SplittableRandom;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,25 +29,19 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 /** The live games in memory (LLD section 5.4.1). */
 class GameEngineTest {
 
-    private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-10-21T10:00:00Z"), ZoneOffset.UTC);
-
-    private static final GameProperties PROPERTIES = new GameProperties(
-            100,
-            Duration.ofSeconds(5),
-            Duration.ofSeconds(30),
-            Duration.ofSeconds(30),
-            Duration.ofHours(24),
-            Duration.ofHours(2),
-            Duration.ofMinutes(3),
-            null);
+    private final MutableClock clock = new MutableClock(Instant.parse("2026-10-21T10:00:00Z"));
 
     private final GameEngine engine = new GameEngine(
             new TokenService(new SecureRandom()),
             new NoTokens(),
-            PROPERTIES,
+            TestData.GAME_PROPERTIES,
+            new BroadcastProperties(Duration.ofMillis(500)),
             new Broadcaster(mock(SimpMessageSendingOperations.class)),
-            CLOCK,
-            new SecureRandom());
+            new ManualScheduler(clock),
+            mock(GameStateRecorder.class),
+            clock,
+            new SecureRandom(),
+            new SplittableRandom(42));
 
     @AfterEach
     void shutdown() {
@@ -62,6 +61,30 @@ class GameEngineTest {
     @DisplayName("No live game means no game in progress")
     void noGames() {
         assertThat(engine.isAnyGameInProgress()).isFalse();
+    }
+
+    @Test
+    @DisplayName("A cancelled game's session is dropped once it has ended")
+    void discardDropsTheSession() throws Exception {
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LOBBY, false, TestData.EMPTY_SNAPSHOT);
+
+        ActionResult result =
+                engine.discard(TestData.GAME_ID, EndReason.CANCELLED).get(2, TimeUnit.SECONDS);
+
+        assertThat(result).isEqualTo(ActionResult.changed(GameState.CANCELLED));
+        assertThat(engine.find(TestData.GAME_ID)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("A discard the state doesn't allow, such as closing a game before Results, keeps the session")
+    void refusedDiscardKeepsTheSession() throws Exception {
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LIVE, false, TestData.EMPTY_SNAPSHOT);
+
+        ActionResult result =
+                engine.discard(TestData.GAME_ID, EndReason.FINISHED).get(2, TimeUnit.SECONDS);
+
+        assertThat(result).isEqualTo(ActionResult.unchanged(GameState.LIVE));
+        assertThat(engine.find(TestData.GAME_ID)).isPresent();
     }
 
     private static final class NoTokens implements PlayerTokens {
