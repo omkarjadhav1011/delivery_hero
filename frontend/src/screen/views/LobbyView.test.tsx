@@ -11,7 +11,7 @@ function player(playerId: string, firstName: string): ScreenPlayer {
 }
 
 describe("LobbyView", () => {
-  it('AC-US38-01 shows "Scan to join", the join URL as a QR code and as text, the Chrome line and "Joined: 0"', () => {
+  it('shows "Scan to join", the join URL as a QR code and as text, the Chrome line and "Joined: 0"', () => {
     render(<LobbyView joinUrl={JOIN_URL} players={[]} playerCount={0} />);
 
     expect(screen.getByText(copy.screen.scanToJoin)).toBeTruthy();

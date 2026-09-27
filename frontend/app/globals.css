@@ -25,14 +25,6 @@
   --font-display: var(--font-press-start-2p), ui-monospace, monospace;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
-  /* A new card or name fading in: 150–250 ms, the same with reduced motion (document 12, section 5.6) */
-  --animate-fade-in: fade-in 200ms ease-out;
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-  }
 }
 
 /* A visible 3 px keyboard focus ring everywhere (document 12, section 11; NFR-32) */

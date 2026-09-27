@@ -42,6 +42,9 @@ const PROJECTOR_NAME = /^projector:([0-9a-f-]{36})$/;
 
 /** The CONNECTED frame names the projector "projector:<game ID>" (DI-79). */
 export function applyConnected(state: ScreenState, headers: Record<string, string>): ScreenState {
+  if (state.view === "ended") {
+    return state;
+  }
   const match = PROJECTOR_NAME.exec(headers["user-name"] ?? "");
   return match?.[1] === undefined ? state : { ...state, gameId: match[1] };
 }
@@ -98,7 +101,13 @@ export function applyScreenMessage(state: ScreenState, message: ScreenMessage): 
     case "WALL_EVENTS": {
       const known = new Set(state.players.map((player) => player.playerId));
       const newcomers = message.events
-        .filter((event) => event.event === "JOINED" && !known.has(event.playerId))
+        .filter((event) => {
+          if (event.event !== "JOINED" || known.has(event.playerId)) {
+            return false;
+          }
+          known.add(event.playerId);
+          return true;
+        })
         .map(({ playerId, initials, firstName }): ScreenPlayer => ({
           playerId,
           initials,
@@ -119,14 +128,17 @@ export function applyScreenMessage(state: ScreenState, message: ScreenMessage): 
   }
 }
 
-/** A wrong or revoked key: the server can't say which, so the finished message is shown (DI-76). */
-export function applyRefused(): ScreenState {
-  return ended(copy.screen.finished);
+/**
+ * A wrong or revoked key: the server can't say which, so the finished message is shown (DI-76). A game that already
+ * ended keeps the message its GAME_ENDED chose.
+ */
+export function applyRefused(state: ScreenState): ScreenState {
+  return state.view === "ended" ? state : ended(copy.screen.finished);
 }
 
 export const useScreenStore = create<ScreenStore>()((set) => ({
   ...initialScreenState(),
   connected: (headers) => set((state) => applyConnected(state, headers)),
   receive: (message) => set((state) => applyScreenMessage(state, message)),
-  refused: () => set(applyRefused()),
+  refused: () => set(applyRefused),
 }));

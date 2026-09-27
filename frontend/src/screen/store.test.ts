@@ -107,7 +107,8 @@ describe("screen store", () => {
   });
 
   it("AC-US37-03 AC-US37-04 a refused connection shows the finished message and no game data (DI-76)", () => {
-    const state = applyRefused();
+    const lobby = applyScreenMessage(initialScreenState(), screenState());
+    const state = applyRefused(lobby);
 
     expect(state).toMatchObject({
       view: "ended",
@@ -116,5 +117,26 @@ describe("screen store", () => {
       joinUrl: null,
       playerCount: 0,
     });
+  });
+
+  it("AC-US37-03 a cancelled game keeps its message when a reconnect is refused or connects", () => {
+    const cancelled = applyScreenMessage(applyScreenMessage(initialScreenState(), screenState()), {
+      type: "GAME_ENDED",
+      serverTime: 3,
+      reason: "CANCELLED",
+    });
+
+    expect(applyRefused(cancelled).endedMessage).toBe(copy.screen.hostEnded);
+    expect(applyConnected(cancelled, { "user-name": `projector:${GAME}` })).toBe(cancelled);
+  });
+
+  it("lists a player repeated within one WALL_EVENTS batch once", () => {
+    const state = applyScreenMessage(
+      applyScreenMessage(initialScreenState(), screenState()),
+      joined(["p1", "Sam"], ["p1", "Sam"]),
+    );
+
+    expect(state.players.map((player) => player.playerId)).toEqual(["p1"]);
+    expect(state.playerCount).toBe(1);
   });
 });

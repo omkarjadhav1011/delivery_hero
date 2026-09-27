@@ -21,7 +21,10 @@ export function LobbyView({ joinUrl, players, playerCount }: LobbyViewProps) {
           <p className="font-display text-3xl">{copy.screen.joined(playerCount)}</p>
           <ul className="flex flex-wrap gap-x-6 gap-y-2 text-3xl">
             {players.map((player) => (
-              <li key={player.playerId} className="animate-fade-in">
+              <li
+                key={player.playerId}
+                className="transition-opacity duration-200 ease-out starting:opacity-0"
+              >
                 {player.firstName}
               </li>
             ))}
@@ -29,7 +32,7 @@ export function LobbyView({ joinUrl, players, playerCount }: LobbyViewProps) {
         </div>
       }
     >
-      <QrCode value={joinUrl} label={copy.screen.qrLabel} className="size-100" />
+      <QrCode value={joinUrl} label={copy.screen.qrLabel} className="size-100 shrink-0" />
       <p className="text-3xl break-all">{joinUrl}</p>
       <p className="text-3xl">{copy.screen.openInChrome}</p>
     </ProjectorShell>
