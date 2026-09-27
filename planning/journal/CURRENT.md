@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
-| Task |  |
+| State | active |
+| Session | 2026-09-27-1242 |
+| Subplan | S1-06 |
+| Branch | feat/us-37-projector-lobby |
+| Start commit | b778eab |
+| Last commit | b778eab |
+| Step | test-first |
+| Task | T-merge |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-27T12:42 |
+| Updated | 2026-09-27T12:43 |
+| Next action | Merge origin/main and resolve conflicts |
 
 ## Completed tasks
 
