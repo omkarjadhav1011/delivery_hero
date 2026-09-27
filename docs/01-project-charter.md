@@ -1,6 +1,6 @@
 # Delivery Hero — Project Charter
 
-> Document 01 of 18 · Version 1.17 (approved)
+> Document 01 of 18 · Version 1.18 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 01 — Project Charter |
-| Version | 1.17 |
+| Version | 1.18 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] — sponsor, host and developer |
-| Date | 26 September 2026 |
+| Date | 27 September 2026 |
 | Related documents | All other project documents cite this charter and its decision log (Appendix A) |
 
 ### Revision history
@@ -37,6 +37,7 @@
 | 1.15 | 2026-09-24 | [Owner name] | Added DEC-212: documents carry no drafting credit. Revised DEC-71 and the wording of DEC-40, section 8, section 11.3 and R-10 to match |
 | 1.16 | 2026-09-26 | [Owner name] | Added DEC-213: local-only development until production. The host is chosen by 12 Oct and production is ready by 16 Oct; the trial run and go/no-go move to Mon 19 Oct. Section 12 milestones and Gantt, and R-09, revised to match |
 | 1.17 | 2026-09-26 | [Owner name] | Added DEC-214 (load test on the local stack, repeated on production) and DEC-215 (a no-go at the trial moves the event) |
+| 1.18 | 2026-09-27 | [Owner name] | Added DEC-216: the incident's latest start is capped so it ends by the freeze (Q-02) |
 
 ---
 
@@ -646,3 +647,4 @@ Decisions from the discovery session on 23 September 2026. Later documents cite 
 | DEC-213 | Planning | Until production exists, the application is built and tested only on the local stack; the S0 walking skeleton is shown there. The Deploy workflow stays disabled until the first deploy. The owner picks the production host (Q-01) by Mon 12 Oct. Production is up, with OPS-01 to OPS-05 passed, by Fri 16 Oct. The trial run and go/no-go move to Mon 19 Oct (E−2), on production. Owner decision, 26 Sep 2026. Revises the "Infrastructure ready" and "Trial run" milestones (section 12) and R-09 |
 | DEC-214 | Testing | The 100-player load test (LT-01) runs on the local stack by Tue 13 Oct. One repeat run on production follows at H-08, 16–18 Oct. Owner decision, 26 Sep 2026 (DEC-213) |
 | DEC-215 | Planning | A no-go at the trial run on Mon 19 Oct moves the event (A-01). There's no re-check on Tue 20 Oct. Owner decision, 26 Sep 2026 (DEC-213) |
+| DEC-216 | Game rules | The incident ends by the freeze: its latest start is the freeze start minus the incident task's time limit, so a 3-minute round with the default 20-second incident starts it between 1:52 and 2:10. If that leaves no room (a long admin-set limit in a short round), the incident starts at the earliest moment, the Testing start plus ceil(0.1 × W), and may run into the freeze. Owner decision, 27 Sep 2026 (Q-02; SRS section 3.2) |
