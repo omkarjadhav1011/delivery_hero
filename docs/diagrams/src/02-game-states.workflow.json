@@ -1,0 +1,307 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Game State Machine",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "setup",
+        "label": "Setup and lobby",
+        "focus": [
+          "created",
+          "lobby",
+          "practice"
+        ],
+        "note": "Admin creates the game, opens the lobby and can run a 30 s practice."
+      },
+      {
+        "id": "round",
+        "label": "The round",
+        "focus": [
+          "countdown",
+          "live",
+          "frozen",
+          "ended"
+        ],
+        "note": "Timers move the round from countdown to end; the top 10 freezes 30 s before the end."
+      },
+      {
+        "id": "closeout",
+        "label": "Reveal and close",
+        "focus": [
+          "ended",
+          "reveal",
+          "results",
+          "closed",
+          "cancelled"
+        ],
+        "note": "The host steps through the reveal; results are saved before the game closes."
+      }
+    ],
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Players see it"
+        },
+        "backend": {
+          "label": "Game state"
+        },
+        "security": {
+          "label": "Guarded / exit"
+        },
+        "messagebus": {
+          "label": "Practice"
+        },
+        "database": {
+          "label": "Results saved"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "setup",
+      "label": "Setup (admin)"
+    },
+    {
+      "id": "round",
+      "label": "Round (timers)"
+    },
+    {
+      "id": "close",
+      "label": "Reveal + close (host)"
+    },
+    {
+      "id": "exit",
+      "label": "Cancel",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "ph-setup",
+      "label": "Before the round",
+      "fromCol": 0,
+      "toCol": 2
+    },
+    {
+      "id": "ph-round",
+      "label": "Round: L = 180 to 600 s",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "ph-end",
+      "label": "Close-out",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "created",
+      "lane": "setup",
+      "col": 0,
+      "type": "backend",
+      "label": "CREATED",
+      "sublabel": "admin creates",
+      "tag": "built",
+      "width": 124
+    },
+    {
+      "id": "lobby",
+      "lane": "setup",
+      "col": 1,
+      "type": "frontend",
+      "label": "LOBBY",
+      "sublabel": "players join",
+      "tag": "built (e2e)",
+      "width": 124
+    },
+    {
+      "id": "practice",
+      "lane": "setup",
+      "col": 2,
+      "type": "messagebus",
+      "label": "PRACTICE",
+      "sublabel": "30 s, not scored",
+      "tag": "planned",
+      "width": 124
+    },
+    {
+      "id": "countdown",
+      "lane": "round",
+      "col": 2,
+      "type": "backend",
+      "label": "COUNTDOWN",
+      "sublabel": "starts in 5 s",
+      "tag": "planned",
+      "width": 124
+    },
+    {
+      "id": "live",
+      "lane": "round",
+      "col": 3,
+      "type": "backend",
+      "label": "LIVE",
+      "sublabel": "tasks + incident",
+      "tag": "planned",
+      "width": 124
+    },
+    {
+      "id": "frozen",
+      "lane": "round",
+      "col": 4,
+      "type": "security",
+      "label": "FROZEN",
+      "sublabel": "no joins",
+      "tag": "L − 30 s",
+      "width": 124
+    },
+    {
+      "id": "ended",
+      "lane": "round",
+      "col": 5,
+      "type": "backend",
+      "label": "ENDED",
+      "sublabel": "open tasks time out",
+      "tag": "at L",
+      "width": 124
+    },
+    {
+      "id": "reveal",
+      "lane": "close",
+      "col": 5,
+      "type": "frontend",
+      "label": "REVEAL",
+      "sublabel": "10th to winner",
+      "width": 124
+    },
+    {
+      "id": "results",
+      "lane": "close",
+      "col": 4,
+      "type": "database",
+      "label": "RESULTS",
+      "sublabel": "results saved",
+      "width": 124
+    },
+    {
+      "id": "closed",
+      "lane": "close",
+      "col": 3,
+      "type": "backend",
+      "label": "CLOSED",
+      "sublabel": "confirm or 24 h",
+      "width": 124
+    },
+    {
+      "id": "cancelled",
+      "lane": "exit",
+      "col": 1,
+      "type": "security",
+      "label": "CANCELLED",
+      "sublabel": "CANCEL / restart",
+      "tag": "before RESULTS",
+      "width": 132
+    }
+  ],
+  "edges": [
+    {
+      "id": "open-lobby",
+      "from": "created",
+      "to": "lobby",
+      "label": "OPEN_LOBBY"
+    },
+    {
+      "id": "start-practice",
+      "from": "lobby",
+      "to": "practice",
+      "label": "START_PRACTICE",
+      "variant": "dashed",
+      "role": "branch"
+    },
+    {
+      "id": "start-round",
+      "from": "lobby",
+      "to": "countdown",
+      "label": "START_ROUND",
+      "variant": "emphasis"
+    },
+    {
+      "id": "round-start",
+      "from": "countdown",
+      "to": "live",
+      "variant": "emphasis"
+    },
+    {
+      "id": "freeze",
+      "from": "live",
+      "to": "frozen",
+      "variant": "emphasis"
+    },
+    {
+      "id": "round-end",
+      "from": "frozen",
+      "to": "ended",
+      "variant": "emphasis"
+    },
+    {
+      "id": "start-reveal",
+      "from": "ended",
+      "to": "reveal",
+      "label": "START_REVEAL",
+      "variant": "emphasis"
+    },
+    {
+      "id": "winner",
+      "from": "reveal",
+      "to": "results",
+      "label": "NEXT_STEP",
+      "variant": "emphasis"
+    },
+    {
+      "id": "close",
+      "from": "results",
+      "to": "closed",
+      "label": "CLOSE"
+    },
+    {
+      "id": "cancel",
+      "from": "lobby",
+      "to": "cancelled",
+      "label": "CANCEL",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Built today",
+      "items": [
+        "Creating a game reaches CREATED",
+        "The e2e profile opens a game in LOBBY"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Planned (S1-05, S1-07)",
+      "items": [
+        "Host actions: POST /games/{id}/actions",
+        "Timers enqueue TimerFired into the actor"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Deploy lock",
+      "items": [
+        "LOBBY to REVEAL counts as in progress",
+        "A restart during those states cancels the game"
+      ]
+    }
+  ]
+}

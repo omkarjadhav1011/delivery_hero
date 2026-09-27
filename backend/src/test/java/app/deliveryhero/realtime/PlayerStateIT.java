@@ -46,7 +46,7 @@ class PlayerStateIT {
 
     @AfterEach
     void discardGame() {
-        engine.discard(TestData.GAME_ID);
+        engine.drop(TestData.GAME_ID);
     }
 
     @Test

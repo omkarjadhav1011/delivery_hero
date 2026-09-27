@@ -43,7 +43,7 @@ class JoinIT {
 
     @AfterEach
     void discardGame() {
-        engine.discard(TestData.GAME_ID);
+        engine.drop(TestData.GAME_ID);
     }
 
     @Test
@@ -58,7 +58,7 @@ class JoinIT {
     @DisplayName("AC-US01-03 inactive link: a discarded game's code gives 404 GAME_NOT_ACTIVE")
     void discardedGameIsNotActive() {
         openLobby();
-        engine.discard(TestData.GAME_ID);
+        engine.drop(TestData.GAME_ID);
 
         assertNotActive(mvc.get().uri("/api/games/{code}", TestData.GAME_CODE).exchange());
         assertNotActive(join(TestData.GAME_CODE, "Priya"));

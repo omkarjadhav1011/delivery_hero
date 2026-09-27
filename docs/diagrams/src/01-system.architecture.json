@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Delivery Hero System Architecture",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "live-game",
+        "label": "Live game path",
+        "focus": [
+          "phones",
+          "projector",
+          "nginx",
+          "stomp",
+          "engine",
+          "broadcast"
+        ],
+        "note": "Phones and projector talk over one STOMP socket; every command runs on the game's actor thread."
+      },
+      {
+        "id": "admin-content",
+        "label": "Admin and content",
+        "focus": [
+          "admin",
+          "nginx",
+          "rest",
+          "engine",
+          "postgres"
+        ],
+        "note": "REST handles login, tasks, run plans and game creation."
+      },
+      {
+        "id": "ops",
+        "label": "Deploys and backups",
+        "focus": [
+          "gha",
+          "rest",
+          "lifecycle",
+          "postgres",
+          "bucket"
+        ],
+        "note": "Deploys check the lock first; the nightly backup goes to Object Storage."
+      }
+    ],
+    "repository": {
+      "url": "https://github.com/omkarjadhav1011/delivery_hero.git",
+      "link_mode": "local-only",
+      "revision": "e3b17edd55492f5d6d75ca8438939cc4b4e85e20",
+      "provider": "github"
+    }
+  },
+  "components": [
+    {
+      "id": "phones",
+      "type": "frontend",
+      "label": "Player phones",
+      "sublabel": "/join · ~40 Chrome",
+      "pos": [
+        40,
+        110
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "projector",
+      "type": "frontend",
+      "label": "Projector",
+      "sublabel": "/screen?key=",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "frontend",
+      "label": "Admin laptop",
+      "sublabel": "/admin/*",
+      "pos": [
+        40,
+        450
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "nginx",
+      "type": "security",
+      "label": "nginx",
+      "sublabel": "TLS :443 · static export",
+      "pos": [
+        270,
+        280
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "/api/ops → 404"
+    },
+    {
+      "id": "stomp",
+      "type": "messagebus",
+      "label": "STOMP /ws",
+      "sublabel": "auth + destination policy",
+      "pos": [
+        510,
+        110
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/src/main/java/app/deliveryhero/realtime/StompAuthInterceptor.java"
+        }
+      ]
+    },
+    {
+      "id": "rest",
+      "type": "backend",
+      "label": "REST controllers",
+      "sublabel": "api.pub · api.admin · api.ops",
+      "pos": [
+        510,
+        450
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/src/main/java/app/deliveryhero/api/pub/PublicGameController.java"
+        },
+        {
+          "path": "backend/src/main/java/app/deliveryhero/api/admin/GameController.java"
+        }
+      ]
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "Game engine",
+      "sublabel": "GameSession actor",
+      "pos": [
+        760,
+        280
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "one thread per game",
+      "sources": [
+        {
+          "path": "backend/src/main/java/app/deliveryhero/engine/GameSession.java"
+        }
+      ]
+    },
+    {
+      "id": "broadcast",
+      "type": "backend",
+      "label": "Broadcaster",
+      "sublabel": "player now · screen 500 ms",
+      "pos": [
+        760,
+        110
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/src/main/java/app/deliveryhero/broadcast/Broadcaster.java"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "type": "backend",
+      "label": "Game recorder",
+      "sublabel": "lifecycle DB writer",
+      "pos": [
+        1010,
+        280
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "backend/src/main/java/app/deliveryhero/lifecycle/GameStateRecorder.java"
+        }
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 18",
+      "sublabel": "content + game records",
+      "pos": [
+        1010,
+        450
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "no live player data"
+    },
+    {
+      "id": "bucket",
+      "type": "cloud",
+      "label": "Object Storage",
+      "sublabel": "private bucket · 14 days",
+      "pos": [
+        1010,
+        620
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "gha",
+      "type": "external",
+      "label": "GitHub Actions",
+      "sublabel": "deploy on merge",
+      "pos": [
+        270,
+        620
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Oracle Cloud VM · Docker Compose",
+      "wraps": [
+        "nginx",
+        "stomp",
+        "rest",
+        "engine",
+        "broadcast",
+        "lifecycle",
+        "postgres"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "backend :8080 (internal)",
+      "wraps": [
+        "stomp",
+        "rest",
+        "engine",
+        "broadcast",
+        "lifecycle"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "phones-nginx",
+      "from": "phones",
+      "to": "nginx",
+      "label": "HTTPS + WSS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "projector-nginx",
+      "from": "projector",
+      "to": "nginx"
+    },
+    {
+      "id": "admin-nginx",
+      "from": "admin",
+      "to": "nginx"
+    },
+    {
+      "id": "nginx-stomp",
+      "from": "nginx",
+      "to": "stomp",
+      "label": "/ws upgrade",
+      "variant": "emphasis"
+    },
+    {
+      "id": "nginx-rest",
+      "from": "nginx",
+      "to": "rest",
+      "label": "/api/*"
+    },
+    {
+      "id": "stomp-engine",
+      "from": "stomp",
+      "to": "engine",
+      "label": "commands",
+      "variant": "emphasis"
+    },
+    {
+      "id": "rest-engine",
+      "from": "rest",
+      "to": "engine",
+      "label": "command + 2 s reply"
+    },
+    {
+      "id": "engine-broadcast",
+      "from": "engine",
+      "to": "broadcast",
+      "label": "messages"
+    },
+    {
+      "id": "broadcast-stomp",
+      "from": "broadcast",
+      "to": "stomp",
+      "label": "queue + topic"
+    },
+    {
+      "id": "engine-lifecycle",
+      "from": "engine",
+      "to": "lifecycle",
+      "label": "state records",
+      "variant": "dashed"
+    },
+    {
+      "id": "rest-postgres",
+      "from": "rest",
+      "to": "postgres",
+      "label": "JPA content"
+    },
+    {
+      "id": "lifecycle-postgres",
+      "from": "lifecycle",
+      "to": "postgres"
+    },
+    {
+      "id": "postgres-bucket",
+      "from": "postgres",
+      "to": "bucket",
+      "label": "nightly backup",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "gha-rest",
+      "from": "gha",
+      "to": "rest",
+      "label": "SSH deploy.sh · lock",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Clients",
+      "items": [
+        "One static Next.js export with three areas: /join, /screen, /admin",
+        "Phones and projector hold a STOMP socket; admin uses REST"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Backend",
+      "items": [
+        "Spring Boot 4.1 on Java 21, one game open at a time",
+        "Engine threads never touch the DB or network directly"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety",
+      "items": [
+        "Answers are scored on the server and never sent early",
+        "Deploys stop when a game is in progress"
+      ]
+    }
+  ]
+}

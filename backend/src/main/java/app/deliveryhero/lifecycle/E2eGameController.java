@@ -48,7 +48,7 @@ public class E2eGameController {
     @PostMapping(PATH)
     @ResponseStatus(HttpStatus.CREATED)
     public OpenedGame open() {
-        engine.findByCode(CODE).ifPresent(old -> engine.discard(old.id()));
+        engine.findByCode(CODE).ifPresent(old -> engine.drop(old.id()));
         UUID gameId = Ids.newUuid(random);
         engine.create(gameId, CODE, GameState.LOBBY, false, NO_PLAN);
         return new OpenedGame(gameId, CODE);

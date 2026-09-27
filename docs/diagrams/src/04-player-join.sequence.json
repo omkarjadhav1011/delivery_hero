@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Player Join and Lobby",
+    "viewBox": [
+      1060,
+      640
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "status",
+        "label": "Check the code",
+        "focus": [
+          "player",
+          "phone",
+          "api",
+          "session"
+        ],
+        "note": "The phone asks whether the game can be joined before it shows the name field."
+      },
+      {
+        "id": "join",
+        "label": "Join",
+        "focus": [
+          "phone",
+          "api",
+          "session"
+        ],
+        "note": "The server makes the name unique and returns a player token."
+      },
+      {
+        "id": "socket",
+        "label": "Socket and lobby",
+        "focus": [
+          "phone",
+          "stomp",
+          "session",
+          "broadcast",
+          "screen"
+        ],
+        "note": "GAME_STATE is sent only after the subscription is confirmed."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "player",
+      "type": "external",
+      "label": "Player",
+      "sublabel": "phone"
+    },
+    {
+      "id": "phone",
+      "type": "frontend",
+      "label": "Phone app",
+      "sublabel": "JoinScreen · Lobby"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Public API",
+      "sublabel": "PublicGameController"
+    },
+    {
+      "id": "stomp",
+      "type": "security",
+      "label": "STOMP /ws",
+      "sublabel": "StompAuthInterceptor"
+    },
+    {
+      "id": "session",
+      "type": "backend",
+      "label": "GameSession",
+      "sublabel": "actor thread"
+    },
+    {
+      "id": "broadcast",
+      "type": "messagebus",
+      "label": "Broadcaster",
+      "sublabel": "queue + topic"
+    },
+    {
+      "id": "screen",
+      "type": "frontend",
+      "label": "Projector",
+      "sublabel": "LobbyView (us-37)"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 254,
+      "label": "Status"
+    },
+    {
+      "from": 262,
+      "to": 366,
+      "label": "Join"
+    },
+    {
+      "from": 374,
+      "to": 562,
+      "label": "Socket + lobby"
+    }
+  ],
+  "messages": [
+    {
+      "id": "get-status",
+      "from": "phone",
+      "to": "api",
+      "y": 160,
+      "label": "GET /api/games/{code}"
+    },
+    {
+      "id": "status-cmd",
+      "from": "api",
+      "to": "session",
+      "y": 188,
+      "label": "GetStatus"
+    },
+    {
+      "id": "status-reply",
+      "from": "session",
+      "to": "api",
+      "y": 216,
+      "label": "joinable or reason",
+      "variant": "return"
+    },
+    {
+      "id": "status-resp",
+      "from": "api",
+      "to": "phone",
+      "y": 244,
+      "label": "GameStatusResponse",
+      "variant": "return"
+    },
+    {
+      "id": "post-join",
+      "from": "phone",
+      "to": "api",
+      "y": 272,
+      "label": "POST /players {name}",
+      "variant": "emphasis",
+      "note": "120 requests per minute per IP"
+    },
+    {
+      "id": "join-cmd",
+      "from": "api",
+      "to": "session",
+      "y": 300,
+      "label": "Join",
+      "variant": "emphasis"
+    },
+    {
+      "id": "join-reply",
+      "from": "session",
+      "to": "api",
+      "y": 328,
+      "label": "playerId + token",
+      "variant": "return"
+    },
+    {
+      "id": "join-resp",
+      "from": "api",
+      "to": "phone",
+      "y": 356,
+      "label": "201 JoinResponse",
+      "variant": "return",
+      "note": "token saved as dh.token.<CODE>"
+    },
+    {
+      "id": "connect",
+      "from": "phone",
+      "to": "stomp",
+      "y": 384,
+      "label": "CONNECT player-token",
+      "variant": "security"
+    },
+    {
+      "id": "subscribe",
+      "from": "phone",
+      "to": "stomp",
+      "y": 412,
+      "label": "SUBSCRIBE /user/queue/game"
+    },
+    {
+      "id": "subscribed",
+      "from": "stomp",
+      "to": "session",
+      "y": 440,
+      "label": "ClientSubscribed"
+    },
+    {
+      "id": "state",
+      "from": "session",
+      "to": "broadcast",
+      "y": 468,
+      "label": "GAME_STATE"
+    },
+    {
+      "id": "state-out",
+      "from": "broadcast",
+      "to": "phone",
+      "y": 496,
+      "label": "GAME_STATE (LOBBY)",
+      "variant": "return"
+    },
+    {
+      "id": "screen-state",
+      "from": "broadcast",
+      "to": "screen",
+      "y": 524,
+      "label": "SCREEN_STATE every 500 ms",
+      "variant": "dashed"
+    },
+    {
+      "id": "lobby",
+      "from": "phone",
+      "to": "player",
+      "y": 552,
+      "label": "Lobby screen",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "api",
+      "from": 182,
+      "to": 360,
+      "type": "backend"
+    },
+    {
+      "participant": "session",
+      "from": 212,
+      "to": 472,
+      "type": "backend"
+    },
+    {
+      "participant": "stomp",
+      "from": 380,
+      "to": 444,
+      "type": "security"
+    },
+    {
+      "participant": "broadcast",
+      "from": 464,
+      "to": 528,
+      "type": "messagebus"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Built",
+      "items": [
+        "Status, join and STOMP lobby, covered by e2e tests",
+        "Duplicate names get a suffix, for example Priya 2"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Refusals",
+      "items": [
+        "Not joinable: LOBBY_NOT_OPEN, JOINING_CLOSED, GAME_FULL",
+        "Bad credential gets STOMP ERROR UNAUTHORIZED"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "In progress",
+      "items": [
+        "Projector lobby view is on the us-37 branch",
+        "Rejoin with a saved token is planned (S1-16)"
+      ]
+    }
+  ]
+}

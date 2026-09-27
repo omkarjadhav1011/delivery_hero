@@ -37,7 +37,7 @@ class E2eGameIT {
 
     @AfterEach
     void discardGame() {
-        engine.findByCode(TestData.GAME_CODE).ifPresent(game -> engine.discard(game.id()));
+        engine.findByCode(TestData.GAME_CODE).ifPresent(game -> engine.drop(game.id()));
     }
 
     @Test

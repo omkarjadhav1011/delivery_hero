@@ -1,0 +1,215 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Task Pool Seed Flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "check",
+        "label": "Offline check",
+        "focus": [
+          "validate_py",
+          "run"
+        ],
+        "note": "The seed file is checked offline and in CI before it is loaded."
+      },
+      {
+        "id": "load",
+        "label": "Load",
+        "focus": [
+          "inprog",
+          "validate",
+          "upsert",
+          "done",
+          "refuse",
+          "invalid"
+        ],
+        "note": "The loader refuses during a game and loads everything in one transaction."
+      }
+    ],
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Owner step"
+        },
+        "backend": {
+          "label": "Validation"
+        },
+        "security": {
+          "label": "Guard / refusal"
+        },
+        "database": {
+          "label": "Database"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "owner",
+      "label": "Owner + CI"
+    },
+    {
+      "id": "cmd",
+      "label": "SeedCommand"
+    },
+    {
+      "id": "db",
+      "label": "PostgreSQL"
+    },
+    {
+      "id": "exceptions",
+      "label": "Refused",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "validate_py",
+    "run",
+    "inprog",
+    "validate",
+    "upsert",
+    "done"
+  ],
+  "nodes": [
+    {
+      "id": "validate_py",
+      "lane": "owner",
+      "col": 0,
+      "type": "frontend",
+      "label": "validate_seed.py",
+      "sublabel": "offline + CI step",
+      "width": 150
+    },
+    {
+      "id": "run",
+      "lane": "owner",
+      "col": 1,
+      "type": "frontend",
+      "label": "Run seed",
+      "sublabel": "no web server",
+      "width": 150
+    },
+    {
+      "id": "inprog",
+      "lane": "cmd",
+      "col": 2,
+      "type": "security",
+      "label": "Game in progress?",
+      "sublabel": "GameInProgressCheck",
+      "width": 160
+    },
+    {
+      "id": "validate",
+      "lane": "cmd",
+      "col": 3,
+      "type": "backend",
+      "label": "Validate all",
+      "sublabel": "ContentValidator",
+      "width": 150
+    },
+    {
+      "id": "upsert",
+      "lane": "db",
+      "col": 4,
+      "type": "database",
+      "label": "Upsert in one tx",
+      "sublabel": "by role and key",
+      "width": 150
+    },
+    {
+      "id": "done",
+      "lane": "db",
+      "col": 5,
+      "type": "database",
+      "label": "Exit 0",
+      "sublabel": "tasks, characters, plans",
+      "width": 160
+    },
+    {
+      "id": "refuse",
+      "lane": "exceptions",
+      "col": 2,
+      "type": "security",
+      "label": "Exit 1",
+      "sublabel": "game in progress",
+      "width": 150
+    },
+    {
+      "id": "invalid",
+      "lane": "exceptions",
+      "col": 4,
+      "type": "security",
+      "label": "Exit 1",
+      "sublabel": "validation errors",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-run",
+      "from": "validate_py",
+      "to": "run",
+      "label": "exit 0"
+    },
+    {
+      "id": "e-inprog",
+      "from": "run",
+      "to": "inprog",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-validate",
+      "from": "inprog",
+      "to": "validate",
+      "label": "no game"
+    },
+    {
+      "id": "e-upsert",
+      "from": "validate",
+      "to": "upsert",
+      "label": "no errors",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-done",
+      "from": "upsert",
+      "to": "done"
+    },
+    {
+      "id": "e-refuse",
+      "from": "inprog",
+      "to": "refuse",
+      "label": "yes",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "e-invalid",
+      "from": "validate",
+      "to": "invalid",
+      "label": "errors",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Command",
+      "items": [
+        "docker compose run --rm backend seed /seed/delivery-hero-seed.json",
+        "Built in S1-01"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety",
+      "items": [
+        "Refuses while a game is in LOBBY to REVEAL",
+        "All or nothing: one transaction"
+      ]
+    }
+  ]
+}
