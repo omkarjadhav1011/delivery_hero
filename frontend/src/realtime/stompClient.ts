@@ -27,7 +27,7 @@ export interface StompConfig {
   heartbeatOutgoing: number;
   connectionTimeout: number;
   reconnectDelay: number;
-  /** With the CONNECTED frame's headers; a projector learns its game from `user-name` there (DI-79). */
+  /** With the CONNECTED frame's headers; a projector learns its game from `user-name` there (DI-82). */
   onConnect: (headers: Record<string, string>) => void;
   onWebSocketClose: () => void;
   onStompError: (message: string | undefined) => void;

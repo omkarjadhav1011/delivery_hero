@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-59, US-54 |
 | Priority and points | Must, 6 |
@@ -110,3 +110,4 @@ Document 13, section 10, plus: every US-59 and US-54 criterion passes in `GameLi
 - 2026-09-26: Backend review applied: `GAME_CREATED` logged after commit, the snapshot keeps its maps in enum order, a concurrent-creation test (one game, one session, one key); the restart gap recorded in S2-04, the recorder's port and `STATE_CHANGED`'s `test` field in S1-05.
 - 2026-09-26: Session done: every task ticked (T6 and T7 moved to S1-07 by PC-09). Checks: backend `./mvnw -B verify` (124 unit, 104 integration, coverage gate), frontend format, lint, typecheck, 149 tests and build, `/e2e` 41 specs (one flaky browser error in `content-admin` AC-US53-01 passed on 4 reruns). Four reviewers, no must-fix findings. Actuals: about 55 minutes, about 600k tokens (main about 290k, subagents about 310k).
 - 2026-09-26: pull request #29 opened. The status is In review.
+- 2026-09-27: PR #29 merged; Done. No deploy to verify while the Deploy workflow is disabled (OA-28, DEC-213).

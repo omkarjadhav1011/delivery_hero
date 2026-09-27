@@ -2,6 +2,7 @@ package app.deliveryhero.config;
 
 import jakarta.validation.constraints.Positive;
 import java.time.Duration;
+import org.hibernate.validator.constraints.time.DurationMin;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -24,9 +25,9 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties("dh.game")
 public record GameProperties(
         @DefaultValue("100") @Positive int maxPlayers,
-        @DefaultValue("5s") Duration countdown,
-        @DefaultValue("30s") Duration practice,
-        @DefaultValue("30s") Duration freeze,
+        @DefaultValue("5s") @DurationMin(millis = 1) Duration countdown,
+        @DefaultValue("30s") @DurationMin(millis = 1) Duration practice,
+        @DefaultValue("30s") @DurationMin(millis = 1) Duration freeze,
         @DefaultValue("24h") Duration autoClose,
         @DefaultValue("2h") Duration testRetention,
         @DefaultValue("3m") Duration minRoundLength,

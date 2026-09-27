@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Admin Login and Create Game",
+    "viewBox": [
+      1060,
+      610
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "login",
+        "label": "Login",
+        "focus": [
+          "ui",
+          "security"
+        ],
+        "note": "A CSRF cookie first, then a form login that sets a 12-hour session."
+      },
+      {
+        "id": "create",
+        "label": "Create the game",
+        "focus": [
+          "ui",
+          "api",
+          "lifecycle",
+          "db",
+          "engine"
+        ],
+        "note": "One transaction snapshots the plan and makes the join code; the engine starts it in CREATED."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Admin UI",
+      "sublabel": "NewGameScreen"
+    },
+    {
+      "id": "security",
+      "type": "security",
+      "label": "Spring Security",
+      "sublabel": "form login + limits"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "GameController",
+      "sublabel": "/api/admin/games"
+    },
+    {
+      "id": "lifecycle",
+      "type": "backend",
+      "label": "Lifecycle",
+      "sublabel": "GameLifecycleService"
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "run plans + games"
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "GameEngine",
+      "sublabel": "sessions"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 254,
+      "label": "Login"
+    },
+    {
+      "from": 262,
+      "to": 366,
+      "label": "Check"
+    },
+    {
+      "from": 374,
+      "to": 534,
+      "label": "Create"
+    }
+  ],
+  "messages": [
+    {
+      "id": "get-session",
+      "from": "ui",
+      "to": "security",
+      "y": 160,
+      "label": "GET /api/admin/session"
+    },
+    {
+      "id": "xsrf",
+      "from": "security",
+      "to": "ui",
+      "y": 188,
+      "label": "XSRF-TOKEN cookie",
+      "variant": "return"
+    },
+    {
+      "id": "login",
+      "from": "ui",
+      "to": "security",
+      "y": 216,
+      "label": "POST /api/admin/login",
+      "variant": "security",
+      "note": "5 failures per 15 minutes, then rate limited"
+    },
+    {
+      "id": "session-cookie",
+      "from": "security",
+      "to": "ui",
+      "y": 244,
+      "label": "204 + DH_SESSION (12 h)",
+      "variant": "return"
+    },
+    {
+      "id": "get-current",
+      "from": "ui",
+      "to": "api",
+      "y": 272,
+      "label": "GET /games/current"
+    },
+    {
+      "id": "no-game",
+      "from": "api",
+      "to": "ui",
+      "y": 300,
+      "label": "204 no open game",
+      "variant": "return"
+    },
+    {
+      "id": "get-plans",
+      "from": "ui",
+      "to": "api",
+      "y": 328,
+      "label": "GET /api/admin/run-plans"
+    },
+    {
+      "id": "plans",
+      "from": "api",
+      "to": "ui",
+      "y": 356,
+      "label": "run plans",
+      "variant": "return"
+    },
+    {
+      "id": "post-game",
+      "from": "ui",
+      "to": "api",
+      "y": 384,
+      "label": "POST /games {runPlanId}",
+      "variant": "emphasis"
+    },
+    {
+      "id": "create",
+      "from": "api",
+      "to": "lifecycle",
+      "y": 412,
+      "label": "create game",
+      "variant": "emphasis"
+    },
+    {
+      "id": "tx",
+      "from": "lifecycle",
+      "to": "db",
+      "y": 440,
+      "label": "one tx: snapshot + codes",
+      "note": "checks no game is open, validates the plan, makes join code and projector key"
+    },
+    {
+      "id": "committed",
+      "from": "db",
+      "to": "lifecycle",
+      "y": 468,
+      "label": "committed",
+      "variant": "return"
+    },
+    {
+      "id": "engine-create",
+      "from": "lifecycle",
+      "to": "engine",
+      "y": 496,
+      "label": "create(CREATED)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "game-view",
+      "from": "api",
+      "to": "ui",
+      "y": 524,
+      "label": "GameView: join + projector URLs",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "security",
+      "from": 182,
+      "to": 250,
+      "type": "security"
+    },
+    {
+      "participant": "api",
+      "from": 268,
+      "to": 530,
+      "type": "backend"
+    },
+    {
+      "participant": "lifecycle",
+      "from": 408,
+      "to": 502,
+      "type": "backend"
+    },
+    {
+      "participant": "db",
+      "from": 436,
+      "to": 474,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Session",
+      "items": [
+        "DH_SESSION cookie, SameSite=Strict, 12 hours",
+        "CSRF token read from the XSRF-TOKEN cookie"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Create",
+      "items": [
+        "Only one game may be open at a time",
+        "Join code skips I, O, 0 and 1"
+      ]
+    }
+  ]
+}

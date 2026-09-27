@@ -2,22 +2,22 @@ package app.deliveryhero.broadcast;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
-import app.deliveryhero.engine.timer.TimerKey;
 import app.deliveryhero.realtime.CredentialRegistry;
 import app.deliveryhero.realtime.DestinationPolicy;
 import app.deliveryhero.realtime.ProjectorPrincipal;
-import app.deliveryhero.support.ManualTimers;
+import app.deliveryhero.support.ManualScheduler;
+import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.PostgresTestConfiguration;
 import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,8 +30,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -39,11 +42,12 @@ import tools.jackson.databind.json.JsonMapper;
 /** The projector's screen state and its 500 ms batches (LLD section 5.7, API section 8.6, DEC-128, DEC-146). */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import({PostgresTestConfiguration.class, ManualTimers.Configuration.class})
+@Import({PostgresTestConfiguration.class, ScreenBatchIT.ManualGameTimers.class})
 class ScreenBatchIT {
 
     private static final Duration FRAME_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration QUIET = Duration.ofMillis(500);
+    private static final Duration BATCH_INTERVAL = Duration.ofMillis(500);
     private static final UUID GAME = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
     private static final String CODE = "SCRN42";
     private static final String KEY = "screen-batch-projector-key";
@@ -60,7 +64,7 @@ class ScreenBatchIT {
     private CredentialRegistry credentials;
 
     @Autowired
-    private ManualTimers timers;
+    private ManualScheduler timers;
 
     @Autowired
     private JsonMapper json;
@@ -72,8 +76,8 @@ class ScreenBatchIT {
     }
 
     @AfterEach
-    void discard() {
-        engine.discard(GAME, EndReason.CANCELLED);
+    void drop() {
+        engine.drop(GAME);
     }
 
     @Test
@@ -102,7 +106,7 @@ class ScreenBatchIT {
                     .as("nothing before the flush")
                     .isNull();
 
-            assertThat(timers.fire(GAME, TimerKey.FLUSH)).isTrue();
+            assertThat(timers.advance(BATCH_INTERVAL)).as("one flush").isEqualTo(1);
 
             JsonNode batch = nextMessage(projector);
             assertThat(batch.get("type").asString()).isEqualTo("WALL_EVENTS");
@@ -112,9 +116,9 @@ class ScreenBatchIT {
             assertThat(batch.toString()).doesNotContain("points").doesNotContain("total");
 
             awaitQueue();
-            assertThat(timers.fire(GAME, TimerKey.FLUSH))
+            assertThat(timers.advance(BATCH_INTERVAL))
                     .as("the flush comes round again")
-                    .isTrue();
+                    .isEqualTo(1);
             assertThat(projector.nextFrame(QUIET))
                     .as("an empty batch is not sent")
                     .isNull();
@@ -128,6 +132,20 @@ class ScreenBatchIT {
             assertThat(newest.get("initials").asString()).isEqualTo("PS");
             assertThat(newest.get("status").asString()).isEqualTo("ONLINE");
             assertThat(state.get("players").get(1).get("firstName").asString()).isEqualTo("Sam");
+        }
+    }
+
+    /**
+     * Game timers that run only when the test moves their clock, so a batch boundary is exact and no test sleeps
+     * (document 13, section 6.5).
+     */
+    @TestConfiguration(proxyBeanMethods = false)
+    static class ManualGameTimers {
+
+        @Bean
+        @Primary
+        ManualScheduler manualGameTimers() {
+            return new ManualScheduler(new MutableClock(Instant.parse("2026-10-21T10:00:00Z")));
         }
     }
 

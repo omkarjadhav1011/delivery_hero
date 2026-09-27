@@ -135,7 +135,7 @@ class NamesTest {
 
     @ParameterizedTest(name = "\"{0}\" gives \"{1}\"")
     @CsvSource({"Priya S, PS", "Priya, P", "Rahul 2, R2", "mei lin chen, ML", "José, J", "O'Neil-Smith jr., OJ"})
-    @DisplayName("The wall's initials are the first character of the first two words, in capitals (DI-77)")
+    @DisplayName("The wall's initials are the first character of the first two words, in capitals (DI-80)")
     void initialsComeFromTheFirstTwoWords(String name, String initials) {
         assertThat(Names.initials(name)).isEqualTo(initials);
     }

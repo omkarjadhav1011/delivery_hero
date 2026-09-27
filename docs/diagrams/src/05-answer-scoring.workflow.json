@@ -1,0 +1,239 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Answer and Scoring Flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "intake",
+        "label": "Intake (built)",
+        "focus": [
+          "submit",
+          "stamp",
+          "guard",
+          "rejected"
+        ],
+        "note": "The time is stamped first; bad or too-fast answers are rejected before the engine."
+      },
+      {
+        "id": "score",
+        "label": "Scoring (planned)",
+        "focus": [
+          "actor",
+          "score",
+          "wrong",
+          "feedback",
+          "wall"
+        ],
+        "note": "The actor checks the task and deadline, scores it and sends feedback at once."
+      }
+    ],
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Phone"
+        },
+        "backend": {
+          "label": "Server step"
+        },
+        "security": {
+          "label": "Check / rejection"
+        },
+        "messagebus": {
+          "label": "Outgoing message"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "clients",
+      "label": "Phone + projector"
+    },
+    {
+      "id": "realtime",
+      "label": "Realtime layer"
+    },
+    {
+      "id": "engine",
+      "label": "GameSession actor"
+    },
+    {
+      "id": "exceptions",
+      "label": "Rejected + wrong",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "submit",
+    "stamp",
+    "guard",
+    "actor",
+    "score",
+    "feedback"
+  ],
+  "nodes": [
+    {
+      "id": "submit",
+      "lane": "clients",
+      "col": 0,
+      "type": "frontend",
+      "label": "Submit answer",
+      "sublabel": "/app/games/{id}/answer",
+      "width": 160
+    },
+    {
+      "id": "stamp",
+      "lane": "realtime",
+      "col": 1,
+      "type": "backend",
+      "label": "Stamp receivedAt",
+      "sublabel": "RealtimeController",
+      "width": 150
+    },
+    {
+      "id": "guard",
+      "lane": "realtime",
+      "col": 2,
+      "type": "security",
+      "label": "Check player + fields",
+      "sublabel": "5 per second",
+      "width": 160
+    },
+    {
+      "id": "actor",
+      "lane": "engine",
+      "col": 3,
+      "type": "backend",
+      "label": "SubmitAnswer",
+      "sublabel": "planned: deadline + 500 ms",
+      "width": 160
+    },
+    {
+      "id": "score",
+      "lane": "engine",
+      "col": 4,
+      "type": "backend",
+      "label": "Score",
+      "sublabel": "(base + bonus) × share",
+      "width": 160
+    },
+    {
+      "id": "feedback",
+      "lane": "clients",
+      "col": 5,
+      "type": "messagebus",
+      "label": "FEEDBACK to phone",
+      "sublabel": "then next task",
+      "width": 160
+    },
+    {
+      "id": "wall",
+      "lane": "clients",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Wall + top 10",
+      "sublabel": "projector, 500 ms batch",
+      "width": 160
+    },
+    {
+      "id": "rejected",
+      "lane": "exceptions",
+      "col": 2,
+      "type": "security",
+      "label": "ANSWER_REJECTED",
+      "sublabel": "invalid or too fast",
+      "width": 160
+    },
+    {
+      "id": "wrong",
+      "lane": "exceptions",
+      "col": 4,
+      "type": "security",
+      "label": "Wrong answer",
+      "sublabel": "−40 · 3 s lockout",
+      "width": 150
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-submit",
+      "from": "submit",
+      "to": "stamp",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-stamp",
+      "from": "stamp",
+      "to": "guard"
+    },
+    {
+      "id": "e-guard",
+      "from": "guard",
+      "to": "actor",
+      "label": "enqueue",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-actor",
+      "from": "actor",
+      "to": "score"
+    },
+    {
+      "id": "e-score",
+      "from": "score",
+      "to": "feedback",
+      "variant": "emphasis"
+    },
+    {
+      "id": "e-wall",
+      "from": "score",
+      "to": "wall",
+      "variant": "dashed",
+      "role": "async"
+    },
+    {
+      "id": "e-reject",
+      "from": "guard",
+      "to": "rejected",
+      "label": "fails",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "e-wrong",
+      "from": "score",
+      "to": "wrong",
+      "label": "share < 0.5",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Points",
+      "items": [
+        "Task: 100 + up to 50 speed bonus",
+        "×1.5 from the 4th correct in a row"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Server only",
+      "items": [
+        "Answers are checked on the server",
+        "Answers never reach phones early"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Status",
+      "items": [
+        "Intake built; scoring not yet",
+        "Timeout scores 0"
+      ]
+    }
+  ]
+}

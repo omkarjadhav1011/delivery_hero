@@ -2,5 +2,5 @@ package app.deliveryhero.engine.command;
 
 import app.deliveryhero.engine.timer.TimerKey;
 
-/** A timer's time has come (LLD section 5.4.2); the session acts on it on its own thread. */
+/** A timer of the session fired; queued by the scheduler, never run on its thread (DEC-126). */
 public record TimerFired(TimerKey key) implements Command {}

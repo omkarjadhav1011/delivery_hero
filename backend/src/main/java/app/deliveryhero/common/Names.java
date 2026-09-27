@@ -25,7 +25,7 @@ public final class Names {
 
     /**
      * The wall's initials for a display name: the first character of its first two words, in capitals ("Priya S" gives
-     * "PS", "Rahul 2" gives "R2"; DI-77).
+     * "PS", "Rahul 2" gives "R2"; DI-80).
      */
     public static String initials(String name) {
         StringBuilder initials = new StringBuilder();

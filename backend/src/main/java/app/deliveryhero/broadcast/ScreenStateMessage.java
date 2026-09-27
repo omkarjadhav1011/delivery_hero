@@ -43,7 +43,7 @@ public record ScreenStateMessage(
         }
     }
 
-    /** Whether a player's phone is connected (DI-77); US-05 turns a player OFFLINE. */
+    /** Whether a player's phone is connected (DI-80); US-05 turns a player OFFLINE. */
     public enum PlayerStatus {
         ONLINE,
         OFFLINE

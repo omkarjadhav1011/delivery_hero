@@ -3,6 +3,7 @@ package app.deliveryhero.engine.command;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import app.deliveryhero.common.ApiErrorCode;
+import app.deliveryhero.common.ChoiceAnswer;
 import app.deliveryhero.common.WordsAnswer;
 import java.time.Instant;
 import java.util.Set;
@@ -49,5 +50,23 @@ class CommandLoggingTest {
         assertThat(new JoinResult.Joined(game, player, "Priya S", "q3Xk9vT2bLmN8pR4sW7yZa").toString())
                 .isEqualTo("Joined[gameId=" + game + ", playerId=" + player + "]");
         assertThat(new JoinResult.Refused(ApiErrorCode.INVALID_NAME).toString()).doesNotContain("Priya");
+    }
+
+    @Test
+    @DisplayName("RenamePlayer prints the player's ID but not the new name")
+    void renameHidesName() {
+        UUID player = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
+
+        assertThat(new RenamePlayer(player, "Priya S", new CompletableFuture<>()).toString())
+                .isEqualTo("RenamePlayer[playerId=" + player + "]");
+    }
+
+    @Test
+    @DisplayName("SubmitAnswer prints the player and task but never the answer")
+    void answerHidden() {
+        UUID player = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
+
+        assertThat(new SubmitAnswer(player, "DEV-01", new ChoiceAnswer(2), Instant.EPOCH).toString())
+                .isEqualTo("SubmitAnswer[playerId=" + player + ", taskKey=DEV-01]");
     }
 }

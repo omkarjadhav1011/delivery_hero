@@ -5,9 +5,9 @@ A changed hash means the plan may be out of date: `/dh` reads the changed docume
 
 | Document | Lines | SHA-256 | Recorded |
 |---|---|---|---|
-| `01-project-charter.md` | 648 | `615be206f893a1f93dc7f3f8b7e9f9262689959a8ffeb17670d51e8461d23653` | 2026-09-26 |
+| `01-project-charter.md` | 650 | `743e8897533e7716123e4693b54e0654fd87ed543fdcb73f1e3f5a349bd649d1` | 2026-09-27 |
 | `02-prd.md` | 564 | `6280d7ed5d887a5674b7d01d02eec889525ece2f31581d68c45b1248ccb13fde` | 2026-09-25 |
-| `03-srs.md` | 834 | `9b4cfd49c5d7070a7f65b6e5e82a4c82e0bf44fa5dd268d210e94c69e7b3012b` | 2026-09-25 |
+| `03-srs.md` | 835 | `c193f21803b51cd68f0837ef3b68d08ebfc07ab5e90a9192bdeb6b727b585d94` | 2026-09-27 |
 | `04-user-stories.md` | 449 | `8cda53caa74d496f41c09536bd91b1383250eef85b7f6cf3f60350c8991223e0` | 2026-09-25 |
 | `05-acceptance-criteria.md` | 824 | `63120e5e34c2f9b06ab7b1f689db6d4e8f92c2cd6dab3506c52bff769abfb233` | 2026-09-25 |
 | `06-use-cases.md` | 1132 | `7759ab108ebf6351be9c9c0fcfcd9844c51c297946d563a6ff6ed8e773e6631c` | 2026-09-25 |

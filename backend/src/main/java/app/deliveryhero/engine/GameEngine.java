@@ -4,75 +4,83 @@ import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
+import app.deliveryhero.config.BroadcastProperties;
 import app.deliveryhero.config.GameProperties;
+import app.deliveryhero.config.RandomConfig;
 import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.content.GameSnapshot;
+import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.command.Discard;
+import app.deliveryhero.engine.command.GetStatus;
+import app.deliveryhero.engine.command.TimerFired;
 import app.deliveryhero.engine.timer.TimerScheduler;
+import app.deliveryhero.lifecycle.GameStateRecorder;
 import jakarta.annotation.PreDestroy;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.random.RandomGenerator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
  * The live games in memory, one {@link GameSession} each (LLD section 5.4.1). Only one game is open at a time
- * (DEC-101). This S0 shell creates, finds and discards sessions; S1-05 completes it.
+ * (DEC-101). Sessions share one timer scheduler, whose timers only queue commands (DEC-126).
  */
 @Component
 public class GameEngine {
 
+    /** How long a session may take to report its state, as for a join (API section 6.2). */
+    private static final Duration STATUS_WAIT = Duration.ofSeconds(2);
+
     private final Map<UUID, GameSession> sessions = new ConcurrentHashMap<>();
-    private final TokenService tokens;
-    private final PlayerTokens playerTokens;
-    private final GameProperties properties;
-    private final Broadcaster broadcaster;
-    private final TimerScheduler timers;
-    private final SiteProperties site;
-    private final Clock clock;
-    private final SecureRandom random;
+    private final SessionServices services;
 
     public GameEngine(
             TokenService tokens,
             PlayerTokens playerTokens,
             GameProperties properties,
+            BroadcastProperties broadcast,
             Broadcaster broadcaster,
-            TimerScheduler timers,
             SiteProperties site,
+            ScheduledExecutorService gameTimerExecutor,
+            GameStateRecorder recorder,
             Clock clock,
-            SecureRandom random) {
-        this.tokens = tokens;
-        this.playerTokens = playerTokens;
-        this.properties = properties;
-        this.broadcaster = broadcaster;
-        this.timers = timers;
-        this.site = site;
-        this.clock = clock;
-        this.random = random;
+            SecureRandom random,
+            @Qualifier(RandomConfig.GAME_RANDOM) RandomGenerator gameRandom) {
+        TimerScheduler timers =
+                new TimerScheduler(gameTimerExecutor, clock, (gameId, key) -> submit(gameId, new TimerFired(key)));
+        this.services = new SessionServices(
+                properties,
+                broadcast.batchInterval(),
+                tokens,
+                playerTokens,
+                broadcaster,
+                site,
+                timers,
+                recorder,
+                clock,
+                random,
+                gameRandom);
     }
 
     /** Starts a session for a game, which plays from its own snapshot (LLD section 5.8). */
     public GameSession create(UUID gameId, String code, GameState state, boolean test, GameSnapshot snapshot) {
-        GameSession session = new GameSession(
-                gameId,
-                code,
-                state,
-                test,
-                snapshot,
-                site.joinUrl(code),
-                properties.maxPlayers(),
-                tokens,
-                playerTokens,
-                broadcaster,
-                timers,
-                clock,
-                random);
-        // Started before it's published, so its first task runs ahead of any command
-        session.start();
+        GameSession session = new GameSession(gameId, code, state, test, snapshot, services);
         sessions.put(gameId, session);
+        if (GameSession.batching(state)) {
+            session.startBatches();
+        }
         return session;
     }
 
@@ -100,24 +108,61 @@ public class GameEngine {
     }
 
     /**
-     * Drops a session after a close or cancel (LLD section 5.8): the tokens and projector key stop working, the
-     * projector gets GAME_ENDED with the reason, and the thread ends.
+     * Whether a live game is in LOBBY through REVEAL (FR-090). Each session answers on its own thread; one that
+     * doesn't answer within {@link #STATUS_WAIT} counts as in progress, so a deploy never restarts a game it
+     * couldn't see. Called from request threads, never from a session thread.
      */
-    public void discard(UUID gameId, EndReason reason) {
-        GameSession session = sessions.remove(gameId);
-        if (session != null) {
-            session.discard(reason);
+    public boolean isAnyGameInProgress() {
+        return sessions.values().stream().anyMatch(GameEngine::inProgress);
+    }
+
+    private static boolean inProgress(GameSession session) {
+        CompletableFuture<GetStatus.Status> reply = new CompletableFuture<>();
+        if (!session.enqueue(new GetStatus(reply))) {
+            return false;
+        }
+        try {
+            return GameState.IN_PROGRESS.contains(
+                    reply.get(STATUS_WAIT.toMillis(), TimeUnit.MILLISECONDS).state());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return true;
+        } catch (ExecutionException | TimeoutException e) {
+            return true;
         }
     }
 
-    /** The application is stopping: sessions end without a word, and startup cleanup cancels them (FR-089). */
+    /**
+     * Ends a game the lifecycle has just recorded closed or cancelled (LLD section 5.8): the session stops its timers,
+     * sends GAME_ENDED and is dropped. It's dropped even if the command fails, as the game has ended in the database.
+     */
+    public CompletableFuture<ActionResult> discard(UUID gameId, EndReason reason) {
+        GameSession session = sessions.get(gameId);
+        if (session == null) {
+            return CompletableFuture.failedFuture(new IllegalStateException("No live session for the game"));
+        }
+        CompletableFuture<ActionResult> reply = new CompletableFuture<>();
+        // Completes after the drop, so a caller that waits finds the session gone
+        CompletableFuture<ActionResult> dropped = reply.whenComplete((result, failure) -> drop(gameId));
+        if (!session.enqueue(new Discard(reason, reply))) {
+            reply.completeExceptionally(new IllegalStateException("The session has already ended"));
+        }
+        return dropped;
+    }
+
+    /**
+     * Drops a session without a message: its timers stop, its tokens stop working and its thread ends. For shutdown,
+     * and for the e2e profile replacing its game.
+     */
+    public void drop(UUID gameId) {
+        GameSession session = sessions.remove(gameId);
+        if (session != null) {
+            session.close();
+        }
+    }
+
     @PreDestroy
     void shutdown() {
-        sessions.keySet().forEach(gameId -> {
-            GameSession session = sessions.remove(gameId);
-            if (session != null) {
-                session.close();
-            }
-        });
+        sessions.keySet().forEach(this::drop);
     }
 }

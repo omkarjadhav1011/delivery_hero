@@ -11,7 +11,7 @@ import type { ScreenMessage, ScreenPlayer } from "@/types/messages";
 export type ScreenView = "connecting" | "gettingReady" | "lobby" | "round" | "ended";
 
 export interface ScreenState {
-  /** Learned from the CONNECTED frame, since the page holds only the key (DI-79). */
+  /** Learned from the CONNECTED frame, since the page holds only the key (DI-82). */
   gameId: string | null;
   view: ScreenView;
   joinUrl: string | null;
@@ -40,7 +40,7 @@ export function initialScreenState(): ScreenState {
 
 const PROJECTOR_NAME = /^projector:([0-9a-f-]{36})$/;
 
-/** The CONNECTED frame names the projector "projector:<game ID>" (DI-79). */
+/** The CONNECTED frame names the projector "projector:<game ID>" (DI-82). */
 export function applyConnected(state: ScreenState, headers: Record<string, string>): ScreenState {
   if (state.view === "ended") {
     return state;
@@ -129,7 +129,7 @@ export function applyScreenMessage(state: ScreenState, message: ScreenMessage): 
 }
 
 /**
- * A wrong or revoked key: the server can't say which, so the finished message is shown (DI-76). A game that already
+ * A wrong or revoked key: the server can't say which, so the finished message is shown (DI-79). A game that already
  * ended keeps the message its GAME_ENDED chose.
  */
 export function applyRefused(state: ScreenState): ScreenState {

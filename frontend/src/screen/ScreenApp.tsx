@@ -18,7 +18,7 @@ export function ScreenApp({ createClient }: { createClient?: UseStompOptions["cr
   // An empty ?key= is the same as none
   const key = useSearchParams().get("key") || null;
   const storedView = useScreenStore((state) => state.view);
-  // Without a key there is nothing to connect with: the same as a refused one (DI-76)
+  // Without a key there is nothing to connect with: the same as a refused one (DI-79)
   const view = key === null ? "ended" : storedView;
   const endedMessage = useScreenStore((state) => state.endedMessage);
   const joinUrl = useScreenStore((state) => state.joinUrl);

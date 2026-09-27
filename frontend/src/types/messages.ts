@@ -44,7 +44,7 @@ export function isPlayerMessage(value: unknown): value is PlayerMessage {
   );
 }
 
-/** One square on the projector's wall (document 11, section 8.6; DI-77 for the name fields and status). */
+/** One square on the projector's wall (document 11, section 8.6; DI-80 for the name fields and status). */
 export type ScreenPlayer = {
   playerId: string;
   initials: string;

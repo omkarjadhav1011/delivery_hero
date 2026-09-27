@@ -59,6 +59,7 @@ The host runs the game from one live control screen that offers exactly the acti
 - [ ] T8 `host-controls` spec, E2E-03 steps 1 to 5 with two admin contexts and two phones, the game created through `POST /api/admin/games` from the Quick 3-minute plan (DI-24): another game is refused with a link to the open one; Cancel and Close ask first; a double `START_ROUND` starts the round once; B's stale "Start practice" changes nothing and B refreshes; the live screen shows state, time remaining, players and incident status and lists the scored tasks; steps 6 (void) and 7 (cancel) are added by S2-23, in `frontend/e2e`, test first: the spec, source: E2E-03, AC-US60-02, AC-US60-03, AC-US60-04, AC-US60-05, AC-US59-03 (shared), DS-03 (shared)
 - [ ] T9 Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, then open the lobby with `OPEN_LOBBY` through T2 and delete `E2eGameController`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared) (from S1-04 T6, PC-09)
 - [ ] T10 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the lobby, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59 (shared), FR-079 (shared), E2E-01 (shared) (from S1-04 T7, PC-09)
+- [ ] T11 `GameStateRecorder` writes the new state whenever the row is in an earlier, unfinished state (CREATED to RESULTS, earlier in `GameState`'s order), not only the exact expected one, so one failed write no longer leaves the row behind for the rest of the game; a finished row (CLOSED, CANCELLED) is never overwritten, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderIT` a failed CREATED to LOBBY write followed by LOBBY to COUNTDOWN leaves the row in COUNTDOWN, and a CANCELLED row stays CANCELLED, source: LD-05, FR-090, LLD 5.8, DB-05 (S1-05 security review, PC-10)
 
 ## Owner actions
 
@@ -92,5 +93,5 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 
 ## Progress log
 
-None yet.
+- 2026-09-27: T11 added by PC-10 (the state recorder catches up after a failed write; found by S1-05's security review).
 - 2026-09-26: PC-09: T9 (end-to-end fixtures through the API) and T10 (walking-skeleton demonstration on the local stack) moved here from S1-04 T6 and T7.

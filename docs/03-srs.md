@@ -1,6 +1,6 @@
 # Delivery Hero — Software Requirements Specification (SRS)
 
-> Document 03 of 18 · Version 1.4 (approved)
+> Document 03 of 18 · Version 1.5 (approved)
 
 ## Document control
 
@@ -8,10 +8,10 @@
 |---|---|
 | Project | Delivery Hero |
 | Document | 03 — Software Requirements Specification (SRS) |
-| Version | 1.4 |
+| Version | 1.5 |
 | Status | Approved on 23 September 2026 |
 | Owner and approver | [Owner name] |
-| Date | 23 September 2026 |
+| Date | 27 September 2026 |
 | Depends on | 01 — Project Charter v1.1 (DEC-01 to DEC-93) · 02 — PRD v1.0 (features F-01 to F-58) |
 | Feeds into | 04 User Stories · 05 Acceptance Criteria · 06 Use Cases · 07 HLD · 08 LLD · 09 Architecture · 10 Database Design · 11 API Specification · 14 Test Plan · 15 Test Cases |
 
@@ -25,6 +25,7 @@
 | 1.2 | 2026-09-23 | [Owner name] | Named the problem-word flag `monospace` in FR-034 and section 7.3 (DEC-157) |
 | 1.3 | 2026-09-23 | [Owner name] | Added ANSWER_REJECTED to the real-time message catalog (DEC-161) |
 | 1.4 | 2026-09-23 | [Owner name] | Section 6.3: the 4 KB limit applies to player messages during the round; RESULTS may be up to 32 KB (DEC-194) |
+| 1.5 | 2026-09-27 | [Owner name] | Section 3.2: the incident's latest start is capped so it ends by the freeze; the 3-minute incident range is now 1:52–2:10 (DEC-216) |
 
 ---
 
@@ -175,16 +176,16 @@ Let L be the round length in seconds (180 to 600). All times are measured from t
 | Development window | floor(0.2 × L) to floor(0.6 × L) |
 | Testing window | floor(0.6 × L) to floor(0.8 × L); call its length W |
 | Release window (final stretch) | floor(0.8 × L) to L |
-| Incident moment | Start of the Testing window plus a random whole number of seconds between ceil(0.1 × W) and floor(0.9 × W), chosen once when the round starts |
+| Incident moment | Start of the Testing window plus a random whole number of seconds between ceil(0.1 × W) and the smaller of floor(0.9 × W) and L − 30 − I − floor(0.6 × L), where I is the incident task's time limit, chosen once when the round starts. If the second bound is below the first, the incident starts at ceil(0.1 × W) (DEC-216) |
 | Freeze and joining cutoff | L − 30 to L |
 
-| Round length | Testing window | Incident range | Freeze starts |
+| Round length | Testing window | Incident range (20-second incident) | Freeze starts |
 |---|---|---|---|
-| 3 minutes | 1:48–2:24 | 1:52–2:20 | 2:30 |
+| 3 minutes | 1:48–2:24 | 1:52–2:10 | 2:30 |
 | 5 minutes | 3:00–4:00 | 3:06–3:54 | 4:30 |
 | 10 minutes | 6:00–8:00 | 6:12–7:48 | 9:30 |
 
-The incident always ends before the freeze for every allowed round length, because the Testing window ends at 80% of the round.
+The incident ends by the freeze, because its latest start is the freeze minus its time limit (DEC-216). Only a limit too long for the round, such as 60 seconds in a 3-minute round, leaves no room; the incident then starts at the earliest moment and may run into the freeze.
 
 ### 3.3 Task lifecycle
 

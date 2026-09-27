@@ -106,7 +106,7 @@ describe("screen store", () => {
     expect(applyScreenMessage(finished, screenState()).view).toBe("ended");
   });
 
-  it("AC-US37-03 AC-US37-04 a refused connection shows the finished message and no game data (DI-76)", () => {
+  it("AC-US37-03 AC-US37-04 a refused connection shows the finished message and no game data (DI-79)", () => {
     const lobby = applyScreenMessage(initialScreenState(), screenState());
     const state = applyRefused(lobby);
 

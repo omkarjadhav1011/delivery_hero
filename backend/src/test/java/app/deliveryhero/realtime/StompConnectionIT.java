@@ -156,7 +156,7 @@ class StompConnectionIT {
 
             assertState(projector, "SCREEN_STATE");
         } finally {
-            engine.discard(game.id(), EndReason.CANCELLED);
+            engine.drop(game.id());
             jdbc.sql("DELETE FROM games").update();
         }
     }
