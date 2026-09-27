@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -67,6 +68,28 @@ class GameSessionTest {
     @AfterEach
     void close() {
         session.close();
+    }
+
+    @Test
+    @DisplayName("Commands are handled one at a time, in the order they were queued, on the session's own thread")
+    void commandsRunInOrderOnTheSessionThread() throws Exception {
+        List<String> handled = Collections.synchronizedList(new ArrayList<>());
+        List<CompletableFuture<GetStatus.Status>> replies = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            int index = i;
+            CompletableFuture<GetStatus.Status> reply = new CompletableFuture<>();
+            reply.thenRun(() -> handled.add(index + "@" + Thread.currentThread().getName()));
+            replies.add(reply);
+            session.enqueue(new GetStatus(reply));
+        }
+
+        CompletableFuture.allOf(replies.toArray(CompletableFuture[]::new)).get(2, TimeUnit.SECONDS);
+
+        List<String> expected = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            expected.add(i + "@game-" + TestData.GAME_ID);
+        }
+        assertThat(handled).containsExactlyElementsOf(expected);
     }
 
     @Test

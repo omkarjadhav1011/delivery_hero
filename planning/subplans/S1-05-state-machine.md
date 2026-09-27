@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | EN-05 |
 | Priority and points | Must, 5 |
@@ -45,7 +45,7 @@ Each game runs on one session thread that applies only the commands allowed in i
 
 ## Tasks
 
-- [ ] T1 `GameEngine` (sessions map, `create`, `find`, `findByCode`, `submit`, `discard`, `isAnyGameInProgress`) and `GameSession` with its own single-thread executor: `enqueue` only adds, `handle` runs on that thread; `GameState` from LLD 5.2, in `app.deliveryhero.engine`, test first: `GameSessionTest` commands are handled in order on the session thread, source: DEC-125, LLD 5.4.1, 5.4.2
+- [x] T1 `GameEngine` (sessions map, `create`, `find`, `findByCode`, `submit`, `discard`, `isAnyGameInProgress`) and `GameSession` with its own single-thread executor: `enqueue` only adds, `handle` runs on that thread; `GameState` from LLD 5.2, in `app.deliveryhero.engine`, test first: `GameSessionTest` commands are handled in order on the session thread, source: DEC-125, LLD 5.4.1, 5.4.2
 - [ ] T2 `TimerScheduler` over one shared two-thread `ScheduledExecutorService`, `TimerKey` and `TimerType` (LLD 5.4.2 list); firing only enqueues `TimerFired(key)`; `cancel` and `cancelAll`; all times from the injected `Clock`, in `app.deliveryhero.engine.timer`, test first: `TimerSchedulerTest` with a controllable clock and scheduler, source: DEC-126, LLD 5.4.2
 - [ ] T3 `Command` records and the state rules of LLD 5.4.3 against SRS 3.1's host actions: `OpenLobby`, `StartPractice`, `EndPractice`, `StartRound` (Lobby with at least one player), `VoidTask`, reveal commands, `RenamePlayer`, `RemovePlayer`, `Discard`; cancel allowed in every state before Results; a disallowed host command completes with `ActionResult.unchanged(currentState)`, in `app.deliveryhero.engine` and `app.deliveryhero.engine.command`, test first: `GameSessionTest` AC-EN05-01 parameterized over every state and host action, source: AC-EN05-01, SRS 3.1, FR-080 (shared), DEC-87 (shared), LLD 5.4.3
 - [ ] T4 `RoundTimeline.of`: Planning, Development and Testing boundaries at floor(0.2 L), floor(0.6 L) and floor(0.8 L), and the freeze at L minus `dh.game.freeze` from `GameProperties` (30 s; 10 s in the e2e profile), not a hard-coded L − 30, in `app.deliveryhero.engine` and `app.deliveryhero.config`, test first: `RoundTimelineTest` AC-EN05-03 phase windows and freeze start for 3, 5 and 10 minutes, source: AC-EN05-03, FR-021, BR-18, DEC-15, DEC-197 (shared), SRS 3.2, LLD 5.4.7 and 5.13
@@ -84,4 +84,5 @@ Document 13, section 10, plus: every state and host action pair of SRS 3.1 is co
 
 ## Progress log
 
-None yet.
+- 2026-09-27: Q-02 answered (DEC-216, Charter v1.18, SRS v1.5); T5 unblocked.
+- 2026-09-27: T1 done: `GameEngine.isAnyGameInProgress` asks each session on its own thread, and counts a session that doesn't answer in 2 s as in progress; `GameSessionTest` checks commands run in order on the session thread.

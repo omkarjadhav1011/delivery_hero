@@ -6,13 +6,19 @@ import app.deliveryhero.common.TokenService;
 import app.deliveryhero.config.GameProperties;
 import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.Command;
+import app.deliveryhero.engine.command.GetStatus;
 import jakarta.annotation.PreDestroy;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,6 +27,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GameEngine {
+
+    /** How long a session may take to report its state, as for a join (API section 6.2). */
+    private static final Duration STATUS_WAIT = Duration.ofSeconds(2);
 
     private final Map<UUID, GameSession> sessions = new ConcurrentHashMap<>();
     private final TokenService tokens;
@@ -84,6 +93,31 @@ public class GameEngine {
      */
     public void submitToOpenGames(Command command) {
         sessions.values().forEach(session -> session.enqueue(command));
+    }
+
+    /**
+     * Whether a live game is in LOBBY through REVEAL (FR-090). Each session answers on its own thread; one that
+     * doesn't answer within {@link #STATUS_WAIT} counts as in progress, so a deploy never restarts a game it
+     * couldn't see. Called from request threads, never from a session thread.
+     */
+    public boolean isAnyGameInProgress() {
+        return sessions.values().stream().anyMatch(GameEngine::inProgress);
+    }
+
+    private static boolean inProgress(GameSession session) {
+        CompletableFuture<GetStatus.Status> reply = new CompletableFuture<>();
+        if (!session.enqueue(new GetStatus(reply))) {
+            return false;
+        }
+        try {
+            return GameState.IN_PROGRESS.contains(
+                    reply.get(STATUS_WAIT.toMillis(), TimeUnit.MILLISECONDS).state());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return true;
+        } catch (ExecutionException | TimeoutException e) {
+            return true;
+        }
     }
 
     /** Drops a session: its tokens stop working and its thread ends. TODO(US-62): GAME_ENDED and the end reason. */
