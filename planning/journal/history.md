@@ -115,3 +115,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-59-create-game, commits 907f11b to 016ab9d.
 - Completed: T3 (c81df56); T1 (a849528); T2 (e1ebe27); T9 (bc5503c); T10 (b0fa8f3); T4 (98e8ef2); T5 (3591f6a); T8 (0778af3).
 - Summary: S1-04 T1-T5, T8-T10 done, reviewed and checked; T6 and T7 moved to S1-07 (PC-09)
+
+## 2026-09-26-2311 S1-06
+
+- Outcome: blocked. Started 2026-09-26T23:11, ended 2026-09-27T11:23.
+- Branch feat/us-59-create-game, commits ca77202 to ac1cfb2.
+- Completed: T1 (0bc9b91); T2 (8925e0b); T4 (f3ea74c); T3 (963af11); T5 (78d1630); T6 (43f2727); T7 (c531326).
+- Summary: S1-06 T1-T7 and the review fixes (frontend, backend, spec, security) committed; T8 blocked on S1-07's host-action endpoint; integration tests pending until Docker runs

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | Blocked |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-37, US-38 |
 | Priority and points | Must, 4 |
@@ -57,7 +57,7 @@ Each game's secret projector link, shown only in the admin panel, opens a displa
 - [x] T5 Screen state for Created and Lobby: `SCREEN_STATE` (`gameId`, `state`, `test`, `joinUrl`, `players` newest first, `playerCount`, the rest `null` or empty) on subscribe and on every state change, and `JOINED` wall events in the 500 ms `FLUSH` batch so new names pop in; no points, no answers, in `app.deliveryhero.broadcast`, test first: `ScreenBatchIT` lobby case (two joins between flushes give one `WALL_EVENTS` with both), source: AC-US38-02, FR-053 (shared), DEC-128, DEC-146 (shared), API 8.6, LLD 5.7
 - [x] T6 Projector page and store: `frontend/app/screen/page.tsx` reads `?key=`, connects with `projector-key`, `src/screen/store.ts` holds the latest `SCREEN_STATE` and applies `JOINED` events; Created shows S-01 "Getting ready…" with the four characters and no QR code; `GAME_ENDED` and a refused connection show no game data and the ended message, in `frontend/app/screen` and `frontend/src/screen`, test first: `store.test.ts` (screen) for Created, Lobby and ended, source: AC-US37-03, AC-US37-04, DEC-170, LLD 6.4, document 12 S-01
 - [x] T7 `LobbyView` (S-02): "Scan to join", the `QrCode` of the join URL at least 400 × 400 px, the URL as text, "Open this link in Chrome", "Joined: N" and the names newest first, all strings from `src/copy.ts`, in `frontend/src/screen/views`, test first: `LobbyView.test.tsx` AC-US38-02 (Sam joins, then Priya: the count shows 2 and "Priya" comes before "Sam"), source: AC-US38-02, AC-US01-02 (shared), FR-053 (shared), document 12 S-02
-- [ ] T8 `join-and-lobby` E2E-01 step 2 (the admin opens the lobby; the projector shows the QR code at least 400 × 400 px, the URL, "Open this link in Chrome" and a count of 0) and the projector half of step 4 ("Priya S" listed before "Priya"); the fixture opens the projector URL from the game view and opens the lobby with `OPEN_LOBBY` through S1-07's host-action endpoint (rebase on S1-07 first if it hasn't merged), in `frontend/e2e`, test first: `join-and-lobby` AC-US38-01, source: AC-US38-01, E2E-01 (shared), DS-03 (shared)
+- [ ] T8 `join-and-lobby` E2E-01 step 2 (the admin opens the lobby; the projector shows the QR code at least 400 × 400 px, the URL, "Open this link in Chrome" and a count of 0) and the projector half of step 4 ("Priya S" listed before "Priya"); the fixture opens the projector URL from the game view and opens the lobby with `OPEN_LOBBY` through S1-07's host-action endpoint (rebase on S1-07 first if it hasn't merged), in `frontend/e2e`, test first: `join-and-lobby` AC-US38-01, source: AC-US38-01, E2E-01 (shared), DS-03 (shared) [Blocked: waiting for S1-07's host-action endpoint]
 
 ## Owner actions
 
@@ -107,3 +107,4 @@ Document 13, section 10, plus: every US-37 and US-38 criterion passes at its lev
   - Frontend checks pass (164 tests, build). Backend: 139 unit tests pass. The integration tests and the `engine` coverage gate (66% without them) are pending until Docker runs.
   - Not fixed: the scheduler drift, the `useStomp` unsubscribe after DISCONNECT, and the "Scan to join" position (S-02 puts it in the header row).
   - Security lows: a revoked projector's open socket stays connected (S2-04 and S2-23), and a `prod` check that `DH_PUBLIC_BASE_URL` is `https`, outside S1-06.
+- 2026-09-27: Session ended blocked. T1 to T7 and the review fixes are committed; T8 waits for S1-07's host-action endpoint (`OPEN_LOBBY`). Still pending until Docker runs: the backend integration tests and the `engine` coverage gate.
