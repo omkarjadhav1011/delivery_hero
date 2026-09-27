@@ -48,7 +48,7 @@ class TimerSchedulerTest {
         executor.runDue();
         assertThat(fired).containsExactly(GAME + " ROUND_START");
 
-        executor.advance(Duration.ofSeconds(300));
+        executor.advance(Duration.ofMinutes(5));
         assertThat(fired).containsExactly(GAME + " ROUND_START", GAME + " FREEZE", GAME + " ROUND_END");
     }
 

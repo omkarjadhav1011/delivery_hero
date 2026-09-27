@@ -1,6 +1,5 @@
 package app.deliveryhero.engine;
 
-import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.EndPractice;
@@ -18,14 +17,17 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * The states in which each host action applies: SRS section 3.1's "Host actions" column, with cancel in every state
- * before Results (DEC-87, DI-14). Where LLD section 5.4.3 allows more (practice and reveal commands in both of their
- * states, {@code Discard} in any), the SRS table wins. Starting the round also needs a player (LLD section 5.4.3),
- * which the session checks.
+ * The states in which each host action applies: SRS section 3.1's "Host actions" column. Where LLD section 5.4.3
+ * allows more (practice and reveal commands in both of their states), the SRS table wins (DI-77). Starting the round
+ * also needs a player (LLD section 5.4.3), which the session checks.
+ *
+ * <p>Cancel (before Results, DEC-87) and close (in Results) are checked by the lifecycle, which records the end before
+ * it sends {@code Discard} (LLD section 5.8). So the session applies {@code Discard} in any state that hasn't already
+ * ended: refusing it could leave a session alive for a game the database has ended.
  */
 final class HostRules {
 
-    private static final Set<GameState> BEFORE_RESULTS = EnumSet.range(GameState.CREATED, GameState.REVEAL);
+    private static final Set<GameState> NOT_ENDED = EnumSet.range(GameState.CREATED, GameState.RESULTS);
 
     private HostRules() {}
 
@@ -45,8 +47,7 @@ final class HostRules {
             case PreviousStep previous -> EnumSet.of(GameState.REVEAL);
             case RenamePlayer rename -> EnumSet.of(GameState.LOBBY);
             case RemovePlayer remove -> EnumSet.of(GameState.LOBBY);
-            case Discard discard ->
-                discard.reason() == EndReason.CANCELLED ? BEFORE_RESULTS : EnumSet.of(GameState.RESULTS);
+            case Discard discard -> NOT_ENDED;
         };
     }
 }

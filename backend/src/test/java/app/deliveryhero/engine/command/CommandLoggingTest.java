@@ -3,6 +3,8 @@ package app.deliveryhero.engine.command;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import app.deliveryhero.common.ApiErrorCode;
+import app.deliveryhero.common.ChoiceAnswer;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.DisplayName;
@@ -45,5 +47,14 @@ class CommandLoggingTest {
 
         assertThat(new RenamePlayer(player, "Priya S", new CompletableFuture<>()).toString())
                 .isEqualTo("RenamePlayer[playerId=" + player + "]");
+    }
+
+    @Test
+    @DisplayName("SubmitAnswer prints the player and task but never the answer")
+    void answerHidden() {
+        UUID player = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
+
+        assertThat(new SubmitAnswer(player, "DEV-01", new ChoiceAnswer(2), Instant.EPOCH).toString())
+                .isEqualTo("SubmitAnswer[playerId=" + player + ", taskKey=DEV-01]");
     }
 }

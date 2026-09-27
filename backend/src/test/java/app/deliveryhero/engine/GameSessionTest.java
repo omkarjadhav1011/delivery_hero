@@ -2,9 +2,11 @@ package app.deliveryhero.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -68,9 +70,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 /** The game session on its own thread, driven directly with a test clock and scheduler (document 15, section 8.1). */
@@ -137,7 +141,8 @@ class GameSessionTest {
         for (int i = 0; i < 20; i++) {
             int index = i;
             CompletableFuture<GetStatus.Status> reply = new CompletableFuture<>();
-            reply.thenRun(() -> handled.add(index + "@" + Thread.currentThread().getName()));
+            CompletableFuture<Void> unused = reply.thenRun(
+                    () -> handled.add(index + "@" + Thread.currentThread().getName()));
             replies.add(reply);
             session.enqueue(new GetStatus(reply));
         }
@@ -199,7 +204,10 @@ class GameSessionTest {
 
     private static final UUID PLAYER_ID = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
 
-    /** SRS section 3.1's host actions, each as the command the admin API or lifecycle sends. */
+    /**
+     * SRS section 3.1's host actions, each as the command the admin API sends. Cancel and close are the lifecycle's
+     * to check before it records the end (LLD section 5.8; US-62, US-65); the session then applies {@code Discard}.
+     */
     private static final Map<String, Function<CompletableFuture<ActionResult>, HostCommand>> HOST_ACTIONS =
             Map.ofEntries(
                     Map.entry("Open lobby", OpenLobby::new),
@@ -211,23 +219,19 @@ class GameSessionTest {
                     Map.entry("Next", NextStep::new),
                     Map.entry("Back", PreviousStep::new),
                     Map.entry("Rename a player", reply -> new RenamePlayer(PLAYER_ID, "Sam", reply)),
-                    Map.entry("Remove a player", reply -> new RemovePlayer(PLAYER_ID, reply)),
-                    Map.entry("Cancel", reply -> new Discard(EndReason.CANCELLED, reply)),
-                    Map.entry("Close event", reply -> new Discard(EndReason.FINISHED, reply)));
+                    Map.entry("Remove a player", reply -> new RemovePlayer(PLAYER_ID, reply)));
 
-    /** The "Host actions" column of SRS section 3.1, with cancel in every state before Results (DEC-87). */
+    /** The "Host actions" column of SRS section 3.1, apart from cancel and close. */
     private static final Map<GameState, Set<String>> ALLOWED = Map.ofEntries(
-            Map.entry(GameState.CREATED, Set.of("Open lobby", "Cancel")),
-            Map.entry(
-                    GameState.LOBBY,
-                    Set.of("Start practice", "Start round", "Rename a player", "Remove a player", "Cancel")),
-            Map.entry(GameState.PRACTICE, Set.of("End practice", "Cancel")),
-            Map.entry(GameState.COUNTDOWN, Set.of("Cancel")),
-            Map.entry(GameState.LIVE, Set.of("Void a task", "Cancel")),
-            Map.entry(GameState.FROZEN, Set.of("Void a task", "Cancel")),
-            Map.entry(GameState.ENDED, Set.of("Start reveal", "Void a task", "Cancel")),
-            Map.entry(GameState.REVEAL, Set.of("Next", "Back", "Cancel")),
-            Map.entry(GameState.RESULTS, Set.of("Close event")),
+            Map.entry(GameState.CREATED, Set.of("Open lobby")),
+            Map.entry(GameState.LOBBY, Set.of("Start practice", "Start round", "Rename a player", "Remove a player")),
+            Map.entry(GameState.PRACTICE, Set.of("End practice")),
+            Map.entry(GameState.COUNTDOWN, Set.of()),
+            Map.entry(GameState.LIVE, Set.of("Void a task")),
+            Map.entry(GameState.FROZEN, Set.of("Void a task")),
+            Map.entry(GameState.ENDED, Set.of("Start reveal", "Void a task")),
+            Map.entry(GameState.REVEAL, Set.of("Next", "Back")),
+            Map.entry(GameState.RESULTS, Set.of()),
             Map.entry(GameState.CLOSED, Set.of()),
             Map.entry(GameState.CANCELLED, Set.of()));
 
@@ -418,10 +422,48 @@ class GameSessionTest {
                 .isEqualTo(ActionResult.changed(GameState.CANCELLED));
 
         assertThat(scheduler.pending()).isZero();
-        assertThat(sentToPhones()).last().isEqualTo(GameEndedMessage.of(EndReason.CANCELLED));
+        assertThat(sentToPhones()).last().isEqualTo(GameEndedMessage.of(clock.millis(), EndReason.CANCELLED));
         clearInvocations(recorder);
         assertThat(after(Duration.ofSeconds(305))).isEqualTo(GameState.CANCELLED);
         verifyNoInteractions(recorder);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(
+            value = GameState.class,
+            names = {"CLOSED", "CANCELLED"},
+            mode = EnumSource.Mode.EXCLUDE)
+    @DisplayName("Discard ends the game in any state it reaches, as the lifecycle has already recorded the end")
+    void discardInAnyOpenState(GameState state) throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), state);
+
+        assertThat(host(reply -> new Discard(EndReason.CANCELLED, reply)))
+                .isEqualTo(ActionResult.changed(GameState.CANCELLED));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(
+            value = GameState.class,
+            names = {"CLOSED", "CANCELLED"})
+    @DisplayName("A game that has already ended stays as it is when discarded again")
+    void discardAfterTheEnd(GameState state) throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), state);
+
+        assertThat(host(reply -> new Discard(EndReason.FINISHED, reply))).isEqualTo(ActionResult.unchanged(state));
+    }
+
+    @Test
+    @DisplayName("A message that can't be sent to a phone doesn't stop the round")
+    void failedSendDoesNotStopTheRound() throws Exception {
+        doThrow(new MessageDeliveryException("broker down"))
+                .when(messaging)
+                .convertAndSendToUser(anyString(), anyString(), any(Object.class));
+
+        assertThat(startRound(roundOf(180, null))).isEqualTo(ActionResult.changed(GameState.COUNTDOWN));
+
+        assertThat(after(Duration.ofSeconds(5))).isEqualTo(GameState.LIVE);
     }
 
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {

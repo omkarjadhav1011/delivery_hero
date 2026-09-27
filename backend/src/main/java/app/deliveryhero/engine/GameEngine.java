@@ -75,6 +75,9 @@ public class GameEngine {
     public GameSession create(UUID gameId, String code, GameState state, boolean test, GameSnapshot snapshot) {
         GameSession session = new GameSession(gameId, code, state, test, snapshot, services);
         sessions.put(gameId, session);
+        if (GameSession.batching(state)) {
+            session.startBatches();
+        }
         return session;
     }
 
@@ -127,8 +130,8 @@ public class GameEngine {
     }
 
     /**
-     * Ends a game the lifecycle has just closed or cancelled (LLD section 5.8): the session stops its timers, sends
-     * GAME_ENDED and is dropped. A discard its state doesn't allow (SRS section 3.1) leaves the session as it is.
+     * Ends a game the lifecycle has just recorded closed or cancelled (LLD section 5.8): the session stops its timers,
+     * sends GAME_ENDED and is dropped. It's dropped even if the command fails, as the game has ended in the database.
      */
     public CompletableFuture<ActionResult> discard(UUID gameId, EndReason reason) {
         GameSession session = sessions.get(gameId);
@@ -137,12 +140,7 @@ public class GameEngine {
         }
         CompletableFuture<ActionResult> reply = new CompletableFuture<>();
         // Completes after the drop, so a caller that waits finds the session gone
-        CompletableFuture<ActionResult> dropped = reply.thenApply(result -> {
-            if (result.changed()) {
-                drop(gameId);
-            }
-            return result;
-        });
+        CompletableFuture<ActionResult> dropped = reply.whenComplete((result, failure) -> drop(gameId));
         if (!session.enqueue(new Discard(reason, reply))) {
             reply.completeExceptionally(new IllegalStateException("The session has already ended"));
         }
@@ -156,7 +154,6 @@ public class GameEngine {
     public void drop(UUID gameId) {
         GameSession session = sessions.remove(gameId);
         if (session != null) {
-            services.timers().cancelAll(gameId);
             session.close();
         }
     }

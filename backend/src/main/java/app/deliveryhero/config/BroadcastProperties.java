@@ -1,6 +1,7 @@
 package app.deliveryhero.config;
 
 import java.time.Duration;
+import org.hibernate.validator.constraints.time.DurationMin;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
@@ -12,4 +13,5 @@ import org.springframework.validation.annotation.Validated;
  */
 @Validated
 @ConfigurationProperties("dh.broadcast")
-public record BroadcastProperties(@DefaultValue("500ms") Duration batchInterval) {}
+public record BroadcastProperties(
+        @DefaultValue("500ms") @DurationMin(millis = 1) Duration batchInterval) {}

@@ -51,6 +51,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -159,12 +160,18 @@ public final class GameSession {
         }
     }
 
-    /** Ends the session: its tokens stop working, then its thread stops once the queue is empty. */
+    /**
+     * Ends the session: its timers stop and its tokens stop working, on its own thread so no command in the queue can
+     * set a timer again; then the thread stops once the queue is empty.
+     */
     void close() {
         if (thread.isShutdown()) {
             return;
         }
-        thread.execute(() -> players.values().forEach(player -> playerTokens.revoke(player.tokenHash())));
+        thread.execute(() -> {
+            timers.cancelAll(id);
+            players.values().forEach(player -> playerTokens.revoke(player.tokenHash()));
+        });
         thread.shutdown();
     }
 
@@ -222,8 +229,8 @@ public final class GameSession {
 
     /** CREATED to LOBBY; the projector and admin batches start (LLD sections 5.4.3 and 5.7). */
     private ActionResult openLobby() {
+        startBatches();
         changeState(GameState.LOBBY);
-        timers.schedule(id, TimerKey.of(TimerType.FLUSH), clock.instant().plus(batchInterval));
         return ActionResult.changed(state);
     }
 
@@ -244,7 +251,7 @@ public final class GameSession {
                 incident == null ? null : wholeSeconds(incident.timeLimitMs()),
                 gameRandom);
         timeline = round;
-        changeState(GameState.COUNTDOWN);
+        // Timers first, so the round goes on even if a phone can't be told
         timers.schedule(id, TimerKey.of(TimerType.ROUND_START), round.start());
         timers.schedule(id, TimerKey.phase(Phase.DEVELOPMENT.ordinal()), round.at(round.planningEnd()));
         timers.schedule(id, TimerKey.phase(Phase.TESTING.ordinal()), round.at(round.developmentEnd()));
@@ -255,6 +262,7 @@ public final class GameSession {
         }
         timers.schedule(id, TimerKey.of(TimerType.FREEZE), round.at(round.freezeAtSec()));
         timers.schedule(id, TimerKey.of(TimerType.ROUND_END), round.end());
+        changeState(GameState.COUNTDOWN);
         return ActionResult.changed(state);
     }
 
@@ -293,7 +301,7 @@ public final class GameSession {
                 }
             }
             case FLUSH -> {
-                if (GameState.IN_PROGRESS.contains(state) || state == GameState.RESULTS) {
+                if (batching(state)) {
                     // TODO(US-38): the projector's batches; TODO(US-60): the admin's live stats (LLD 5.7)
                     timers.schedule(id, key, clock.instant().plus(batchInterval));
                 }
@@ -311,8 +319,7 @@ public final class GameSession {
     private ActionResult discard(EndReason reason) {
         timers.cancelAll(id);
         state = reason == EndReason.CANCELLED ? GameState.CANCELLED : GameState.CLOSED;
-        GameEndedMessage ended = GameEndedMessage.of(reason);
-        players.values().forEach(player -> broadcaster.toPlayer(id, player.id(), ended));
+        toEveryPlayer(player -> GameEndedMessage.of(clock.millis(), reason));
         // TODO(US-38): GAME_ENDED to the projector; TODO(US-60): to the admin panels
         log.atInfo()
                 .addKeyValue("event", "GAME_DISCARDED")
@@ -331,9 +338,38 @@ public final class GameSession {
         state = next;
         recorder.record(id, previous, next);
         long now = clock.millis();
-        players.values()
-                .forEach(player -> broadcaster.toPlayer(
-                        id, player.id(), GameStateMessage.initial(now, id, state, player.id(), player.name())));
+        toEveryPlayer(player -> GameStateMessage.initial(now, id, state, player.id(), player.name()));
+    }
+
+    /**
+     * Sends each player their message. A send that fails is logged with the player's ID and skipped, so one phone
+     * never stops the others hearing, or the game going on (document 13, section 6.5).
+     */
+    private void toEveryPlayer(Function<PlayerState, Object> message) {
+        for (PlayerState player : players.values()) {
+            try {
+                broadcaster.toPlayer(id, player.id(), message.apply(player));
+            } catch (RuntimeException e) {
+                log.atWarn()
+                        .addKeyValue("event", "SEND_FAILED")
+                        .addKeyValue("playerId", player.id())
+                        .setCause(e)
+                        .log("Message to a player not sent");
+            }
+        }
+    }
+
+    /**
+     * Starts the projector and admin batches, every {@code dh.broadcast.batch-interval} from LOBBY to RESULTS (LLD
+     * section 5.4.2). Also for a session created already open, such as the e2e profile's game.
+     */
+    void startBatches() {
+        timers.schedule(id, TimerKey.of(TimerType.FLUSH), clock.instant().plus(batchInterval));
+    }
+
+    /** Whether the batches run in this state: LOBBY to RESULTS. */
+    static boolean batching(GameState state) {
+        return GameState.IN_PROGRESS.contains(state) || state == GameState.RESULTS;
     }
 
     private JoinResult join(String rawName) {

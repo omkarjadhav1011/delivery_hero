@@ -13,6 +13,7 @@ import app.deliveryhero.lifecycle.GameStateRecorder;
 import app.deliveryhero.support.ManualScheduler;
 import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,18 +31,30 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 class GameEngineTest {
 
     private final MutableClock clock = new MutableClock(Instant.parse("2026-10-21T10:00:00Z"));
+    private final ManualScheduler scheduler = new ManualScheduler(clock);
 
     private final GameEngine engine = new GameEngine(
-            new TokenService(new SecureRandom()),
+            new TokenService(seeded()),
             new NoTokens(),
             TestData.GAME_PROPERTIES,
             new BroadcastProperties(Duration.ofMillis(500)),
             new Broadcaster(mock(SimpMessageSendingOperations.class)),
-            new ManualScheduler(clock),
+            scheduler,
             mock(GameStateRecorder.class),
             clock,
-            new SecureRandom(),
+            seeded(),
             new SplittableRandom(42));
+
+    /** A seeded generator, so a run can be repeated (document 13, section 6.7). */
+    private static SecureRandom seeded() {
+        try {
+            SecureRandom generator = SecureRandom.getInstance("SHA1PRNG");
+            generator.setSeed(42L);
+            return generator;
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     @AfterEach
     void shutdown() {
@@ -76,15 +89,35 @@ class GameEngineTest {
     }
 
     @Test
-    @DisplayName("A discard the state doesn't allow, such as closing a game before Results, keeps the session")
-    void refusedDiscardKeepsTheSession() throws Exception {
-        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.LIVE, false, TestData.EMPTY_SNAPSHOT);
+    @DisplayName("A closed game's session in Results is dropped once it has ended")
+    void closeDropsTheSession() throws Exception {
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.RESULTS, false, TestData.EMPTY_SNAPSHOT);
 
         ActionResult result =
                 engine.discard(TestData.GAME_ID, EndReason.FINISHED).get(2, TimeUnit.SECONDS);
 
-        assertThat(result).isEqualTo(ActionResult.unchanged(GameState.LIVE));
-        assertThat(engine.find(TestData.GAME_ID)).isPresent();
+        assertThat(result).isEqualTo(ActionResult.changed(GameState.CLOSED));
+        assertThat(engine.find(TestData.GAME_ID)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("A cancel the lifecycle recorded while the session reached Results still drops the session")
+    void cancelRacingResultsDropsTheSession() throws Exception {
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, GameState.RESULTS, false, TestData.EMPTY_SNAPSHOT);
+
+        engine.discard(TestData.GAME_ID, EndReason.CANCELLED).get(2, TimeUnit.SECONDS);
+
+        assertThat(engine.find(TestData.GAME_ID)).isEmpty();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(GameState.class)
+    @DisplayName("A session created from LOBBY to RESULTS starts its 500 ms batches at once, as OpenLobby would")
+    void batchesStartForOpenGames(GameState state) {
+        engine.create(TestData.GAME_ID, TestData.GAME_CODE, state, false, TestData.EMPTY_SNAPSHOT);
+
+        boolean open = GameState.IN_PROGRESS.contains(state) || state == GameState.RESULTS;
+        assertThat(scheduler.pending()).isEqualTo(open ? 1 : 0);
     }
 
     private static final class NoTokens implements PlayerTokens {

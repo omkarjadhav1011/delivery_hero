@@ -86,7 +86,7 @@ public final class ManualScheduler extends AbstractExecutorService implements Sc
 
     @Override
     public void execute(Runnable command) {
-        schedule(command, 0, TimeUnit.NANOSECONDS);
+        ScheduledFuture<?> unused = schedule(command, 0, TimeUnit.NANOSECONDS);
     }
 
     @Override

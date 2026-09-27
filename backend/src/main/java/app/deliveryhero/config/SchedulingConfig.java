@@ -1,7 +1,7 @@
 package app.deliveryhero.config;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -35,6 +35,9 @@ public class SchedulingConfig {
             thread.setDaemon(true);
             return thread;
         };
-        return Executors.newScheduledThreadPool(2, threads);
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2, threads);
+        // Cancelled timers leave the queue at once rather than when they would have fired
+        executor.setRemoveOnCancelPolicy(true);
+        return executor;
     }
 }
