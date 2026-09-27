@@ -10,12 +10,12 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Branch | feat/us-59-create-game |
 | Start commit | ca77202 |
 | Last commit | c531326 |
-| Step | implement |
+| Step | review |
 | Task |  |
 | Attempts | 0 |
 | Started | 2026-09-26T23:11 |
-| Updated | 2026-09-27T10:53 |
-| Next action | Reviewers, then wrap-up |
+| Updated | 2026-09-27T10:54 |
+| Next action | Fix reviewer findings, then wrap-up (T8 waits for S1-07) |
 
 ## Completed tasks
 
