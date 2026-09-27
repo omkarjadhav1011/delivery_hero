@@ -3,6 +3,7 @@ package app.deliveryhero.engine;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
+import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,55 @@ class RoundTimelineTest {
 
         assertThat(timeline.at(timeline.freezeAtSec())).isEqualTo(START.plusSeconds(270));
         assertThat(timeline.end()).isEqualTo(START.plusSeconds(300));
+    }
+
+    @ParameterizedTest(name = "AC-EN05-03 {0} s round, 20 s incident: from {1} to {2}")
+    @CsvSource({
+        // Round, earliest and latest incident second: SRS 3.2's table with the default 20-second incident (DEC-74)
+        "180, 112, 130", // 3 minutes: 1:52-2:10, capped so it ends by the 2:30 freeze (DEC-216)
+        "300, 186, 234", // 5 minutes: 3:06-3:54
+        "600, 372, 468" // 10 minutes: 6:12-7:48
+    })
+    @DisplayName("AC-EN05-03 the incident range matches SRS 3.2 for 3, 5 and 10 minutes")
+    void incidentRange(int length, int earliest, int latest) {
+        RoundTimeline lowest = RoundTimeline.of(START, length, FREEZE, 20, Extreme.LOWEST);
+        RoundTimeline highest = RoundTimeline.of(START, length, FREEZE, 20, Extreme.HIGHEST);
+
+        assertThat(lowest.incidentAtSec()).isEqualTo(earliest);
+        assertThat(highest.incidentAtSec()).isEqualTo(latest);
+        assertThat(latest + 20).isLessThanOrEqualTo(highest.freezeAtSec());
+    }
+
+    @ParameterizedTest(name = "AC-EN05-03 {0} s round, {1} s incident: latest start {2}")
+    @CsvSource({
+        "300, 60, 210", // 5 minutes with the longest limit: ends by the 4:30 freeze, so no later than 3:30
+        "180, 38, 112", // 3 minutes: 1:52 is the only start that ends by the freeze
+        "600, 60, 468" // 10 minutes: the Testing window's own end still comes first
+    })
+    @DisplayName("AC-EN05-03 a longer incident limit starts the incident earlier, so it still ends by the freeze")
+    void longerLimitCapsEarlier(int length, int limit, int latest) {
+        assertThat(RoundTimeline.of(START, length, FREEZE, limit, Extreme.HIGHEST)
+                        .incidentAtSec())
+                .isEqualTo(latest);
+    }
+
+    @Test
+    @DisplayName("AC-EN05-03 with no room before the freeze, the incident starts at the earliest moment (DEC-216)")
+    void noRoomStartsAtTheEarliest() {
+        // A 60-second incident in a 3-minute round would have to start by 1:30, before Testing's 1:52
+        RoundTimeline timeline = RoundTimeline.of(START, 180, FREEZE, 60, Extreme.HIGHEST);
+
+        assertThat(timeline.incidentAtSec()).isEqualTo(112);
+    }
+
+    @Test
+    @DisplayName("The incident moment is drawn once from the injected generator, anywhere in its range")
+    void drawnFromTheGenerator() {
+        RandomGenerator seeded = new SplittableRandom(42);
+        for (int i = 0; i < 200; i++) {
+            assertThat(RoundTimeline.of(START, 180, FREEZE, 20, seeded).incidentAtSec())
+                    .isBetween(112, 130);
+        }
     }
 
     /** A generator that always gives the lowest, or the highest, value of the range asked for. */
