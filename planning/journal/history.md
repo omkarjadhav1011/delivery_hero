@@ -129,3 +129,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/en-05-state-machine, commits e3b17ed to e31627c.
 - Completed: T1 (6333af4); T2 (4e789fc); T3 (2faf10e); T4 (e84aa56); T5 (9949168); T6 (7b09d02); T7 (7b09d02).
 - Summary: S1-05 T1-T7 done and reviewed on feat/en-05-state-machine; DEC-216 recorded; PR not yet opened
+
+## 2026-09-27-1242 S1-06
+
+- Outcome: blocked. Started 2026-09-27T12:42, ended 2026-09-27T13:03.
+- Branch feat/us-37-projector-lobby, commits b778eab to faed09f.
+- Completed: T-merge (4639496).
+- Summary: S1-06 merged onto main (S1-05 engine), review fixes applied, full verify green; T8 still blocked on S1-07
