@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { performHostAction } from "@/api/endpoints";
+import { getCurrentGame, performHostAction } from "@/api/endpoints";
+import { ApiError } from "@/api/http";
 import { copy } from "@/copy";
 import { adminTopic, useAdminStore } from "@/admin/store";
 import { LiveStats } from "@/admin/components/LiveStats";
@@ -52,6 +53,7 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
   const topic = useAdminStore(adminTopic);
   const receive = useAdminStore((state) => state.receive);
   const actionApplied = useAdminStore((state) => state.actionApplied);
+  const setGame = useAdminStore((state) => state.setGame);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<HostAction | null>(null);
@@ -79,10 +81,29 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
     setNotice(null);
     try {
       actionApplied(await performHostAction(gameId, confirm ? { action, confirm } : { action }));
-    } catch {
-      setNotice(text.failed);
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "NOT_ALLOWED_NOW") {
+        await refresh(error.problem?.currentState);
+      } else {
+        setNotice(text.failed);
+      }
     } finally {
       setBusy(false);
+    }
+  }
+
+  /**
+   * Another admin or the clock moved the game on: show its state at once with nothing to press, then redraw from the
+   * game view. It isn't an error, so no banner (FR-081, AC-US60-04).
+   */
+  async function refresh(currentState: GameState | undefined) {
+    if (currentState !== undefined) {
+      actionApplied({ state: currentState, changed: false, allowedActions: [] });
+    }
+    try {
+      setGame(await getCurrentGame());
+    } catch {
+      setNotice(text.failed);
     }
   }
 

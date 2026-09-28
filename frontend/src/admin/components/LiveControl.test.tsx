@@ -268,4 +268,66 @@ describe("LiveControl", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("AC-US60-04 stale screen: Start practice after the round started refreshes to Countdown, with no error", async () => {
+    const lobby: GameView = {
+      ...GAME,
+      allowedActions: ["START_PRACTICE", "START_ROUND", "CANCEL"],
+    };
+    showGame(lobby);
+    fetchMock.mockImplementation((input, init) => {
+      if (init?.method === "POST") {
+        return Promise.resolve(
+          jsonResponse(409, {
+            type: "about:blank",
+            title: "Not allowed now",
+            status: 409,
+            code: "NOT_ALLOWED_NOW",
+            detail: null,
+            errors: [],
+            currentState: "COUNTDOWN",
+          }),
+        );
+      }
+      expect(input).toBe("/api/admin/games/current");
+      return Promise.resolve(
+        jsonResponse(200, { ...lobby, state: "COUNTDOWN", allowedActions: ["CANCEL"] }),
+      );
+    });
+    render(<LiveControl createClient={() => fakeClient().client} />);
+
+    fireEvent.click(screen.getByRole("button", { name: text.startPractice }));
+
+    expect(
+      await screen.findByRole("heading", {
+        name: text.header("K7PQ2M", GAME.runPlanName, "COUNTDOWN"),
+      }),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: text.cancelGame })).toHaveProperty(
+        "disabled",
+        false,
+      ),
+    );
+    expect(screen.getByRole("button", { name: text.startPractice })).toHaveProperty(
+      "disabled",
+      true,
+    );
+    expect(screen.getByRole("button", { name: text.startRound })).toHaveProperty("disabled", true);
+    expect(screen.queryByText(text.failed)).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("a request that fails for another reason says so and leaves the screen as it was", async () => {
+    showGame(GAME);
+    fetchMock.mockResolvedValue(new Response(null, { status: 502 }));
+    render(<LiveControl createClient={() => fakeClient().client} />);
+
+    fireEvent.click(screen.getByRole("button", { name: text.startRound }));
+
+    expect(await screen.findByText(text.failed)).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { name: text.header("K7PQ2M", GAME.runPlanName, "LOBBY") }),
+    ).toBeTruthy();
+  });
 });
