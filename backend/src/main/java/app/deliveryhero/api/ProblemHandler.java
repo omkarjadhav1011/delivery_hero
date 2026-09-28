@@ -24,6 +24,7 @@ public class ProblemHandler {
             problem.setDetail(detail);
         }
         problem.setProperty("errors", refusal.errors());
+        refusal.properties().forEach(problem::setProperty);
         return ResponseEntity.status(problem.getStatus()).body(problem);
     }
 }

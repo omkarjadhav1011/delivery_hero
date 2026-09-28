@@ -9,17 +9,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-07 |
 | Branch | main |
 | Start commit | 47fd51c |
-| Last commit | 25e215c |
+| Last commit | be36c67 |
 | Step | test-first |
-| Task | T11 |
+| Task | T2 |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T08:44 |
-| Next action | GameStateRecorderIT catch-up and finished-row cases |
+| Updated | 2026-09-28T08:49 |
+| Next action | HostActionsIT AC-US60-03 and missing-confirm |
 
 ## Completed tasks
 
 - T1 (25e215c)
+- T11 (be36c67)
 
 ## Pending approvals
 

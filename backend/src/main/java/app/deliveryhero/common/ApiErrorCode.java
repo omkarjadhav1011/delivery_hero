@@ -26,8 +26,11 @@ public enum ApiErrorCode {
     TASK_IN_USE(409, "Task in use", "This task is used by: …"),
     /** Creating a game while another is open, real or test (DEC-101). */
     ANOTHER_GAME_OPEN(409, "Another game open", "Another game is still open. Close or cancel it first."),
-    NOT_FOUND(404, "Not found", null);
-    // The host codes of API section 6.2 arrive with the endpoints that return them
+    NOT_FOUND(404, "Not found", null),
+    /** A host action that doesn't apply to the current state; the body carries {@code currentState} (FR-081). */
+    NOT_ALLOWED_NOW(409, "Not allowed now", null),
+    /** CANCEL or CLOSE sent without {@code "confirm": true} (AP-02, DEC-160). */
+    CONFIRMATION_REQUIRED(422, "Confirmation required", null);
 
     private final int status;
     private final String title;

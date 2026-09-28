@@ -141,8 +141,10 @@ public class GameLifecycleService {
         return details(game);
     }
 
-    /** The open game, real or test, or empty when every game is closed or cancelled. */
-    @Transactional(readOnly = true)
+    /**
+     * The open game, real or test, or empty when every game is closed or cancelled. Not in a transaction: asking the
+     * session for its state may wait, and must not hold a database connection meanwhile.
+     */
     public Optional<GameDetails> current() {
         return games.findFirstByStateNotIn(FINISHED).map(this::details);
     }

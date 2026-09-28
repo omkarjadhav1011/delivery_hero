@@ -212,7 +212,12 @@ public final class GameSession {
                 // No state accepts answers yet, so there is nothing to score.
             }
             case TimerFired fired -> timerFired(fired.key());
-            case HostCommand host -> host.reply().complete(host(host));
+            case HostCommand host -> {
+                // A request that stopped waiting is dropped, so the admin who saw it fail isn't surprised later
+                if (!host.reply().isDone()) {
+                    host.reply().complete(host(host));
+                }
+            }
         }
     }
 

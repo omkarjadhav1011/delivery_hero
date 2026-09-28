@@ -602,6 +602,20 @@ class GameSessionTest {
     }
 
     @Test
+    @DisplayName("A host action whose request stopped waiting is dropped, not applied later")
+    void cancelledHostActionIsDropped() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+        CompletableFuture<ActionResult> reply = new CompletableFuture<>();
+        reply.cancel(false);
+
+        session.enqueue(new OpenLobby(reply));
+
+        assertThat(hostView().state()).isEqualTo(GameState.CREATED);
+        verifyNoInteractions(recorder);
+    }
+
+    @Test
     @DisplayName("AC-US60-04 a refused action replies with the current state and its actions, so the panel redraws")
     void refusedActionRepliesWithTheCurrentView() throws Exception {
         join("Priya");

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** The game endpoints (API section 7.7). Test games come with US-63, host actions with US-60. */
+/** The game endpoints (API section 7.7). Test games come with US-63; host actions are {@link HostActionController}. */
 @RestController
 @RequestMapping("/api/admin/games")
 class GameController {
