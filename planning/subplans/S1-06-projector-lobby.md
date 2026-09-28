@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-37, US-38 |
 | Priority and points | Must, 4 |
@@ -88,6 +88,8 @@ Document 13, section 10, plus: every US-37 and US-38 criterion passes at its lev
 - Pitfalls: compare keys in constant time; send the initial state only after the subscription is confirmed (DEC-146); the projector never receives points, answers or the incident moment; names on the wall are newest first; no fixed sleeps in `join-and-lobby`.
 
 ## Progress log
+
+- 2026-09-28: PR #34 opened for T8; In review. Session 2026-09-28-1139 actuals: T8 and the review fixes in about 15 minutes and about 90k tokens, including the two reviewers.
 
 - 2026-09-28: Review fixes (`33e6e97`). frontend-reviewer and spec-guardian: no critical, high or medium findings from spec-guardian; one medium from frontend-reviewer, fixed (assert `game.joinUrl` rather than rebuilding the URL). Lows fixed: names looked up inside the list, the QR code checked absent in Created (DEC-170), and `AC-US38-02` named on step 4. Lows left: `openLobby` in the spec repeats part of `openGameInLobby` (step 2 needs the game in Created first), and the QR code's encoded value isn't decoded end to end (`LobbyView.test.tsx` covers what it encodes). `join-and-lobby` 12 of 12 over three runs again.
 

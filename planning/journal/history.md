@@ -157,3 +157,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-37-projector-e2e, commits 8e5c8a6 to fb40d66.
 - Completed: T10 (pending).
 - Summary: S1-07 verified on the local stack and Done; T10 demonstration recorded
+
+## 2026-09-28-1139 S1-06
+
+- Outcome: done. Started 2026-09-28T11:39, ended 2026-09-28T11:51.
+- Branch feat/us-37-projector-e2e, commits fb40d66 to dff7307.
+- Completed: T8 (78bde89).
+- Summary: S1-06 T8 done, PR #34 open; S1-07 verified and Done
