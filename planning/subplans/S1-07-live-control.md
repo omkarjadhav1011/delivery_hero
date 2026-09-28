@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-60 |
 | Priority and points | Must, 5 |
@@ -95,6 +95,8 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 - Pitfalls: the engine answers a wrong-state command with `ActionResult.unchanged`, and REST turns it into 409 `NOT_ALLOWED_NOW`; `LIVE_STATS` shows incident status, never its moment; admin requests carry `X-XSRF-TOKEN`; no fixed sleeps for the double press (fire both requests together); `Date.now` only in `src/time`.
 
 ## Progress log
+
+- 2026-09-28: PR #32 opened; In review. After the merge: T10 (walking-skeleton demonstration on the local stack).
 
 - 2026-09-28: Session 2026-09-27-1319 actuals: 11 tasks and the review fixes in one session, about 430k tokens; wall time not measured (the session ran across midnight). S1-07 stays In progress: T10 waits for the merge, and no pull request is open yet.
 
