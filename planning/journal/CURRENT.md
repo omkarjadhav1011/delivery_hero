@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | 61fe5ba |
+| Last commit | 68490c0 |
 | Step | test-first |
-| Task | T7 |
+| Task | T8 |
 | Attempts | 1 |
 | Started | 2026-09-28T11:57 |
-| Updated | 2026-09-28T12:33 |
-| Next action | Countdown.test.tsx counts from round.startsAt |
+| Updated | 2026-09-28T12:40 |
+| Next action | PhaseBar.test.tsx AC-US21-01 and Clock m:ss |
 
 ## Completed tasks
 
@@ -25,6 +25,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T4 (b0f96d3)
 - T5 (f98e991)
 - T6 (61fe5ba)
+- T7 (68490c0)
 
 ## Pending approvals
 

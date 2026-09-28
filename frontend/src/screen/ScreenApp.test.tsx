@@ -111,4 +111,45 @@ describe("ScreenApp", () => {
     expect(screen.queryByText("Sam")).toBeNull();
     expect(fake.deactivate).toHaveBeenCalled();
   });
+
+  it("AC-US13-03 counts down on the projector, then shows the phase bar and the clock as the round goes live", () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(1_792_575_000_000);
+      const start = 1_792_575_005_000;
+      const round = {
+        startsAt: start,
+        endsAt: start + 180_000,
+        phases: [
+          { phase: "PLANNING", startsAt: start },
+          { phase: "DEVELOPMENT", startsAt: start + 36_000 },
+          { phase: "TESTING", startsAt: start + 108_000 },
+          { phase: "RELEASE", startsAt: start + 144_000 },
+        ],
+        releaseAt: start + 144_000,
+        freezeAt: start + 150_000,
+      };
+      const withState = (state: string) =>
+        JSON.stringify({ ...JSON.parse(lobbyState()), state, round });
+      search.params = new URLSearchParams("key=abc");
+      const fake = fakeClient();
+      render(<ScreenApp createClient={() => fake.client} />);
+      act(() => fake.config()?.onConnect({ "user-name": `projector:${GAME}` }));
+
+      act(() => fake.bodies.get(TOPIC)?.(withState("COUNTDOWN")));
+      expect(screen.getByText("5")).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 1, name: copy.screen.sprintStarts }),
+      ).toBeTruthy();
+
+      act(() => {
+        vi.advanceTimersByTime(5_000);
+        fake.bodies.get(TOPIC)?.(withState("LIVE"));
+      });
+      expect(screen.getByRole("list", { name: copy.screen.phaseBarLabel })).toBeTruthy();
+      expect(screen.getByText("3:00")).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

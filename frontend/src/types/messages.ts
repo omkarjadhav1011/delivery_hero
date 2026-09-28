@@ -1,4 +1,4 @@
-import type { GameState, HostAction } from "./dto";
+import type { GameState, HostAction, Phase } from "./dto";
 
 // Real-time messages, mirroring document 11 section 8. Every server message carries type and serverTime (DEC-162).
 // TODO(US-16): the rest of the player messages of section 8.5, checked against contracts/
@@ -76,6 +76,21 @@ export type ScreenPlayer = {
   status: "ONLINE" | "OFFLINE";
 };
 
+/** When a phase of the round starts, in server time (DEC-15). */
+export type PhaseStart = {
+  phase: Phase;
+  startsAt: number;
+};
+
+/** The round as the projector gets it: the player's times plus each phase's start (document 11, section 8.6). */
+export type ScreenRound = {
+  startsAt: number;
+  endsAt: number;
+  phases: PhaseStart[];
+  releaseAt: number;
+  freezeAt: number;
+};
+
 /** The projector's full state, on subscribe and on every state change (document 11, section 8.6). */
 export type ScreenStateMessage = Envelope & {
   type: "SCREEN_STATE";
@@ -85,9 +100,10 @@ export type ScreenStateMessage = Envelope & {
   joinUrl: string;
   players: ScreenPlayer[];
   playerCount: number;
-  // TODO(US-10, US-21, US-39, US-41, US-34, US-43): the shapes of practice, round, top10, feed, incident and reveal
+  // TODO(US-10, US-39, US-41, US-34, US-43): the shapes of practice, top10, feed, incident and reveal
   practice: unknown;
-  round: unknown;
+  /** Null before the countdown. */
+  round: ScreenRound | null;
   top10: unknown[];
   frozen: boolean;
   feed: unknown[];

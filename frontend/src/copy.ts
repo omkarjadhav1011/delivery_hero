@@ -55,6 +55,18 @@ export const copy = {
     openInChrome: "Open this link in Chrome",
     // The QR code's accessible name; not in the copy deck (DI-21)
     qrLabel: "QR code of the join link",
+    // S-04
+    sprintStarts: "The sprint starts now!",
+    // S-05's phase bar (FR-023)
+    phases: {
+      PLANNING: "Planning",
+      DEVELOPMENT: "Development",
+      TESTING: "Testing",
+      RELEASE: "Release",
+    },
+    // The phase bar's and the clock icon's accessible names; not in the copy deck (DI-21)
+    phaseBarLabel: "Round phases",
+    timeLeftLabel: "Time left",
     // The projector's end screens, worded as P-20 and SRS section 3.1
     finished: "This game has finished.",
     hostEnded: "The host ended this game.",
