@@ -20,10 +20,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage;
 import app.deliveryhero.broadcast.ScreenStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.Role;
 import app.deliveryhero.common.TaskKind;
 import app.deliveryhero.common.TaskType;
@@ -677,10 +679,107 @@ class GameSessionTest {
         assertThat(scheduler.pending()).as("rescheduled").isEqualTo(1);
         after(BATCH_INTERVAL);
 
-        verify(messaging, times(1)).convertAndSend(anyString(), any(Object.class));
+        verify(messaging, times(1)).convertAndSend(eq(SCREEN), any(Object.class));
     }
 
     private static final String SCREEN = "/topic/games/" + TestData.GAME_ID + "/screen";
+    private static final String ADMIN = "/topic/games/" + TestData.GAME_ID + "/admin";
+
+    @Test
+    @DisplayName("AC-US60-05 live stats: every flush sends LIVE_STATS to the admin topic, even with nothing new")
+    void everyFlushSendsLiveStats() throws Exception {
+        session.startBatches();
+        join("Priya");
+        join("Sam");
+
+        after(BATCH_INTERVAL);
+        after(BATCH_INTERVAL);
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, times(2)).convertAndSend(eq(ADMIN), sent.capture());
+        LiveStatsMessage stats = (LiveStatsMessage) sent.getValue();
+        assertThat(stats.type()).isEqualTo("LIVE_STATS");
+        assertThat(stats.state()).isEqualTo(GameState.LOBBY);
+        assertThat(stats.round()).isNull();
+        assertThat(stats.players()).isEqualTo(new LiveStatsMessage.Players(2, 2, 0));
+        assertThat(stats.incident()).isEqualTo(LiveStatsMessage.IncidentStatus.NONE);
+        assertThat(stats.allowedActions())
+                .containsExactly(
+                        HostAction.START_ROUND, HostAction.RENAME_PLAYER, HostAction.REMOVE_PLAYER, HostAction.CANCEL);
+    }
+
+    @Test
+    @DisplayName("AC-US60-05 live stats: from the countdown on they carry the round's start and end, the scored tasks"
+            + " and the incident's status, never its moment")
+    void liveStatsDuringTheRound() throws Exception {
+        GameSnapshot.Task scored = new GameSnapshot.Task(
+                "dev-dev-11",
+                Role.DEVELOPER,
+                TaskKind.SCORED,
+                TaskType.MULTIPLE_CHOICE,
+                "Which fix?",
+                null,
+                20_000,
+                INCIDENT.content(),
+                null);
+        GameSnapshot snapshot = new GameSnapshot(
+                GameSnapshot.FORMAT_VERSION,
+                "Default",
+                300,
+                Map.of(),
+                List.of(),
+                INCIDENT,
+                Map.of(Phase.DEVELOPMENT, List.of(scored)));
+        startRound(snapshot);
+        session.startBatches();
+        clearInvocations(messaging);
+
+        after(BATCH_INTERVAL);
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging).convertAndSend(eq(ADMIN), sent.capture());
+        LiveStatsMessage stats = (LiveStatsMessage) sent.getValue();
+        Instant start = Instant.parse("2026-10-21T10:00:05Z");
+        assertThat(stats.state()).isEqualTo(GameState.COUNTDOWN);
+        assertThat(stats.round())
+                .isEqualTo(new LiveStatsMessage.Round(
+                        start.toEpochMilli(), start.plusSeconds(300).toEpochMilli()));
+        assertThat(stats.incident()).isEqualTo(LiveStatsMessage.IncidentStatus.PENDING);
+        assertThat(stats.tasks()).containsExactly(new LiveStatsMessage.TaskStats("dev-dev-11", 0, 0, false));
+        assertThat(stats.allowedActions()).containsExactly(HostAction.CANCEL);
+        assertThat(stats.toString()).doesNotContain("incidentAt");
+    }
+
+    @Test
+    @DisplayName(
+            "An admin's subscription to this game's topic gets LIVE_STATS at once, before any flush (DEC-146); another game's is ignored")
+    void adminSubscriptionGetsLiveStats() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        session.enqueue(new ClientSubscribed(
+                "a0", ClientRole.ADMIN, null, UUID.fromString("00000000-0000-0000-0000-0000000000c9")));
+        status();
+        verify(messaging, never()).convertAndSend(anyString(), any(Object.class));
+
+        session.enqueue(new ClientSubscribed("a1", ClientRole.ADMIN, null, TestData.GAME_ID));
+        status();
+
+        verify(messaging)
+                .convertAndSend(
+                        eq(ADMIN),
+                        argThat((Object message) -> message instanceof LiveStatsMessage stats
+                                && stats.state() == GameState.CREATED
+                                && stats.allowedActions().equals(List.of(HostAction.OPEN_LOBBY, HostAction.CANCEL))));
+    }
+
+    @Test
+    @DisplayName("Ending the game tells the admin panels too, with GAME_ENDED")
+    void discardTellsTheAdmins() throws Exception {
+        host(reply -> new Discard(EndReason.CANCELLED, reply));
+
+        verify(messaging).convertAndSend(eq(ADMIN), any(GameEndedMessage.class));
+    }
 
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {
         return Objects.requireNonNull(HOST_ACTIONS.get(action), action).apply(reply);

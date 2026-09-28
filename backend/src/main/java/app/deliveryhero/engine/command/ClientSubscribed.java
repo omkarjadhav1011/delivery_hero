@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A connection's subscription is confirmed, so its full state can be sent (LLD 5.4.10, LD-08). The player ID is set only
- * for players, and the game ID only for projectors, so every other open game ignores a projector's subscription.
+ * for players, and the game ID only for projectors and admins, so every other open game ignores their subscription.
  */
 public record ClientSubscribed(
         String connectionId,

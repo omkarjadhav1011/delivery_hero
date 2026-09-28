@@ -1,8 +1,12 @@
 package app.deliveryhero.engine;
 
+import app.deliveryhero.broadcast.AdminBatch;
+import app.deliveryhero.broadcast.AdminBatch.TaskTally;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage.IncidentStatus;
 import app.deliveryhero.broadcast.ScreenStateMessage;
 import app.deliveryhero.broadcast.ScreenStateMessage.PlayerStatus;
 import app.deliveryhero.broadcast.ScreenStateMessage.ScreenPlayer;
@@ -323,7 +327,7 @@ public final class GameSession {
             }
             case FLUSH -> {
                 if (batching(state)) {
-                    // TODO(US-60): the admin's live stats (LLD 5.7). A failed send must not stop the wall for good.
+                    // A failed send must not stop the wall or the live stats for good
                     try {
                         flush();
                     } finally {
@@ -349,7 +353,7 @@ public final class GameSession {
         GameEndedMessage ended = GameEndedMessage.of(clock.millis(), reason);
         toEveryPlayer(player -> ended);
         toScreen(ended);
-        // TODO(US-60): GAME_ENDED to the admin panels
+        toAdmins(ended);
         log.atInfo()
                 .addKeyValue("event", "GAME_DISCARDED")
                 .addKeyValue("gameId", id)
@@ -384,13 +388,50 @@ public final class GameSession {
         playerTokens.revokeProjector(id);
     }
 
-    /** Sends what changed on the wall since the last flush, if anything did (LLD section 5.7). */
+    /**
+     * Sends what changed on the wall since the last flush, if anything did, and the admin's live stats, every time
+     * (LLD section 5.7, API section 8.7).
+     */
     private void flush() {
         if (!pendingWallEvents.isEmpty()) {
             // Taken before sending, so a batch that fails is dropped rather than sent again and again
             WallEventsMessage batch = WallEventsMessage.of(clock.millis(), pendingWallEvents);
             pendingWallEvents.clear();
             toScreen(batch);
+        }
+        toAdmins(liveStats());
+    }
+
+    /**
+     * The admin's live stats (FR-082): the incident's status, never its moment (FR-043). Every joined player counts as
+     * connected until US-05 tracks connections; done, answers and voids come with US-16, US-27 and US-61.
+     */
+    private LiveStatsMessage liveStats() {
+        RoundTimeline round = timeline;
+        List<TaskTally> tasks = snapshot.phases().values().stream()
+                .flatMap(List::stream)
+                .map(task -> new TaskTally(task.key(), 0, 0, false))
+                .toList();
+        return AdminBatch.liveStats(
+                clock.millis(),
+                state,
+                round == null
+                        ? null
+                        : new LiveStatsMessage.Round(
+                                round.start().toEpochMilli(), round.end().toEpochMilli()),
+                new LiveStatsMessage.Players(players.size(), players.size(), 0),
+                // TODO(US-33): ACTIVE while the incident runs, then DONE
+                snapshot.incident() == null ? IncidentStatus.NONE : IncidentStatus.PENDING,
+                tasks,
+                hostView().allowedActions());
+    }
+
+    /** Sends the admin panels a message; a failed send is logged and skipped, as for the projector. */
+    private void toAdmins(Object message) {
+        try {
+            broadcaster.toAdmins(id, message);
+        } catch (RuntimeException e) {
+            log.atWarn().addKeyValue("event", "SEND_FAILED").setCause(e).log("Message to the admin panels not sent");
         }
     }
 
@@ -469,7 +510,12 @@ public final class GameSession {
             }
             return;
         }
-        // TODO(S1-07): the admin's LIVE_STATS
+        if (subscribed.role() == ClientRole.ADMIN) {
+            if (id.equals(subscribed.gameId())) {
+                toAdmins(liveStats());
+            }
+            return;
+        }
         if (subscribed.role() != ClientRole.PLAYER || subscribed.playerId() == null) {
             return;
         }

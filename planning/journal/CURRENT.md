@@ -9,18 +9,19 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-07 |
 | Branch | main |
 | Start commit | 47fd51c |
-| Last commit | be36c67 |
-| Step | test-first |
-| Task | T2 |
+| Last commit | 385f996 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T08:49 |
-| Next action | HostActionsIT AC-US60-03 and missing-confirm |
+| Updated | 2026-09-28T08:58 |
+| Next action | T3: AdminBatchTest AC-US60-05 |
 
 ## Completed tasks
 
 - T1 (25e215c)
 - T11 (be36c67)
+- T2 (385f996)
 
 ## Pending approvals
 

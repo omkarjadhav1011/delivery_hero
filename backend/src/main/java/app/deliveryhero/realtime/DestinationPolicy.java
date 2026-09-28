@@ -25,7 +25,7 @@ public class DestinationPolicy {
         return switch (principal) {
             case PlayerPrincipal player -> destination.equals(PLAYER_QUEUE);
             case ProjectorPrincipal projector -> destination.equals(screenTopic(projector.gameId()));
-            case AdminPrincipal admin -> isGameDestination(destination, "/topic/games/", "/admin");
+            case AdminPrincipal admin -> adminTopicGame(destination) != null;
         };
     }
 
@@ -55,16 +55,19 @@ public class DestinationPolicy {
         return "/app/games/" + gameId + "/answer";
     }
 
-    /** True for {@code <prefix><game ID><suffix>} with a well-formed game ID and nothing else. */
-    private static boolean isGameDestination(String destination, String prefix, String suffix) {
+    /** The game of an admin topic, {@code /topic/games/<game ID>/admin} with a well-formed ID, or null for anything else. */
+    public static @Nullable UUID adminTopicGame(String destination) {
+        String prefix = "/topic/games/";
+        String suffix = "/admin";
         if (!destination.startsWith(prefix) || !destination.endsWith(suffix)) {
-            return false;
+            return null;
         }
         String id = destination.substring(prefix.length(), destination.length() - suffix.length());
         try {
-            return UUID.fromString(id).toString().equals(id);
+            UUID gameId = UUID.fromString(id);
+            return gameId.toString().equals(id) ? gameId : null;
         } catch (IllegalArgumentException e) {
-            return false;
+            return null;
         }
     }
 }

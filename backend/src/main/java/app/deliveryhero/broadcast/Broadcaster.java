@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Sends the game session's messages to phones and the projector (LLD section 5.7). Sending hands the message to the broker and never
- * waits on the network, so session threads may call it. The admin batch arrives with S1-07.
+ * waits on the network, so session threads may call it.
  */
 @Component
 public class Broadcaster {
@@ -48,5 +48,10 @@ public class Broadcaster {
     /** Sends a message to the game's projector, on its screen topic (API section 8.6). */
     public void toScreen(UUID gameId, Object message) {
         messaging.convertAndSend(DestinationPolicy.screenTopic(gameId), message);
+    }
+
+    /** Sends a message to every admin panel watching the game, on its admin topic (API section 8.7). */
+    public void toAdmins(UUID gameId, Object message) {
+        messaging.convertAndSend(DestinationPolicy.adminTopic(gameId), message);
     }
 }
