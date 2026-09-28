@@ -44,6 +44,21 @@ export function isPlayerMessage(value: unknown): value is PlayerMessage {
   );
 }
 
+/** The reply to a TIME_SYNC request, on `/user/queue/time-sync` (document 11, section 8.5). */
+export type TimeSyncMessage = Envelope & {
+  type: "TIME_SYNC";
+  clientSentAt: number;
+};
+
+/** Narrows a parsed frame to a TIME_SYNC reply with both of its times. */
+export function isTimeSyncMessage(value: unknown): value is TimeSyncMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const { type, serverTime, clientSentAt } = value as Record<string, unknown>;
+  return type === "TIME_SYNC" && Number.isFinite(serverTime) && Number.isFinite(clientSentAt);
+}
+
 /** One square on the projector's wall (document 11, section 8.6; DI-80 for the name fields and status). */
 export type ScreenPlayer = {
   playerId: string;

@@ -40,6 +40,7 @@ export interface StompLike {
   /** With force, the socket is dropped at once instead of waiting for a closing handshake on a dead link. */
   deactivate(force?: boolean): Promise<void>;
   subscribe(destination: string, onBody: (body: string) => void): { unsubscribe(): void };
+  publish(destination: string, body: string): void;
 }
 
 /** The browser's online and offline events; window in the browser. */
@@ -66,6 +67,8 @@ export interface StompConnection {
   status(): ConnectionStatus;
   /** Delivers each parsed message on the destination, again after every reconnect; returns the unsubscribe. */
   subscribe(destination: string, onMessage: (message: unknown) => void): () => void;
+  /** Sends a JSON body while connected; returns false, sending nothing, otherwise. */
+  publish(destination: string, body: string): boolean;
 }
 
 /** The STOMP endpoint on the page's own host: wss behind HTTPS, ws on the local stack (API section 8.1). */
@@ -105,6 +108,8 @@ export function stompJsClient(url: string): StompLike {
     deactivate: (force) => client.deactivate({ force: force ?? false }),
     subscribe: (destination, onBody) =>
       client.subscribe(destination, (message) => onBody(message.body)),
+    publish: (destination, body) =>
+      client.publish({ destination, body, headers: { "content-type": "application/json" } }),
   };
 }
 
@@ -204,6 +209,13 @@ export function createStompConnection(options: StompConnectionOptions): StompCon
       void client.deactivate();
     },
     status: () => schedule.status(),
+    publish: (destination, body) => {
+      if (!online || stopped) {
+        return false;
+      }
+      client.publish(destination, body);
+      return true;
+    },
     subscribe: (destination, onMessage) => {
       const set = handlers.get(destination) ?? new Set();
       set.add(onMessage);

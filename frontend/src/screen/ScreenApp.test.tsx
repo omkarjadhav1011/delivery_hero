@@ -12,10 +12,11 @@ const search = vi.hoisted(() => ({ params: new URLSearchParams() }));
 vi.mock("next/navigation", () => ({ useSearchParams: () => search.params }));
 
 // A stand-in for the library's client. It has no way to send, as the real wrapper has none for the projector
-// (DEC-140): the projector only connects and subscribes.
+// (DEC-140): the projector only connects, subscribes and sends time-sync requests.
 function fakeClient() {
   let config: StompConfig | undefined;
   const subscribed: string[] = [];
+  const published: string[] = [];
   const bodies = new Map<string, (body: string) => void>();
   const deactivate = vi.fn(() => Promise.resolve());
   const client: StompLike = {
@@ -27,8 +28,9 @@ function fakeClient() {
       bodies.set(destination, onBody);
       return { unsubscribe: () => subscribed.splice(subscribed.indexOf(destination), 1) };
     },
+    publish: (destination) => published.push(destination),
   };
-  return { client, subscribed, bodies, deactivate, config: () => config };
+  return { client, subscribed, bodies, published, deactivate, config: () => config };
 }
 
 function lobbyState() {
@@ -74,7 +76,9 @@ describe("ScreenApp", () => {
     expect(fake.config()?.connectHeaders).toEqual({ "projector-key": "abc" });
 
     act(() => fake.config()?.onConnect({ "user-name": `projector:${GAME}` }));
-    expect(fake.subscribed).toEqual([TOPIC]);
+    expect(fake.subscribed).toEqual(["/user/queue/time-sync", TOPIC]);
+    // Display only: its one kind of outgoing message is a time-sync request (LD-02)
+    expect(fake.published).toEqual(["/app/time-sync"]);
 
     act(() => fake.bodies.get(TOPIC)?.(lobbyState()));
     expect(screen.getByText(copy.screen.scanToJoin)).toBeTruthy();

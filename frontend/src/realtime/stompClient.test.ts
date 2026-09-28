@@ -8,6 +8,7 @@ class FakeClient implements StompLike {
   activations = 0;
   deactivations: (boolean | undefined)[] = [];
   subscriptions: { destination: string; onBody: (body: string) => void }[] = [];
+  published: { destination: string; body: string }[] = [];
   /** Set to hold deactivate() open until the test resolves it. */
   pendingDeactivate: (() => void) | undefined;
   holdDeactivate = false;
@@ -38,6 +39,10 @@ class FakeClient implements StompLike {
     return {
       unsubscribe: () => (this.subscriptions = this.subscriptions.filter((s) => s !== entry)),
     };
+  }
+
+  publish(destination: string, body: string) {
+    this.published.push({ destination, body });
   }
 
   /** The server accepted CONNECT, with these CONNECTED headers. */
@@ -308,5 +313,25 @@ describe("brokerUrl", () => {
       "wss://hero.example.org/ws",
     );
     expect(brokerUrl({ protocol: "http:", host: "localhost:8080" })).toBe("ws://localhost:8080/ws");
+  });
+});
+
+describe("createStompConnection publish", () => {
+  it("sends a message only while connected", () => {
+    const fake = new FakeClient();
+    const connection = createStompConnection({
+      credentials: { playerToken: "tok-1" },
+      timer,
+      onStatusChange: () => {},
+      createClient: () => fake,
+      network: { addEventListener: () => {}, removeEventListener: () => {} },
+    });
+    connection.start();
+
+    expect(connection.publish("/app/time-sync", '{"clientSentAt":1}')).toBe(false);
+    fake.open();
+    expect(connection.publish("/app/time-sync", '{"clientSentAt":2}')).toBe(true);
+
+    expect(fake.published).toEqual([{ destination: "/app/time-sync", body: '{"clientSentAt":2}' }]);
   });
 });
