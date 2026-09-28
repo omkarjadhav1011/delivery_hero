@@ -1,4 +1,3 @@
-import { copy } from "@/copy";
 import { ProjectorShell } from "@/screen/ProjectorShell";
 import { Clock } from "@/screen/views/Clock";
 import { PhaseBar } from "@/screen/views/PhaseBar";
@@ -13,14 +12,13 @@ type LiveViewProps = {
 export function LiveView({ round }: LiveViewProps) {
   return (
     <ProjectorShell
+      brandAsHeading
       header={
         <>
           <PhaseBar phases={round.phases} />
           <Clock endsAt={round.endsAt} />
         </>
       }
-    >
-      <h1 className="sr-only">{copy.brand}</h1>
-    </ProjectorShell>
+    />
   );
 }

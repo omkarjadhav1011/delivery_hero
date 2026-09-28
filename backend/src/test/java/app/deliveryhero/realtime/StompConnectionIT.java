@@ -479,6 +479,20 @@ class StompConnectionIT {
         }
     }
 
+    @Test
+    @DisplayName("Time sync: a request with an empty body gets no reply and logs no error or session ID (DEC-104)")
+    void timeSyncWithAnEmptyBodyIsDropped(CapturedOutput output) throws Exception {
+        try (RawStompClient client = connectedAs("projector")) {
+            client.subscribe("t1", "/user/queue/time-sync");
+
+            client.sendTo("/app/time-sync", "");
+
+            assertThat(client.nextFrame(QUIET)).isNull();
+            assertThat(client.isOpen()).isTrue();
+        }
+        assertThat(output.getAll()).doesNotContain("simpSessionId").doesNotContain("Unhandled");
+    }
+
     /** A connected client of the kind: a player, the projector or an admin. */
     private RawStompClient connectedAs(String kind) throws Exception {
         return switch (kind) {

@@ -164,7 +164,7 @@ class HostActionsIT {
     }
 
     @Test
-    @DisplayName("AC-US13-02 with one player, START_ROUND moves the lobby to the countdown")
+    @DisplayName("AC-US13-01 countdown: with one player, START_ROUND moves the lobby to the countdown")
     void startRoundWithAPlayer() throws Exception {
         UUID game = openLobbyWithPriya();
 

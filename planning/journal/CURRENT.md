@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | c61d26b |
-| Step | test-first |
-| Task | T9 |
+| Last commit | 0710c75 |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-28T11:57 |
 | Updated | 2026-09-28T12:48 |
-| Next action | golden-path opening steps |
+| Next action | Reviewers on the branch diff |
 
 ## Completed tasks
 
@@ -27,6 +27,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T6 (61fe5ba)
 - T7 (68490c0)
 - T8 (c61d26b)
+- T9 (0710c75)
 
 ## Pending approvals
 

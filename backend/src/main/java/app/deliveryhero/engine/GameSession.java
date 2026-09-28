@@ -314,10 +314,8 @@ public final class GameSession {
                 }
             }
             case PHASE_CHANGE -> {
-                // The projector's phase bar follows the clock (FR-023); its SCREEN_STATE is sent again at each change
-                if (state == GameState.LIVE || state == GameState.FROZEN) {
-                    toScreen(screenState());
-                }
+                // The projector's phase bar follows the clock from SCREEN_STATE's phase starts (FR-023), so nothing is
+                // sent here. TODO(US-41): the feed's PHASE event (API section 9.6)
             }
             case INCIDENT_START -> {
                 // TODO(US-33): the incident starts on every phone (LLD 5.4.5)

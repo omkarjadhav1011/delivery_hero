@@ -11,8 +11,8 @@ const TOPIC = `/topic/games/${GAME}/screen`;
 const search = vi.hoisted(() => ({ params: new URLSearchParams() }));
 vi.mock("next/navigation", () => ({ useSearchParams: () => search.params }));
 
-// A stand-in for the library's client. It has no way to send, as the real wrapper has none for the projector
-// (DEC-140): the projector only connects, subscribes and sends time-sync requests.
+// A stand-in for the library's client. The projector only connects, subscribes and sends time-sync requests (DEC-140,
+// LD-02); `published` records what it sends.
 function fakeClient() {
   let config: StompConfig | undefined;
   const subscribed: string[] = [];
