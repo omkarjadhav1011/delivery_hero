@@ -1,6 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test as base, type APIRequestContext, type Page } from "@playwright/test";
+import {
+  expect,
+  test as base,
+  type APIRequestContext,
+  type APIResponse,
+  type Page,
+} from "@playwright/test";
 import { copy } from "../../src/copy";
+import type { GameView, HostActionRequest, RunPlanSummary } from "../../src/types/dto";
 
 // Shared fixtures for every end-to-end spec (document 15, section 9):
 // - the outside-request blocker fails a test on any request to another site (X-07, NFR-24);
@@ -93,16 +100,79 @@ export const test = base.extend<Fixtures>({
   },
 });
 
-/** The join code of the S0 game (DS-02). */
-export const S0_GAME_CODE = "K7PQ2M";
+/** The run plan the specs play until DS-03 exists (DI-24, S2-09). */
+export const QUICK_PLAN = "quick-3min";
+
+/** The CSRF token the last response set, for the next state-changing request (document 11, section 5.2). */
+async function csrfHeader(request: APIRequestContext): Promise<Record<string, string>> {
+  const cookies = (await request.storageState()).cookies;
+  const token = cookies.find((cookie) => cookie.name === "XSRF-TOKEN")?.value;
+  return token === undefined ? {} : { "X-XSRF-TOKEN": token };
+}
+
+/** Logs the request context in as the admin, through the same endpoints as A-01 (document 11, section 7.3). */
+export async function adminApi(request: APIRequestContext): Promise<APIRequestContext> {
+  await request.get("/api/admin/session");
+  const login = await request.post("/api/admin/login", {
+    form: { username: "admin", password: adminPassword },
+    headers: await csrfHeader(request),
+  });
+  expect(login.ok(), "the admin login with the e2e password").toBe(true);
+  // The session check hands out the token for the new session
+  await request.get("/api/admin/session");
+  return request;
+}
+
+/** Sends a host action as the logged-in admin (document 11, section 7.8). */
+export async function hostAction(
+  request: APIRequestContext,
+  gameId: string,
+  body: HostActionRequest,
+): Promise<APIResponse> {
+  return request.post(`/api/admin/games/${gameId}/actions`, {
+    data: body,
+    headers: await csrfHeader(request),
+  });
+}
+
+/** The open game, or null (document 11, section 7.7). */
+export async function currentGame(request: APIRequestContext): Promise<GameView | null> {
+  const response = await request.get("/api/admin/games/current");
+  return response.status() === 204 ? null : ((await response.json()) as GameView);
+}
 
 /**
- * Opens a fresh game in LOBBY with code K7PQ2M through the e2e profile's endpoint, discarding any earlier one, so a
- * spec always starts with no players (DI-08, DI-24). TODO(US-59): create the game through the admin panel (S1-04 T6).
+ * Cancels the open game, if there is one, so the spec can create its own: only one game is open at a time (DEC-101).
+ * A game in Results can't be cancelled, and closing it is US-65 (S2-04).
  */
-export async function openS0Game(request: APIRequestContext): Promise<void> {
-  const response = await request.post("/api/test/s0-game");
-  expect(response.status(), "the backend runs with DH_PROFILE=e2e").toBe(201);
+export async function cancelOpenGame(request: APIRequestContext): Promise<void> {
+  const open = await currentGame(request);
+  if (open === null) {
+    return;
+  }
+  const cancelled = await hostAction(request, open.id, { action: "CANCEL", confirm: true });
+  expect(cancelled.status(), `cancelling the open game in ${open.state}`).toBe(200);
+}
+
+/**
+ * Creates a game from the Quick 3-minute plan through the admin API, after cancelling any open one, and opens its
+ * lobby, so a spec always starts with an empty lobby (DI-24). Returns the game view.
+ */
+export async function openGameInLobby(request: APIRequestContext): Promise<GameView> {
+  await adminApi(request);
+  await cancelOpenGame(request);
+  const plans = (await (await request.get("/api/admin/run-plans")).json()) as RunPlanSummary[];
+  const plan = plans.find((candidate) => candidate.key === QUICK_PLAN);
+  expect(plan, "the task pool is loaded (Setup Guide, section 10.4)").toBeDefined();
+  const created = await request.post("/api/admin/games", {
+    data: { runPlanId: plan?.id },
+    headers: await csrfHeader(request),
+  });
+  expect(created.status(), "creating the game").toBe(201);
+  const game = (await created.json()) as GameView;
+  const opened = await hostAction(request, game.id, { action: "OPEN_LOBBY" });
+  expect(opened.status(), "opening the lobby").toBe(200);
+  return { ...game, state: "LOBBY" };
 }
 
 /**

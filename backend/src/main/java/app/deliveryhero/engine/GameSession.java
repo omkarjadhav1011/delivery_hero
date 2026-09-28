@@ -464,7 +464,7 @@ public final class GameSession {
 
     /**
      * Starts the projector and admin batches, every {@code dh.broadcast.batch-interval} from LOBBY to RESULTS (LLD
-     * section 5.4.2). Also for a session created already open, such as the e2e profile's game.
+     * section 5.4.2). Also for a session created already open, as tests create them.
      */
     void startBatches() {
         timers.schedule(id, TimerKey.of(TimerType.FLUSH), clock.instant().plus(batchInterval));

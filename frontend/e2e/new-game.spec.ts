@@ -1,12 +1,21 @@
 import { copy } from "../src/copy";
-import { expect, expectNoAxeViolations, loginAsAdmin, test } from "./fixtures";
+import {
+  adminApi,
+  cancelOpenGame,
+  expect,
+  expectNoAxeViolations,
+  loginAsAdmin,
+  test,
+} from "./fixtures";
 
-// A-08 New game (S1-04 T5): the screen's axe check. Creating a game is E2E-03 `host-controls` (S1-07), which cancels
-// what it creates; this spec creates nothing, so the other specs keep the one open game slot (DEC-101).
+// A-08 New game (S1-04 T5): the screen's axe check, with no game open. Creating a game is E2E-03 `host-controls`.
 
 test("A-08 New game lists the seed's run plans as ready, with no axe violations", async ({
   page,
+  request,
 }) => {
+  // Another spec's game would show A-09 instead of the form (DEC-101)
+  await cancelOpenGame(await adminApi(request));
   await loginAsAdmin(page);
   await page.goto("/admin/games/");
 

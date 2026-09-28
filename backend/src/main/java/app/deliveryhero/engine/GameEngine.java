@@ -177,8 +177,8 @@ public class GameEngine {
     }
 
     /**
-     * Drops a session without a message: its timers stop, its tokens stop working and its thread ends. For shutdown,
-     * and for the e2e profile replacing its game.
+     * Drops a session without a message: its timers stop, its tokens stop working and its thread ends. For shutdown
+     * and tests.
      */
     public void drop(UUID gameId) {
         GameSession session = sessions.remove(gameId);
