@@ -249,7 +249,7 @@ IDs: 1418. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | AC-US37-02 | AC-US | Build | S1-06 T2 | Tested | TC-US37-02: Integration, `StompConnectionIT` |
 | AC-US37-03 | AC-US | Build | S1-06 T3, S1-06 T6 | Tested | TC-US37-03: Integration, `StompConnectionIT` |
 | AC-US37-04 | AC-US | Build | S1-06 T4, S1-06 T6 | Tested | TC-US37-04: Integration, `StompConnectionIT` |
-| AC-US38-01 | AC-US | Build | S1-06 T8 | In progress | TC-US38-01: End-to-end, `join-and-lobby` |
+| AC-US38-01 | AC-US | Build | S1-06 T8 | Implemented | TC-US38-01: End-to-end, `join-and-lobby` |
 | AC-US38-02 | AC-US | Build | S1-06 T5, S1-06 T7 | Tested | TC-US38-02: Frontend, `LobbyView.test.tsx` |
 | AC-US39-01 | AC-US | Build | S2-01 T1, S2-01 T6, S2-01 T9, S2-10 T9 | Planned | TC-US39-01: Unit, `RankingServiceTest` |
 | AC-US39-02 | AC-US | Build | S2-01 T1 | Planned | TC-US39-02: Unit, `RankingServiceTest` |
@@ -1229,7 +1229,7 @@ IDs: 1418. Subplans: 67. Gaps: 0. Citation and plan problems: 0.
 | TC-US37-02 | TC-US | Covered by | AC-US37-02 | Tested |  |
 | TC-US37-03 | TC-US | Covered by | AC-US37-03 | Tested |  |
 | TC-US37-04 | TC-US | Covered by | AC-US37-04 | Tested |  |
-| TC-US38-01 | TC-US | Covered by | AC-US38-01 | In progress |  |
+| TC-US38-01 | TC-US | Covered by | AC-US38-01 | Implemented |  |
 | TC-US38-02 | TC-US | Covered by | AC-US38-02 | Tested |  |
 | TC-US39-01 | TC-US | Covered by | AC-US39-01 | Planned |  |
 | TC-US39-02 | TC-US | Covered by | AC-US39-02 | Planned |  |

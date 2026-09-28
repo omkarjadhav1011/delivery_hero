@@ -150,3 +150,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch fix/countdown-live-test, commits 3673981 to 25b698b.
 - Completed: none.
 - Summary: main's red test fixed; PR #33 open; S1-07 merged as PR #32, tracker update pending
+
+## 2026-09-28-1128 S1-07
+
+- Outcome: done. Started 2026-09-28T11:28, ended 2026-09-28T11:39.
+- Branch feat/us-37-projector-e2e, commits 8e5c8a6 to fb40d66.
+- Completed: T10 (pending).
+- Summary: S1-07 verified on the local stack and Done; T10 demonstration recorded
