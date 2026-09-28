@@ -160,7 +160,7 @@ describe("LiveControl", () => {
       `tst-test-04${text.answers(28)}${text.wrong(46)}`,
       `ba-ba-02${text.answers(12)}${text.wrong(46)}${text.voided}`,
     ]);
-    expect(screen.getByRole("button", { name: text.startRound }).disabled).toBe(true);
+    expect(screen.getByRole("button", { name: text.startRound })).toHaveProperty("disabled", true);
   });
 
   it("subscribes to the open game's admin topic over the admin session, with no credentials in the headers", () => {
@@ -207,6 +207,65 @@ describe("LiveControl", () => {
       action: "START_ROUND",
     });
     const actions = screen.getByRole("region", { name: text.actions });
-    expect(within(actions).getByRole("button", { name: text.startRound }).disabled).toBe(true);
+    expect(within(actions).getByRole("button", { name: text.startRound })).toHaveProperty(
+      "disabled",
+      true,
+    );
+  });
+
+  it.each([
+    [
+      "Cancel game",
+      { ...GAME, state: "LIVE", allowedActions: ["VOID_TASK", "CANCEL"] },
+      text.cancelGame,
+      text.confirmCancel,
+      "CANCEL",
+    ],
+    [
+      "Close event",
+      { ...GAME, state: "RESULTS", allowedActions: ["CLOSE"] },
+      text.closeEvent,
+      text.confirmClose,
+      "CLOSE",
+    ],
+  ] as [string, GameView, string, string, HostAction][])(
+    "AC-US60-02 confirmation: %s asks first, sends nothing until confirmed, then sends confirm: true",
+    async (_name, game, label, question, action) => {
+      showGame(game);
+      fetchMock.mockResolvedValue(
+        jsonResponse(200, { state: "CANCELLED", changed: true, allowedActions: [] }),
+      );
+      render(<LiveControl createClient={() => fakeClient().client} />);
+
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      const dialog = screen.getByRole("dialog", { name: question });
+      fireEvent.click(within(dialog).getByRole("button", { name: text.keepGame }));
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(fetchMock).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      fireEvent.click(
+        within(screen.getByRole("dialog", { name: question })).getByRole("button", { name: label }),
+      );
+
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+      const [, init] = fetchMock.mock.calls[0] ?? [];
+      expect(typeof init?.body === "string" ? JSON.parse(init.body) : null).toEqual({
+        action,
+        confirm: true,
+      });
+      expect(screen.queryByRole("dialog")).toBeNull();
+    },
+  );
+
+  it("AC-US60-02 confirmation: closing the dialog with Escape sends nothing", () => {
+    showGame({ ...GAME, state: "LIVE", allowedActions: ["VOID_TASK", "CANCEL"] });
+    render(<LiveControl createClient={() => fakeClient().client} />);
+
+    fireEvent.click(screen.getByRole("button", { name: text.cancelGame }));
+    fireEvent(screen.getByRole("dialog"), new Event("close"));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

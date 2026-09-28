@@ -11,6 +11,7 @@ import { formatRemaining, useCountdown } from "@/time/useCountdown";
 import type { GameState, GameView, HostAction } from "@/types/dto";
 import { isAdminMessage } from "@/types/messages";
 import { ArcadeButton } from "@/ui/ArcadeButton";
+import { Modal } from "@/ui/Modal";
 
 const text = copy.admin.liveControl;
 
@@ -24,6 +25,12 @@ const MAIN_BUTTONS: readonly { action: HostAction; label: string }[] = [
   { action: "END_PRACTICE", label: text.endPractice },
   { action: "START_ROUND", label: text.startRound },
 ];
+
+/** The actions that ask first, with the dialog's question (FR-080, DEC-160). */
+const CONFIRMED: Partial<Record<HostAction, { label: string; question: string }>> = {
+  CANCEL: { label: text.cancelGame, question: text.confirmCancel },
+  CLOSE: { label: text.closeEvent, question: text.confirmClose },
+};
 
 const REVEAL_BUTTONS: readonly { action: HostAction; label: string }[] = [
   { action: "START_REVEAL", label: text.startReveal },
@@ -47,6 +54,7 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
   const actionApplied = useAdminStore((state) => state.actionApplied);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<HostAction | null>(null);
   const remaining = useCountdown(stats?.round?.endsAt ?? null);
 
   useStomp({
@@ -66,11 +74,11 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
   const gameId = game.id;
   const allowed = new Set(game.allowedActions);
 
-  async function perform(action: HostAction) {
+  async function perform(action: HostAction, confirm = false) {
     setBusy(true);
     setNotice(null);
     try {
-      actionApplied(await performHostAction(gameId, { action }));
+      actionApplied(await performHostAction(gameId, confirm ? { action, confirm } : { action }));
     } catch {
       setNotice(text.failed);
     } finally {
@@ -84,7 +92,10 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
         key={action}
         variant={variant}
         disabled={busy || !allowed.has(action)}
-        onClick={() => void perform(action)}
+        // Cancel and Close only open the dialog: nothing is sent until the host confirms (AC-US60-02)
+        onClick={() =>
+          CONFIRMED[action] === undefined ? void perform(action) : setConfirming(action)
+        }
       >
         {label}
       </ArcadeButton>
@@ -119,6 +130,29 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
         {notice}
       </p>
       {stats === null ? null : <LiveStats stats={stats} />}
+      {confirming === null ? null : (
+        <Modal
+          open
+          title={CONFIRMED[confirming]?.question ?? ""}
+          onClose={() => setConfirming(null)}
+        >
+          <div className="flex flex-wrap gap-3">
+            <ArcadeButton
+              variant="danger"
+              disabled={busy}
+              onClick={() => {
+                setConfirming(null);
+                void perform(confirming, true);
+              }}
+            >
+              {CONFIRMED[confirming]?.label}
+            </ArcadeButton>
+            <ArcadeButton variant="secondary" onClick={() => setConfirming(null)}>
+              {text.keepGame}
+            </ArcadeButton>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
