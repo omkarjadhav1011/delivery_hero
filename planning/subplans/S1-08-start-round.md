@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In progress |
+| Status | In review |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-13, US-14, US-21 |
 | Priority and points | Must, 8 |
@@ -104,3 +104,4 @@ Document 13, section 10, plus: every US-13, US-14 and US-21 criterion passes at 
 - 2026-09-28: T9 done. `golden-path` step 2 on the Quick 3-minute plan: a phone joins, the host starts the round, the phone and the projector count down (axe on both), the projector's phase bar (Planning current) and a ticking m:ss clock replace the countdown within 7 s, and the phone leaves the countdown by itself. E2E on the local stack with `DH_PROFILE=e2e`: `golden-path` 1 + 3 repeats, full suite 44 of 44. This machine's Windows PostgreSQL and Tomcat services hold ports 5432 and 8080, so the stack ran with `DH_LOCAL_DB_PORT=5433` and `DH_LOCAL_PORT=8090`, `E2E_BASE_URL=http://localhost:8090`.
 - 2026-09-28: Review fixes. security-reviewer: an empty time-sync body logged the session ID at ERROR (confirmed by a new `StompConnectionIT` test), now dropped by the malformed-message handler; the rate limit went to Q-12. spec-guardian: removed the SCREEN_STATE resend on each phase change, since API 8.6 doesn't call for it and the phase bar follows `round.phases`; document gaps are DI-89 to DI-92. backend-reviewer: AC IDs corrected on two tests; `phaseAt` stays as T3 specifies, though only tests call it for now. frontend-reviewer: the brand is S-05's heading instead of a hidden duplicate, and a stale test comment is fixed. Backend verify: 438 unit and 144 integration tests; frontend: 220 of 220, lint, typecheck and format clean.
 - 2026-09-28: Session actuals: 11:57 to about 13:05, about 70 minutes; about 250k tokens in the main session plus about 267k in four reviewer subagents.
+- 2026-09-28: Pull request #35 opened; In review. It is based on #34 and will be rebased onto `main` after #34 merges.
