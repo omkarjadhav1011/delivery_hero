@@ -62,6 +62,7 @@ import app.deliveryhero.lifecycle.GameStateRecorder;
 import app.deliveryhero.support.ManualScheduler;
 import app.deliveryhero.support.MutableClock;
 import app.deliveryhero.support.TestData;
+import java.lang.reflect.RecordComponent;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -88,9 +89,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import tools.jackson.databind.json.JsonMapper;
 
 /** The game session on its own thread, driven directly with a test clock and scheduler (document 15, section 8.1). */
 class GameSessionTest {
@@ -403,13 +406,92 @@ class GameSessionTest {
     void incidentMomentInNoMessage() throws Exception {
         startRound(roundOf(300, INCIDENT));
         after(Duration.ofSeconds(305));
+        // The highest generator puts the incident at 3:54, the latest second of its range
+        String incidentAt = String.valueOf(ROUND_START.plusSeconds(234).toEpochMilli());
 
         assertThat(sentToPhones())
                 .isNotEmpty()
                 .allSatisfy(message -> assertThat(message).isInstanceOfSatisfying(GameStateMessage.class, state -> {
-                    assertThat(state.round()).isNull();
                     assertThat(state.incident()).isNull();
+                    assertThat(JSON.writeValueAsString(state)).doesNotContain(incidentAt);
                 }));
+        assertThat(sentToScreen())
+                .isNotEmpty()
+                .allSatisfy(
+                        message -> assertThat(JSON.writeValueAsString(message)).doesNotContain(incidentAt));
+        assertThat(GameStateMessage.Round.class.getRecordComponents())
+                .extracting(RecordComponent::getName)
+                .containsExactly("startsAt", "endsAt", "releaseAt", "freezeAt");
+        assertThat(ScreenStateMessage.Round.class.getRecordComponents())
+                .extracting(RecordComponent::getName)
+                .containsExactly("startsAt", "endsAt", "phases", "releaseAt", "freezeAt");
+    }
+
+    /** The round of {@link #startRound} starts 5 seconds after the clock's first moment (DEC-93). */
+    private static final Instant ROUND_START = Instant.parse("2026-10-21T10:00:05Z");
+
+    private static final JsonMapper JSON = JsonMapper.builder().build();
+
+    @Test
+    @DisplayName("AC-US13-01 countdown: every phone's GAME_STATE carries the round as server epoch ms, starting 5 s"
+            + " after the press, with Release and the freeze (from dh.game.freeze) as SRS 3.2 sets them")
+    void countdownGameStateCarriesTheRound() throws Exception {
+        startRound(roundOf(300, INCIDENT));
+        long start = ROUND_START.toEpochMilli();
+
+        assertThat(sentToPhones()).singleElement().isInstanceOfSatisfying(GameStateMessage.class, state -> {
+            assertThat(state.state()).isEqualTo(GameState.COUNTDOWN);
+            assertThat(state.round())
+                    .isEqualTo(new GameStateMessage.Round(start, start + 300_000, start + 240_000, start + 270_000));
+        });
+    }
+
+    @Test
+    @DisplayName("AC-US13-01 countdown: the projector's SCREEN_STATE carries the round with the four phase starts"
+            + " (DEC-15), in server epoch ms")
+    void countdownScreenStateCarriesThePhases() throws Exception {
+        startRound(roundOf(300, INCIDENT));
+        long start = ROUND_START.toEpochMilli();
+
+        assertThat(sentToScreen().getLast()).isInstanceOfSatisfying(ScreenStateMessage.class, screen -> {
+            assertThat(screen.state()).isEqualTo(GameState.COUNTDOWN);
+            assertThat(screen.round())
+                    .isEqualTo(new ScreenStateMessage.Round(
+                            start,
+                            start + 300_000,
+                            List.of(
+                                    new ScreenStateMessage.PhaseStart(Phase.PLANNING, start),
+                                    new ScreenStateMessage.PhaseStart(Phase.DEVELOPMENT, start + 60_000),
+                                    new ScreenStateMessage.PhaseStart(Phase.TESTING, start + 180_000),
+                                    new ScreenStateMessage.PhaseStart(Phase.RELEASE, start + 240_000)),
+                            start + 240_000,
+                            start + 270_000));
+        });
+    }
+
+    @Test
+    @DisplayName("Before the countdown the round is null, and a phone that subscribes during it gets the round too")
+    void roundOnSubscribe() throws Exception {
+        UUID priya = ((JoinResult.Joined) join("Priya")).playerId();
+        session.enqueue(new ClientSubscribed("c1", ClientRole.PLAYER, priya, TestData.GAME_ID));
+        host(StartRound::new);
+        session.enqueue(new ClientSubscribed("c2", ClientRole.PLAYER, priya, TestData.GAME_ID));
+        status();
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, times(2))
+                .convertAndSendToUser(
+                        anyString(), anyString(), sent.capture(), ArgumentMatchers.<Map<String, Object>>any());
+        assertThat(sent.getAllValues())
+                .extracting(message -> ((GameStateMessage) message).round() != null)
+                .containsExactly(false, true);
+    }
+
+    /** Everything sent to the projector so far, in order. */
+    private List<Object> sentToScreen() {
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, atLeast(0)).convertAndSend(eq(SCREEN), sent.capture());
+        return sent.getAllValues();
     }
 
     @Test

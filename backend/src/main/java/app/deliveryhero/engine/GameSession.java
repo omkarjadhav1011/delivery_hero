@@ -376,7 +376,8 @@ public final class GameSession {
         state = next;
         recorder.record(id, next);
         long now = clock.millis();
-        toEveryPlayer(player -> GameStateMessage.initial(now, id, state, player.id(), player.name()));
+        GameStateMessage.@Nullable Round round = playerRound();
+        toEveryPlayer(player -> GameStateMessage.initial(now, id, state, round, player.id(), player.name()));
         toScreen(screenState());
     }
 
@@ -447,7 +448,42 @@ public final class GameSession {
                 .map(player -> new ScreenPlayer(
                         player.id(), Names.initials(player.name()), player.name(), PlayerStatus.ONLINE))
                 .toList();
-        return ScreenStateMessage.withoutRound(clock.millis(), id, state, test, joinUrl, newestFirst);
+        return ScreenStateMessage.of(clock.millis(), id, state, test, joinUrl, newestFirst, screenRound());
+    }
+
+    /** The round as a phone sees it, or null before the countdown; never the incident moment (FR-043). */
+    private GameStateMessage.@Nullable Round playerRound() {
+        RoundTimeline round = timeline;
+        return round == null
+                ? null
+                : new GameStateMessage.Round(
+                        round.start().toEpochMilli(),
+                        round.end().toEpochMilli(),
+                        millisAt(round, round.testingEnd()),
+                        millisAt(round, round.freezeAtSec()));
+    }
+
+    /** The round as the projector sees it, with each phase's start for the phase bar (FR-023, DEC-15). */
+    private ScreenStateMessage.@Nullable Round screenRound() {
+        RoundTimeline round = timeline;
+        if (round == null) {
+            return null;
+        }
+        List<ScreenStateMessage.PhaseStart> phases = List.of(
+                new ScreenStateMessage.PhaseStart(Phase.PLANNING, millisAt(round, 0)),
+                new ScreenStateMessage.PhaseStart(Phase.DEVELOPMENT, millisAt(round, round.planningEnd())),
+                new ScreenStateMessage.PhaseStart(Phase.TESTING, millisAt(round, round.developmentEnd())),
+                new ScreenStateMessage.PhaseStart(Phase.RELEASE, millisAt(round, round.testingEnd())));
+        return new ScreenStateMessage.Round(
+                round.start().toEpochMilli(),
+                round.end().toEpochMilli(),
+                phases,
+                millisAt(round, round.testingEnd()),
+                millisAt(round, round.freezeAtSec()));
+    }
+
+    private static long millisAt(RoundTimeline round, int second) {
+        return round.at(second).toEpochMilli();
     }
 
     /**
@@ -529,7 +565,8 @@ public final class GameSession {
         if (player == null) {
             return;
         }
-        GameStateMessage message = GameStateMessage.initial(clock.millis(), id, state, player.id(), player.name());
+        GameStateMessage message =
+                GameStateMessage.initial(clock.millis(), id, state, playerRound(), player.id(), player.name());
         broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
     }
 

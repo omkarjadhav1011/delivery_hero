@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * A player's full state, sent on subscribe and on every state change (API section 8.5, DEC-146). The round, task,
- * lockout, incident and practice fields stay null until their stories fill them.
+ * lockout, incident and practice fields stay null until their stories fill them; the round is null before the countdown.
  */
 public record GameStateMessage(
         String type,
@@ -14,8 +14,7 @@ public record GameStateMessage(
         UUID gameId,
         GameState state,
         You you,
-        // TODO(US-13): {startsAt, endsAt, releaseAt, freezeAt} from the countdown on
-        @Nullable Object round,
+        @Nullable Round round,
         // TODO(US-16): {view, deadline} of the current task
         @Nullable Object task,
         // TODO(US-28): the lockout's end, in epoch ms
@@ -35,15 +34,22 @@ public record GameStateMessage(
         }
     }
 
+    /**
+     * The round's moments as epoch milliseconds of server time (API section 8.5, DEC-129). The incident moment is never
+     * one of them (FR-043).
+     */
+    public record Round(long startsAt, long endsAt, long releaseAt, long freezeAt) {}
+
     /** A player's state before anything has happened to them: no points, no streak, no task. */
-    public static GameStateMessage initial(long serverTime, UUID gameId, GameState state, UUID playerId, String name) {
+    public static GameStateMessage initial(
+            long serverTime, UUID gameId, GameState state, @Nullable Round round, UUID playerId, String name) {
         return new GameStateMessage(
                 "GAME_STATE",
                 serverTime,
                 gameId,
                 state,
                 new You(playerId, name, 0, 0, false, false),
-                null,
+                round,
                 null,
                 null,
                 null,
