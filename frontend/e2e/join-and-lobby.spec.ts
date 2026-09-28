@@ -27,9 +27,9 @@ async function openLobby(request: Parameters<typeof hostAction>[0]): Promise<voi
   expect(opened.status(), "opening the lobby").toBe(200);
 }
 
-/** The projector's list of joined names, newest first. */
+/** The projector's list of joined names, newest first: the lobby view's only list. */
 function projectorNames(screen: Page) {
-  return screen.getByRole("listitem");
+  return screen.getByRole("list").getByRole("listitem");
 }
 
 test('AC-US38-01 E2E-01 step 2: the admin opens the lobby, and the projector shows the QR code, the URL, "Open this link in Chrome" and a count of 0', async ({
@@ -38,17 +38,16 @@ test('AC-US38-01 E2E-01 step 2: the admin opens the lobby, and the projector sho
 }) => {
   await screen.goto(projectorPath(game));
   await expect(screen.getByText(copy.screen.gettingReady, { exact: true })).toBeVisible();
+  const qr = screen.getByRole("img", { name: copy.screen.qrLabel });
+  await expect(qr).toHaveCount(0);
 
   await openLobby(request);
 
-  const qr = screen.getByRole("img", { name: copy.screen.qrLabel });
   await expect(qr).toBeVisible();
   const box = await qr.boundingBox();
   expect(box?.width ?? 0).toBeGreaterThanOrEqual(400);
   expect(box?.height ?? 0).toBeGreaterThanOrEqual(400);
-  await expect(
-    screen.getByText(new URL(joinLink, game.projectorUrl).href, { exact: true }),
-  ).toBeVisible();
+  await expect(screen.getByText(game.joinUrl, { exact: true })).toBeVisible();
   await expect(screen.getByText(copy.screen.openInChrome, { exact: true })).toBeVisible();
   await expect(screen.getByText(copy.screen.joined(0), { exact: true })).toBeVisible();
   await expect(projectorNames(screen)).toHaveCount(0);
@@ -77,7 +76,7 @@ test('AC-US01-01 AC-US04-01 E2E-01 step 3: phone A sees the privacy note, joins 
   await expectNoAxeViolations(page);
 });
 
-test('AC-US02-01 E2E-01 step 4: phone B types extra spaces around and inside "Priya S", joins as "Priya S", and the projector lists it before "Priya"', async ({
+test('AC-US02-01 AC-US38-02 E2E-01 step 4: phone B types extra spaces around and inside "Priya S", joins as "Priya S", and the projector lists it before "Priya"', async ({
   page: screen,
   request,
   newPhone,
