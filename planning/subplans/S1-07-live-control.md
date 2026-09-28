@@ -96,6 +96,8 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 
 ## Progress log
 
+- 2026-09-28: Session 2026-09-27-1319 actuals: 11 tasks and the review fixes in one session, about 430k tokens; wall time not measured (the session ran across midnight). S1-07 stays In progress: T10 waits for the merge, and no pull request is open yet.
+
 - 2026-09-28: Review fixes. Security: the e2e fixtures refuse to cancel a non-test game away from localhost, and the row writer never moves RESULTS to CANCELLED. Backend: a timed-out action and an action on a just-ended game are 409 `NOT_ALLOWED_NOW` so the panel refreshes, and one admin-topic check. Frontend: the dialog stays mounted so closing it returns focus, "Copied!" is announced, the clock shows only in play, the state names and "Keep the event open" are in `copy.ts`, and `useCountdown` reads the time again for a new deadline. Spec: DI-85 to DI-88 added, DI-83 and DI-84 extended. Checks: `./mvnw -B verify` passed, frontend checks and 198 tests passed, Playwright 42 passed, markdownlint and the seed check passed; shellcheck, actionlint and gitleaks aren't installed here.
 
 - 2026-09-28: T8 done: `host-controls` covers E2E-03 steps 1 to 5 with admins A and B, a stale tab of B's whose WebSocket is blocked, and two phones, with axe checks on A-09. Close is checked only by `LiveControl.test.tsx`, since no game reaches Results yet. The answer counts stay 0 until S1-12 and S1-13: extend step 5 then. The whole suite passed twice in a row (42 specs), so specs clean up after themselves.
