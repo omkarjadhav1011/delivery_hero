@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-60 |
 | Priority and points | Must, 5 |
@@ -59,7 +59,7 @@ The host runs the game from one live control screen that offers exactly the acti
 - [ ] T8 `host-controls` spec, E2E-03 steps 1 to 5 with two admin contexts and two phones, the game created through `POST /api/admin/games` from the Quick 3-minute plan (DI-24): another game is refused with a link to the open one; Cancel and Close ask first; a double `START_ROUND` starts the round once; B's stale "Start practice" changes nothing and B refreshes; the live screen shows state, time remaining, players and incident status and lists the scored tasks; steps 6 (void) and 7 (cancel) are added by S2-23, in `frontend/e2e`, test first: the spec, source: E2E-03, AC-US60-02, AC-US60-03, AC-US60-04, AC-US60-05, AC-US59-03 (shared), DS-03 (shared)
 - [ ] T9 Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, then open the lobby with `OPEN_LOBBY` through T2 and delete `E2eGameController`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared) (from S1-04 T6, PC-09)
 - [ ] T10 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the lobby, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59 (shared), FR-079 (shared), E2E-01 (shared) (from S1-04 T7, PC-09)
-- [ ] T11 `GameStateRecorder` writes the new state whenever the row is in an earlier, unfinished state (CREATED to RESULTS, earlier in `GameState`'s order), not only the exact expected one, so one failed write no longer leaves the row behind for the rest of the game; a finished row (CLOSED, CANCELLED) is never overwritten, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderIT` a failed CREATED to LOBBY write followed by LOBBY to COUNTDOWN leaves the row in COUNTDOWN, and a CANCELLED row stays CANCELLED, source: LD-05 (shared), FR-090 (shared), LLD 5.8, DB-05 (S1-05 security review, PC-10)
+- [x] T11 `GameStateRecorder` writes the new state whenever the row is in an earlier, unfinished state (CREATED to RESULTS, earlier in `GameState`'s order), not only the exact expected one, so one failed write no longer leaves the row behind for the rest of the game; a finished row (CLOSED, CANCELLED) is never overwritten, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderIT` a failed CREATED to LOBBY write followed by LOBBY to COUNTDOWN leaves the row in COUNTDOWN, and a CANCELLED row stays CANCELLED, source: LD-05 (shared), FR-090 (shared), LLD 5.8, DB-05 (S1-05 security review, PC-10)
 
 ## Owner actions
 
@@ -92,6 +92,8 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 - Pitfalls: the engine answers a wrong-state command with `ActionResult.unchanged`, and REST turns it into 409 `NOT_ALLOWED_NOW`; `LIVE_STATS` shows incident status, never its moment; admin requests carry `X-XSRF-TOKEN`; no fixed sleeps for the double press (fire both requests together); `Date.now` only in `src/time`.
 
 ## Progress log
+
+- 2026-09-28: T11 done: `JdbcGameRowWriter` moves the row from any earlier unfinished state (and PRACTICE back to LOBBY), never from CLOSED or CANCELLED; `record` no longer takes the expected state. `GameStateRecorderIT` (4), `GameStateRecorderTest` and `GameLifecycleIT` pass. DI-83 records document 10's `WHERE state = :expected` wording.
 
 - 2026-09-28: T1 done: `HostRules` holds SRS 3.1's actions per state (`HostAction`), less "Start practice" without practice tasks and "Start round" without players; the session answers `GetHostView` and puts the actions in every `ActionResult`, and the game view takes the session's state and actions (the row's rules for a game without a session). `HostActionsIT` AC-US60-01 over every state, AC-US13-02, `GameSessionTest` AC-US60-01 and AC-US60-04 pass.
 

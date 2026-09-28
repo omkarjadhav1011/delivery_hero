@@ -394,8 +394,8 @@ class GameLifecycleIT {
     void recordsStateChanges() {
         GameDetails game = lifecycle.create(planId("default-5min"), false, 0);
 
-        recorder.record(game.id(), GameState.CREATED, GameState.LOBBY);
-        recorder.record(game.id(), GameState.CREATED, GameState.LIVE); // refused: the row is in LOBBY by then
+        recorder.record(game.id(), GameState.LOBBY);
+        recorder.record(game.id(), GameState.LOBBY); // refused: the row is in LOBBY already
         recorder.awaitWrites();
         assertThat(jdbc.sql("SELECT state FROM games").query(String.class).single())
                 .isEqualTo("LOBBY");
@@ -404,7 +404,7 @@ class GameLifecycleIT {
                         .single())
                 .isTrue();
 
-        recorder.record(game.id(), GameState.LOBBY, GameState.CANCELLED);
+        recorder.record(game.id(), GameState.CANCELLED);
         recorder.awaitWrites();
         assertThat(jdbc.sql("SELECT projector_key IS NULL AND cancelled_at IS NOT NULL FROM games")
                         .query(Boolean.class)
@@ -452,7 +452,7 @@ class GameLifecycleIT {
 
     /** Cancels a game as the host's Cancel will (US-64): its row, then its session. */
     private void cancel(GameDetails game) {
-        recorder.record(game.id(), game.state(), GameState.CANCELLED);
+        recorder.record(game.id(), GameState.CANCELLED);
         recorder.awaitWrites();
         engine.drop(game.id());
     }

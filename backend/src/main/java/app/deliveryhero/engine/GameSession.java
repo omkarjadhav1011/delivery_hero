@@ -358,9 +358,8 @@ public final class GameSession {
      * 8.5, DEC-146).
      */
     private void changeState(GameState next) {
-        GameState previous = state;
         state = next;
-        recorder.record(id, previous, next);
+        recorder.record(id, next);
         long now = clock.millis();
         toEveryPlayer(player -> GameStateMessage.initial(now, id, state, player.id(), player.name()));
         toScreen(screenState());

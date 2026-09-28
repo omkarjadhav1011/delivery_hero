@@ -420,7 +420,7 @@ class GameSessionTest {
                 .extracting(ActionResult::state, ActionResult::changed)
                 .containsExactly(GameState.LOBBY, true);
 
-        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        verify(recorder).record(TestData.GAME_ID, GameState.LOBBY);
         assertThat(scheduler.pending()).isEqualTo(1);
         assertThat(after(Duration.ofMillis(500))).isEqualTo(GameState.LOBBY);
         assertThat(scheduler.pending()).as("FLUSH sets itself again").isEqualTo(1);
@@ -433,10 +433,10 @@ class GameSessionTest {
         after(Duration.ofSeconds(305));
 
         InOrder inOrder = inOrder(recorder);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LOBBY, GameState.COUNTDOWN);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.COUNTDOWN, GameState.LIVE);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LIVE, GameState.FROZEN);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.FROZEN, GameState.ENDED);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.COUNTDOWN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LIVE);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.FROZEN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.ENDED);
         assertThat(sentToPhones())
                 .extracting(message -> ((GameStateMessage) message).state())
                 .containsExactly(GameState.COUNTDOWN, GameState.LIVE, GameState.FROZEN, GameState.ENDED);
@@ -553,7 +553,7 @@ class GameSessionTest {
                 .extracting(ActionResult::state, ActionResult::changed)
                 .containsExactly(GameState.LOBBY, true);
 
-        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        verify(recorder).record(TestData.GAME_ID, GameState.LOBBY);
         assertThat(status().state()).isEqualTo(GameState.LOBBY);
     }
 

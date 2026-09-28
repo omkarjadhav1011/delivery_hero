@@ -38,11 +38,11 @@ public class GameStateRecorder {
         this.clock = clock;
     }
 
-    /** Queues the change from {@code expected} to {@code next}, stamped with the current time. Never blocks. */
-    public void record(UUID gameId, GameState expected, GameState next) {
+    /** Queues the change to {@code next}, stamped with the current time. Never blocks. */
+    public void record(UUID gameId, GameState next) {
         Instant at = clock.instant();
         try {
-            thread.execute(() -> write(gameId, expected, next, at));
+            thread.execute(() -> write(gameId, next, at));
         } catch (RejectedExecutionException e) {
             log.atWarn()
                     .addKeyValue("event", "STATE_NOT_RECORDED")
@@ -52,9 +52,9 @@ public class GameStateRecorder {
         }
     }
 
-    private void write(UUID gameId, GameState expected, GameState next, Instant at) {
+    private void write(UUID gameId, GameState next, Instant at) {
         try {
-            if (writer.recordState(gameId, expected, next, at)) {
+            if (writer.recordState(gameId, next, at)) {
                 log.atInfo()
                         .addKeyValue("event", "STATE_CHANGED")
                         .addKeyValue("gameId", gameId)
@@ -65,7 +65,7 @@ public class GameStateRecorder {
                         .addKeyValue("event", "STATE_NOT_RECORDED")
                         .addKeyValue("gameId", gameId)
                         .addKeyValue("state", next)
-                        .log("Game row wasn't in {}, so it stays unchanged", expected);
+                        .log("Game row was already at or past {}, or finished, so it stays unchanged", next);
             }
         } catch (RuntimeException e) {
             log.atError()
