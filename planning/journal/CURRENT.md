@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-07 |
 | Branch | main |
 | Start commit | 47fd51c |
-| Last commit | 234c508 |
-| Step | test-first |
-| Task | T4 |
+| Last commit | aaed0da |
+| Step | implement |
+| Task |  |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T09:21 |
-| Next action | adminStore.test.ts |
+| Updated | 2026-09-28T09:23 |
+| Next action | T5: LiveControl.test.tsx buttons per state and stats rows |
 
 ## Completed tasks
 
@@ -23,6 +23,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T11 (be36c67)
 - T2 (385f996)
 - T3 (234c508)
+- T4 (aaed0da)
 
 ## Pending approvals
 

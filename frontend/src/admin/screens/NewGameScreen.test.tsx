@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { copy } from "@/copy";
 import type { GameView, RunPlanSummary } from "@/types/dto";
+import { initialAdminState, useAdminStore } from "@/admin/store";
 import { NewGameScreen } from "./NewGameScreen";
 
 const text = copy.admin.newGameScreen;
@@ -10,6 +11,9 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/admin/games/",
   useRouter: () => ({ replace: vi.fn() }),
 }));
+
+// The live control screen's connection is LiveControl.test.tsx's concern
+vi.mock("@/realtime/useStomp", () => ({ useStomp: () => "online" }));
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -95,6 +99,7 @@ describe("NewGameScreen", () => {
   const noGame = () => new Response(null, { status: 204 });
 
   beforeEach(() => {
+    useAdminStore.setState(initialAdminState());
     vi.stubGlobal("fetch", fetchMock);
   });
 

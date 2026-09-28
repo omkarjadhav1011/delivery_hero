@@ -104,6 +104,44 @@ export const copy = {
       openProjector: "Open projector",
       qrLabel: (code: string) => `QR code to join game ${code}`,
     },
+    liveControl: {
+      // A-09. The two confirmation questions are in the copy deck; the labels follow the wireframe and the rest the
+      // deck's style, listed for the owner's review before the content freeze (DI-21, DI-84)
+      header: (code: string, plan: string, state: string) => `Game ${code} · ${plan} · ${state}`,
+      resultsLost: "Results (live details lost after restart)",
+      timeLeft: (clock: string) => `${clock} left`,
+      actions: "Host actions",
+      openLobby: "Open lobby",
+      startPractice: "Start practice",
+      endPractice: "End practice",
+      startRound: "Start round",
+      startReveal: "Start reveal",
+      back: "Back",
+      next: "Next",
+      cancelGame: "Cancel game",
+      closeEvent: "Close event",
+      copy: "Copy",
+      copied: "Copied!",
+      copyJoinLink: "Copy the join link",
+      copyProjectorLink: "Copy the projector link",
+      players: (joined: number, connected: number, done: number) =>
+        `Players ${joined} joined · ${connected} connected · ${done} done`,
+      incident: {
+        NONE: "Incident: none",
+        PENDING: "Incident: pending",
+        ACTIVE: "Incident: active",
+        DONE: "Incident: done",
+      },
+      tasks: "Tasks, most wrong first",
+      noTasks: "No scored tasks yet.",
+      answers: (count: number) => (count === 1 ? "1 answer" : `${count} answers`),
+      wrong: (percent: number) => `${percent}% wrong`,
+      voided: "Voided",
+      confirmCancel: "Cancel this game? All player data will be deleted.",
+      confirmClose: "Close this event? Everything except the top 10 will be deleted.",
+      keepGame: "Keep the game",
+      failed: "That didn't work. Check your connection and try again.",
+    },
     taskLibrary: {
       // A-03. The column and filter labels follow the wireframe; "All", the search label, the plan counts and the
       // empty and failed lines are worded in the deck's style, for the owner's review (DI-21, DI-63)
