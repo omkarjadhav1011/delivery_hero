@@ -162,10 +162,10 @@ export async function cancelOpenGame(request: APIRequestContext): Promise<void> 
 }
 
 /**
- * Creates a game from the Quick 3-minute plan through the admin API, after cancelling any open one, and opens its
- * lobby, so a spec always starts with an empty lobby (DI-24). Returns the game view.
+ * Creates a game from the Quick 3-minute plan through the admin API, after cancelling any open one, and leaves it in
+ * Created (DI-24). Returns the game view.
  */
-export async function openGameInLobby(request: APIRequestContext): Promise<GameView> {
+export async function createGame(request: APIRequestContext): Promise<GameView> {
   await adminApi(request);
   await cancelOpenGame(request);
   const plans = (await (await request.get("/api/admin/run-plans")).json()) as RunPlanSummary[];
@@ -176,7 +176,21 @@ export async function openGameInLobby(request: APIRequestContext): Promise<GameV
     headers: await csrfHeader(request),
   });
   expect(created.status(), "creating the game").toBe(201);
-  const game = (await created.json()) as GameView;
+  return (await created.json()) as GameView;
+}
+
+/** The game's projector page on the site under test, whose address can differ from the link's public host. */
+export function projectorPath(game: GameView): string {
+  const url = new URL(game.projectorUrl);
+  return `${url.pathname}${url.search}`;
+}
+
+/**
+ * Creates a game as {@link createGame} does and opens its lobby, so a spec always starts with an empty lobby. Returns
+ * the game view.
+ */
+export async function openGameInLobby(request: APIRequestContext): Promise<GameView> {
+  const game = await createGame(request);
   const opened = await hostAction(request, game.id, { action: "OPEN_LOBBY" });
   expect(opened.status(), "opening the lobby").toBe(200);
   return { ...game, state: "LOBBY" };

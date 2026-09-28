@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | In review |
+| Status | Done |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-60 |
 | Priority and points | Must, 5 |
@@ -58,7 +58,7 @@ The host runs the game from one live control screen that offers exactly the acti
 - [x] T7 Stale screen: on 409 `NOT_ALLOWED_NOW` the panel takes `currentState`, reloads `GET /api/admin/games/current` and redraws its buttons, with no error banner, in `frontend/src/admin` and `frontend/src/api`, test first: `LiveControl.test.tsx` AC-US60-04 (a Lobby screen sends `START_PRACTICE` after the round started and refreshes to Countdown), source: AC-US60-04, FR-081, LLD 5.12
 - [x] T8 `host-controls` spec, E2E-03 steps 1 to 5 with two admin contexts and two phones, the game created through `POST /api/admin/games` from the Quick 3-minute plan (DI-24): another game is refused with a link to the open one; Cancel and Close ask first; a double `START_ROUND` starts the round once; B's stale "Start practice" changes nothing and B refreshes; the live screen shows state, time remaining, players and incident status and lists the scored tasks; steps 6 (void) and 7 (cancel) are added by S2-23, in `frontend/e2e`, test first: the spec, source: E2E-03, AC-US60-02, AC-US60-03, AC-US60-04, AC-US60-05, AC-US59-03 (shared), DS-03 (shared)
 - [x] T9 (after T12) Test fixtures create the game through `POST /api/admin/games` from the seed's Quick 3-minute plan (DS-03 comes with S2-09), replacing S0-05's setup, in `frontend/e2e/fixtures`, then open the lobby with `OPEN_LOBBY` through T2 and delete `E2eGameController`, test first: `join-and-lobby` still passes, source: E2E-01 (shared), E2E-03 (shared), DS-03 (shared) (from S1-04 T6, PC-09)
-- [ ] T10 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the lobby, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59 (shared), FR-079 (shared), E2E-01 (shared) (from S1-04 T7, PC-09)
+- [x] T10 Walking-skeleton demonstration on the local stack (DEC-213): after the merge, log in, create a game from the Default 5-minute plan, open the lobby, open the projector URL, join in a browser at phone width and see the lobby count update live; record it in the progress log (H-07 repeats it on production with a real phone), test first: none, source: US-59 (shared), FR-079 (shared), E2E-01 (shared) (from S1-04 T7, PC-09)
 - [x] T11 `GameStateRecorder` writes the new state whenever the row is in an earlier, unfinished state (CREATED to RESULTS, earlier in `GameState`'s order), not only the exact expected one, so one failed write no longer leaves the row behind for the rest of the game; a finished row (CLOSED, CANCELLED) is never overwritten, in `app.deliveryhero.lifecycle`, test first: `GameStateRecorderIT` a failed CREATED to LOBBY write followed by LOBBY to COUNTDOWN leaves the row in COUNTDOWN, and a CANCELLED row stays CANCELLED, source: LD-05 (shared), FR-090 (shared), LLD 5.8, DB-05 (S1-05 security review, PC-10)
 - [x] T12 `GameLifecycleService.cancel(gameId)`: allowed while the session offers `CANCEL` (before RESULTS, DEC-87); in one transaction the row becomes CANCELLED with `cancelled_at` and the projector key cleared; after the commit the projector key is revoked in memory and the session gets `Discard(CANCELLED)`, so phones and the projector get GAME_ENDED; a confirmed `CANCEL` on the host-action endpoint calls it and returns 200 with `changed` true, in `app.deliveryhero.lifecycle`, test first: `HostActionsIT` confirmed CANCEL (the row CANCELLED with no key, `GET /api/admin/games/current` 204, a new game can be created), source: FR-084 (shared), DEC-87 (shared), DI-14 (shared), LLD 5.8 (PC-11)
 
@@ -95,6 +95,10 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 - Pitfalls: the engine answers a wrong-state command with `ActionResult.unchanged`, and REST turns it into 409 `NOT_ALLOWED_NOW`; `LIVE_STATS` shows incident status, never its moment; admin requests carry `X-XSRF-TOKEN`; no fixed sleeps for the double press (fire both requests together); `Date.now` only in `src/time`.
 
 ## Progress log
+
+- 2026-09-28: Done. PR #32 merged as `3673981`; it left `GameSessionTest.countdownThenLive` failing on `main` (a test-only timer race, fixed by PR #33, `8e5c8a6`). Verified on the local stack at 8e5c8a6: frontend format, lint, typecheck, 198 tests with coverage and build; markdownlint and the seed check; Playwright 42 of 42 with the e2e profile; `./mvnw -B verify` (426 unit, 136 integration, coverage met) on the same code at `b0efecc`. shellcheck, actionlint and gitleaks aren't installed here.
+
+- 2026-09-28: T10 done: walking-skeleton demonstration on the local stack (dev profile, port 8090), driven through the UI with Playwright. Logged in, created game QJ57UX from the Default 5-minute plan, opened the lobby, opened the projector link from "Copy the projector link" (S-02 with the QR code, the join URL, "Open this link in Chrome" and "Joined: 0"), joined as Priya at 390 × 844 ("You're in, Priya!"), and the projector showed "Joined: 1" with Priya 836 ms later with no reload, and live control "Players 1 joined". H-07 repeats it on production with a real phone.
 
 - 2026-09-28: PR #32 opened; In review. After the merge: T10 (walking-skeleton demonstration on the local stack).
 
