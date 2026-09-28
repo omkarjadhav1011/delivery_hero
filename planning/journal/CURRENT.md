@@ -9,18 +9,19 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | 8ac9679 |
+| Last commit | c82e9c3 |
 | Step | test-first |
-| Task | T3 |
+| Task | T4 |
 | Attempts | 1 |
 | Started | 2026-09-28T11:57 |
-| Updated | 2026-09-28T12:11 |
-| Next action | RoundTimelineTest AC-US21-01 and AC-US21-02 |
+| Updated | 2026-09-28T12:18 |
+| Next action | StompConnectionIT time-sync reply per client kind |
 
 ## Completed tasks
 
 - T1 (c7fe403)
 - T2 (8ac9679)
+- T3 (c82e9c3)
 
 ## Pending approvals
 
