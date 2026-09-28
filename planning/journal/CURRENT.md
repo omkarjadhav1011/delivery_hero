@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | f98e991 |
+| Last commit | 61fe5ba |
 | Step | test-first |
-| Task | T6 |
+| Task | T7 |
 | Attempts | 1 |
 | Started | 2026-09-28T11:57 |
-| Updated | 2026-09-28T12:30 |
-| Next action | stompClient publish and useStomp time-sync tests |
+| Updated | 2026-09-28T12:33 |
+| Next action | Countdown.test.tsx counts from round.startsAt |
 
 ## Completed tasks
 
@@ -24,6 +24,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T3 (c82e9c3)
 - T4 (b0f96d3)
 - T5 (f98e991)
+- T6 (61fe5ba)
 
 ## Pending approvals
 

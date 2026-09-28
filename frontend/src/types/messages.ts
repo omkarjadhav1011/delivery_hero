@@ -8,6 +8,14 @@ export type Envelope = {
   serverTime: number;
 };
 
+/** The round's moments, as epoch milliseconds of server time (document 11, section 8.5; DEC-129). */
+export type RoundTimes = {
+  startsAt: number;
+  endsAt: number;
+  releaseAt: number;
+  freezeAt: number;
+};
+
 /** The player's full state, on subscribe and on every state change (document 11, section 8.5). */
 export type GameStateMessage = Envelope & {
   type: "GAME_STATE";
@@ -21,8 +29,9 @@ export type GameStateMessage = Envelope & {
     streakBonusNext: boolean;
     done: boolean;
   };
-  // TODO(US-13, US-16, US-28, US-33, US-10): the shapes of round, task, lockoutUntil, incident and practice
-  round: unknown;
+  /** Null before the countdown. */
+  round: RoundTimes | null;
+  // TODO(US-16, US-28, US-33, US-10): the shapes of task, lockoutUntil, incident and practice
   task: unknown;
   lockoutUntil: number | null;
   incident: unknown;

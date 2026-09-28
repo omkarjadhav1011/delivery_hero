@@ -25,6 +25,7 @@ export function PlayerApp() {
   const screen = usePlayerStore((state) => state.screen);
   const name = usePlayerStore((state) => state.name);
   const token = usePlayerStore((state) => state.token);
+  const startsAt = usePlayerStore((state) => state.round?.startsAt ?? null);
   const reset = usePlayerStore((state) => state.reset);
   const joined = usePlayerStore((state) => state.joined);
   const receive = usePlayerStore((state) => state.receive);
@@ -63,7 +64,7 @@ export function PlayerApp() {
     case "practice":
       return <Practice />;
     case "countdown":
-      return <Countdown />;
+      return <Countdown startsAt={startsAt} />;
     case "task":
     case "lockout":
     case "incident":
