@@ -10,12 +10,12 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Branch | feat/us-37-projector-e2e |
 | Start commit | fb40d66 |
 | Last commit | 78bde89 |
-| Step | implement |
+| Step | review |
 | Task |  |
 | Attempts | 0 |
 | Started | 2026-09-28T11:39 |
-| Updated | 2026-09-28T11:45 |
-| Next action | Reviews: frontend-reviewer and spec-guardian on the diff |
+| Updated | 2026-09-28T11:49 |
+| Next action | frontend-reviewer and spec-guardian on origin/main...HEAD |
 
 ## Completed tasks
 
@@ -31,4 +31,4 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 ## Notes
 
-- none
+- reviews done; review fixes 33e6e97

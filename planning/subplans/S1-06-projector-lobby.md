@@ -89,6 +89,8 @@ Document 13, section 10, plus: every US-37 and US-38 criterion passes at its lev
 
 ## Progress log
 
+- 2026-09-28: Review fixes (`33e6e97`). frontend-reviewer and spec-guardian: no critical, high or medium findings from spec-guardian; one medium from frontend-reviewer, fixed (assert `game.joinUrl` rather than rebuilding the URL). Lows fixed: names looked up inside the list, the QR code checked absent in Created (DEC-170), and `AC-US38-02` named on step 4. Lows left: `openLobby` in the spec repeats part of `openGameInLobby` (step 2 needs the game in Created first), and the QR code's encoded value isn't decoded end to end (`LobbyView.test.tsx` covers what it encodes). `join-and-lobby` 12 of 12 over three runs again.
+
 - 2026-09-28: T8 done (`78bde89`) on `feat/us-37-projector-e2e` from `main`, since PR #31 merged T1 to T7. `join-and-lobby` has E2E-01 step 2 as its own test (the projector shows "Getting ready…" in Created, then after `OPEN_LOBBY` the QR code at least 400 × 400 px, the join URL, "Open this link in Chrome" and "Joined: 0", with the axe check), and step 4 checks the projector lists "Priya S" before "Priya" without a reload. The fixtures split `createGame` from `openGameInLobby` and add `projectorPath`, which opens the projector link on the site under test. Checks: frontend format, lint and typecheck; `join-and-lobby` 12 of 12 over three runs and the full suite 43 of 43, with the e2e profile.
 
 - 2026-09-26: Session 2026-09-26-2311 started on `feat/us-37-projector-lobby`, from S1-04's branch (PR #29 in review). T8 waits for S1-07. The owner chose that any refused projector connection shows "This game has finished." (DI-79).
