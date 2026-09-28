@@ -147,6 +147,36 @@ class HostActionsIT {
     }
 
     @Test
+    @DisplayName("AC-US13-02 no players: a forced START_ROUND in an empty lobby is 409 NOT_ALLOWED_NOW, and the game"
+            + " stays in the lobby")
+    void forcedStartRoundInAnEmptyLobbyIsRefused() throws Exception {
+        UUID game = lifecycle.create(planId("quick-3min"), false, 0).id();
+        assertThat(action(game, Map.of("action", "OPEN_LOBBY"))).hasStatus(HttpStatus.OK);
+
+        MvcTestResult forced = action(game, Map.of("action", "START_ROUND"));
+
+        assertThat(forced).hasStatus(HttpStatus.CONFLICT);
+        assertThat(body(forced).get("code").asString()).isEqualTo("NOT_ALLOWED_NOW");
+        assertThat(body(forced).get("currentState").asString()).isEqualTo("LOBBY");
+        assertThat(engine.hostView(game).map(HostView::state)).contains(GameState.LOBBY);
+        assertThat(jdbc.sql("SELECT state FROM games").query(String.class).single())
+                .isEqualTo("LOBBY");
+    }
+
+    @Test
+    @DisplayName("AC-US13-01 countdown: with one player, START_ROUND moves the lobby to the countdown")
+    void startRoundWithAPlayer() throws Exception {
+        UUID game = openLobbyWithPriya();
+
+        MvcTestResult started = action(game, Map.of("action", "START_ROUND"));
+
+        assertThat(started).hasStatus(HttpStatus.OK);
+        assertThat(body(started).get("state").asString()).isEqualTo("COUNTDOWN");
+        assertThat(jdbc.sql("SELECT state FROM games").query(String.class).single())
+                .isEqualTo("COUNTDOWN");
+    }
+
+    @Test
     @DisplayName("A game left in Results by a restart still offers Close, from the row alone (DEC-142)")
     void resultsWithoutASessionOffersClose() throws Exception {
         GameDetails game = lifecycle.create(planId("quick-3min"), false, 0);

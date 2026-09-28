@@ -1,4 +1,4 @@
-import type { GameState, HostAction } from "./dto";
+import type { GameState, HostAction, Phase } from "./dto";
 
 // Real-time messages, mirroring document 11 section 8. Every server message carries type and serverTime (DEC-162).
 // TODO(US-16): the rest of the player messages of section 8.5, checked against contracts/
@@ -6,6 +6,14 @@ import type { GameState, HostAction } from "./dto";
 export type Envelope = {
   type: string;
   serverTime: number;
+};
+
+/** The round's moments, as epoch milliseconds of server time (document 11, section 8.5; DEC-129). */
+export type RoundTimes = {
+  startsAt: number;
+  endsAt: number;
+  releaseAt: number;
+  freezeAt: number;
 };
 
 /** The player's full state, on subscribe and on every state change (document 11, section 8.5). */
@@ -21,8 +29,9 @@ export type GameStateMessage = Envelope & {
     streakBonusNext: boolean;
     done: boolean;
   };
-  // TODO(US-13, US-16, US-28, US-33, US-10): the shapes of round, task, lockoutUntil, incident and practice
-  round: unknown;
+  /** Null before the countdown. */
+  round: RoundTimes | null;
+  // TODO(US-16, US-28, US-33, US-10): the shapes of task, lockoutUntil, incident and practice
   task: unknown;
   lockoutUntil: number | null;
   incident: unknown;
@@ -44,12 +53,42 @@ export function isPlayerMessage(value: unknown): value is PlayerMessage {
   );
 }
 
+/** The reply to a TIME_SYNC request, on `/user/queue/time-sync` (document 11, section 8.5). */
+export type TimeSyncMessage = Envelope & {
+  type: "TIME_SYNC";
+  clientSentAt: number;
+};
+
+/** Narrows a parsed frame to a TIME_SYNC reply with both of its times. */
+export function isTimeSyncMessage(value: unknown): value is TimeSyncMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const { type, serverTime, clientSentAt } = value as Record<string, unknown>;
+  return type === "TIME_SYNC" && Number.isFinite(serverTime) && Number.isFinite(clientSentAt);
+}
+
 /** One square on the projector's wall (document 11, section 8.6; DI-80 for the name fields and status). */
 export type ScreenPlayer = {
   playerId: string;
   initials: string;
   firstName: string;
   status: "ONLINE" | "OFFLINE";
+};
+
+/** When a phase of the round starts, in server time (DEC-15). */
+export type PhaseStart = {
+  phase: Phase;
+  startsAt: number;
+};
+
+/** The round as the projector gets it: the player's times plus each phase's start (document 11, section 8.6). */
+export type ScreenRound = {
+  startsAt: number;
+  endsAt: number;
+  phases: PhaseStart[];
+  releaseAt: number;
+  freezeAt: number;
 };
 
 /** The projector's full state, on subscribe and on every state change (document 11, section 8.6). */
@@ -61,9 +100,10 @@ export type ScreenStateMessage = Envelope & {
   joinUrl: string;
   players: ScreenPlayer[];
   playerCount: number;
-  // TODO(US-10, US-21, US-39, US-41, US-34, US-43): the shapes of practice, round, top10, feed, incident and reveal
+  // TODO(US-10, US-39, US-41, US-34, US-43): the shapes of practice, top10, feed, incident and reveal
   practice: unknown;
-  round: unknown;
+  /** Null before the countdown. */
+  round: ScreenRound | null;
   top10: unknown[];
   frozen: boolean;
   feed: unknown[];

@@ -140,3 +140,37 @@ describe("screen store", () => {
     expect(state.playerCount).toBe(1);
   });
 });
+
+describe("screen store round", () => {
+  const round = {
+    startsAt: 1_792_575_005_000,
+    endsAt: 1_792_575_305_000,
+    phases: [
+      { phase: "PLANNING", startsAt: 1_792_575_005_000 },
+      { phase: "DEVELOPMENT", startsAt: 1_792_575_065_000 },
+      { phase: "TESTING", startsAt: 1_792_575_185_000 },
+      { phase: "RELEASE", startsAt: 1_792_575_245_000 },
+    ],
+    releaseAt: 1_792_575_245_000,
+    freezeAt: 1_792_575_275_000,
+  } satisfies ScreenStateMessage["round"];
+
+  it("AC-US13-03 the countdown's SCREEN_STATE shows the countdown with the round's times", () => {
+    const state = applyScreenMessage(
+      initialScreenState(),
+      screenState({ state: "COUNTDOWN", round }),
+    );
+
+    expect(state.view).toBe("countdown");
+    expect(state.round).toEqual(round);
+  });
+
+  it("AC-US21-01 the live and frozen round shows the live view, with the phases for the phase bar", () => {
+    for (const live of ["LIVE", "FROZEN"] as const) {
+      const state = applyScreenMessage(initialScreenState(), screenState({ state: live, round }));
+
+      expect(state.view, live).toBe("live");
+      expect(state.round?.phases).toHaveLength(4);
+    }
+  });
+});

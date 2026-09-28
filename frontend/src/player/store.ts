@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { ConnectionStatus } from "@/realtime/stompClient";
 import type { GameState, JoinResponse } from "@/types/dto";
 import { assertNever } from "@/types/assertNever";
-import type { PlayerMessage } from "@/types/messages";
+import type { PlayerMessage, RoundTimes } from "@/types/messages";
 
 // The player app's Zustand store (LLD section 6.3). It changes only through the pure functions below, which apply a
 // join result or a server message.
@@ -32,6 +32,8 @@ export interface PlayerState {
   screen: PlayerScreen;
   total: number;
   streak: number;
+  /** The round's server times from the countdown on, for the countdown and the clock; null before. */
+  round: RoundTimes | null;
   connection: ConnectionStatus;
   // TODO(US-16, US-28, US-33, US-43): task, lockoutUntil, incident and results
 }
@@ -44,7 +46,14 @@ export interface PlayerStore extends PlayerState {
 }
 
 export function initialPlayerState(code: string): PlayerState {
-  return { code, screen: "checking", total: 0, streak: 0, connection: "connecting" };
+  return {
+    code,
+    screen: "checking",
+    total: 0,
+    streak: 0,
+    round: null,
+    connection: "connecting",
+  };
 }
 
 /** The screen for a game state, following the state diagram of LLD section 6.3. */
@@ -87,6 +96,7 @@ export function applyServerMessage(state: PlayerState, message: PlayerMessage): 
         name: message.you.name,
         total: message.you.total,
         streak: message.you.streak,
+        round: message.round,
         screen: screenFor(message.state),
       };
     default:

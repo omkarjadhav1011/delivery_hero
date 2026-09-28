@@ -17,6 +17,21 @@ export function formatRemaining(ms: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
+/** The countdown's digit, 5 to 1 (DEC-93): 5 before the start is known, and 1 once it passes. */
+export function countdownDigit(remaining: number | null): number {
+  return remaining === null ? 5 : Math.min(5, Math.max(1, Math.ceil(remaining / 1000)));
+}
+
+/** The server's time, updated every tick, for what follows the clock rather than a deadline. */
+export function useServerNow(): number {
+  const [now, setNow] = useState(serverNow);
+  useEffect(() => {
+    const timer = setInterval(() => setNow(serverNow()), TICK_MS);
+    return () => clearInterval(timer);
+  }, []);
+  return now;
+}
+
 /** The milliseconds left until the deadline, updated every tick, or null without a deadline. */
 export function useCountdown(deadline: number | null): number | null {
   // The time is read for the deadline it belongs to, so a new deadline never shows an old moment

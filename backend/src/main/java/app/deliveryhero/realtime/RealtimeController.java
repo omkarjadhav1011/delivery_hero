@@ -6,6 +6,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.converter.MessageConversionException;
@@ -13,9 +14,11 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-/** Messages that clients send over STOMP (LLD section 5.6); time sync joins it with S1-08. */
+/** Messages that clients send over STOMP (LLD section 5.6): answers, and time-sync requests. */
 @Controller
 public class RealtimeController {
 
@@ -53,11 +56,24 @@ public class RealtimeController {
     }
 
     /**
-     * Drops an answer that isn't valid JSON for ANSWER_SUBMIT. Only the event is logged: the converter's message can
+     * Answers a time-sync request with the client's own send time and the server's time, so the client can estimate
+     * its offset (DEC-95, DEC-129). Every client kind may ask, the projector too (DEC-140), and the engine never hears
+     * of it. The reply goes only to the connection that asked; a request without {@code clientSentAt} gets none.
+     */
+    @MessageMapping("/time-sync")
+    @SendToUser(destinations = "/queue/time-sync", broadcast = false)
+    public @Nullable TimeSyncReply timeSync(@Payload TimeSyncRequest request) {
+        long serverTime = clock.millis();
+        Long clientSentAt = request.clientSentAt();
+        return clientSentAt == null ? null : new TimeSyncReply("TIME_SYNC", serverTime, clientSentAt);
+    }
+
+    /**
+     * Drops a message that isn't valid JSON for its destination, such as an ANSWER_SUBMIT, or has no body at all. Only the event is logged: the converter's message can
      * quote the answer, and the default handler would log it with the session ID (DEC-104).
      */
-    @MessageExceptionHandler(MessageConversionException.class)
+    @MessageExceptionHandler({MessageConversionException.class, MethodArgumentNotValidException.class})
     public void malformed() {
-        log.atDebug().addKeyValue("event", "ANSWER_MALFORMED").log("Malformed answer dropped");
+        log.atDebug().addKeyValue("event", "MESSAGE_MALFORMED").log("Malformed message dropped");
     }
 }

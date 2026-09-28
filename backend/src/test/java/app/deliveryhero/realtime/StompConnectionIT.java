@@ -2,6 +2,7 @@ package app.deliveryhero.realtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
@@ -22,6 +23,7 @@ import app.deliveryhero.support.RawStompClient;
 import app.deliveryhero.support.RawStompClient.Frame;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -49,6 +52,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHttpHeaders;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /** The STOMP endpoint at {@code /ws} over a real server port (EN-04, API section 8). */
@@ -435,6 +439,83 @@ class StompConnectionIT {
             assertThat(player.nextFrame(QUIET)).isNull();
             assertThat(GatewayTestConfiguration.SUBMITTED).noneMatch(ClientSubscribed.class::isInstance);
         }
+    }
+
+    @ParameterizedTest(name = "time sync: a {0} gets TIME_SYNC with its clientSentAt and the server's time")
+    @ValueSource(strings = {"player", "projector", "admin"})
+    @DisplayName("Time sync: players, the projector (DEC-140) and admins get TIME_SYNC with their clientSentAt and the"
+            + " server's time, and the engine hears nothing (DEC-129, API 8.4)")
+    void timeSyncReplies(String kind) throws Exception {
+        try (RawStompClient client = connectedAs(kind)) {
+            client.subscribe("t1", "/user/queue/time-sync");
+            GatewayTestConfiguration.SUBMITTED.clear();
+
+            client.sendTo("/app/time-sync", "{\"clientSentAt\":1759999999750}");
+
+            Frame frame = client.nextFrame(FRAME_TIMEOUT);
+            assertThat(frame).isNotNull();
+            assertThat(frame.command()).isEqualTo("MESSAGE");
+            assertThat(frame.headers()).containsEntry("subscription", "t1");
+            JsonNode reply = json.readTree(frame.body());
+            assertThat(reply.get("type").asString()).isEqualTo("TIME_SYNC");
+            assertThat(reply.get("clientSentAt").asLong()).isEqualTo(1_759_999_999_750L);
+            // The controller reads the application's clock, the real one in this test
+            assertThat(reply.get("serverTime").asLong()).isCloseTo(Instant.now().toEpochMilli(), within(10_000L));
+            assertThat(client.nextFrame(QUIET)).as("one reply per request").isNull();
+            assertThat(GatewayTestConfiguration.SUBMITTED).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("Time sync: a request without clientSentAt gets no reply")
+    void timeSyncWithoutClientTimeIsDropped() throws Exception {
+        try (RawStompClient client = connectedAs("player")) {
+            client.subscribe("t1", "/user/queue/time-sync");
+
+            client.sendTo("/app/time-sync", "{}");
+
+            assertThat(client.nextFrame(QUIET)).isNull();
+            assertThat(client.isOpen()).isTrue();
+        }
+    }
+
+    @Test
+    @DisplayName("Time sync: a request with an empty body gets no reply and logs no error or session ID (DEC-104)")
+    void timeSyncWithAnEmptyBodyIsDropped(CapturedOutput output) throws Exception {
+        try (RawStompClient client = connectedAs("projector")) {
+            client.subscribe("t1", "/user/queue/time-sync");
+
+            client.sendTo("/app/time-sync", "");
+
+            assertThat(client.nextFrame(QUIET)).isNull();
+            assertThat(client.isOpen()).isTrue();
+        }
+        assertThat(output.getAll()).doesNotContain("simpSessionId").doesNotContain("Unhandled");
+    }
+
+    /** A connected client of the kind: a player, the projector or an admin. */
+    private RawStompClient connectedAs(String kind) throws Exception {
+        return switch (kind) {
+            case "player" -> {
+                RawStompClient player = RawStompClient.open(port);
+                player.connect(Map.of("player-token", registerPlayer(PLAYER)));
+                assertConnected(player);
+                yield player;
+            }
+            case "projector" -> {
+                credentials.registerProjector(new ProjectorPrincipal(GAME), PROJECTOR_KEY);
+                yield connectedProjector(PROJECTOR_KEY);
+            }
+            case "admin" -> {
+                WebSocketHttpHeaders handshake = new WebSocketHttpHeaders();
+                handshake.setBasicAuth("admin", "DHAdmin");
+                RawStompClient admin = RawStompClient.open(port, handshake);
+                admin.connect(Map.of());
+                assertConnected(admin);
+                yield admin;
+            }
+            default -> throw new IllegalArgumentException(kind);
+        };
     }
 
     @Test

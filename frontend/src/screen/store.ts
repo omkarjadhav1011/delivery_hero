@@ -2,13 +2,14 @@ import { create } from "zustand";
 import { copy } from "@/copy";
 import { assertNever } from "@/types/assertNever";
 import type { GameState } from "@/types/dto";
-import type { ScreenMessage, ScreenPlayer } from "@/types/messages";
+import type { ScreenMessage, ScreenPlayer, ScreenRound } from "@/types/messages";
 
 // The projector's Zustand store (LLD section 6.4): the latest SCREEN_STATE plus the wall's JOINED events. It changes
 // only through the pure functions below, which apply the CONNECTED headers, a server message or a refusal.
 // TODO(US-39, US-40): the wall squares' states and the top 10
 
-export type ScreenView = "connecting" | "gettingReady" | "lobby" | "round" | "ended";
+export type ScreenView =
+  "connecting" | "gettingReady" | "lobby" | "countdown" | "live" | "round" | "ended";
 
 export interface ScreenState {
   /** Learned from the CONNECTED frame, since the page holds only the key (DI-82). */
@@ -18,6 +19,8 @@ export interface ScreenState {
   /** Newest first (FR-053). */
   players: ScreenPlayer[];
   playerCount: number;
+  /** The round's server times and phase starts from the countdown on; null before. */
+  round: ScreenRound | null;
   endedMessage: string | null;
 }
 
@@ -34,6 +37,7 @@ export function initialScreenState(): ScreenState {
     joinUrl: null,
     players: [],
     playerCount: 0,
+    round: null,
     endedMessage: null,
   };
 }
@@ -60,10 +64,12 @@ function viewFor(state: GameState): ScreenView {
       return "gettingReady";
     case "LOBBY":
       return "lobby";
-    case "PRACTICE":
     case "COUNTDOWN":
+      return "countdown";
     case "LIVE":
     case "FROZEN":
+      return "live";
+    case "PRACTICE":
     case "ENDED":
     case "REVEAL":
     case "RESULTS":
@@ -97,6 +103,7 @@ export function applyScreenMessage(state: ScreenState, message: ScreenMessage): 
         joinUrl: message.joinUrl,
         players: message.players,
         playerCount: message.playerCount,
+        round: message.round,
       };
     case "WALL_EVENTS": {
       const known = new Set(state.players.map((player) => player.playerId));

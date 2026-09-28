@@ -1,5 +1,6 @@
 package app.deliveryhero.engine;
 
+import app.deliveryhero.common.Phase;
 import java.time.Instant;
 import java.util.random.RandomGenerator;
 import org.jspecify.annotations.Nullable;
@@ -51,6 +52,20 @@ public record RoundTimeline(
         int earliest = (w + 9) / 10;
         int latest = Math.min(9 * w / 10, freezeOffset - limitSec);
         return latest <= earliest ? earliest : random.nextInt(earliest, latest + 1);
+    }
+
+    /**
+     * The round's phase at {@code elapsedSec} seconds from the start: the clock's phase, whatever phase players are on
+     * (FR-023, DEC-15). Each boundary belongs to the phase it starts.
+     */
+    public Phase phaseAt(int elapsedSec) {
+        if (elapsedSec < planningEnd) {
+            return Phase.PLANNING;
+        }
+        if (elapsedSec < developmentEnd) {
+            return Phase.DEVELOPMENT;
+        }
+        return elapsedSec < testingEnd ? Phase.TESTING : Phase.RELEASE;
     }
 
     /** The moment {@code second} seconds into the round. */

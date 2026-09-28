@@ -2,6 +2,7 @@ package app.deliveryhero.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.deliveryhero.common.Phase;
 import java.time.Instant;
 import java.util.SplittableRandom;
 import java.util.random.RandomGenerator;
@@ -103,6 +104,34 @@ class RoundTimelineTest {
             assertThat(RoundTimeline.of(START, 180, FREEZE, 20, seeded).incidentAtSec())
                     .isBetween(112, 130);
         }
+    }
+
+    @Test
+    @DisplayName("AC-US21-01 follows the clock: a 5-minute round at 3:10 elapsed is in Testing, whatever phase players"
+            + " are on")
+    void fiveMinuteRoundAtThreeTenIsTesting() {
+        RoundTimeline timeline = RoundTimeline.of(START, 300, FREEZE, 20, Extreme.LOWEST);
+
+        assertThat(timeline.phaseAt(190)).isEqualTo(Phase.TESTING);
+    }
+
+    @ParameterizedTest(name = "AC-US21-02 {0} s elapsed of a 10-minute round: {1}")
+    @CsvSource({
+        "0, PLANNING",
+        "119, PLANNING",
+        "120, DEVELOPMENT",
+        "359, DEVELOPMENT",
+        "360, TESTING",
+        "479, TESTING",
+        "480, RELEASE",
+        "600, RELEASE"
+    })
+    @DisplayName("AC-US21-02 phase changes: a 10-minute round moves to Development, Testing and Release at 2:00, 6:00"
+            + " and 8:00 elapsed")
+    void tenMinuteRoundPhaseChanges(int elapsed, Phase phase) {
+        RoundTimeline timeline = RoundTimeline.of(START, 600, FREEZE, null, Extreme.LOWEST);
+
+        assertThat(timeline.phaseAt(elapsed)).isEqualTo(phase);
     }
 
     /** A generator that always gives the lowest, or the highest, value of the range asked for. */

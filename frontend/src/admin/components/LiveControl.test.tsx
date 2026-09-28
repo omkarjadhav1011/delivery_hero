@@ -64,6 +64,7 @@ function fakeClient() {
       bodies.set(destination, onBody);
       return { unsubscribe: () => bodies.delete(destination) };
     },
+    publish: vi.fn(),
   };
   return { client, bodies, config: () => config };
 }
@@ -188,7 +189,8 @@ describe("LiveControl", () => {
     act(() => fake.config()?.onConnect({}));
 
     expect(fake.config()?.connectHeaders).toEqual({});
-    expect([...fake.bodies.keys()]).toEqual([TOPIC]);
+    // The admin clock syncs too, so the time left matches the projector (DEC-95)
+    expect([...fake.bodies.keys()]).toEqual(["/user/queue/time-sync", TOPIC]);
   });
 
   it("a game left in Results by a restart says its live details were lost (DEC-142)", () => {

@@ -1,5 +1,6 @@
 // React hook over stompClient.ts: connects while mounted, subscribes to the given destinations and re-subscribes after
-// every reconnect, and returns the connection status for the "Reconnecting…" banner (LLD section 6.2)
+// every reconnect, keeps the server time offset current (DEC-95), and returns the connection status for the
+// "Reconnecting…" banner (LLD section 6.2)
 import { useEffect, useRef, useState } from "react";
 import type {
   ConnectionStatus,
@@ -7,7 +8,13 @@ import type {
   StompConnection,
   StompConnectionOptions,
 } from "./stompClient";
+import { createTimeSync } from "@/time/timeSync";
+import { isTimeSyncMessage } from "@/types/messages";
 import { createStompConnection } from "./stompClient";
+
+/** Every client kind syncs its clock, the projector too (API sections 8.2 and 10.1, DEC-140). */
+const TIME_SYNC_QUEUE = "/user/queue/time-sync";
+const TIME_SYNC = "/app/time-sync";
 
 const browserTimer = {
   setTimeout: (callback: () => void, ms: number) => setTimeout(callback, ms),
@@ -80,21 +87,37 @@ export function useStomp({
     if (key === "" || current === null) {
       return undefined;
     }
+    const sync = createTimeSync((request) => created.publish(TIME_SYNC, JSON.stringify(request)));
     const created = createStompConnection({
       credentials: current,
       timer: browserTimer,
       onStatusChange: (status) => {
+        if (status !== "online") {
+          sync.stop();
+        }
         setState({ key, status });
         latest.current.onStatusChange?.(status);
       },
       onRefused: () => latest.current.onRefused?.(),
-      onConnected: (headers) => latest.current.onConnected?.(headers),
+      onConnected: (headers) => {
+        // Three requests after every connect, once the reply queue is subscribed again (API section 10.1)
+        sync.stop();
+        sync.start();
+        latest.current.onConnected?.(headers);
+      },
       createClient: latest.current.createClient,
+    });
+    const unsubscribeSync = created.subscribe(TIME_SYNC_QUEUE, (message) => {
+      if (isTimeSyncMessage(message)) {
+        sync.receive(message);
+      }
     });
     created.start();
     setConnection(created);
     return () => {
       setConnection(null);
+      sync.stop();
+      unsubscribeSync();
       created.stop();
     };
   }, [key]);

@@ -5,8 +5,10 @@ import { copy } from "@/copy";
 import { type UseStompOptions, useStomp } from "@/realtime/useStomp";
 import { ProjectorShell } from "@/screen/ProjectorShell";
 import { screenTopic, useScreenStore } from "@/screen/store";
+import { CountdownView } from "@/screen/views/CountdownView";
 import { EndedView } from "@/screen/views/EndedView";
 import { GettingReadyView } from "@/screen/views/GettingReadyView";
+import { LiveView } from "@/screen/views/LiveView";
 import { LobbyView } from "@/screen/views/LobbyView";
 import { assertNever } from "@/types/assertNever";
 import { isScreenMessage } from "@/types/messages";
@@ -24,6 +26,7 @@ export function ScreenApp({ createClient }: { createClient?: UseStompOptions["cr
   const joinUrl = useScreenStore((state) => state.joinUrl);
   const players = useScreenStore((state) => state.players);
   const playerCount = useScreenStore((state) => state.playerCount);
+  const round = useScreenStore((state) => state.round);
   const topic = useScreenStore(screenTopic);
   const connected = useScreenStore((state) => state.connected);
   const receive = useScreenStore((state) => state.receive);
@@ -53,8 +56,12 @@ export function ScreenApp({ createClient }: { createClient?: UseStompOptions["cr
       ) : (
         <LobbyView joinUrl={joinUrl} players={players} playerCount={playerCount} />
       );
+    case "countdown":
+      return round === null ? <GettingReadyView /> : <CountdownView startsAt={round.startsAt} />;
+    case "live":
+      return round === null ? <GettingReadyView /> : <LiveView round={round} />;
     case "round":
-      // TODO(US-39 and later): the practice, countdown, wall, reveal and winner views (S-03 to S-11)
+      // TODO(US-10, US-43 and later): the practice, reveal and winner views (S-03, S-06 to S-11)
       return <ProjectorShell title={copy.brand} />;
     case "ended":
       return <EndedView message={endedMessage ?? copy.screen.finished} />;

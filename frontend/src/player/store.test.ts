@@ -38,6 +38,26 @@ function gameState(state: GameState, total = 0): GameStateMessage {
   };
 }
 
+describe("player store round", () => {
+  it("AC-US13-01 keeps the round from GAME_STATE, so the countdown and the clock read the server's times", () => {
+    const round = {
+      startsAt: 1_792_575_005_000,
+      endsAt: 1_792_575_185_000,
+      releaseAt: 1_792_575_149_000,
+      freezeAt: 1_792_575_155_000,
+    };
+
+    const counting = applyServerMessage(initialPlayerState("K7PQ2M"), {
+      ...gameState("COUNTDOWN"),
+      round,
+    });
+
+    expect(counting.screen).toBe("countdown");
+    expect(counting.round).toEqual(round);
+    expect(applyServerMessage(counting, gameState("LOBBY")).round).toBeNull();
+  });
+});
+
 describe("player store", () => {
   beforeEach(() => {
     usePlayerStore.getState().reset("K7PQ2M");

@@ -1,14 +1,15 @@
 package app.deliveryhero.broadcast;
 
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Phase;
 import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 /**
  * The projector's full state, sent on subscribe and on every state change (API section 8.6, DEC-146). It never
- * carries points on the wall, a correct answer before the reveal, or the incident moment (FR-043, FR-056). The round,
- * top 10, feed, incident and reveal fields stay empty until their stories fill them.
+ * carries points on the wall, a correct answer before the reveal, or the incident moment (FR-043, FR-056). The round is
+ * null before the countdown; the top 10, feed, incident and reveal fields stay empty until their stories fill them.
  */
 public record ScreenStateMessage(
         String type,
@@ -21,8 +22,7 @@ public record ScreenStateMessage(
         int playerCount,
         // TODO(US-10): {finished, total} during practice
         @Nullable Object practice,
-        // TODO(US-21): startsAt, endsAt, phases, releaseAt and freezeAt from the countdown on
-        @Nullable Object round,
+        @Nullable Round round,
         // TODO(US-39): the top 10 entries
         List<Object> top10,
         boolean frozen,
@@ -43,6 +43,15 @@ public record ScreenStateMessage(
         }
     }
 
+    /**
+     * The round's moments as epoch milliseconds of server time, with the start of each phase for the phase bar (API
+     * section 8.6, DEC-129). The incident moment is never one of them (FR-043).
+     */
+    public record Round(long startsAt, long endsAt, List<PhaseStart> phases, long releaseAt, long freezeAt) {}
+
+    /** When a phase of the round starts (DEC-15). */
+    public record PhaseStart(Phase phase, long startsAt) {}
+
     /** Whether a player's phone is connected (DI-80); US-05 turns a player OFFLINE. */
     public enum PlayerStatus {
         ONLINE,
@@ -50,11 +59,17 @@ public record ScreenStateMessage(
     }
 
     /**
-     * Who has joined, and whether the game is frozen. TODO(US-21): the round and its phase bar; TODO(US-36): the top
-     * 10; TODO(US-39): the feed; TODO(US-10): practice; TODO(US-33): the incident; TODO(US-43): the reveal.
+     * Who has joined, the round, and whether the game is frozen. TODO(US-36): the top 10; TODO(US-39): the feed;
+     * TODO(US-10): practice; TODO(US-33): the incident; TODO(US-43): the reveal.
      */
-    public static ScreenStateMessage withoutRound(
-            long serverTime, UUID gameId, GameState state, boolean test, String joinUrl, List<ScreenPlayer> players) {
+    public static ScreenStateMessage of(
+            long serverTime,
+            UUID gameId,
+            GameState state,
+            boolean test,
+            String joinUrl,
+            List<ScreenPlayer> players,
+            @Nullable Round round) {
         return new ScreenStateMessage(
                 "SCREEN_STATE",
                 serverTime,
@@ -65,7 +80,7 @@ public record ScreenStateMessage(
                 players,
                 players.size(),
                 null,
-                null,
+                round,
                 List.of(),
                 state == GameState.FROZEN,
                 List.of(),
