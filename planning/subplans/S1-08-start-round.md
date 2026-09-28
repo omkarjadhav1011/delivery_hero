@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Status | Not started |
+| Status | In progress |
 | Phase | S1 (Wed 30 Sep – Tue 6 Oct) |
 | Stories | US-13, US-14, US-21 |
 | Priority and points | Must, 8 |
@@ -52,7 +52,7 @@ The host starts the round from the lobby; every phone and the projector count do
 
 ## Tasks
 
-- [ ] T1 `START_ROUND` needs at least one player, real or simulated: without one it is missing from `allowedActions` and the button is disabled; with one it moves the game to COUNTDOWN with the start 5 seconds (`dh.game.countdown`) later, in `app.deliveryhero.engine` and `frontend/src/admin`, test first: `HostActionsIT` AC-US13-02 (Lobby with no players: no `START_ROUND`, and a forced request gets 409 `NOT_ALLOWED_NOW`), source: AC-US13-02, FR-019, DEC-93, API 7.8
+- [x] T1 `START_ROUND` needs at least one player, real or simulated: without one it is missing from `allowedActions` and the button is disabled; with one it moves the game to COUNTDOWN with the start 5 seconds (`dh.game.countdown`) later, in `app.deliveryhero.engine` and `frontend/src/admin`, test first: `HostActionsIT` AC-US13-02 (Lobby with no players: no `START_ROUND`, and a forced request gets 409 `NOT_ALLOWED_NOW`), source: AC-US13-02, FR-019, DEC-93, API 7.8
 - [ ] T2 Countdown broadcast: on `StartRound` every player's `GAME_STATE` carries `round` (`startsAt`, `endsAt`, `releaseAt`, `freezeAt`) and the projector's `SCREEN_STATE` carries `round` with `phases` (`[{phase, startsAt}]`), all as epoch milliseconds of server time; the incident moment is in no message; the freeze comes from `dh.game.freeze`, in `app.deliveryhero.engine` and `app.deliveryhero.broadcast`, test first: `GameSessionTest` countdown messages (start = now + 5 s on a controllable clock, four phase starts, no incident field), source: AC-US13-01, FR-019, FR-054, DEC-129, API 8.5 and 8.6, LLD 5.4.7
 - [ ] T3 Phase at a moment: `RoundTimeline.phaseAt(elapsed)` gives Planning until floor(0.2 L), Development until floor(0.6 L), Testing until floor(0.8 L), then Release; the three `PHASE_CHANGE` timers fire at those boundaries and mark the screen state changed, in `app.deliveryhero.engine`, test first: `RoundTimelineTest` AC-US21-01 (5-minute round at 3:10 elapsed is Testing, whatever phase players are on) and AC-US21-02 (10-minute round moves to Development, Testing and Release at 2:00, 6:00 and 8:00), source: AC-US21-01, AC-US21-02, FR-021 (shared), FR-023, BR-18 (shared), DEC-15 (shared), SRS 3.2, LLD 5.4.7
 - [ ] T4 Time-sync reply: `@MessageMapping("/time-sync")` with `@SendToUser("/queue/time-sync")` answers `{clientSentAt, serverTime}` for players, the projector (DEC-140 (shared)) and admins without touching the engine; if S0-04 already built it, add only the tests, in `app.deliveryhero.realtime`, test first: `StompConnectionIT` time-sync reply for each client kind, source: DEC-129, DEC-140 (shared), API 8.4, LLD 5.6
@@ -93,4 +93,4 @@ Document 13, section 10, plus: every US-13, US-14 and US-21 criterion passes at 
 
 ## Progress log
 
-None yet.
+- 2026-09-28: T1 done. The rule and the admin button already existed; added the `HostActionsIT` cases for the forced 409 in an empty lobby and for the countdown with one player (25 of 25 pass).
