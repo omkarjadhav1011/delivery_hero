@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-07 |
 | Branch | main |
 | Start commit | 47fd51c |
-| Last commit | 112c267 |
-| Step | implement |
-| Task |  |
+| Last commit | 6da4fe0 |
+| Step | test-first |
+| Task | T8 |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T10:04 |
-| Next action | T9: e2e fixtures create and cancel games through the API |
+| Updated | 2026-09-28T10:15 |
+| Next action | host-controls spec E2E-03 steps 1-5 |
 
 ## Completed tasks
 
@@ -28,6 +28,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T6 (aa90fa1)
 - T7 (84e6f6e)
 - T12 (112c267)
+- T9 (6da4fe0)
 
 ## Pending approvals
 

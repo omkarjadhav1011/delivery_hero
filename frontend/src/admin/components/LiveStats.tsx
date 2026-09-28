@@ -22,7 +22,7 @@ export function LiveStats({ stats }: { stats: LiveStatsMessage }) {
       {tasks.length === 0 ? (
         <p>{text.noTasks}</p>
       ) : (
-        <ul className="flex flex-col gap-1">
+        <ul aria-label={text.tasks} className="flex flex-col gap-1">
           {tasks.map((task) => (
             <li key={task.taskKey} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 font-mono">
               <span>{task.taskKey}</span>
