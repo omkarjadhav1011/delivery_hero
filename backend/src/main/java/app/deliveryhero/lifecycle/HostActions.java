@@ -82,7 +82,11 @@ public class HostActions {
         GameDetails game = lifecycle
                 .current()
                 .filter(open -> open.id().equals(gameId))
-                .orElseThrow(() -> new DeliveryHeroException(ApiErrorCode.NOT_FOUND));
+                .orElseThrow(() -> lifecycle
+                        .storedState(gameId)
+                        // A game that has just ended: the panel refreshes, as for any action that no longer applies
+                        .map(DeliveryHeroException::notAllowedNow)
+                        .orElseGet(() -> new DeliveryHeroException(ApiErrorCode.NOT_FOUND)));
         HostAction action = request.action();
         if ((action == HostAction.CANCEL || action == HostAction.CLOSE) && !request.confirm()) {
             throw new DeliveryHeroException(ApiErrorCode.CONFIRMATION_REQUIRED);
@@ -96,7 +100,7 @@ public class HostActions {
         if (command == null || session == null || !session.enqueue(command)) {
             throw DeliveryHeroException.notAllowedNow(game.state());
         }
-        ActionResult result = await(reply);
+        ActionResult result = await(reply, game.state());
         if (!result.changed()) {
             throw DeliveryHeroException.notAllowedNow(result.state());
         }
@@ -114,8 +118,12 @@ public class HostActions {
      * then ends the session (LLD section 5.8).
      */
     private ActionResult cancel(GameDetails game) {
-        if (!game.allowedActions().contains(HostAction.CANCEL) || !lifecycle.cancel(game.id())) {
+        if (!game.allowedActions().contains(HostAction.CANCEL)) {
             throw DeliveryHeroException.notAllowedNow(game.state());
+        }
+        if (!lifecycle.cancel(game.id())) {
+            // Another admin's cancel got there first
+            throw DeliveryHeroException.notAllowedNow(GameState.CANCELLED);
         }
         log.atInfo()
                 .addKeyValue("event", "HOST_ACTION")
@@ -157,7 +165,8 @@ public class HostActions {
         return value;
     }
 
-    private static ActionResult await(CompletableFuture<ActionResult> reply) {
+    /** The session's reply; one that doesn't come in time is NOT_ALLOWED_NOW, so the panel refreshes (FR-081). */
+    private static ActionResult await(CompletableFuture<ActionResult> reply, GameState lastKnown) {
         try {
             return reply.get(REPLY_WAIT.toMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -166,7 +175,8 @@ public class HostActions {
         } catch (TimeoutException e) {
             // Still queued: cancelled, so the session drops it rather than applying it after the admin saw it fail
             reply.cancel(false);
-            throw new IllegalStateException("The game session didn't answer the host action in time", e);
+            log.atWarn().addKeyValue("event", "HOST_ACTION_TIMEOUT").log("Game session didn't answer in time");
+            throw DeliveryHeroException.notAllowedNow(lastKnown);
         } catch (ExecutionException e) {
             throw new IllegalStateException("The game session didn't apply the host action", e);
         }

@@ -86,7 +86,8 @@ class GameStateRecorderIT {
             names = {"CLOSED", "CANCELLED"})
     @DisplayName("A closed or cancelled row is never overwritten")
     void finishedRowStaysFinished(GameState finished) {
-        recorder.record(game, GameState.RESULTS);
+        // Closing needs Results; cancelling happens before it (DEC-87)
+        recorder.record(game, finished == GameState.CLOSED ? GameState.RESULTS : GameState.LIVE);
         recorder.record(game, finished);
         recorder.record(game, GameState.ENDED);
         recorder.record(game, finished == GameState.CLOSED ? GameState.CANCELLED : GameState.CLOSED);
@@ -97,6 +98,16 @@ class GameStateRecorderIT {
                         .query(Boolean.class)
                         .single())
                 .isTrue();
+    }
+
+    @Test
+    @DisplayName("AC-US62-03 not after results: a row in RESULTS is never cancelled")
+    void resultsRowIsNotCancelled() {
+        recorder.record(game, GameState.RESULTS);
+        recorder.record(game, GameState.CANCELLED);
+        recorder.awaitWrites();
+
+        assertThat(rowState()).isEqualTo("RESULTS");
     }
 
     @Test

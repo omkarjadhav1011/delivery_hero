@@ -19,13 +19,20 @@ export function formatRemaining(ms: number): string {
 
 /** The milliseconds left until the deadline, updated every tick, or null without a deadline. */
 export function useCountdown(deadline: number | null): number | null {
-  const [now, setNow] = useState(() => serverNow());
+  // The time is read for the deadline it belongs to, so a new deadline never shows an old moment
+  const [tick, setTick] = useState<{ deadline: number | null; left: number | null }>(() => ({
+    deadline,
+    left: deadline === null ? null : remainingMs(deadline),
+  }));
   useEffect(() => {
     if (deadline === null) {
       return undefined;
     }
-    const tick = setInterval(() => setNow(serverNow()), TICK_MS);
-    return () => clearInterval(tick);
+    const timer = setInterval(() => setTick({ deadline, left: remainingMs(deadline) }), TICK_MS);
+    return () => clearInterval(timer);
   }, [deadline]);
-  return deadline === null ? null : Math.max(0, deadline - now);
+  if (deadline === null) {
+    return null;
+  }
+  return tick.deadline === deadline && tick.left !== null ? tick.left : remainingMs(deadline);
 }

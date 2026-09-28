@@ -294,12 +294,18 @@ class HostActionsIT {
     }
 
     @Test
-    @DisplayName("A second confirmed CANCEL, or one for a game already ended, is 404: there is no open game")
-    void cancelTwiceIsNotFound() throws Exception {
+    @DisplayName(
+            "AC-US60-04 a second admin's CANCEL, after the game ended, is 409 with currentState CANCELLED, so the panel"
+                    + " refreshes")
+    void cancelTwiceRefreshes() throws Exception {
         UUID game = openLobbyWithPriya();
         assertThat(action(game, Map.of("action", "CANCEL", "confirm", true))).hasStatus(HttpStatus.OK);
 
-        assertThat(action(game, Map.of("action", "CANCEL", "confirm", true))).hasStatus(HttpStatus.NOT_FOUND);
+        MvcTestResult second = action(game, Map.of("action", "CANCEL", "confirm", true));
+
+        assertThat(second).hasStatus(HttpStatus.CONFLICT);
+        assertThat(body(second).get("code").asString()).isEqualTo("NOT_ALLOWED_NOW");
+        assertThat(body(second).get("currentState").asString()).isEqualTo("CANCELLED");
     }
 
     @Test

@@ -58,6 +58,7 @@ test("AC-US59-03 AC-US60-02 AC-US60-03 AC-US60-04 AC-US60-05 E2E-03 steps 1 to 5
   await adminA.getByRole("button", { name: text.cancelGame }).click();
   const dialog = adminA.getByRole("dialog", { name: text.confirmCancel });
   await expect(dialog).toBeVisible();
+  await expectNoAxeViolations(adminA);
   await dialog.getByRole("button", { name: text.keepGame }).click();
   await expect(dialog).toBeHidden();
   expect((await currentGame(request))?.state).toBe("LOBBY");
@@ -99,6 +100,11 @@ test("AC-US59-03 AC-US60-02 AC-US60-03 AC-US60-04 AC-US60-05 E2E-03 steps 1 to 5
   await staleB.getByRole("button", { name: text.startPractice }).click();
   await expect(staleB.getByRole("button", { name: text.startPractice })).toBeDisabled();
   await expect(headerOf(staleB, game.code, "LOBBY")).toBeHidden();
+  await expect(
+    staleB.getByRole("heading", {
+      name: new RegExp(`^Game ${game.code} · Quick 3-minute plan · (COUNTDOWN|LIVE)$`),
+    }),
+  ).toBeVisible();
   await expect(staleB.getByText(text.failed)).toBeHidden();
   expect(["COUNTDOWN", "LIVE"]).toContain((await currentGame(request))?.state);
 

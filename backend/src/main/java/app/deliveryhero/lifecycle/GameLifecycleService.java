@@ -152,6 +152,11 @@ public class GameLifecycleService {
         return details(game);
     }
 
+    /** The state of a stored game, open or ended, or empty for an unknown ID. */
+    public Optional<GameState> storedState(UUID gameId) {
+        return games.findById(gameId).map(GameEntity::state);
+    }
+
     /**
      * Cancels a game before Results (DEC-87, LLD section 5.8). One committed update makes the row CANCELLED with its
      * projector key cleared; then the key stops working, and the session sends GAME_ENDED and is dropped. It waits up

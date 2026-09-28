@@ -31,6 +31,8 @@ class JdbcGameRowWriter implements GameRowWriter {
     public boolean recordState(UUID gameId, GameState next, Instant at) {
         List<String> earlier = UNFINISHED.stream()
                 .filter(state -> state.compareTo(next) < 0 || (state == GameState.PRACTICE && next == GameState.LOBBY))
+                // A game that reached Results is closed, never cancelled (DEC-87)
+                .filter(state -> state != GameState.RESULTS || next != GameState.CANCELLED)
                 .map(GameState::name)
                 .toList();
         if (earlier.isEmpty()) {

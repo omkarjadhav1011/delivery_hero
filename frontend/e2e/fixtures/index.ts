@@ -6,6 +6,7 @@ import {
   type APIResponse,
   type Page,
 } from "@playwright/test";
+import { baseURL } from "../../playwright.config";
 import { copy } from "../../src/copy";
 import type { GameView, HostActionRequest, RunPlanSummary } from "../../src/types/dto";
 
@@ -150,6 +151,12 @@ export async function cancelOpenGame(request: APIRequestContext): Promise<void> 
   if (open === null) {
     return;
   }
+  // Never a real game on another environment: a test run must not end a game in progress
+  const local = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(baseURL);
+  expect(
+    local || open.test,
+    `refusing to cancel game ${open.code} on ${baseURL}: it isn't a test game`,
+  ).toBe(true);
   const cancelled = await hostAction(request, open.id, { action: "CANCEL", confirm: true });
   expect(cancelled.status(), `cancelling the open game in ${open.state}`).toBe(200);
 }

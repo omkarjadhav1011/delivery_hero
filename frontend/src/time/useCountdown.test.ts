@@ -39,3 +39,25 @@ describe("useCountdown", () => {
     expect(formatRemaining(0)).toBe("0:00");
   });
 });
+
+describe("useCountdown with a new deadline", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("reads the time again when a deadline arrives, not the moment the hook first rendered", () => {
+    const { result, rerender } = renderHook(({ deadline }) => useCountdown(deadline), {
+      initialProps: { deadline: null as number | null },
+    });
+    vi.setSystemTime(NOW + 30_000);
+
+    rerender({ deadline: NOW + 103_000 });
+
+    expect(result.current).toBe(73_000);
+  });
+});

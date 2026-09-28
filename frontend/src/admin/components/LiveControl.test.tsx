@@ -163,6 +163,23 @@ describe("LiveControl", () => {
     expect(screen.getByRole("button", { name: text.startRound })).toHaveProperty("disabled", true);
   });
 
+  it("the clock shows only during the countdown and the round, not once time is up", () => {
+    showGame({ ...GAME, state: "ENDED", allowedActions: ["START_REVEAL", "VOID_TASK", "CANCEL"] });
+    const fake = fakeClient();
+    render(<LiveControl createClient={() => fake.client} />);
+
+    act(() => fake.config()?.onConnect({}));
+    act(() =>
+      fake.bodies.get(TOPIC)?.(
+        JSON.stringify(
+          liveStats({ state: "ENDED", allowedActions: ["START_REVEAL", "VOID_TASK", "CANCEL"] }),
+        ),
+      ),
+    );
+
+    expect(screen.queryByText(/ left$/)).toBeNull();
+  });
+
   it("subscribes to the open game's admin topic over the admin session, with no credentials in the headers", () => {
     showGame(GAME);
     const fake = fakeClient();
@@ -220,6 +237,7 @@ describe("LiveControl", () => {
       text.cancelGame,
       text.confirmCancel,
       "CANCEL",
+      text.keepGame,
     ],
     [
       "Close event",
@@ -227,10 +245,11 @@ describe("LiveControl", () => {
       text.closeEvent,
       text.confirmClose,
       "CLOSE",
+      text.keepEvent,
     ],
-  ] as [string, GameView, string, string, HostAction][])(
+  ] as [string, GameView, string, string, HostAction, string][])(
     "AC-US60-02 confirmation: %s asks first, sends nothing until confirmed, then sends confirm: true",
-    async (_name, game, label, question, action) => {
+    async (_name, game, label, question, action, keep) => {
       showGame(game);
       fetchMock.mockResolvedValue(
         jsonResponse(200, { state: "CANCELLED", changed: true, allowedActions: [] }),
@@ -239,7 +258,7 @@ describe("LiveControl", () => {
 
       fireEvent.click(screen.getByRole("button", { name: label }));
       const dialog = screen.getByRole("dialog", { name: question });
-      fireEvent.click(within(dialog).getByRole("button", { name: text.keepGame }));
+      fireEvent.click(within(dialog).getByRole("button", { name: keep }));
       expect(screen.queryByRole("dialog")).toBeNull();
       expect(fetchMock).not.toHaveBeenCalled();
 

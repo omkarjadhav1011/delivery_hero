@@ -140,6 +140,21 @@ export const copy = {
       confirmCancel: "Cancel this game? All player data will be deleted.",
       confirmClose: "Close this event? Everything except the top 10 will be deleted.",
       keepGame: "Keep the game",
+      keepEvent: "Keep the event open",
+      // The header's state, as the wireframe writes it ("LIVE")
+      states: {
+        CREATED: "CREATED",
+        LOBBY: "LOBBY",
+        PRACTICE: "PRACTICE",
+        COUNTDOWN: "COUNTDOWN",
+        LIVE: "LIVE",
+        FROZEN: "FROZEN",
+        ENDED: "ENDED",
+        REVEAL: "REVEAL",
+        RESULTS: "RESULTS",
+        CLOSED: "CLOSED",
+        CANCELLED: "CANCELLED",
+      },
       failed: "That didn't work. Check your connection and try again.",
     },
     taskLibrary: {

@@ -80,6 +80,7 @@ None.
 - AC-US60-05's per-task answer counts stay at 0 in `host-controls` until phones can answer (S1-12, S1-13); `AdminBatchTest` covers non-zero counts now. Note in the progress log to extend step 5 once scoring lands.
 - Time remaining needs the admin's server offset (API 8.7), built in S1-08; until then the clock uses offset 0 locally.
 - The reveal keyboard shortcuts (DEC-112) belong to S2-03.
+- From the branch reviews, for later subplans: when the reveal lands (S2-03), check CANCEL on the session thread as well, since the row lags the session and a winner step could land between the check and the update (the row writer already refuses RESULTS to CANCELLED); `host-controls` checks Close only once a game can reach Results (S2-04); the Void, Rename and Remove buttons come with US-61 and US-09; the status lines use `role="status"` until the shared `LiveAnnouncer` exists; the admin store tests use inline fixtures until `contracts/` has them; `GameEngine.hostView` waits on request threads, like `isAnyGameInProgress`.
 - From T3's security review (older than this subplan, unconfirmed): an admin's STOMP connection is authenticated once at CONNECT, and nothing closes it on logout or session expiry, so a logged-out tab keeps receiving `LIVE_STATS` (NFR-18). To be proposed to the owner as a task for S1-02 (security basics).
 - DI-24: the Quick 3-minute plan until S2-09 creates DS-03.
 
@@ -94,6 +95,8 @@ Document 13, section 10, plus: every US-60 criterion passes at its level, `allow
 - Pitfalls: the engine answers a wrong-state command with `ActionResult.unchanged`, and REST turns it into 409 `NOT_ALLOWED_NOW`; `LIVE_STATS` shows incident status, never its moment; admin requests carry `X-XSRF-TOKEN`; no fixed sleeps for the double press (fire both requests together); `Date.now` only in `src/time`.
 
 ## Progress log
+
+- 2026-09-28: Review fixes. Security: the e2e fixtures refuse to cancel a non-test game away from localhost, and the row writer never moves RESULTS to CANCELLED. Backend: a timed-out action and an action on a just-ended game are 409 `NOT_ALLOWED_NOW` so the panel refreshes, and one admin-topic check. Frontend: the dialog stays mounted so closing it returns focus, "Copied!" is announced, the clock shows only in play, the state names and "Keep the event open" are in `copy.ts`, and `useCountdown` reads the time again for a new deadline. Spec: DI-85 to DI-88 added, DI-83 and DI-84 extended. Checks: `./mvnw -B verify` passed, frontend checks and 198 tests passed, Playwright 42 passed, markdownlint and the seed check passed; shellcheck, actionlint and gitleaks aren't installed here.
 
 - 2026-09-28: T8 done: `host-controls` covers E2E-03 steps 1 to 5 with admins A and B, a stale tab of B's whose WebSocket is blocked, and two phones, with axe checks on A-09. Close is checked only by `LiveControl.test.tsx`, since no game reaches Results yet. The answer counts stay 0 until S1-12 and S1-13: extend step 5 then. The whole suite passed twice in a row (42 specs), so specs clean up after themselves.
 

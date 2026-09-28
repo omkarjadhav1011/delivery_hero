@@ -19,6 +19,9 @@ const text = copy.admin.liveControl;
 /** The states from which the reveal buttons are shown (document 12, A-09). */
 const REVEAL_STATES: ReadonlySet<GameState> = new Set(["ENDED", "REVEAL", "RESULTS"]);
 
+/** The states with a clock: the countdown and the round. */
+const PLAYING: ReadonlySet<GameState> = new Set(["COUNTDOWN", "LIVE", "FROZEN"]);
+
 /** The main buttons, always shown and enabled only when the action is valid now (FR-080). */
 const MAIN_BUTTONS: readonly { action: HostAction; label: string }[] = [
   { action: "OPEN_LOBBY", label: text.openLobby },
@@ -28,9 +31,9 @@ const MAIN_BUTTONS: readonly { action: HostAction; label: string }[] = [
 ];
 
 /** The actions that ask first, with the dialog's question (FR-080, DEC-160). */
-const CONFIRMED: Partial<Record<HostAction, { label: string; question: string }>> = {
-  CANCEL: { label: text.cancelGame, question: text.confirmCancel },
-  CLOSE: { label: text.closeEvent, question: text.confirmClose },
+const CONFIRMED: Partial<Record<HostAction, { label: string; question: string; keep: string }>> = {
+  CANCEL: { label: text.cancelGame, question: text.confirmCancel, keep: text.keepGame },
+  CLOSE: { label: text.closeEvent, question: text.confirmClose, keep: text.keepEvent },
 };
 
 const REVEAL_BUTTONS: readonly { action: HostAction; label: string }[] = [
@@ -40,7 +43,7 @@ const REVEAL_BUTTONS: readonly { action: HostAction; label: string }[] = [
 ];
 
 function header(game: GameView): string {
-  const state = game.liveDetailsAvailable ? game.state : text.resultsLost;
+  const state = game.liveDetailsAvailable ? text.states[game.state] : text.resultsLost;
   return text.header(game.code, game.runPlanName, state);
 }
 
@@ -57,7 +60,11 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<HostAction | null>(null);
-  const remaining = useCountdown(stats?.round?.endsAt ?? null);
+  // The last dialog's action, kept while it closes so its wording stays and the dialog closes rather than vanishes
+  const [dialogAction, setDialogAction] = useState<HostAction>("CANCEL");
+  // The clock runs only while the round does (document 12, A-09)
+  const clockOn = game !== null && PLAYING.has(game.state);
+  const remaining = useCountdown(clockOn ? (stats?.round?.endsAt ?? null) : null);
 
   useStomp({
     credentials: { admin: true },
@@ -107,6 +114,11 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
     }
   }
 
+  function ask(action: HostAction) {
+    setDialogAction(action);
+    setConfirming(action);
+  }
+
   function button(action: HostAction, label: string, variant: "primary" | "danger" = "primary") {
     return (
       <ArcadeButton
@@ -114,9 +126,7 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
         variant={variant}
         disabled={busy || !allowed.has(action)}
         // Cancel and Close only open the dialog: nothing is sent until the host confirms (AC-US60-02)
-        onClick={() =>
-          CONFIRMED[action] === undefined ? void perform(action) : setConfirming(action)
-        }
+        onClick={() => (CONFIRMED[action] === undefined ? void perform(action) : ask(action))}
       >
         {label}
       </ArcadeButton>
@@ -151,29 +161,28 @@ export function LiveControl({ createClient }: { createClient?: UseStompOptions["
         {notice}
       </p>
       {stats === null ? null : <LiveStats stats={stats} />}
-      {confirming === null ? null : (
-        <Modal
-          open
-          title={CONFIRMED[confirming]?.question ?? ""}
-          onClose={() => setConfirming(null)}
-        >
-          <div className="flex flex-wrap gap-3">
-            <ArcadeButton
-              variant="danger"
-              disabled={busy}
-              onClick={() => {
-                setConfirming(null);
-                void perform(confirming, true);
-              }}
-            >
-              {CONFIRMED[confirming]?.label}
-            </ArcadeButton>
-            <ArcadeButton variant="secondary" onClick={() => setConfirming(null)}>
-              {text.keepGame}
-            </ArcadeButton>
-          </div>
-        </Modal>
-      )}
+      {/* Always mounted: closing the native dialog returns focus to the button that opened it (NFR-32) */}
+      <Modal
+        open={confirming !== null}
+        title={CONFIRMED[dialogAction]?.question ?? ""}
+        onClose={() => setConfirming(null)}
+      >
+        <div className="flex flex-wrap gap-3">
+          <ArcadeButton
+            variant="danger"
+            disabled={busy}
+            onClick={() => {
+              setConfirming(null);
+              void perform(dialogAction, true);
+            }}
+          >
+            {CONFIRMED[dialogAction]?.label}
+          </ArcadeButton>
+          <ArcadeButton variant="secondary" onClick={() => setConfirming(null)}>
+            {CONFIRMED[dialogAction]?.keep}
+          </ArcadeButton>
+        </div>
+      </Modal>
     </div>
   );
 }

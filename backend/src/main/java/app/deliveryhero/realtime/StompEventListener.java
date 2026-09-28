@@ -90,7 +90,7 @@ public class StompEventListener implements ExecutorChannelInterceptor {
                 handler instanceof SimpleBrokerMessageHandler
                         && destination.equals(DestinationPolicy.screenTopic(projector.gameId()));
             case AdminPrincipal admin ->
-                handler instanceof SimpleBrokerMessageHandler && destination.endsWith("/admin");
+                handler instanceof SimpleBrokerMessageHandler && DestinationPolicy.adminTopicGame(destination) != null;
         };
         if (registered) {
             subscriptionConfirmed(principal, accessor.getSessionId(), destination);
