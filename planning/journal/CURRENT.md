@@ -9,13 +9,13 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | 68490c0 |
+| Last commit | c61d26b |
 | Step | test-first |
-| Task | T8 |
-| Attempts | 1 |
+| Task | T9 |
+| Attempts | 0 |
 | Started | 2026-09-28T11:57 |
-| Updated | 2026-09-28T12:40 |
-| Next action | PhaseBar.test.tsx AC-US21-01 and Clock m:ss |
+| Updated | 2026-09-28T12:48 |
+| Next action | golden-path opening steps |
 
 ## Completed tasks
 
@@ -26,6 +26,7 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 - T5 (f98e991)
 - T6 (61fe5ba)
 - T7 (68490c0)
+- T8 (c61d26b)
 
 ## Pending approvals
 
