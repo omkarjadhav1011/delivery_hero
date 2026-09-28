@@ -9,19 +9,20 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Subplan | S1-08 |
 | Branch | feat/us-37-projector-e2e |
 | Start commit | 3c246e7 |
-| Last commit | c82e9c3 |
+| Last commit | b0f96d3 |
 | Step | test-first |
-| Task | T4 |
+| Task | T5 |
 | Attempts | 1 |
 | Started | 2026-09-28T11:57 |
-| Updated | 2026-09-28T12:18 |
-| Next action | StompConnectionIT time-sync reply per client kind |
+| Updated | 2026-09-28T12:24 |
+| Next action | timeSync.test.ts AC-US14-01 and AC-US14-02 |
 
 ## Completed tasks
 
 - T1 (c7fe403)
 - T2 (8ac9679)
 - T3 (c82e9c3)
+- T4 (b0f96d3)
 
 ## Pending approvals
 

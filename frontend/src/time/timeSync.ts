@@ -21,5 +21,79 @@ export function serverNow(): number {
   return Date.now() + serverOffsetMs;
 }
 
-// TODO(US-14): estimate the offset from the fastest of three TIME_SYNC exchanges on connect and every 60 seconds,
-// as offset = serverTime - (clientSentAt + roundTrip / 2) (LLD section 6.2)
+/** Requests in each estimate, one after another (DEC-95). */
+const SAMPLES = 3;
+
+/** How often the offset is estimated again while connected (DEC-95). */
+const RESYNC_MS = 60_000;
+
+/** A TIME_SYNC reply: the request's own send time, and the server's time when it answered (API section 8.5). */
+export interface TimeSyncReply {
+  clientSentAt: number;
+  serverTime: number;
+}
+
+export interface TimeSync {
+  /** Estimates now, then every 60 seconds until stopped; call it once the reply queue is subscribed. */
+  start(): void;
+  receive(reply: TimeSyncReply): void;
+  stop(): void;
+}
+
+/**
+ * Estimates the server offset from three TIME_SYNC exchanges on connect and every 60 seconds, keeping the one with the
+ * shortest round trip: offset = serverTime - (clientSentAt + roundTrip / 2) (LLD section 6.2, DEC-95). `send` sends a
+ * TIME_SYNC request to /app/time-sync.
+ */
+export function createTimeSync(send: (request: { clientSentAt: number }) => void): TimeSync {
+  let waitingFor: number | null = null;
+  let samples = 0;
+  let fastest = Number.POSITIVE_INFINITY;
+  let resync: ReturnType<typeof setInterval> | null = null;
+
+  const request = () => {
+    const clientSentAt = Date.now();
+    waitingFor = clientSentAt;
+    send({ clientSentAt });
+  };
+
+  // A new estimate starts afresh, so a device clock that drifts or is changed is caught within a minute
+  const estimate = () => {
+    samples = 0;
+    fastest = Number.POSITIVE_INFINITY;
+    request();
+  };
+
+  return {
+    start: () => {
+      if (resync !== null) {
+        return;
+      }
+      estimate();
+      resync = setInterval(estimate, RESYNC_MS);
+    },
+    receive: ({ clientSentAt, serverTime }) => {
+      // Only the reply to the request in flight counts: an older one would mix two estimates
+      if (resync === null || clientSentAt !== waitingFor) {
+        return;
+      }
+      waitingFor = null;
+      const roundTrip = Date.now() - clientSentAt;
+      samples += 1;
+      if (roundTrip >= 0 && roundTrip < fastest) {
+        fastest = roundTrip;
+        setServerOffset(serverTime - (clientSentAt + roundTrip / 2));
+      }
+      if (samples < SAMPLES) {
+        request();
+      }
+    },
+    stop: () => {
+      if (resync !== null) {
+        clearInterval(resync);
+        resync = null;
+      }
+      waitingFor = null;
+    },
+  };
+}
