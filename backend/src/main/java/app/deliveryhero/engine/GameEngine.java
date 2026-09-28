@@ -12,7 +12,9 @@ import app.deliveryhero.content.GameSnapshot;
 import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Discard;
+import app.deliveryhero.engine.command.GetHostView;
 import app.deliveryhero.engine.command.GetStatus;
+import app.deliveryhero.engine.command.HostView;
 import app.deliveryhero.engine.command.TimerFired;
 import app.deliveryhero.engine.timer.TimerScheduler;
 import app.deliveryhero.lifecycle.GameStateRecorder;
@@ -129,6 +131,30 @@ public class GameEngine {
             return true;
         } catch (ExecutionException | TimeoutException e) {
             return true;
+        }
+    }
+
+    /**
+     * The live game's state and the host actions valid in it, as its session sees them (FR-080), or empty when the game
+     * has no session or it doesn't answer within {@link #STATUS_WAIT}. Called from request threads, never from a session
+     * thread.
+     */
+    public Optional<HostView> hostView(UUID gameId) {
+        GameSession session = sessions.get(gameId);
+        if (session == null) {
+            return Optional.empty();
+        }
+        CompletableFuture<HostView> reply = new CompletableFuture<>();
+        if (!session.enqueue(new GetHostView(reply))) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(reply.get(STATUS_WAIT.toMillis(), TimeUnit.MILLISECONDS));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
+        } catch (ExecutionException | TimeoutException e) {
+            return Optional.empty();
         }
     }
 

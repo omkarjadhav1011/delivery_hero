@@ -86,7 +86,9 @@ class GameEngineTest {
         ActionResult result =
                 engine.discard(TestData.GAME_ID, EndReason.CANCELLED).get(2, TimeUnit.SECONDS);
 
-        assertThat(result).isEqualTo(ActionResult.changed(GameState.CANCELLED));
+        assertThat(result)
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.CANCELLED, true);
         assertThat(engine.find(TestData.GAME_ID)).isEmpty();
     }
 
@@ -98,7 +100,9 @@ class GameEngineTest {
         ActionResult result =
                 engine.discard(TestData.GAME_ID, EndReason.FINISHED).get(2, TimeUnit.SECONDS);
 
-        assertThat(result).isEqualTo(ActionResult.changed(GameState.CLOSED));
+        assertThat(result)
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.CLOSED, true);
         assertThat(engine.find(TestData.GAME_ID)).isEmpty();
     }
 

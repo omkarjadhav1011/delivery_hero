@@ -11,6 +11,8 @@ import app.deliveryhero.content.RunPlanContents;
 import app.deliveryhero.content.RunPlanService;
 import app.deliveryhero.content.ValidationReport;
 import app.deliveryhero.engine.GameEngine;
+import app.deliveryhero.engine.HostRules;
+import app.deliveryhero.engine.command.HostView;
 import app.deliveryhero.realtime.CredentialRegistry;
 import app.deliveryhero.realtime.ProjectorPrincipal;
 import java.security.SecureRandom;
@@ -150,18 +152,20 @@ public class GameLifecycleService {
         if (projectorKey == null) {
             throw new IllegalStateException("An open game always has a projector key (games_key_present_while_open)");
         }
-        boolean lostOnRestart =
-                game.state() == GameState.RESULTS && engine.find(game.id()).isEmpty();
+        // The session is ahead of the row, which is written after each change (LD-05); a new game has none yet
+        Optional<HostView> live = engine.hostView(game.id());
+        boolean lostOnRestart = game.state() == GameState.RESULTS && live.isEmpty();
         return new GameDetails(
                 game.id(),
                 game.code(),
-                game.state(),
+                live.map(HostView::state).orElse(game.state()),
                 game.test(),
                 game.runPlanName(),
                 game.roundLengthMinutes(),
                 projectorKey,
                 game.createdAt(),
-                !lostOnRestart);
+                !lostOnRestart,
+                live.map(HostView::allowedActions).orElseGet(() -> HostRules.inState(game.state())));
     }
 
     private static boolean isOneOpenGameIndex(DataIntegrityViolationException refused) {

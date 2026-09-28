@@ -24,8 +24,10 @@ import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.Disconnect;
 import app.deliveryhero.engine.command.EndPractice;
+import app.deliveryhero.engine.command.GetHostView;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.HostCommand;
+import app.deliveryhero.engine.command.HostView;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.NextStep;
@@ -160,6 +162,7 @@ public final class GameSession {
             switch (command) {
                 case Join join -> join.reply().completeExceptionally(e);
                 case GetStatus query -> query.reply().completeExceptionally(e);
+                case GetHostView query -> query.reply().completeExceptionally(e);
                 case Reconnect reconnect -> {}
                 case Disconnect disconnect -> {}
                 case ClientSubscribed subscribed -> {}
@@ -196,6 +199,7 @@ public final class GameSession {
                 }
             }
             case GetStatus query -> query.reply().complete(status());
+            case GetHostView query -> query.reply().complete(hostView());
             case Reconnect reconnect -> {
                 // TODO(US-05): bind the connection and mark the player connected (LLD 5.4.10)
             }
@@ -218,24 +222,24 @@ public final class GameSession {
      */
     private ActionResult host(HostCommand command) {
         if (!HostRules.allows(state, command)) {
-            return ActionResult.unchanged(state);
+            return ActionResult.unchanged(hostView());
         }
         return switch (command) {
             case OpenLobby open -> openLobby();
             case StartRound start -> startRound();
             case Discard discard -> discard(discard.reason());
             // TODO(US-11): practice starts and ends (LLD 5.4.6)
-            case StartPractice start -> ActionResult.unchanged(state);
-            case EndPractice end -> ActionResult.unchanged(state);
+            case StartPractice start -> ActionResult.unchanged(hostView());
+            case EndPractice end -> ActionResult.unchanged(hostView());
             // TODO(US-61): void the task for everyone (LLD 5.4.8)
-            case VoidTask voiding -> ActionResult.unchanged(state);
+            case VoidTask voiding -> ActionResult.unchanged(hostView());
             // TODO(US-43): the reveal steps (LLD 5.4.9)
-            case StartReveal start -> ActionResult.unchanged(state);
-            case NextStep next -> ActionResult.unchanged(state);
-            case PreviousStep previous -> ActionResult.unchanged(state);
+            case StartReveal start -> ActionResult.unchanged(hostView());
+            case NextStep next -> ActionResult.unchanged(hostView());
+            case PreviousStep previous -> ActionResult.unchanged(hostView());
             // TODO(US-09): rename with BR-16, or remove and end the token
-            case RenamePlayer rename -> ActionResult.unchanged(state);
-            case RemovePlayer remove -> ActionResult.unchanged(state);
+            case RenamePlayer rename -> ActionResult.unchanged(hostView());
+            case RemovePlayer remove -> ActionResult.unchanged(hostView());
         };
     }
 
@@ -243,7 +247,7 @@ public final class GameSession {
     private ActionResult openLobby() {
         startBatches();
         changeState(GameState.LOBBY);
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     /**
@@ -253,7 +257,7 @@ public final class GameSession {
      */
     private ActionResult startRound() {
         if (players.isEmpty()) {
-            return ActionResult.unchanged(state);
+            return ActionResult.unchanged(hostView());
         }
         GameSnapshot.@Nullable Task incident = snapshot.incident();
         RoundTimeline round = RoundTimeline.of(
@@ -275,7 +279,7 @@ public final class GameSession {
         timers.schedule(id, TimerKey.of(TimerType.FREEZE), round.at(round.freezeAtSec()));
         timers.schedule(id, TimerKey.of(TimerType.ROUND_END), round.end());
         changeState(GameState.COUNTDOWN);
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     private static int wholeSeconds(int millis) {
@@ -346,7 +350,7 @@ public final class GameSession {
                 .addKeyValue("gameId", id)
                 .addKeyValue("reason", reason)
                 .log("Game session ended");
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     /**
@@ -471,6 +475,12 @@ public final class GameSession {
         }
         GameStateMessage message = GameStateMessage.initial(clock.millis(), id, state, player.id(), player.name());
         broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
+    }
+
+    /** The state and exactly the host actions valid in it now (FR-080). */
+    private HostView hostView() {
+        return new HostView(
+                state, HostRules.allowedActions(state, !snapshot.practice().isEmpty(), !players.isEmpty()));
     }
 
     private GetStatus.Status status() {

@@ -10,12 +10,12 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Branch | main |
 | Start commit | 47fd51c |
 | Last commit | 47fd51c |
-| Step | implement |
-| Task |  |
+| Step | test-first |
+| Task | T1 |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T08:34 |
-| Next action | T1: HostActionsIT AC-US60-01 over every state |
+| Updated | 2026-09-28T08:36 |
+| Next action | HostActionsIT AC-US60-01 over every state |
 
 ## Completed tasks
 
