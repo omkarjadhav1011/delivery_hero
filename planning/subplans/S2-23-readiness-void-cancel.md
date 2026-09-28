@@ -65,7 +65,7 @@ Safety nets for the host: a readiness check that lists a run plan's errors and w
 - [ ] T4 Wire the check into `GET /api/admin/run-plans/{id}/readiness`, the run plan detail and `GameLifecycleService.create` (refused on errors), and show it in the run plan editor's readiness panel, in `app.deliveryhero.api.admin`, `app.deliveryhero.lifecycle` and `frontend/src/admin/components/`, test first: `RunPlanApiIT` citing AC-US58-01, source: AC-US58-01, FR-078, document 11 section 7.6, document 12 section 9 (run plan editor screen)
 - [ ] T5 `VoidTask` in the engine: remove the task's points from every total, keep streak multipliers earned on other tasks, let players who haven't reached it skip it, and give a player on it 0 and the next task at once, in `app.deliveryhero.engine` (`GameSession`), test first: `GameSessionTest` AC-US61-02, AC-US61-03, AC-US61-04, source: AC-US61-02, AC-US61-03, AC-US61-04, BR-14 (shared), document 08 section 5.4.8
 - [ ] T6 `VOID_TASK` host action allowed in LIVE, FROZEN and ENDED only, with the top 10 resent within 1 second, in `app.deliveryhero.api.admin` (`HostActionController`) and `app.deliveryhero.broadcast`, test first: `HostActionsIT` AC-US61-01, AC-US61-05, source: AC-US61-01, AC-US61-05, FR-083, DEC-116, document 11 section 7.8
-- [ ] T7 `CANCEL` with `confirm: true` in any state before RESULTS: state CANCELLED, projector key cleared, players, answers and tokens gone, and refused in RESULTS where Close is offered, in `app.deliveryhero.lifecycle` (`GameLifecycleService.cancel`) and `app.deliveryhero.api.admin`, test first: `GameLifecycleIT` AC-US62-02, `HostActionsIT` AC-US62-03, source: AC-US62-02, AC-US62-03, FR-084, DEC-87, DI-14, NFR-23, document 08 section 5.8
+- [ ] T7 (the cancel itself is S1-07 T12, PC-11) After a confirmed `CANCEL`, none of the game's players, answers or tokens remain, and Results offers Close, not Cancel (S1-07 T1), in `app.deliveryhero.lifecycle` (`GameLifecycleService.cancel`) and `app.deliveryhero.api.admin`, test first: `GameLifecycleIT` AC-US62-02, `HostActionsIT` AC-US62-03, source: AC-US62-02, AC-US62-03, FR-084, DEC-87, DI-14, NFR-23, document 08 section 5.8
 - [ ] T8 Void and Cancel controls on the live control screen, enabled only by `allowedActions`, with the A-09 confirmation dialogs, and "The host ended this game." on phones and the projector, in `frontend/src/admin/components/`, `frontend/src/player/screens/` and `frontend/src/screen/views/`, test first: `LiveControl.test.tsx` citing AC-US61-01 and AC-US62-01, source: AC-US61-01, AC-US62-01, document 12 section 9 (live control screen)
 - [ ] T9 Add void and cancel to the `host-controls` spec, in the frontend Playwright specs, test first: `host-controls` AC-US62-01, source: AC-US62-01, E2E-03 (shared), document 15 section 9
 
@@ -97,6 +97,8 @@ Document 13, section 10, plus: a plan with readiness errors can't start a game, 
 - Pitfalls: host actions go through the session's command queue, never change a game directly; stale actions from a second admin tab get 409 `NOT_ALLOWED_NOW`; no fixed sleeps in the end-to-end spec.
 
 ## Progress log
+
+- 2026-09-28: PC-11: the cancel itself moved to S1-07 T12; T7 keeps the data and Results checks.
 
 - 2026-09-26: DEC-213 (PC-04): the S2 window now runs to Wed 14 Oct; only the phase label changed.
 - 2026-09-26: risk added from S1-04's security review: revoke the projector key in memory on close and cancel.
