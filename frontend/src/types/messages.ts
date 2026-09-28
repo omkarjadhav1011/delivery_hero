@@ -1,4 +1,4 @@
-import type { GameState } from "./dto";
+import type { GameState, HostAction } from "./dto";
 
 // Real-time messages, mirroring document 11 section 8. Every server message carries type and serverTime (DEC-162).
 // TODO(US-16): the rest of the player messages of section 8.5, checked against contracts/
@@ -109,5 +109,43 @@ export function isScreenMessage(value: unknown): value is ScreenMessage {
     value !== null &&
     typeof (value as { type?: unknown }).type === "string" &&
     SCREEN_MESSAGE_TYPES.has((value as { type: string }).type)
+  );
+}
+
+/** A scored task's answers so far, on the live control screen (document 11, section 8.7). */
+export type LiveTaskStats = {
+  taskKey: string;
+  answers: number;
+  wrongPercent: number;
+  voided: boolean;
+};
+
+/** The admin's live statistics, every 500 ms while the game is open (document 11, section 8.7). */
+export type LiveStatsMessage = Envelope & {
+  type: "LIVE_STATS";
+  state: GameState;
+  /** Epoch milliseconds; null before the countdown. */
+  round: { startsAt: number; endsAt: number } | null;
+  players: { joined: number; connected: number; done: number };
+  incident: "NONE" | "PENDING" | "ACTIVE" | "DONE";
+  tasks: LiveTaskStats[];
+  allowedActions: HostAction[];
+};
+
+/** Every message on `/topic/games/{gameId}/admin` so far. */
+export type AdminMessage = LiveStatsMessage | GameEndedMessage;
+
+const ADMIN_MESSAGE_TYPES: ReadonlySet<string> = new Set<AdminMessage["type"]>([
+  "LIVE_STATS",
+  "GAME_ENDED",
+]);
+
+/** Narrows a parsed frame to a known admin message; clients ignore types they don't know (AP-04). */
+export function isAdminMessage(value: unknown): value is AdminMessage {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { type?: unknown }).type === "string" &&
+    ADMIN_MESSAGE_TYPES.has((value as { type: string }).type)
   );
 }
