@@ -65,6 +65,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
 import org.jspecify.annotations.Nullable;
@@ -192,6 +193,11 @@ public final class GameSession {
             revokeCredentials();
         });
         thread.shutdown();
+    }
+
+    /** Waits for {@link #close()} to finish, for tests that start another session for the same game. */
+    boolean awaitClosed(Duration timeout) throws InterruptedException {
+        return thread.awaitTermination(timeout.toNanos(), TimeUnit.NANOSECONDS);
     }
 
     private void handle(Command command) {
