@@ -487,6 +487,24 @@ class GameSessionTest {
                 .containsExactly(false, true);
     }
 
+    @Test
+    @DisplayName("AC-US21-02 each phase change of a 5-minute round sends the projector its SCREEN_STATE again, at 1:00,"
+            + " 3:00 and 4:00 elapsed")
+    void phaseChangesSendTheScreenState() throws Exception {
+        startRound(roundOf(300, null));
+        after(Duration.ofSeconds(5));
+        int atLive = sentToScreen().size();
+
+        after(Duration.ofSeconds(59));
+        assertThat(sentToScreen()).hasSize(atLive);
+        after(Duration.ofSeconds(1));
+        assertThat(sentToScreen()).hasSize(atLive + 1);
+        after(Duration.ofSeconds(120));
+        assertThat(sentToScreen()).hasSize(atLive + 2);
+        after(Duration.ofSeconds(60));
+        assertThat(sentToScreen()).hasSize(atLive + 3).last().isInstanceOf(ScreenStateMessage.class);
+    }
+
     /** Everything sent to the projector so far, in order. */
     private List<Object> sentToScreen() {
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
