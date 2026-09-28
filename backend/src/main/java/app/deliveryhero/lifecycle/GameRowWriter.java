@@ -4,12 +4,16 @@ import app.deliveryhero.common.GameState;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Writes to a game row, called only on the state recorder's thread (document 10, section 11; DB-05). */
+/**
+ * Writes to a game row: on the state recorder's thread (document 10, section 11; DB-05), and for the lifecycle's cancel, as one
+ * committed update (LLD section 5.8).
+ */
 interface GameRowWriter {
 
     /**
-     * Moves the row from {@code expected} to {@code next}, setting the time column of {@code next}. Returns false when
-     * the row isn't in {@code expected}, so nothing changed.
+     * Moves the row to {@code next}, setting its time column, from any earlier state that hasn't finished, so one
+     * failed write doesn't leave the row behind for the rest of the game. Returns false when the row is already in
+     * {@code next}, past it, or closed or cancelled, so nothing changed.
      */
-    boolean recordState(UUID gameId, GameState expected, GameState next, Instant at);
+    boolean recordState(UUID gameId, GameState next, Instant at);
 }

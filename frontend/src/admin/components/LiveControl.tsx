@@ -1,0 +1,188 @@
+"use client";
+
+import { useState } from "react";
+import { getCurrentGame, performHostAction } from "@/api/endpoints";
+import { ApiError } from "@/api/http";
+import { copy } from "@/copy";
+import { adminTopic, useAdminStore } from "@/admin/store";
+import { LiveStats } from "@/admin/components/LiveStats";
+import { OpenGame } from "@/admin/components/OpenGame";
+import { type UseStompOptions, useStomp } from "@/realtime/useStomp";
+import { formatRemaining, useCountdown } from "@/time/useCountdown";
+import type { GameState, GameView, HostAction } from "@/types/dto";
+import { isAdminMessage } from "@/types/messages";
+import { ArcadeButton } from "@/ui/ArcadeButton";
+import { Modal } from "@/ui/Modal";
+
+const text = copy.admin.liveControl;
+
+/** The states from which the reveal buttons are shown (document 12, A-09). */
+const REVEAL_STATES: ReadonlySet<GameState> = new Set(["ENDED", "REVEAL", "RESULTS"]);
+
+/** The states with a clock: the countdown and the round. */
+const PLAYING: ReadonlySet<GameState> = new Set(["COUNTDOWN", "LIVE", "FROZEN"]);
+
+/** The main buttons, always shown and enabled only when the action is valid now (FR-080). */
+const MAIN_BUTTONS: readonly { action: HostAction; label: string }[] = [
+  { action: "OPEN_LOBBY", label: text.openLobby },
+  { action: "START_PRACTICE", label: text.startPractice },
+  { action: "END_PRACTICE", label: text.endPractice },
+  { action: "START_ROUND", label: text.startRound },
+];
+
+/** The actions that ask first, with the dialog's question (FR-080, DEC-160). */
+const CONFIRMED: Partial<Record<HostAction, { label: string; question: string; keep: string }>> = {
+  CANCEL: { label: text.cancelGame, question: text.confirmCancel, keep: text.keepGame },
+  CLOSE: { label: text.closeEvent, question: text.confirmClose, keep: text.keepEvent },
+};
+
+const REVEAL_BUTTONS: readonly { action: HostAction; label: string }[] = [
+  { action: "START_REVEAL", label: text.startReveal },
+  { action: "PREVIOUS_STEP", label: text.back },
+  { action: "NEXT_STEP", label: text.next },
+];
+
+function header(game: GameView): string {
+  const state = game.liveDetailsAvailable ? text.states[game.state] : text.resultsLost;
+  return text.header(game.code, game.runPlanName, state);
+}
+
+// A-09 Live control (document 12, section 9; FR-080 to FR-082): the open game's links, the host actions valid in its
+// state and the live statistics from LIVE_STATS on the admin topic. TODO(US-61, US-09, DEC-112): the Void buttons,
+// the lobby's player list and the reveal's keyboard shortcuts.
+export function LiveControl({ createClient }: { createClient?: UseStompOptions["createClient"] }) {
+  const game = useAdminStore((state) => state.game);
+  const stats = useAdminStore((state) => state.stats);
+  const topic = useAdminStore(adminTopic);
+  const receive = useAdminStore((state) => state.receive);
+  const actionApplied = useAdminStore((state) => state.actionApplied);
+  const setGame = useAdminStore((state) => state.setGame);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<HostAction | null>(null);
+  // The last dialog's action, kept while it closes so its wording stays and the dialog closes rather than vanishes
+  const [dialogAction, setDialogAction] = useState<HostAction>("CANCEL");
+  // The clock runs only while the round does (document 12, A-09)
+  const clockOn = game !== null && PLAYING.has(game.state);
+  const remaining = useCountdown(clockOn ? (stats?.round?.endsAt ?? null) : null);
+
+  useStomp({
+    credentials: { admin: true },
+    destinations: topic === null ? [] : [topic],
+    onMessage: (_destination, message) => {
+      if (isAdminMessage(message)) {
+        receive(message);
+      }
+    },
+    createClient,
+  });
+
+  if (game === null) {
+    return null;
+  }
+  const gameId = game.id;
+  const allowed = new Set(game.allowedActions);
+
+  async function perform(action: HostAction, confirm = false) {
+    setBusy(true);
+    setNotice(null);
+    try {
+      actionApplied(await performHostAction(gameId, confirm ? { action, confirm } : { action }));
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "NOT_ALLOWED_NOW") {
+        await refresh(error.problem?.currentState);
+      } else {
+        setNotice(text.failed);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /**
+   * Another admin or the clock moved the game on: show its state at once with nothing to press, then redraw from the
+   * game view. It isn't an error, so no banner (FR-081, AC-US60-04).
+   */
+  async function refresh(currentState: GameState | undefined) {
+    if (currentState !== undefined) {
+      actionApplied({ state: currentState, changed: false, allowedActions: [] });
+    }
+    try {
+      setGame(await getCurrentGame());
+    } catch {
+      setNotice(text.failed);
+    }
+  }
+
+  function ask(action: HostAction) {
+    setDialogAction(action);
+    setConfirming(action);
+  }
+
+  function button(action: HostAction, label: string, variant: "primary" | "danger" = "primary") {
+    return (
+      <ArcadeButton
+        key={action}
+        variant={variant}
+        disabled={busy || !allowed.has(action)}
+        // Cancel and Close only open the dialog: nothing is sent until the host confirms (AC-US60-02)
+        onClick={() => (CONFIRMED[action] === undefined ? void perform(action) : ask(action))}
+      >
+        {label}
+      </ArcadeButton>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-4">
+        <h2 className="text-lg font-semibold">{header(game)}</h2>
+        {remaining === null ? null : (
+          <p className="font-mono text-lg">{text.timeLeft(formatRemaining(remaining))}</p>
+        )}
+      </div>
+      <OpenGame game={game} />
+      <section aria-label={text.actions} className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-3">
+          {MAIN_BUTTONS.map(({ action, label }) => button(action, label))}
+        </div>
+        {REVEAL_STATES.has(game.state) ? (
+          <div className="flex flex-wrap gap-3">
+            {REVEAL_BUTTONS.map(({ action, label }) => button(action, label))}
+          </div>
+        ) : null}
+        <div>
+          {game.state === "RESULTS"
+            ? button("CLOSE", text.closeEvent, "danger")
+            : button("CANCEL", text.cancelGame, "danger")}
+        </div>
+      </section>
+      <p role="status" className="font-semibold">
+        {notice}
+      </p>
+      {stats === null ? null : <LiveStats stats={stats} />}
+      {/* Always mounted: closing the native dialog returns focus to the button that opened it (NFR-32) */}
+      <Modal
+        open={confirming !== null}
+        title={CONFIRMED[dialogAction]?.question ?? ""}
+        onClose={() => setConfirming(null)}
+      >
+        <div className="flex flex-wrap gap-3">
+          <ArcadeButton
+            variant="danger"
+            disabled={busy}
+            onClick={() => {
+              setConfirming(null);
+              void perform(dialogAction, true);
+            }}
+          >
+            {CONFIRMED[dialogAction]?.label}
+          </ArcadeButton>
+          <ArcadeButton variant="secondary" onClick={() => setConfirming(null)}>
+            {CONFIRMED[dialogAction]?.keep}
+          </ArcadeButton>
+        </div>
+      </Modal>
+    </div>
+  );
+}

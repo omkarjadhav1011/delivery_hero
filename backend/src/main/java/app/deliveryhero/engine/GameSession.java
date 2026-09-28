@@ -1,8 +1,12 @@
 package app.deliveryhero.engine;
 
+import app.deliveryhero.broadcast.AdminBatch;
+import app.deliveryhero.broadcast.AdminBatch.TaskTally;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage.IncidentStatus;
 import app.deliveryhero.broadcast.ScreenStateMessage;
 import app.deliveryhero.broadcast.ScreenStateMessage.PlayerStatus;
 import app.deliveryhero.broadcast.ScreenStateMessage.ScreenPlayer;
@@ -24,8 +28,10 @@ import app.deliveryhero.engine.command.Command;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.Disconnect;
 import app.deliveryhero.engine.command.EndPractice;
+import app.deliveryhero.engine.command.GetHostView;
 import app.deliveryhero.engine.command.GetStatus;
 import app.deliveryhero.engine.command.HostCommand;
+import app.deliveryhero.engine.command.HostView;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.NextStep;
@@ -160,6 +166,7 @@ public final class GameSession {
             switch (command) {
                 case Join join -> join.reply().completeExceptionally(e);
                 case GetStatus query -> query.reply().completeExceptionally(e);
+                case GetHostView query -> query.reply().completeExceptionally(e);
                 case Reconnect reconnect -> {}
                 case Disconnect disconnect -> {}
                 case ClientSubscribed subscribed -> {}
@@ -196,6 +203,7 @@ public final class GameSession {
                 }
             }
             case GetStatus query -> query.reply().complete(status());
+            case GetHostView query -> query.reply().complete(hostView());
             case Reconnect reconnect -> {
                 // TODO(US-05): bind the connection and mark the player connected (LLD 5.4.10)
             }
@@ -208,7 +216,12 @@ public final class GameSession {
                 // No state accepts answers yet, so there is nothing to score.
             }
             case TimerFired fired -> timerFired(fired.key());
-            case HostCommand host -> host.reply().complete(host(host));
+            case HostCommand host -> {
+                // A request that stopped waiting is dropped, so the admin who saw it fail isn't surprised later
+                if (!host.reply().isDone()) {
+                    host.reply().complete(host(host));
+                }
+            }
         }
     }
 
@@ -218,24 +231,24 @@ public final class GameSession {
      */
     private ActionResult host(HostCommand command) {
         if (!HostRules.allows(state, command)) {
-            return ActionResult.unchanged(state);
+            return ActionResult.unchanged(hostView());
         }
         return switch (command) {
             case OpenLobby open -> openLobby();
             case StartRound start -> startRound();
             case Discard discard -> discard(discard.reason());
             // TODO(US-11): practice starts and ends (LLD 5.4.6)
-            case StartPractice start -> ActionResult.unchanged(state);
-            case EndPractice end -> ActionResult.unchanged(state);
+            case StartPractice start -> ActionResult.unchanged(hostView());
+            case EndPractice end -> ActionResult.unchanged(hostView());
             // TODO(US-61): void the task for everyone (LLD 5.4.8)
-            case VoidTask voiding -> ActionResult.unchanged(state);
+            case VoidTask voiding -> ActionResult.unchanged(hostView());
             // TODO(US-43): the reveal steps (LLD 5.4.9)
-            case StartReveal start -> ActionResult.unchanged(state);
-            case NextStep next -> ActionResult.unchanged(state);
-            case PreviousStep previous -> ActionResult.unchanged(state);
+            case StartReveal start -> ActionResult.unchanged(hostView());
+            case NextStep next -> ActionResult.unchanged(hostView());
+            case PreviousStep previous -> ActionResult.unchanged(hostView());
             // TODO(US-09): rename with BR-16, or remove and end the token
-            case RenamePlayer rename -> ActionResult.unchanged(state);
-            case RemovePlayer remove -> ActionResult.unchanged(state);
+            case RenamePlayer rename -> ActionResult.unchanged(hostView());
+            case RemovePlayer remove -> ActionResult.unchanged(hostView());
         };
     }
 
@@ -243,7 +256,7 @@ public final class GameSession {
     private ActionResult openLobby() {
         startBatches();
         changeState(GameState.LOBBY);
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     /**
@@ -253,7 +266,7 @@ public final class GameSession {
      */
     private ActionResult startRound() {
         if (players.isEmpty()) {
-            return ActionResult.unchanged(state);
+            return ActionResult.unchanged(hostView());
         }
         GameSnapshot.@Nullable Task incident = snapshot.incident();
         RoundTimeline round = RoundTimeline.of(
@@ -275,7 +288,7 @@ public final class GameSession {
         timers.schedule(id, TimerKey.of(TimerType.FREEZE), round.at(round.freezeAtSec()));
         timers.schedule(id, TimerKey.of(TimerType.ROUND_END), round.end());
         changeState(GameState.COUNTDOWN);
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     private static int wholeSeconds(int millis) {
@@ -314,7 +327,7 @@ public final class GameSession {
             }
             case FLUSH -> {
                 if (batching(state)) {
-                    // TODO(US-60): the admin's live stats (LLD 5.7). A failed send must not stop the wall for good.
+                    // A failed send must not stop the wall or the live stats for good
                     try {
                         flush();
                     } finally {
@@ -340,13 +353,13 @@ public final class GameSession {
         GameEndedMessage ended = GameEndedMessage.of(clock.millis(), reason);
         toEveryPlayer(player -> ended);
         toScreen(ended);
-        // TODO(US-60): GAME_ENDED to the admin panels
+        toAdmins(ended);
         log.atInfo()
                 .addKeyValue("event", "GAME_DISCARDED")
                 .addKeyValue("gameId", id)
                 .addKeyValue("reason", reason)
                 .log("Game session ended");
-        return ActionResult.changed(state);
+        return ActionResult.changed(hostView());
     }
 
     /**
@@ -354,9 +367,8 @@ public final class GameSession {
      * 8.5, DEC-146).
      */
     private void changeState(GameState next) {
-        GameState previous = state;
         state = next;
-        recorder.record(id, previous, next);
+        recorder.record(id, next);
         long now = clock.millis();
         toEveryPlayer(player -> GameStateMessage.initial(now, id, state, player.id(), player.name()));
         toScreen(screenState());
@@ -376,13 +388,50 @@ public final class GameSession {
         playerTokens.revokeProjector(id);
     }
 
-    /** Sends what changed on the wall since the last flush, if anything did (LLD section 5.7). */
+    /**
+     * Sends what changed on the wall since the last flush, if anything did, and the admin's live stats, every time
+     * (LLD section 5.7, API section 8.7).
+     */
     private void flush() {
         if (!pendingWallEvents.isEmpty()) {
             // Taken before sending, so a batch that fails is dropped rather than sent again and again
             WallEventsMessage batch = WallEventsMessage.of(clock.millis(), pendingWallEvents);
             pendingWallEvents.clear();
             toScreen(batch);
+        }
+        toAdmins(liveStats());
+    }
+
+    /**
+     * The admin's live stats (FR-082): the incident's status, never its moment (FR-043). Every joined player counts as
+     * connected until US-05 tracks connections; done, answers and voids come with US-16, US-27 and US-61.
+     */
+    private LiveStatsMessage liveStats() {
+        RoundTimeline round = timeline;
+        List<TaskTally> tasks = snapshot.phases().values().stream()
+                .flatMap(List::stream)
+                .map(task -> new TaskTally(task.key(), 0, 0, false))
+                .toList();
+        return AdminBatch.liveStats(
+                clock.millis(),
+                state,
+                round == null
+                        ? null
+                        : new LiveStatsMessage.Round(
+                                round.start().toEpochMilli(), round.end().toEpochMilli()),
+                new LiveStatsMessage.Players(players.size(), players.size(), 0),
+                // TODO(US-33): ACTIVE while the incident runs, then DONE
+                snapshot.incident() == null ? IncidentStatus.NONE : IncidentStatus.PENDING,
+                tasks,
+                hostView().allowedActions());
+    }
+
+    /** Sends the admin panels a message; a failed send is logged and skipped, as for the projector. */
+    private void toAdmins(Object message) {
+        try {
+            broadcaster.toAdmins(id, message);
+        } catch (RuntimeException e) {
+            log.atWarn().addKeyValue("event", "SEND_FAILED").setCause(e).log("Message to the admin panels not sent");
         }
     }
 
@@ -415,7 +464,7 @@ public final class GameSession {
 
     /**
      * Starts the projector and admin batches, every {@code dh.broadcast.batch-interval} from LOBBY to RESULTS (LLD
-     * section 5.4.2). Also for a session created already open, such as the e2e profile's game.
+     * section 5.4.2). Also for a session created already open, as tests create them.
      */
     void startBatches() {
         timers.schedule(id, TimerKey.of(TimerType.FLUSH), clock.instant().plus(batchInterval));
@@ -461,7 +510,12 @@ public final class GameSession {
             }
             return;
         }
-        // TODO(S1-07): the admin's LIVE_STATS
+        if (subscribed.role() == ClientRole.ADMIN) {
+            if (id.equals(subscribed.gameId())) {
+                toAdmins(liveStats());
+            }
+            return;
+        }
         if (subscribed.role() != ClientRole.PLAYER || subscribed.playerId() == null) {
             return;
         }
@@ -471,6 +525,12 @@ public final class GameSession {
         }
         GameStateMessage message = GameStateMessage.initial(clock.millis(), id, state, player.id(), player.name());
         broadcaster.toPlayerConnection(id, player.id(), subscribed.connectionId(), message);
+    }
+
+    /** The state and exactly the host actions valid in it now (FR-080). */
+    private HostView hostView() {
+        return new HostView(
+                state, HostRules.allowedActions(state, !snapshot.practice().isEmpty(), !players.isEmpty()));
     }
 
     private GetStatus.Status status() {

@@ -7,6 +7,7 @@ import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.TokenService;
 import app.deliveryhero.engine.GameEngine;
+import app.deliveryhero.engine.command.ActionResult;
 import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Command;
@@ -178,8 +179,10 @@ class StompConnectionIT {
             admin.subscribe("s1", DestinationPolicy.adminTopic(GAME));
 
             assertState(admin, "LIVE_STATS");
-            assertThat(nextCommand(ClientSubscribed.class))
-                    .satisfies(subscribed -> assertThat(subscribed.role()).isEqualTo(ClientRole.ADMIN));
+            assertThat(nextCommand(ClientSubscribed.class)).satisfies(subscribed -> {
+                assertThat(subscribed.role()).isEqualTo(ClientRole.ADMIN);
+                assertThat(subscribed.gameId()).isEqualTo(GAME);
+            });
         }
     }
 
@@ -311,7 +314,7 @@ class StompConnectionIT {
             assertState(projector, "SCREEN_STATE");
 
             // Close (S2-04) and cancel (S2-23) end the game this way once they clear the key in the database
-            engine.discard(game.id(), reason);
+            CompletableFuture<ActionResult> discarded = engine.discard(game.id(), reason);
 
             Frame ended = projector.nextFrame(FRAME_TIMEOUT);
             assertThat(ended).isNotNull();
@@ -319,6 +322,8 @@ class StompConnectionIT {
             assertThat(json.readTree(ended.body()).propertyNames())
                     .containsExactlyInAnyOrder("type", "serverTime", "reason");
             assertThat(ended.body()).contains("\"type\":\"GAME_ENDED\"").contains("\"reason\":\"" + reason + "\"");
+            // The session is dropped once the discard completes, just after its last message
+            discarded.get(5, TimeUnit.SECONDS);
             assertThat(engine.find(game.id())).isEmpty();
         } finally {
             jdbc.sql("DELETE FROM games").update();

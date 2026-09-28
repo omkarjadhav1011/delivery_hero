@@ -1,14 +1,12 @@
 package app.deliveryhero.security;
 
 import app.deliveryhero.config.AdminProperties;
-import app.deliveryhero.lifecycle.E2eGameController;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -71,7 +69,6 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled,
-            Environment environment,
             RateLimiter rateLimiter,
             AdminSession adminSession,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver problems) {
@@ -89,11 +86,6 @@ public class SecurityConfig {
             }
             // Joining is open, limited per IP address by RateLimitFilter (LLD section 5.9)
             requests.requestMatchers("/api/games/**").permitAll();
-            if (environment.matchesProfiles("e2e")) {
-                // The end-to-end specs' game, until the admin panel creates games (S1-04 T6)
-                requests.requestMatchers(HttpMethod.POST, E2eGameController.PATH)
-                        .permitAll();
-            }
             // Login is open but still needs the CSRF token, which the open session check hands out (API 5.2, 7.3)
             requests.requestMatchers(HttpMethod.POST, LOGIN_PATH).permitAll();
             requests.requestMatchers(HttpMethod.GET, SESSION_PATH).permitAll();
@@ -105,9 +97,6 @@ public class SecurityConfig {
         http.csrf(csrf -> {
             csrf.spa();
             csrf.ignoringRequestMatchers("/api/games/**");
-            if (environment.matchesProfiles("e2e")) {
-                csrf.ignoringRequestMatchers(E2eGameController.PATH);
-            }
         });
         // Spring's defaults add nosniff; API responses also get no-referrer and a policy that allows nothing (NFR-20)
         http.headers(headers -> headers.referrerPolicy(

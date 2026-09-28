@@ -92,6 +92,43 @@
         "tags" : [ "game-controller" ]
       }
     },
+    "/api/admin/games/{id}/actions" : {
+      "post" : {
+        "operationId" : "perform",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ActionResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "host-action-controller" ]
+      }
+    },
     "/api/admin/run-plans" : {
       "get" : {
         "operationId" : "list_1",
@@ -417,6 +454,47 @@
   },
   "components" : {
     "schemas" : {
+      "ActionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string",
+            "enum" : [ "OPEN_LOBBY", "START_PRACTICE", "END_PRACTICE", "START_ROUND", "VOID_TASK", "START_REVEAL", "NEXT_STEP", "PREVIOUS_STEP", "RENAME_PLAYER", "REMOVE_PLAYER", "CANCEL", "CLOSE" ]
+          },
+          "confirm" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "taskKey" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ActionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "allowedActions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "OPEN_LOBBY", "START_PRACTICE", "END_PRACTICE", "START_ROUND", "VOID_TASK", "START_REVEAL", "NEXT_STEP", "PREVIOUS_STEP", "RENAME_PLAYER", "REMOVE_PLAYER", "CANCEL", "CLOSE" ]
+            }
+          },
+          "changed" : {
+            "type" : "boolean"
+          },
+          "state" : {
+            "type" : "string",
+            "enum" : [ "CREATED", "LOBBY", "PRACTICE", "COUNTDOWN", "LIVE", "FROZEN", "ENDED", "REVEAL", "RESULTS", "CLOSED", "CANCELLED" ]
+          }
+        }
+      },
       "AdminSessionResponse" : {
         "type" : "object",
         "properties" : {
@@ -550,7 +628,8 @@
           "allowedActions" : {
             "type" : "array",
             "items" : {
-              "type" : "string"
+              "type" : "string",
+              "enum" : [ "OPEN_LOBBY", "START_PRACTICE", "END_PRACTICE", "START_ROUND", "VOID_TASK", "START_REVEAL", "NEXT_STEP", "PREVIOUS_STEP", "RENAME_PLAYER", "REMOVE_PLAYER", "CANCEL", "CLOSE" ]
             }
           },
           "code" : {

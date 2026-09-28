@@ -3,6 +3,8 @@ import type {
   CreateGameRequest,
   GameStatusResponse,
   GameView,
+  HostActionRequest,
+  HostActionResponse,
   JoinRequest,
   JoinResponse,
   RunPlanSummary,
@@ -97,4 +99,18 @@ export async function getCurrentGame(): Promise<GameView | null> {
 export function createGame(runPlanId: string): Promise<GameView> {
   const body: CreateGameRequest = { runPlanId };
   return http<GameView>("/api/admin/games", { method: "POST", body });
+}
+
+/**
+ * Performs a host action on the open game (document 11, section 7.8). A second admin's press, or a button from a stale
+ * screen, is refused with NOT_ALLOWED_NOW and the current state (FR-081).
+ */
+export function performHostAction(
+  gameId: string,
+  request: HostActionRequest,
+): Promise<HostActionResponse> {
+  return http<HostActionResponse>(`/api/admin/games/${encodeURIComponent(gameId)}/actions`, {
+    method: "POST",
+    body: request,
+  });
 }

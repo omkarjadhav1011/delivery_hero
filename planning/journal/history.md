@@ -136,3 +136,10 @@ One entry per finished session, appended by `planning/scripts/journal.py end`.
 - Branch feat/us-37-projector-lobby, commits b778eab to faed09f.
 - Completed: T-merge (4639496).
 - Summary: S1-06 merged onto main (S1-05 engine), review fixes applied, full verify green; T8 still blocked on S1-07
+
+## 2026-09-27-1319 S1-07
+
+- Outcome: paused. Started 2026-09-27T13:19, ended 2026-09-28T10:46.
+- Branch main, commits 47fd51c to 47b2070.
+- Completed: T1 (25e215c); T11 (be36c67); T2 (385f996); T3 (234c508); T4 (aaed0da); T5 (f937046); T6 (aa90fa1); T7 (84e6f6e); T12 (112c267); T9 (6da4fe0); T8 (588e85d).
+- Summary: S1-07 T1-T9, T11, T12 and review fixes on feat/us-60-live-control; T10 after the merge

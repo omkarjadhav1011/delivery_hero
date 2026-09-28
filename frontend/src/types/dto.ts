@@ -16,6 +16,8 @@ export type ProblemDetails = {
   code: string;
   detail: string | null;
   errors: ValidationIssue[];
+  /** Set for NOT_ALLOWED_NOW: the state the admin panel refreshes to (document 11, section 6.2). */
+  currentState?: GameState;
 };
 
 /** A game's states, in order (LLD section 5.2). */
@@ -180,5 +182,37 @@ export type GameView = {
   projectorUrl: string;
   createdAt: string;
   liveDetailsAvailable: boolean;
-  allowedActions: string[];
+  allowedActions: HostAction[];
+};
+
+/** The host actions of document 11, section 7.8. */
+export type HostAction =
+  | "OPEN_LOBBY"
+  | "START_PRACTICE"
+  | "END_PRACTICE"
+  | "START_ROUND"
+  | "VOID_TASK"
+  | "START_REVEAL"
+  | "NEXT_STEP"
+  | "PREVIOUS_STEP"
+  | "RENAME_PLAYER"
+  | "REMOVE_PLAYER"
+  | "CANCEL"
+  | "CLOSE";
+
+/** The body of `POST /api/admin/games/{id}/actions` (document 11, section 7.8). */
+export type HostActionRequest = {
+  action: HostAction;
+  taskKey?: string;
+  playerId?: string;
+  name?: string;
+  /** Required true for CANCEL and CLOSE (DEC-160). */
+  confirm?: boolean;
+};
+
+/** The 200 response of a host action (document 11, section 7.8). */
+export type HostActionResponse = {
+  state: GameState;
+  changed: boolean;
+  allowedActions: HostAction[];
 };

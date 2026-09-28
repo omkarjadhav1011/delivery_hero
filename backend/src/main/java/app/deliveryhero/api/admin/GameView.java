@@ -1,6 +1,7 @@
 package app.deliveryhero.api.admin;
 
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.engine.command.HostAction;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +24,7 @@ record GameView(
         String projectorUrl,
         Instant createdAt,
         boolean liveDetailsAvailable,
-        List<String> allowedActions) {
+        List<HostAction> allowedActions) {
 
     @Override
     public String toString() {

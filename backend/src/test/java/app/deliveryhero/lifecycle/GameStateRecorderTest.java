@@ -34,11 +34,11 @@ class GameStateRecorderTest {
     @Test
     @DisplayName("State changes are written in the order they happened, each with the moment it happened")
     void writesInOrder() throws InterruptedException {
-        recorder.record(GAME, GameState.CREATED, GameState.LOBBY);
+        recorder.record(GAME, GameState.LOBBY);
         clock.advance(Duration.ofSeconds(90));
-        recorder.record(GAME, GameState.LOBBY, GameState.COUNTDOWN);
+        recorder.record(GAME, GameState.COUNTDOWN);
         clock.advance(Duration.ofSeconds(5));
-        recorder.record(GAME, GameState.COUNTDOWN, GameState.LIVE);
+        recorder.record(GAME, GameState.LIVE);
 
         // Recording returned while the first write is still held: a session never waits for the database
         assertThat(writer.started.await(5, TimeUnit.SECONDS)).isTrue();
@@ -49,25 +49,25 @@ class GameStateRecorderTest {
 
         assertThat(writer.writes)
                 .containsExactly(
-                        new Write(GAME, GameState.CREATED, GameState.LOBBY, START),
-                        new Write(GAME, GameState.LOBBY, GameState.COUNTDOWN, START.plusSeconds(90)),
-                        new Write(GAME, GameState.COUNTDOWN, GameState.LIVE, START.plusSeconds(95)));
+                        new Write(GAME, GameState.LOBBY, START),
+                        new Write(GAME, GameState.COUNTDOWN, START.plusSeconds(90)),
+                        new Write(GAME, GameState.LIVE, START.plusSeconds(95)));
     }
 
     @Test
     @DisplayName("A refused compare-and-set doesn't stop later writes")
     void refusedWriteDoesNotStopLaterOnes() {
         writer.release.countDown();
-        recorder.record(GAME, GameState.LOBBY, GameState.LIVE); // refused: LOBBY can't become LIVE
-        recorder.record(GAME, GameState.CREATED, GameState.LOBBY);
+        recorder.record(GAME, GameState.LIVE); // refused: the row is already past it
+        recorder.record(GAME, GameState.LOBBY);
         recorder.awaitWrites();
 
         assertThat(writer.writes).hasSize(2);
     }
 
-    private record Write(UUID gameId, GameState expected, GameState next, Instant at) {}
+    private record Write(UUID gameId, GameState next, Instant at) {}
 
-    /** Holds the first write until the test releases it, keeps every write, and refuses LOBBY to LIVE. */
+    /** Holds the first write until the test releases it, keeps every write, and refuses LIVE, as for a row already past it. */
     private static final class BlockingWriter implements GameRowWriter {
 
         final List<Write> writes = new CopyOnWriteArrayList<>();
@@ -75,15 +75,15 @@ class GameStateRecorderTest {
         final CountDownLatch release = new CountDownLatch(1);
 
         @Override
-        public boolean recordState(UUID gameId, GameState expected, GameState next, Instant at) {
-            writes.add(new Write(gameId, expected, next, at));
+        public boolean recordState(UUID gameId, GameState next, Instant at) {
+            writes.add(new Write(gameId, next, at));
             started.countDown();
             try {
                 release.await();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            return !(expected == GameState.LOBBY && next == GameState.LIVE);
+            return next != GameState.LIVE;
         }
     }
 }

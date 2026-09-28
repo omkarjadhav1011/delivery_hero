@@ -90,7 +90,7 @@ public class StompEventListener implements ExecutorChannelInterceptor {
                 handler instanceof SimpleBrokerMessageHandler
                         && destination.equals(DestinationPolicy.screenTopic(projector.gameId()));
             case AdminPrincipal admin ->
-                handler instanceof SimpleBrokerMessageHandler && destination.endsWith("/admin");
+                handler instanceof SimpleBrokerMessageHandler && DestinationPolicy.adminTopicGame(destination) != null;
         };
         if (registered) {
             subscriptionConfirmed(principal, accessor.getSessionId(), destination);
@@ -104,7 +104,9 @@ public class StompEventListener implements ExecutorChannelInterceptor {
                         new ClientSubscribed(connectionId, ClientRole.PLAYER, player.playerId(), null);
                     case ProjectorPrincipal projector ->
                         new ClientSubscribed(connectionId, ClientRole.PROJECTOR, null, projector.gameId());
-                    case AdminPrincipal admin -> new ClientSubscribed(connectionId, ClientRole.ADMIN, null, null);
+                    case AdminPrincipal admin ->
+                        new ClientSubscribed(
+                                connectionId, ClientRole.ADMIN, null, DestinationPolicy.adminTopicGame(destination));
                 });
         currentState.forSubscriber(principal, destination).ifPresent(state -> {
             if (principal instanceof PlayerPrincipal) {

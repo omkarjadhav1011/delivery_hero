@@ -20,10 +20,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import app.deliveryhero.broadcast.Broadcaster;
 import app.deliveryhero.broadcast.GameEndedMessage;
 import app.deliveryhero.broadcast.GameStateMessage;
+import app.deliveryhero.broadcast.LiveStatsMessage;
 import app.deliveryhero.broadcast.ScreenStateMessage;
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
+import app.deliveryhero.common.Phase;
 import app.deliveryhero.common.Role;
 import app.deliveryhero.common.TaskKind;
 import app.deliveryhero.common.TaskType;
@@ -36,8 +38,11 @@ import app.deliveryhero.engine.command.ClientRole;
 import app.deliveryhero.engine.command.ClientSubscribed;
 import app.deliveryhero.engine.command.Discard;
 import app.deliveryhero.engine.command.EndPractice;
+import app.deliveryhero.engine.command.GetHostView;
 import app.deliveryhero.engine.command.GetStatus;
+import app.deliveryhero.engine.command.HostAction;
 import app.deliveryhero.engine.command.HostCommand;
+import app.deliveryhero.engine.command.HostView;
 import app.deliveryhero.engine.command.Join;
 import app.deliveryhero.engine.command.JoinResult;
 import app.deliveryhero.engine.command.NextStep;
@@ -284,7 +289,9 @@ class GameSessionTest {
 
         session.enqueue(command(action, reply));
 
-        assertThat(reply.get(2, TimeUnit.SECONDS)).isEqualTo(ActionResult.unchanged(state));
+        assertThat(reply.get(2, TimeUnit.SECONDS))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(state, false);
         assertThat(status().state()).isEqualTo(state);
     }
 
@@ -337,7 +344,9 @@ class GameSessionTest {
     @Test
     @DisplayName("AC-EN05-02 a 5-minute round moves to Frozen at 4:30 and to Ended at 5:00")
     void fiveMinuteRoundFreezesAndEnds() throws Exception {
-        assertThat(startRound(roundOf(300, INCIDENT))).isEqualTo(ActionResult.changed(GameState.COUNTDOWN));
+        assertThat(startRound(roundOf(300, INCIDENT)))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.COUNTDOWN, true);
 
         assertThat(after(Duration.ofSeconds(5))).isEqualTo(GameState.LIVE);
         assertThat(after(Duration.ofSeconds(269))).isEqualTo(GameState.LIVE);
@@ -369,7 +378,9 @@ class GameSessionTest {
     @Test
     @DisplayName("Starting the round needs a player in the lobby (LLD section 5.4.3)")
     void startRoundNeedsAPlayer() throws Exception {
-        assertThat(host(StartRound::new)).isEqualTo(ActionResult.unchanged(GameState.LOBBY));
+        assertThat(host(StartRound::new))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.LOBBY, false);
         assertThat(scheduler.pending()).isZero();
         verifyNoInteractions(recorder);
     }
@@ -407,9 +418,11 @@ class GameSessionTest {
         session.close();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
-        assertThat(host(OpenLobby::new)).isEqualTo(ActionResult.changed(GameState.LOBBY));
+        assertThat(host(OpenLobby::new))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.LOBBY, true);
 
-        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        verify(recorder).record(TestData.GAME_ID, GameState.LOBBY);
         assertThat(scheduler.pending()).isEqualTo(1);
         assertThat(after(Duration.ofMillis(500))).isEqualTo(GameState.LOBBY);
         assertThat(scheduler.pending()).as("FLUSH sets itself again").isEqualTo(1);
@@ -422,10 +435,10 @@ class GameSessionTest {
         after(Duration.ofSeconds(305));
 
         InOrder inOrder = inOrder(recorder);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LOBBY, GameState.COUNTDOWN);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.COUNTDOWN, GameState.LIVE);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LIVE, GameState.FROZEN);
-        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.FROZEN, GameState.ENDED);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.COUNTDOWN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.LIVE);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.FROZEN);
+        inOrder.verify(recorder).record(TestData.GAME_ID, GameState.ENDED);
         assertThat(sentToPhones())
                 .extracting(message -> ((GameStateMessage) message).state())
                 .containsExactly(GameState.COUNTDOWN, GameState.LIVE, GameState.FROZEN, GameState.ENDED);
@@ -437,7 +450,8 @@ class GameSessionTest {
         startRound(roundOf(300, INCIDENT));
 
         assertThat(host(reply -> new Discard(EndReason.CANCELLED, reply)))
-                .isEqualTo(ActionResult.changed(GameState.CANCELLED));
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.CANCELLED, true);
 
         assertThat(scheduler.pending()).isZero();
         assertThat(sentToPhones()).last().isEqualTo(GameEndedMessage.of(clock.millis(), EndReason.CANCELLED));
@@ -457,7 +471,8 @@ class GameSessionTest {
         session = newSession(new RecordingTokens(), state);
 
         assertThat(host(reply -> new Discard(EndReason.CANCELLED, reply)))
-                .isEqualTo(ActionResult.changed(GameState.CANCELLED));
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.CANCELLED, true);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -469,7 +484,9 @@ class GameSessionTest {
         session.close();
         session = newSession(new RecordingTokens(), state);
 
-        assertThat(host(reply -> new Discard(EndReason.FINISHED, reply))).isEqualTo(ActionResult.unchanged(state));
+        assertThat(host(reply -> new Discard(EndReason.FINISHED, reply)))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(state, false);
     }
 
     @Test
@@ -479,7 +496,9 @@ class GameSessionTest {
                 .when(messaging)
                 .convertAndSendToUser(anyString(), anyString(), any(Object.class));
 
-        assertThat(startRound(roundOf(180, null))).isEqualTo(ActionResult.changed(GameState.COUNTDOWN));
+        assertThat(startRound(roundOf(180, null)))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.COUNTDOWN, true);
 
         assertThat(after(Duration.ofSeconds(5))).isEqualTo(GameState.LIVE);
     }
@@ -498,7 +517,8 @@ class GameSessionTest {
                 .convertAndSend(SCREEN, (Object) ended);
 
         assertThat(host(reply -> new Discard(EndReason.FINISHED, reply)))
-                .isEqualTo(ActionResult.changed(GameState.CLOSED));
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.CLOSED, true);
 
         assertThat(registered).isEmpty();
         assertThat(revokedProjectors).containsExactly(TestData.GAME_ID);
@@ -531,10 +551,80 @@ class GameSessionTest {
         session.close();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
-        assertThat(host(OpenLobby::new)).isEqualTo(ActionResult.changed(GameState.LOBBY));
+        assertThat(host(OpenLobby::new))
+                .extracting(ActionResult::state, ActionResult::changed)
+                .containsExactly(GameState.LOBBY, true);
 
-        verify(recorder).record(TestData.GAME_ID, GameState.CREATED, GameState.LOBBY);
+        verify(recorder).record(TestData.GAME_ID, GameState.LOBBY);
         assertThat(status().state()).isEqualTo(GameState.LOBBY);
+    }
+
+    @Test
+    @DisplayName("AC-US60-01 lobby: \"Start round\" is offered once a player has joined, and the reply lists it too")
+    void startRoundOfferedWithAPlayer() throws Exception {
+        assertThat(hostView().allowedActions())
+                .containsExactly(HostAction.RENAME_PLAYER, HostAction.REMOVE_PLAYER, HostAction.CANCEL);
+
+        join("Priya");
+
+        assertThat(hostView())
+                .isEqualTo(new HostView(
+                        GameState.LOBBY,
+                        List.of(
+                                HostAction.START_ROUND,
+                                HostAction.RENAME_PLAYER,
+                                HostAction.REMOVE_PLAYER,
+                                HostAction.CANCEL)));
+        assertThat(host(StartRound::new))
+                .isEqualTo(new ActionResult(GameState.COUNTDOWN, true, List.of(HostAction.CANCEL)));
+    }
+
+    @Test
+    @DisplayName("AC-US60-01 lobby: \"Start practice\" is offered only when the plan has practice tasks")
+    void startPracticeOfferedWithPracticeTasks() throws Exception {
+        session.close();
+        session = newSession(
+                new RecordingTokens(),
+                GameState.LOBBY,
+                new GameSnapshot(
+                        GameSnapshot.FORMAT_VERSION,
+                        "Practice plan",
+                        180,
+                        Map.of(),
+                        List.of(INCIDENT),
+                        null,
+                        Map.of()));
+
+        assertThat(hostView().allowedActions())
+                .containsExactly(
+                        HostAction.START_PRACTICE,
+                        HostAction.RENAME_PLAYER,
+                        HostAction.REMOVE_PLAYER,
+                        HostAction.CANCEL);
+    }
+
+    @Test
+    @DisplayName("A host action whose request stopped waiting is dropped, not applied later")
+    void cancelledHostActionIsDropped() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+        CompletableFuture<ActionResult> reply = new CompletableFuture<>();
+        reply.cancel(false);
+
+        session.enqueue(new OpenLobby(reply));
+
+        assertThat(hostView().state()).isEqualTo(GameState.CREATED);
+        verifyNoInteractions(recorder);
+    }
+
+    @Test
+    @DisplayName("AC-US60-04 a refused action replies with the current state and its actions, so the panel redraws")
+    void refusedActionRepliesWithTheCurrentView() throws Exception {
+        join("Priya");
+        host(StartRound::new);
+
+        assertThat(host(StartPractice::new))
+                .isEqualTo(new ActionResult(GameState.COUNTDOWN, false, List.of(HostAction.CANCEL)));
     }
 
     @Test
@@ -589,10 +679,107 @@ class GameSessionTest {
         assertThat(scheduler.pending()).as("rescheduled").isEqualTo(1);
         after(BATCH_INTERVAL);
 
-        verify(messaging, times(1)).convertAndSend(anyString(), any(Object.class));
+        verify(messaging, times(1)).convertAndSend(eq(SCREEN), any(Object.class));
     }
 
     private static final String SCREEN = "/topic/games/" + TestData.GAME_ID + "/screen";
+    private static final String ADMIN = "/topic/games/" + TestData.GAME_ID + "/admin";
+
+    @Test
+    @DisplayName("AC-US60-05 live stats: every flush sends LIVE_STATS to the admin topic, even with nothing new")
+    void everyFlushSendsLiveStats() throws Exception {
+        session.startBatches();
+        join("Priya");
+        join("Sam");
+
+        after(BATCH_INTERVAL);
+        after(BATCH_INTERVAL);
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging, times(2)).convertAndSend(eq(ADMIN), sent.capture());
+        LiveStatsMessage stats = (LiveStatsMessage) sent.getValue();
+        assertThat(stats.type()).isEqualTo("LIVE_STATS");
+        assertThat(stats.state()).isEqualTo(GameState.LOBBY);
+        assertThat(stats.round()).isNull();
+        assertThat(stats.players()).isEqualTo(new LiveStatsMessage.Players(2, 2, 0));
+        assertThat(stats.incident()).isEqualTo(LiveStatsMessage.IncidentStatus.NONE);
+        assertThat(stats.allowedActions())
+                .containsExactly(
+                        HostAction.START_ROUND, HostAction.RENAME_PLAYER, HostAction.REMOVE_PLAYER, HostAction.CANCEL);
+    }
+
+    @Test
+    @DisplayName("AC-US60-05 live stats: from the countdown on they carry the round's start and end, the scored tasks"
+            + " and the incident's status, never its moment")
+    void liveStatsDuringTheRound() throws Exception {
+        GameSnapshot.Task scored = new GameSnapshot.Task(
+                "dev-dev-11",
+                Role.DEVELOPER,
+                TaskKind.SCORED,
+                TaskType.MULTIPLE_CHOICE,
+                "Which fix?",
+                null,
+                20_000,
+                INCIDENT.content(),
+                null);
+        GameSnapshot snapshot = new GameSnapshot(
+                GameSnapshot.FORMAT_VERSION,
+                "Default",
+                300,
+                Map.of(),
+                List.of(),
+                INCIDENT,
+                Map.of(Phase.DEVELOPMENT, List.of(scored)));
+        startRound(snapshot);
+        session.startBatches();
+        clearInvocations(messaging);
+
+        after(BATCH_INTERVAL);
+
+        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+        verify(messaging).convertAndSend(eq(ADMIN), sent.capture());
+        LiveStatsMessage stats = (LiveStatsMessage) sent.getValue();
+        Instant start = Instant.parse("2026-10-21T10:00:05Z");
+        assertThat(stats.state()).isEqualTo(GameState.COUNTDOWN);
+        assertThat(stats.round())
+                .isEqualTo(new LiveStatsMessage.Round(
+                        start.toEpochMilli(), start.plusSeconds(300).toEpochMilli()));
+        assertThat(stats.incident()).isEqualTo(LiveStatsMessage.IncidentStatus.PENDING);
+        assertThat(stats.tasks()).containsExactly(new LiveStatsMessage.TaskStats("dev-dev-11", 0, 0, false));
+        assertThat(stats.allowedActions()).containsExactly(HostAction.CANCEL);
+        assertThat(stats.toString()).doesNotContain("incidentAt");
+    }
+
+    @Test
+    @DisplayName(
+            "An admin's subscription to this game's topic gets LIVE_STATS at once, before any flush (DEC-146); another game's is ignored")
+    void adminSubscriptionGetsLiveStats() throws Exception {
+        session.close();
+        session = newSession(new RecordingTokens(), GameState.CREATED);
+
+        session.enqueue(new ClientSubscribed(
+                "a0", ClientRole.ADMIN, null, UUID.fromString("00000000-0000-0000-0000-0000000000c9")));
+        status();
+        verify(messaging, never()).convertAndSend(anyString(), any(Object.class));
+
+        session.enqueue(new ClientSubscribed("a1", ClientRole.ADMIN, null, TestData.GAME_ID));
+        status();
+
+        verify(messaging)
+                .convertAndSend(
+                        eq(ADMIN),
+                        argThat((Object message) -> message instanceof LiveStatsMessage stats
+                                && stats.state() == GameState.CREATED
+                                && stats.allowedActions().equals(List.of(HostAction.OPEN_LOBBY, HostAction.CANCEL))));
+    }
+
+    @Test
+    @DisplayName("Ending the game tells the admin panels too, with GAME_ENDED")
+    void discardTellsTheAdmins() throws Exception {
+        host(reply -> new Discard(EndReason.CANCELLED, reply));
+
+        verify(messaging).convertAndSend(eq(ADMIN), any(GameEndedMessage.class));
+    }
 
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {
         return Objects.requireNonNull(HOST_ACTIONS.get(action), action).apply(reply);
@@ -601,6 +788,12 @@ class GameSessionTest {
     private GetStatus.Status status() throws Exception {
         CompletableFuture<GetStatus.Status> reply = new CompletableFuture<>();
         assertThat(session.enqueue(new GetStatus(reply))).isTrue();
+        return reply.get(2, TimeUnit.SECONDS);
+    }
+
+    private HostView hostView() throws Exception {
+        CompletableFuture<HostView> reply = new CompletableFuture<>();
+        assertThat(session.enqueue(new GetHostView(reply))).isTrue();
         return reply.get(2, TimeUnit.SECONDS);
     }
 

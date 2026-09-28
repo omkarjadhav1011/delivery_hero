@@ -6,25 +6,33 @@ import { ApiError } from "@/api/http";
 import { copy } from "@/copy";
 import { AdminShell } from "@/admin/components/AdminShell";
 import { fieldClass } from "@/admin/components/FieldErrors";
-import { OpenGame } from "@/admin/components/OpenGame";
+import { LiveControl } from "@/admin/components/LiveControl";
 import { PlanStatus } from "@/admin/components/PlanStatus";
+import { useAdminStore } from "@/admin/store";
+import type { UseStompOptions } from "@/realtime/useStomp";
 import { ArcadeButton } from "@/ui/ArcadeButton";
 import { PixelIcon } from "@/ui/PixelIcon";
-import type { GameView, RunPlanSummary, ValidationIssue } from "@/types/dto";
+import type { RunPlanSummary, ValidationIssue } from "@/types/dto";
 
 const text = copy.admin.newGameScreen;
 
 type Loaded =
   | { status: "loading" }
   | { status: "failed" }
-  | { status: "ready"; plans: readonly RunPlanSummary[]; game: GameView | null };
+  | { status: "ready"; plans: readonly RunPlanSummary[] };
 
 type Refusal = { message: string; reasons: readonly ValidationIssue[] } | null;
 
 // A-08 New game (document 12, section 9; FR-079): pick a run plan and create the game, then show its code, join
-// link, QR code and projector link. While a game is open it's shown instead of the form (DEC-101); the live
-// controls around it are A-09 (US-60). Test games are US-63.
-export function NewGameScreen() {
+// link, QR code and projector link. While a game is open, A-09 Live control is shown instead of the form (DEC-101,
+// US-60). Test games are US-63.
+export function NewGameScreen({
+  createClient,
+}: {
+  createClient?: UseStompOptions["createClient"];
+}) {
+  const game = useAdminStore((state) => state.game);
+  const setGame = useAdminStore((state) => state.setGame);
   const [loaded, setLoaded] = useState<Loaded>({ status: "loading" });
   const [chosen, setChosen] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -36,7 +44,8 @@ export function NewGameScreen() {
     Promise.all([listRunPlans(), getCurrentGame()]).then(
       ([plans, game]) => {
         if (!cancelled) {
-          setLoaded({ status: "ready", plans, game });
+          setGame(game);
+          setLoaded({ status: "ready", plans });
         }
       },
       () => {
@@ -48,7 +57,7 @@ export function NewGameScreen() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setGame]);
 
   if (loaded.status !== "ready") {
     return (
@@ -60,7 +69,7 @@ export function NewGameScreen() {
     );
   }
 
-  const { plans, game } = loaded;
+  const { plans } = loaded;
   const plan = plans.find((candidate) => candidate.id === chosen) ?? plans[0];
 
   async function create(runPlanId: string) {
@@ -68,7 +77,7 @@ export function NewGameScreen() {
     setRefusal(null);
     try {
       const created = await createGame(runPlanId);
-      setLoaded({ status: "ready", plans, game: created });
+      setGame(created);
     } catch (error) {
       await refused(error);
     } finally {
@@ -81,7 +90,7 @@ export function NewGameScreen() {
       // Someone else created a game first: show theirs, as the link to it (AC-US59-03)
       setRefusal({ message: text.anotherGameOpen, reasons: [] });
       try {
-        setLoaded({ status: "ready", plans, game: await getCurrentGame() });
+        setGame(await getCurrentGame());
       } catch {
         setRefusal({ message: text.failed, reasons: [] });
       }
@@ -169,7 +178,7 @@ export function NewGameScreen() {
             </div>
           </div>
         ) : (
-          <OpenGame game={game} />
+          <LiveControl createClient={createClient} />
         )}
       </div>
     </AdminShell>

@@ -2,7 +2,6 @@ package app.deliveryhero.api.admin;
 
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.DeliveryHeroException;
-import app.deliveryhero.common.GameState;
 import app.deliveryhero.config.SiteProperties;
 import app.deliveryhero.content.Issue;
 import app.deliveryhero.lifecycle.GameDetails;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** The game endpoints (API section 7.7). Test games come with US-63, host actions with US-60. */
+/** The game endpoints (API section 7.7). Test games come with US-63; host actions are {@link HostActionController}. */
 @RestController
 @RequestMapping("/api/admin/games")
 class GameController {
@@ -68,14 +67,6 @@ class GameController {
                 site.projectorUrl(game.projectorKey()),
                 game.createdAt(),
                 game.liveDetailsAvailable(),
-                allowedActions(game.state()));
-    }
-
-    /** API section 7.7's actions for a game in CREATED. TODO(US-60): one source for every state (S1-07 T1). */
-    private static List<String> allowedActions(GameState state) {
-        return switch (state) {
-            case CREATED -> List.of("OPEN_LOBBY", "CANCEL");
-            case LOBBY, PRACTICE, COUNTDOWN, LIVE, FROZEN, ENDED, REVEAL, RESULTS, CLOSED, CANCELLED -> List.of();
-        };
+                game.allowedActions());
     }
 }
