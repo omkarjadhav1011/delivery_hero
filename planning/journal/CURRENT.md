@@ -4,18 +4,18 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 
 | Field | Value |
 |---|---|
-| State | idle |
-| Session |  |
-| Subplan |  |
-| Branch |  |
-| Start commit |  |
-| Last commit |  |
-| Step |  |
+| State | active |
+| Session | 2026-09-27-1319 |
+| Subplan | S1-07 |
+| Branch | main |
+| Start commit | 47fd51c |
+| Last commit | 47fd51c |
+| Step | implement |
 | Task |  |
 | Attempts | 0 |
-| Started |  |
-| Updated |  |
-| Next action |  |
+| Started | 2026-09-27T13:19 |
+| Updated | 2026-09-28T08:34 |
+| Next action | T1: HostActionsIT AC-US60-01 over every state |
 
 ## Completed tasks
 
