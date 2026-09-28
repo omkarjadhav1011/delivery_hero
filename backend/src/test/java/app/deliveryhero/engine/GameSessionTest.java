@@ -149,8 +149,8 @@ class GameSessionTest {
     private static final Duration BATCH_INTERVAL = Duration.ofMillis(500);
 
     @AfterEach
-    void close() {
-        session.close();
+    void close() throws InterruptedException {
+        closeSession();
     }
 
     @Test
@@ -195,7 +195,7 @@ class GameSessionTest {
     @Test
     @DisplayName("A command that fails answers its caller at once, and the session goes on to the next command")
     void failedCommandAnswersAtOnce() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new PlayerTokens() {
             @Override
             public void register(String tokenHash, UUID gameId, UUID playerId) {
@@ -219,8 +219,8 @@ class GameSessionTest {
 
     @Test
     @DisplayName("A command for a discarded session is dropped, not thrown at the caller")
-    void closedSessionDropsCommands() {
-        session.close();
+    void closedSessionDropsCommands() throws Exception {
+        closeSession();
 
         assertThat(session.enqueue(new GetStatus(new CompletableFuture<>()))).isFalse();
     }
@@ -283,7 +283,7 @@ class GameSessionTest {
     @MethodSource("disallowedStateAndHostAction")
     @DisplayName("AC-EN05-01 a host action not allowed in the state doesn't change the state")
     void disallowedActionChangesNothing(GameState state, String action) throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), state);
         CompletableFuture<ActionResult> reply = new CompletableFuture<>();
 
@@ -316,7 +316,7 @@ class GameSessionTest {
 
     /** A lobby with one player, whose round the host has just started. */
     private ActionResult startRound(GameSnapshot snapshot) throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.LOBBY, snapshot);
         join("Priya");
         return host(StartRound::new);
@@ -388,7 +388,7 @@ class GameSessionTest {
     @Test
     @DisplayName("A timer that no longer applies to the state changes nothing")
     void staleTimerChangesNothing() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.ENDED);
 
         session.enqueue(new TimerFired(TimerKey.of(TimerType.ROUND_START)));
@@ -415,7 +415,7 @@ class GameSessionTest {
     @Test
     @DisplayName("Opening the lobby moves CREATED to LOBBY, records it and starts the 500 ms batches (FLUSH)")
     void openLobby() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
         assertThat(host(OpenLobby::new))
@@ -467,7 +467,7 @@ class GameSessionTest {
             mode = EnumSource.Mode.EXCLUDE)
     @DisplayName("Discard ends the game in any state it reaches, as the lifecycle has already recorded the end")
     void discardInAnyOpenState(GameState state) throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), state);
 
         assertThat(host(reply -> new Discard(EndReason.CANCELLED, reply)))
@@ -481,7 +481,7 @@ class GameSessionTest {
             names = {"CLOSED", "CANCELLED"})
     @DisplayName("A game that has already ended stays as it is when discarded again")
     void discardAfterTheEnd(GameState state) throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), state);
 
         assertThat(host(reply -> new Discard(EndReason.FINISHED, reply)))
@@ -548,7 +548,7 @@ class GameSessionTest {
         doThrow(new MessageDeliveryException("broker down"))
                 .when(messaging)
                 .convertAndSend(eq(SCREEN), any(Object.class));
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
         assertThat(host(OpenLobby::new))
@@ -582,7 +582,7 @@ class GameSessionTest {
     @Test
     @DisplayName("AC-US60-01 lobby: \"Start practice\" is offered only when the plan has practice tasks")
     void startPracticeOfferedWithPracticeTasks() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(
                 new RecordingTokens(),
                 GameState.LOBBY,
@@ -606,7 +606,7 @@ class GameSessionTest {
     @Test
     @DisplayName("A host action whose request stopped waiting is dropped, not applied later")
     void cancelledHostActionIsDropped() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.CREATED);
         CompletableFuture<ActionResult> reply = new CompletableFuture<>();
         reply.cancel(false);
@@ -653,7 +653,7 @@ class GameSessionTest {
     @Test
     @DisplayName("Opening the lobby sends the projector its SCREEN_STATE again, now in LOBBY (DEC-146)")
     void openLobbySendsTheScreenState() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
         host(OpenLobby::new);
@@ -754,7 +754,7 @@ class GameSessionTest {
     @DisplayName(
             "An admin's subscription to this game's topic gets LIVE_STATS at once, before any flush (DEC-146); another game's is ignored")
     void adminSubscriptionGetsLiveStats() throws Exception {
-        session.close();
+        closeSession();
         session = newSession(new RecordingTokens(), GameState.CREATED);
 
         session.enqueue(new ClientSubscribed(
@@ -783,6 +783,15 @@ class GameSessionTest {
 
     private static HostCommand command(String action, CompletableFuture<ActionResult> reply) {
         return Objects.requireNonNull(HOST_ACTIONS.get(action), action).apply(reply);
+    }
+
+    /**
+     * Closes the session and waits until it has cancelled its timers, which are kept by game id: a session started
+     * next for the same game would otherwise lose its own.
+     */
+    private void closeSession() throws InterruptedException {
+        session.close();
+        assertThat(session.awaitClosed(Duration.ofSeconds(2))).isTrue();
     }
 
     private GetStatus.Status status() throws Exception {
