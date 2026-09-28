@@ -4,7 +4,10 @@ import app.deliveryhero.common.GameState;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Writes to a game row, called only on the state recorder's thread (document 10, section 11; DB-05). */
+/**
+ * Writes to a game row: on the state recorder's thread (document 10, section 11; DB-05), and for the lifecycle's cancel, as one
+ * committed update (LLD section 5.8).
+ */
 interface GameRowWriter {
 
     /**

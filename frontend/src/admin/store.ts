@@ -38,6 +38,10 @@ export function applyActionResult(state: AdminState, response: HostActionRespons
   if (state.game === null) {
     return state;
   }
+  if (response.state === "CANCELLED" || response.state === "CLOSED") {
+    // The game is over: the New game screen comes back, as on GAME_ENDED
+    return initialAdminState();
+  }
   return {
     ...state,
     game: { ...state.game, state: response.state, allowedActions: response.allowedActions },

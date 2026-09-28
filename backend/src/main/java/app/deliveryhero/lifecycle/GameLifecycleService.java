@@ -2,6 +2,7 @@ package app.deliveryhero.lifecycle;
 
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.DeliveryHeroException;
+import app.deliveryhero.common.EndReason;
 import app.deliveryhero.common.GameState;
 import app.deliveryhero.common.Ids;
 import app.deliveryhero.common.TokenService;
@@ -17,12 +18,16 @@ import app.deliveryhero.realtime.CredentialRegistry;
 import app.deliveryhero.realtime.ProjectorPrincipal;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +38,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Creates games and reports the open one (LLD section 5.8). Closing, cancelling and cleanup come with US-62 to US-67. */
+/** Creates, reports and cancels the open game (LLD section 5.8). Closing and cleanup come with US-64 to US-67. */
 @Service
 public class GameLifecycleService {
 
@@ -50,10 +55,14 @@ public class GameLifecycleService {
     /** The partial unique index that allows one open game (document 10, section 11). */
     private static final String ONE_OPEN_GAME_INDEX = "games_one_open";
 
+    /** How long cancelling waits for the session to tell the phones and end, as for a join (LLD section 5.4.10). */
+    private static final Duration DISCARD_WAIT = Duration.ofSeconds(2);
+
     private final GameRepository games;
     private final RunPlanService plans;
     private final ContentValidator validator;
     private final SnapshotFactory snapshots;
+    private final GameRowWriter rows;
     private final GameEngine engine;
     private final CredentialRegistry credentials;
     private final TokenService tokens;
@@ -66,6 +75,7 @@ public class GameLifecycleService {
             RunPlanService plans,
             ContentValidator validator,
             SnapshotFactory snapshots,
+            GameRowWriter rows,
             GameEngine engine,
             CredentialRegistry credentials,
             TokenService tokens,
@@ -76,6 +86,7 @@ public class GameLifecycleService {
         this.plans = plans;
         this.validator = validator;
         this.snapshots = snapshots;
+        this.rows = rows;
         this.engine = engine;
         this.credentials = credentials;
         this.tokens = tokens;
@@ -139,6 +150,36 @@ public class GameLifecycleService {
             }
         });
         return details(game);
+    }
+
+    /**
+     * Cancels a game before Results (DEC-87, LLD section 5.8). One committed update makes the row CANCELLED with its
+     * projector key cleared; then the key stops working, and the session sends GAME_ENDED and is dropped. It waits up
+     * to {@link #DISCARD_WAIT} for that, so the caller's reply comes after the phones heard. The caller checks that the
+     * session offers CANCEL, so a game in Results is never cancelled. Returns false when the row had already finished.
+     */
+    public boolean cancel(UUID gameId) {
+        if (!rows.recordState(gameId, GameState.CANCELLED, clock.instant().truncatedTo(ChronoUnit.MICROS))) {
+            return false;
+        }
+        credentials.revokeProjector(new ProjectorPrincipal(gameId));
+        try {
+            engine.discard(gameId, EndReason.CANCELLED).get(DISCARD_WAIT.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
+            // The row is cancelled either way, and the engine drops the session whatever the command did
+            log.atWarn()
+                    .addKeyValue("event", "DISCARD_FAILED")
+                    .addKeyValue("gameId", gameId)
+                    .setCause(e)
+                    .log("Cancelled game's session didn't end in time");
+        }
+        log.atInfo()
+                .addKeyValue("event", "GAME_CANCELLED")
+                .addKeyValue("gameId", gameId)
+                .log("Game cancelled");
+        return true;
     }
 
     /**

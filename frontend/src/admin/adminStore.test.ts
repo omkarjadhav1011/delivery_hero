@@ -72,6 +72,18 @@ describe("admin store", () => {
     expect(state.game?.allowedActions).toEqual(["CANCEL"]);
   });
 
+  it("a cancelled or closed game in the action response leaves no open game", () => {
+    for (const ended of ["CANCELLED", "CLOSED"] as const) {
+      const state = applyActionResult(applyGame(initialAdminState(), GAME), {
+        state: ended,
+        changed: true,
+        allowedActions: [],
+      });
+
+      expect(state).toEqual(initialAdminState());
+    }
+  });
+
   it("GAME_ENDED leaves no open game, so the New game screen comes back", () => {
     const live = applyAdminMessage(applyGame(initialAdminState(), GAME), liveStats());
 

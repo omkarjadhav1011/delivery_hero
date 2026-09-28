@@ -267,15 +267,59 @@ class HostActionsIT {
     }
 
     @Test
-    @DisplayName("A confirmed CANCEL changes nothing until cancelling is built (US-62), and says so with 409")
-    void confirmedCancelIsNotBuiltYet() throws Exception {
+    @DisplayName("AC-US62-01 cancel (API): a confirmed CANCEL ends the game; the row is CANCELLED with no key, no game"
+            + " is open, the projector key stops working, and a new game can be created")
+    void confirmedCancelEndsTheGame() throws Exception {
         UUID game = openLobbyWithPriya();
+        String key =
+                jdbc.sql("SELECT projector_key FROM games").query(String.class).single();
 
         MvcTestResult cancel = action(game, Map.of("action", "CANCEL", "confirm", true));
 
-        assertThat(cancel).hasStatus(HttpStatus.CONFLICT);
-        assertThat(body(cancel).get("currentState").asString()).isEqualTo("LOBBY");
-        assertThat(engine.hostView(game).map(HostView::state)).contains(GameState.LOBBY);
+        assertThat(cancel).hasStatus(HttpStatus.OK);
+        JsonNode body = body(cancel);
+        assertThat(body.get("state").asString()).isEqualTo("CANCELLED");
+        assertThat(body.get("changed").asBoolean()).isTrue();
+        assertThat(body.get("allowedActions")).isEmpty();
+        assertThat(jdbc.sql("SELECT state = 'CANCELLED' AND cancelled_at IS NOT NULL AND projector_key IS NULL"
+                                + " FROM games")
+                        .query(Boolean.class)
+                        .single())
+                .isTrue();
+        assertThat(mvc.get().uri("/api/admin/games/current").with(ADMIN).exchange())
+                .hasStatus(HttpStatus.NO_CONTENT);
+        assertThat(credentials.projectorByKey(key)).isEmpty();
+        assertThat(engine.find(game)).isEmpty();
+        assertThat(lifecycle.create(planId("quick-3min"), false, 0).state()).isEqualTo(GameState.CREATED);
+    }
+
+    @Test
+    @DisplayName("A second confirmed CANCEL, or one for a game already ended, is 404: there is no open game")
+    void cancelTwiceIsNotFound() throws Exception {
+        UUID game = openLobbyWithPriya();
+        assertThat(action(game, Map.of("action", "CANCEL", "confirm", true))).hasStatus(HttpStatus.OK);
+
+        assertThat(action(game, Map.of("action", "CANCEL", "confirm", true))).hasStatus(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("AC-US62-03 not after results: a confirmed CANCEL in Results is 409 and the game stays in Results;"
+            + " a confirmed CLOSE is 409 until closing is built (US-65)")
+    void noCancelInResults() throws Exception {
+        GameDetails game = lifecycle.create(planId("quick-3min"), false, 0);
+        GameSnapshot snapshot = engine.find(game.id()).orElseThrow().snapshot();
+        engine.drop(game.id());
+        engine.create(game.id(), game.code(), GameState.RESULTS, false, snapshot);
+        moveRow(game.id(), GameState.RESULTS);
+
+        for (String hostAction : List.of("CANCEL", "CLOSE")) {
+            MvcTestResult refused = action(game.id(), Map.of("action", hostAction, "confirm", true));
+
+            assertThat(refused).as(hostAction).hasStatus(HttpStatus.CONFLICT);
+            assertThat(body(refused).get("currentState").asString()).isEqualTo("RESULTS");
+        }
+        assertThat(jdbc.sql("SELECT state FROM games").query(String.class).single())
+                .isEqualTo("RESULTS");
     }
 
     @Test

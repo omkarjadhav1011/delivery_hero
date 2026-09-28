@@ -2,6 +2,7 @@ package app.deliveryhero.lifecycle;
 
 import app.deliveryhero.common.ApiErrorCode;
 import app.deliveryhero.common.DeliveryHeroException;
+import app.deliveryhero.common.GameState;
 import app.deliveryhero.content.Issue;
 import app.deliveryhero.engine.GameEngine;
 import app.deliveryhero.engine.GameSession;
@@ -86,6 +87,9 @@ public class HostActions {
         if ((action == HostAction.CANCEL || action == HostAction.CLOSE) && !request.confirm()) {
             throw new DeliveryHeroException(ApiErrorCode.CONFIRMATION_REQUIRED);
         }
+        if (action == HostAction.CANCEL) {
+            return cancel(game);
+        }
         CompletableFuture<ActionResult> reply = new CompletableFuture<>();
         @Nullable HostCommand command = command(request, reply);
         GameSession session = engine.find(gameId).orElse(null);
@@ -105,6 +109,23 @@ public class HostActions {
         return result;
     }
 
+    /**
+     * Cancels the game while its session offers CANCEL, so never in Results (DEC-87): the lifecycle records it and
+     * then ends the session (LLD section 5.8).
+     */
+    private ActionResult cancel(GameDetails game) {
+        if (!game.allowedActions().contains(HostAction.CANCEL) || !lifecycle.cancel(game.id())) {
+            throw DeliveryHeroException.notAllowedNow(game.state());
+        }
+        log.atInfo()
+                .addKeyValue("event", "HOST_ACTION")
+                .addKeyValue("gameId", game.id())
+                .addKeyValue("action", HostAction.CANCEL)
+                .addKeyValue("state", GameState.CANCELLED)
+                .log("Host action applied");
+        return new ActionResult(GameState.CANCELLED, true, List.of());
+    }
+
     /** The session's command for the action, or null for one the session doesn't apply yet. */
     private static @Nullable HostCommand command(Request request, CompletableFuture<ActionResult> reply) {
         return switch (request.action()) {
@@ -119,9 +140,9 @@ public class HostActions {
             case RENAME_PLAYER ->
                 new RenamePlayer(required(request.playerId(), "playerId"), required(request.name(), "name"), reply);
             case REMOVE_PLAYER -> new RemovePlayer(required(request.playerId(), "playerId"), reply);
-            // TODO(US-62): GameLifecycleService.cancel records CANCELLED, then sends Discard (S2-23)
+            // The lifecycle ends the game: see cancel()
             case CANCEL -> null;
-            // TODO(US-66): GameLifecycleService.close records CLOSED, then sends Discard (S2-04)
+            // TODO(US-65): GameLifecycleService.close records CLOSED, then sends Discard (S2-04)
             case CLOSE -> null;
         };
     }

@@ -11,11 +11,11 @@ Written by `planning/scripts/journal.py`; format in `planning/CONVENTIONS.md`, s
 | Start commit | 47fd51c |
 | Last commit | 84e6f6e |
 | Step | test-first |
-| Task | T9 |
+| Task | T12 |
 | Attempts | 0 |
 | Started | 2026-09-27T13:19 |
-| Updated | 2026-09-28T09:30 |
-| Next action | join-and-lobby still passes with API fixtures |
+| Updated | 2026-09-28T09:32 |
+| Next action | HostActionsIT confirmed CANCEL |
 
 ## Completed tasks
 
